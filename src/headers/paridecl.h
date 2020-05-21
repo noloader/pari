@@ -2764,6 +2764,7 @@ GEN     bnrclassno(GEN bignf,GEN ideal);
 GEN     bnrclassno0(GEN A,GEN B,GEN C);
 GEN     bnrclassnolist(GEN bnf,GEN listes);
 GEN     bnrchar_primitive_raw(GEN bnr, GEN bnrc, GEN chi);
+GEN     bnrconductormod(GEN bnr, GEN H0, long flag, GEN MOD);
 GEN     bnrconductor0(GEN A, GEN B, GEN C, long flag);
 GEN     bnrconductor(GEN bnr, GEN H0, long flag);
 GEN     bnrconductor_i(GEN bnr, GEN H0, long flag);
@@ -4066,7 +4067,7 @@ GEN     padicfields(GEN p, long m, long d, long flag);
 /* kummer.c */
 
 GEN     bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec);
-GEN     rnfkummer(GEN bnr, GEN subgroup, long all, long prec);
+GEN     rnfkummer(GEN bnr, GEN subgroup, long prec);
 
 /* lfun.c */
 

@@ -1464,7 +1464,7 @@ contains(GEN H, GEN A)
  * if flag = 1: [[ideal,arch],[hm,cyc,gen],H']
  * if flag = 2: [[ideal,arch],newbnr,H'] */
 GEN
-bnrconductor_i(GEN bnr, GEN H0, long flag)
+bnrconductormod(GEN bnr, GEN H0, long flag, GEN MOD)
 {
   long j, k, l;
   GEN nf, bid, ideal, archp, bnrc, e2, e, cond, H;
@@ -1519,7 +1519,7 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
   else
   {
     long flag = lg(bnr_get_clgp(bnr)) == 4? nf_INIT | nf_GEN: nf_INIT;
-    bnrc = Buchray_i(bnr, cond, flag, NULL);
+    bnrc = Buchray_i(bnr, cond, flag, MOD);
     if (ischi)
       H = bnrchar_primitive_raw(bnr, bnrc, H0);
     else
@@ -1529,6 +1529,9 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
   if (flag == 1) bnrc = bnr_get_clgp(bnrc);
   return mkvec3(cond, bnrc, H);
 }
+GEN
+bnrconductor_i(GEN bnr, GEN H0, long flag)
+{ return bnrconductormod(bnr,H0,flag,NULL); }
 GEN
 bnrconductor(GEN bnr, GEN H0, long flag)
 {

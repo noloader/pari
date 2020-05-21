@@ -307,17 +307,12 @@ downtoK(toK_s *T, GEN x)
   return gmodulo(gtopolyrev(y,varn(T->polnf)), T->polnf);
 }
 
-static GEN
-no_sol(long all, long i)
-{
-  if (!all) pari_err_BUG(stack_sprintf("kummer [bug%ld]", i));
-  return cgetg(1,t_VEC);
-}
+static void
+no_sol(long i) { pari_err_BUG(stack_sprintf("kummer [bug%ld]", i)); }
 
 static GEN
-get_gell(GEN bnr, GEN subgp, long all)
+get_gell(GEN bnr, GEN subgp)
 {
-  if (all && all != -1) return utoipos(labs(all));
   if (!subgp) return ZV_prod(bnr_get_cyc(bnr));
   return det(subgp);
 }
@@ -493,126 +488,6 @@ lift_if_rational(GEN x)
   return x;
 }
 
-/* A column vector representing a subgroup of prime index */
-static GEN
-grptocol(GEN H)
-{
-  long i, j, l = lg(H);
-  GEN col = cgetg(l, t_VECSMALL);
-  for (i = 1; i < l; i++)
-  {
-    ulong ell = itou( gcoeff(H,i,i) );
-    if (ell == 1) col[i] = 0; else { col[i] = ell-1; break; }
-  }
-  for (j=i; ++j < l; ) col[j] = itou( gcoeff(H,i,j) );
-  return col;
-}
-
-/* Reorganize kernel basis so that the tests of ok_congruence can be ok
- * for y[ncyc]=1 and y[1..ncyc]=1 */
-static GEN
-fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
-{
-  pari_sp av = avma;
-  long i, j, idx, ffree, dK = lg(K)-1;
-  GEN Ki, Kidx = cgetg(dK+1, t_VECSMALL);
-
-  /* First step: Gauss elimination on vectors lW...lg(M)-1 */
-  for (idx = lg(K), i = lg(M)-1; i >= lW; i--)
-  {
-    for (j = dK; j > 0; j--) if (coeff(K, i, j)) break;
-    if (!j || j == dK) continue;
-    /* ensure that K[i,dK] != 0 */
-    for (j = idx; j < dK; j++)
-      if (coeff(K, i, j) && coeff(K, Kidx[j], dK) != ell - 1)
-        Flv_add_inplace(gel(K,dK), gel(K,j), ell);
-    idx--;
-    if (j != idx) swap(gel(K, j), gel(K, idx));
-    Kidx[idx] = i;
-    if (coeff(K,i,idx) != 1)
-      Flv_Fl_div_inplace(gel(K,idx), coeff(K,i,idx), ell);
-    Ki = gel(K,idx);
-    if (coeff(K,i,dK) != 1)
-    {
-      ulong t = Fl_sub(coeff(K,i,dK), 1, ell);
-      Flv_sub_inplace(gel(K,dK), Flv_Fl_mul(Ki, t, ell), ell);
-    }
-    for (j = dK; --j > 0; )
-    {
-      if (j == idx) continue;
-      if (coeff(K,i,j))
-        Flv_sub_inplace(gel(K,j), Flv_Fl_mul(Ki, coeff(K,i,j), ell), ell);
-    }
-  }
-  /* ffree = first vector that is not "free" for the scalar products */
-  ffree = idx;
-  /* Second step: for each hyperplane equation in vecMsup, do the same
-   * thing as before. */
-  for (i=1; i < lg(vecMsup); i++)
-  {
-    GEN Msup = gel(vecMsup,i);
-    ulong dotprod;
-    if (lgcols(Msup) != 2) continue;
-    Msup = zm_row(Msup, 1);
-    for (j=ffree; j > 0; j--)
-    {
-      dotprod = Flv_dotproduct(Msup, gel(K,j), ell);
-      if (dotprod)
-      {
-        if (j != --ffree) swap(gel(K, j), gel(K, ffree));
-        if (dotprod != 1) Flv_Fl_div_inplace(gel(K, ffree), dotprod, ell);
-        break;
-      }
-    }
-    if (!j)
-    { /* Do our best to ensure that vecMsup.K[dK] != 0 */
-      if (Flv_dotproduct(Msup, gel(K,dK), ell) == 0)
-      {
-        for (j = ffree-1; j <= dK; j++)
-          if (Flv_dotproduct(Msup, gel(K,j), ell)
-              && coeff(K,Kidx[j],dK) != ell-1)
-            Flv_add_inplace(gel(K,dK), gel(K,j), ell);
-      }
-      continue;
-    }
-    Ki = gel(K,ffree);
-    dotprod = Flv_dotproduct(Msup, gel(K,dK), ell);
-    if (dotprod != 1)
-    {
-      ulong t = Fl_sub(dotprod,1,ell);
-      Flv_sub_inplace(gel(K,dK), Flv_Fl_mul(Ki,t,ell), ell);
-    }
-    for (j = dK; j > 0; j--)
-    {
-      if (j == ffree) continue;
-      dotprod = Flv_dotproduct(Msup, gel(K,j), ell);
-      if (dotprod) Flv_sub_inplace(gel(K,j), Flv_Fl_mul(Ki,dotprod,ell), ell);
-    }
-  }
-  if (ell == 2)
-  {
-    for (i = ffree, j = ffree-1; i <= dK && j; i++, j--)
-    { swap(gel(K,i), gel(K,j)); }
-  }
-  /* Try to ensure that y = vec_ei(n, i) gives a good candidate */
-  for (i = 1; i < dK; i++) Flv_add_inplace(gel(K,i), gel(K,dK), ell);
-  return gerepilecopy(av, K);
-}
-
-static GEN
-Flm_init(long m, long n)
-{
-  GEN M = cgetg(n+1, t_MAT);
-  long i; for (i = 1; i <= n; i++) gel(M,i) = cgetg(m+1, t_VECSMALL);
-  return M;
-}
-static void
-Flv_fill(GEN v, GEN y)
-{
-  long i, l = lg(y);
-  for (i = 1; i < l; i++) v[i] = y[i];
-}
-
 static GEN
 get_badbnf(GEN bnf)
 {
@@ -718,16 +593,12 @@ subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
   return M;
 }
 
-/* if all>0, give all equations of degree 'all'. Assume bnr modulus is the
- * conductor */
 static GEN
-rnfkummersimple(GEN bnr, GEN subgroup, long ell, long all)
+rnfkummersimple(GEN bnr, GEN subgroup, long ell)
 {
-  long i, j, degK, dK, lSml2, lSl2, lSp, rc, lW, prec, rk = 0, ncyc = 0;
-  long firstpass = all<0;
+  long i, j, degK, dK, lSml2, lSl2, lSp, rc, lW, prec;
   GEN bnf, nf,bid, ideal, arch, cycgen, cyc, Sp, prSp, matP;
   GEN gell, xell, u, M, K, y, vecMsup, vecW, vecWB, vecBp, msign;
-  GEN mat = NULL, matgrp = NULL, be1 = NULL, res = NULL;
   primlist L;
 
   bnf = bnr_get_bnf(bnr); if (!bnf_get_sunits(bnf)) bnf_build_units(bnf);
@@ -738,7 +609,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell, long all)
   ideal= bid_get_ideal(bid);
   arch = bid_get_arch(bid); /* this is the conductor */
   i = build_list_Hecke(&L, nf, bid_get_fact2(bid), ideal, ell, NULL);
-  if (i) return no_sol(all,i);
+  if (i) no_sol(i);
 
   lSml2 = lg(L.Sml2);
   Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp);
@@ -778,100 +649,40 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell, long all)
   }
   lW = lg(vecW);
   M = vconcat(M, shallowconcat(zero_Flm(rc,lW-1), matP));
-  if (!all)
   { /* primes landing in subgroup must be totally split */
     GEN Lpr = get_prlist(bnr, subgroup, ell, NULL);
     GEN M2 = subgroup_info(bnf, Lpr, ell, vecWB);
     M = vconcat(M, M2);
   }
   K = Flm_ker(M, ell);
-  if (all < 0) K = fix_kernel(K, M, vecMsup, lW, ell);
   dK = lg(K)-1;
   y = cgetg(dK+1,t_VECSMALL);
-  if (all) res = cgetg(1,t_VEC); /* in case all = 1 */
-  if (all < 0)
-  {
-    ncyc = dK; rk = 0; mat = Flm_init(dK, ncyc);
-    if (all == -1) matgrp = Flm_init(lg(bnr_get_cyc(bnr)), ncyc+1);
-  }
   xell = pol_xn(ell, 0);
   gell = utoipos(ell);
-  do {
-    dK = lg(K)-1;
-    while (dK)
+  dK = lg(K)-1;
+  while (dK)
+  {
+    for (i=1; i<dK; i++) y[i] = 0;
+    y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at i'th position */
+    do
     {
-      for (i=1; i<dK; i++) y[i] = 0;
-      y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at i'th position */
-      do
-      {
-        pari_sp av = avma;
-        GEN be, P=NULL, X;
-        if (all < 0)
-        {
-          Flv_fill(gel(mat, rk+1), y);
-          setlg(mat, rk+2);
-          if (Flm_rank(mat, ell) <= rk) continue;
-        }
-FOUND:  X = Flm_Flc_mul(K, y, ell);
-        if (ok_congruence(X, ell, lW, vecMsup) && ok_sign(X, msign, arch))
-        {/* be satisfies all congruences, x^ell - be is irreducible, signature
-          * and relative discriminant are correct */
-          if (all < 0) rk++;
-          be = compute_beta(X, vecWB, gell, bnf);
-          be = nf_to_scalar_or_alg(nf, be);
-          if (typ(be) == t_POL) be = mkpolmod(be, nf_get_pol(nf));
-          if (all == -1)
-          {
-            pari_sp av2 = avma;
-            GEN Kgrp, colgrp = grptocol(rnfnormgroup(bnr, gsub(xell, be)));
-            if (ell != 2)
-            {
-              if (rk == 1) be1 = be;
-              else
-              { /* Compute the pesky scalar */
-                GEN K2, C = cgetg(4, t_MAT);
-                gel(C,1) = gel(matgrp,1);
-                gel(C,2) = colgrp;
-                gel(C,3) = grptocol(rnfnormgroup(bnr, gsub(xell, gmul(be1,be))));
-                K2 = Flm_ker(C, ell);
-                if (lg(K2) != 2) pari_err_BUG("linear algebra");
-                K2 = gel(K2,1);
-                if (K2[1] != K2[2])
-                  Flv_Fl_mul_inplace(colgrp, Fl_div(K2[2],K2[1],ell), ell);
-              }
-            }
-            Flv_fill(gel(matgrp,rk), colgrp);
-            setlg(matgrp, rk+1);
-            Kgrp = Flm_ker(matgrp, ell);
-            if (lg(Kgrp) == 2)
-            {
-              setlg(gel(Kgrp,1), rk+1);
-              y = Flm_Flc_mul(mat, gel(Kgrp,1), ell);
-              all = 0; goto FOUND;
-            }
-            set_avma(av2);
-          }
-          else
-          {
-            P = gsub(xell, be);
-            if (all)
-              res = shallowconcat(res, gerepileupto(av, P));
-            else
-            {
-              if (dK == 1 ||
-                  ZM_equal(rnfnormgroup(bnr,P),subgroup)) return P; /*DONE*/
-              set_avma(av); continue;
-            }
-          }
-          if (all < 0 && rk == ncyc) return res;
-          if (firstpass) break;
-        }
-        else set_avma(av);
-      } while (increment(y, dK, ell));
-      y[dK--] = 0;
-    }
-  } while (firstpass--);
-  return all? res: gen_0;
+      pari_sp av = avma;
+      GEN X = Flm_Flc_mul(K, y, ell);
+      if (ok_congruence(X, ell, lW, vecMsup) && ok_sign(X, msign, arch))
+      {/* be satisfies all congruences, x^ell - be is irreducible, signature
+        * and relative discriminant are correct */
+        GEN P = NULL, be = compute_beta(X, vecWB, gell, bnf);
+        be = nf_to_scalar_or_alg(nf, be);
+        if (typ(be) == t_POL) be = mkpolmod(be, nf_get_pol(nf));
+        P = gsub(xell, be);
+        if (dK == 1 ||
+            ZM_equal(rnfnormgroup(bnr,P),subgroup)) return P; /*DONE*/
+      }
+      set_avma(av);
+    } while (increment(y, dK, ell));
+    y[dK--] = 0;
+  }
+  return gen_0;
 }
 
 static ulong
@@ -1299,62 +1110,39 @@ _rnfkummer_step5(struct rnfkummer *kum, GEN vselmer)
 
 static GEN
 _rnfkummer_step18(struct rnfkummer *kum, GEN bnr, GEN subgroup, GEN M,
-     GEN vecWB, GEN vecMsup, long all)
+     GEN vecWB, GEN vecMsup)
 {
   ulong ell = kum->ell;
-  long i, dK, ncyc = 0, firstpass = all < 0, rk = 0, lW = lg(kum->vecW);
-  GEN K, y, nf = bnr_get_nf(bnr), gell = utoipos(ell), res = NULL, mat = NULL;
+  long i, dK, lW = lg(kum->vecW);
+  GEN K, y, nf = bnr_get_nf(bnr), gell = utoipos(ell), res = NULL;
 
   K = Flm_ker(M, ell);
-  if (all < 0) K = fix_kernel(K, M, vecMsup, lW, ell);
   if (DEBUGLEVEL>2) err_printf("Step 18\n");
   dK = lg(K)-1;
   y = cgetg(dK+1,t_VECSMALL);
-  if (all) res = cgetg(1, t_VEC);
-  if (all < 0) { ncyc = dK; rk = 0; mat = zero_Flm(lg(M)-1, ncyc); }
 
-  do {
-    dK = lg(K)-1;
-    while (dK)
-    {
-      for (i=1; i<dK; i++) y[i] = 0;
-      y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at dK'th position */
-      do
-      { /* cf. algo 5.3.18 */
-        GEN H, be, P, X = Flm_Flc_mul(K, y, ell);
-        if (ok_congruence(X, ell, lW, vecMsup))
-        {
-          pari_sp av = avma;
-          if (all < 0)
-          {
-            gel(mat, rk+1) = X;
-            if (Flm_rank(mat,ell) <= rk) continue;
-            rk++;
-          }
-          be = compute_beta(X, vecWB, gell, kum->bnfz);
-          P = compute_polrel(kum, be);
-          nfX_Z_normalize(nf, P);
-          if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
-          if (!all) {
-            if (dK == 1 ||
-                ZM_equal(subgroup, rnfnormgroup(bnr, P))) return P; /* DONE */
-            set_avma(av); continue;
-          } else {
-            GEN P0 = Q_primpart(lift_shallow(P));
-            GEN g = nfgcd(P0, RgX_deriv(P0), nf_get_pol(nf), nf_get_index(nf));
-            if (degpol(g)) continue;
-            H = rnfnormgroup(bnr, P);
-            if (!ZM_equal(subgroup,H) && !bnrisconductor(bnr,H)) continue;
-          }
-          P = gerepilecopy(av, P);
-          res = shallowconcat(res, P);
-          if (all < 0 && rk == ncyc) return res;
-          if (firstpass) break;
-        }
-      } while (increment(y, dK, ell));
-      y[dK--] = 0;
-    }
-  } while (firstpass--);
+  dK = lg(K)-1;
+  while (dK)
+  {
+    for (i=1; i<dK; i++) y[i] = 0;
+    y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at dK'th position */
+    do
+    { /* cf. algo 5.3.18 */
+      GEN X = Flm_Flc_mul(K, y, ell);
+      if (ok_congruence(X, ell, lW, vecMsup))
+      {
+        pari_sp av = avma;
+        GEN be = compute_beta(X, vecWB, gell, kum->bnfz);
+        GEN P = compute_polrel(kum, be);
+        nfX_Z_normalize(nf, P);
+        if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
+        if (dK == 1 ||
+            ZM_equal(subgroup, rnfnormgroup(bnr, P))) return P; /* DONE */
+        set_avma(av);
+      }
+    } while (increment(y, dK, ell));
+    y[dK--] = 0;
+  }
   if (!res) pari_err_BUG("kummer [no solution]");
   return res;
 }
@@ -1412,7 +1200,7 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
 }
 
 static GEN
-rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
+rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup)
 {
   ulong ell = kum->ell, mginv;
   GEN bnfz = kum->bnfz, nfz = bnf_get_nf(bnfz), cycgen = bnf_build_cycgen(bnfz);
@@ -1427,13 +1215,14 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   if (umodiu(gcoeff(ideal,1,1), ell)) gothf = idealz;
   else
   { /* ell | N(ideal) */
-    GEN bnrz = Buchray(bnfz, idealz, nf_INIT|nf_GEN);
-    GEN subgroupz = invimsubgroup(bnrz, bnr, subgroup, T);
-    gothf = bnrconductor_i(bnrz,subgroupz,0);
+    GEN gell = utoipos(ell);
+    GEN bnrz = Buchraymod(bnfz, idealz, nf_INIT|nf_GEN, gell);
+    GEN Hz = invimsubgroup(bnrz, bnr, subgroup, T);
+    gothf = bnrconductormod(bnrz, Hz, 0, gell);
   }
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
   i = build_list_Hecke(&L, nfz, NULL, gothf, ell, T->tau);
-  if (i) return no_sol(all,i);
+  if (i) no_sol(i);
 
   lSml2 = lg(L.Sml2);
   Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp);
@@ -1478,8 +1267,6 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
     M = vconcat(M, shallowconcat(zero_Flm(dc,lW-1), QtP));
   }
   if (!M) M = zero_Flm(1, lSp-1 + lW-1);
-
-  if (!all)
   { /* primes landing in subgroup must be totally split */
     GEN lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
     GEN Lpr = get_prlist(bnr, subgroup, ell, bnfz);
@@ -1487,7 +1274,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
     M = vconcat(M, subgroup_info(bnfz, Lprz, ell, lambdaWB));
   }
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
-  return _rnfkummer_step18(kum,bnr,subgroup, M, vecWB, vecMsup, all);
+  return _rnfkummer_step18(kum,bnr,subgroup, M, vecWB, vecMsup);
 }
 
 static void
@@ -1507,31 +1294,29 @@ bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
 }
 
 static GEN
-_rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
+_rnfkummer(GEN bnr, GEN subgroup, long prec)
 {
   ulong ell;
   GEN gell;
   struct rnfkummer kum;
 
   bnrclassfield_sanitize(&bnr, &subgroup);
-  gell = get_gell(bnr,subgroup,all);
+  gell = get_gell(bnr,subgroup);
   if (typ(gell) != t_INT) pari_err_TYPE("rnfkummer",gell);
   ell = itou(gell);
   if (ell == 1) return pol_x(0);
   if (!uisprime(ell)) pari_err_IMPL("rnfkummer for composite relative degree");
-  if (all && all != -1 && umodiu(bnr_get_no(bnr), ell))
-    return cgetg(1, t_VEC);
   if (bnf_get_tuN(bnr_get_bnf(bnr)) % ell == 0)
-    return rnfkummersimple(bnr, subgroup, ell, all);
+    return rnfkummersimple(bnr, subgroup, ell);
   rnfkummer_init(&kum, bnr_get_bnf(bnr), ell, prec);
-  return rnfkummer_ell(&kum, bnr, subgroup, all == -1? 0: all);
+  return rnfkummer_ell(&kum, bnr, subgroup);
 }
 
 GEN
-rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
+rnfkummer(GEN bnr, GEN subgroup, long prec)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, _rnfkummer(bnr, subgroup, all, prec));
+  return gerepilecopy(av, _rnfkummer(bnr, subgroup, prec));
 }
 
 /*******************************************************************/
@@ -1658,7 +1443,7 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN TB, GEN p, long finaldeg, long ab
   H = hnfmodid(shallowconcat(zm_to_ZM(H), diagonal_shallow(cyc)), p);
 
   /* polynomial over nf2 */
-  pol2 = _rnfkummer(bnr2, H, 0, prec);
+  pol2 = _rnfkummer(bnr2, H, prec);
   /* absolute polynomial */
   pol2 = rnfequation2(nf2, pol2);
   emb2 = gel(pol2,2); /* generator of nf2 as polmod modulo pol2 */
@@ -1709,8 +1494,8 @@ bnrclassfield_primepower(struct rnfkummer *pkum, GEN bnr, GEN subgroup, GEN p,
   {
     GEN H = gel(subs,i), cnd = bnrconductor_i(bnr, hnfmodid(H,p), 2);
     GEN pol, pe, bnr2 = gel(cnd,2), Hp = gel(cnd,3);
-    if (pkum) pol = rnfkummer_ell(pkum, bnr2, Hp, 0);
-    else      pol = rnfkummersimple(bnr2, Hp, itos(p), 0);
+    if (pkum) pol = rnfkummer_ell(pkum, bnr2, Hp);
+    else      pol = rnfkummersimple(bnr2, Hp, itos(p));
     pe = ZM_det_triangular(H);
     if (!equalii(p,pe))
       pol = bnrclassfield_tower(bnr, H, mkvec2(pol,P), p, itos(pe), absolute, prec);
