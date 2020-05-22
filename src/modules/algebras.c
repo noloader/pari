@@ -3202,7 +3202,7 @@ bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var)
       H = bnrgwsearch(bnr,Lpr,Ld,pl);
       if (H != gen_0)
       {
-        pol = rnfkummer(bnr,H,0,nf_get_prec(nf));
+        pol = rnfkummer(bnr,H,nf_get_prec(nf));
         setvarn(pol, var);
         return gerepileupto(av,pol);
       }

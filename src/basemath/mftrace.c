@@ -12892,7 +12892,7 @@ search_abelian(GEN nf, long n, long k, GEN N, GEN CHI, GEN F,
   for (i = 1, T = NULL; i<=k; i++)
   {
     GEN Hi = hnfmodid(shallowconcat(H, vecsplice(Bquo,i)), gn);
-    GEN pol = rnfkummer(bnr, Hi, 0, prec);
+    GEN pol = rnfkummer(bnr, Hi, prec);
     T = T? nfcompositum(nf, T, pol, 2): pol;
   }
   T = rnfequation(nf, T);
