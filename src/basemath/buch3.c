@@ -369,14 +369,15 @@ bnr_subgroup_sanitize(GEN *pbnr, GEN *pH)
   {
     case t_INT: mod = H; break;
     case t_VEC:
-      if (!char_check(cyc, H)) pari_err_TYPE("bnrclassfield [character]", H);
+      if (!char_check(cyc, H))
+        pari_err_TYPE("bnr_subgroup_sanitize [character]", H);
       H = charker(cyc, H); /* character -> subgroup */
     case t_MAT:
       H = hnfmodid(H, cyc); /* make sure H is a left divisor of Mat(cyc) */
       D = ZM_snf(H); /* structure of Cl_f / H */
       mod = lg(D) == 1? gen_1: gel(D,1);
       break;
-    default: pari_err_TYPE("bnrclassfield [subgroup]", H);
+    default: pari_err_TYPE("bnr_subroup_sanitize [subgroup]", H);
   }
   cnd = bnrconductormod(bnr, H, 2, mod);
   *pbnr = gel(cnd,2); *pH = gel(cnd,3);
@@ -390,7 +391,7 @@ bnr_char_sanitize(GEN *pbnr, GEN *pchi)
   else checkbnr(bnr);
   cyc = bnr_get_cyc(bnr);
   if (typ(chi) != t_VEC || !char_check(cyc, chi))
-    pari_err_TYPE("bnrclassfield [character]", chi);
+    pari_err_TYPE("bnr_char_sanitize [character]", chi);
   cnd = bnrconductormod(bnr, chi, 2, charorder(cyc, chi));
   *pbnr = gel(cnd,2); *pchi = gel(cnd,3);
 }
