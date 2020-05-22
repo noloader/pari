@@ -814,7 +814,7 @@ lfunchigen(GEN bnr, GEN CHI)
     GEN F, bnr0 = bnr, o = gen_1, D = cyc_normalize(bnr_get_cyc(bnr));
     nchi = cgetg(l, t_VEC);
     N = bnr_get_mod(bnr);
-    v = bnrconductor_i(bnr, gel(CHI,1), 2);
+    v = bnrconductormod(bnr, gel(CHI,1), 2, charorder0(bnr,gel(CHI,1)));
     F = gel(v,1); map = !gequal(N, F);
     bnr = gel(v,2);
     for (i = 1; i < l; i++)
@@ -825,7 +825,7 @@ lfunchigen(GEN bnr, GEN CHI)
       else
       {
         C = gel(CHI,i);
-        if (!gequal(bnrconductor_i(bnr0, C, 0), N))
+        if (!gequal(bnrconductormod(bnr0, C, 0, NULL), N))
           pari_err_TYPE("lfuncreate [different conductors]", CHI);
         if (map) C = bnrchar_primitive_raw(bnr0, bnr, C);
       }
@@ -837,7 +837,7 @@ lfunchigen(GEN bnr, GEN CHI)
   }
   else
   {
-    v = bnrconductor_i(bnr, CHI, 2);
+    v = bnrconductormod(bnr, CHI, 2, charorder0(bnr,CHI));
     bnr = gel(v,2);
     CHI = gel(v,3); /* now CHI is primitive wrt bnr */
     nchi = NULL;

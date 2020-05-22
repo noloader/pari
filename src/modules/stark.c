@@ -773,7 +773,7 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
   }
   else
   {
-    GEN z = bnrconductor_i(bnr, chi, 2);
+    GEN z = bnrconductormod(bnr, chi, 2, charorder0(bnr, chi));
     bnr = gel(z,2);
     chi = gel(z,3);
     cyc = bnr_get_cyc(bnr);
