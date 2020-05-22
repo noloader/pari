@@ -1280,17 +1280,27 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup)
 static void
 bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
 {
-  GEN cnd, bnr = *pbnr, H = *pH, T;
+  GEN D, cnd, T, mod, cyc, bnr = *pbnr, H = *pH;
 
   if (nftyp(bnr)==typ_BNF) bnr = Buchray(bnr, gen_1, nf_INIT);
   else checkbnr(bnr);
   T = nf_get_pol(bnr_get_nf(bnr));
+  cyc = bnr_get_cyc(bnr);
   if (!varn(T)) pari_err_PRIORITY("bnrclassfield", T, "=", 0);
-  cnd = bnrconductor_i(bnr, H, 2);
-  *pbnr = gel(cnd,2);
-  *pH = gel(cnd,3);
-  /* bnrconductor_i returns a character if input was a character: */
-  if (typ(*pH) == t_VEC) *pH = charker(bnr_get_cyc(*pbnr),*pH);
+  if (!H)
+    mod = lg(cyc) == 1? gen_1: gel(cyc,1);
+  else switch(typ(H))
+  {
+    case t_INT: mod = H; break;
+    case t_VEC: H = charker(cyc, H); /* character -> subgroup */
+    case t_MAT:
+      D = ZM_snf(H); /* structure of Cl_f / H */
+      mod = lg(D) == 1? gen_1: gel(D,1);
+      break;
+    default: pari_err_TYPE("bnrclassfield [subgroup]", H);
+  }
+  cnd = bnrconductormod(bnr, H, 2, mod);
+  *pbnr = gel(cnd,2); *pH = gel(cnd,3);
 }
 
 static GEN
