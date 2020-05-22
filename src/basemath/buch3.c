@@ -1530,7 +1530,7 @@ GEN
 bnrconductor(GEN bnr, GEN H0, long flag)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, bnrconductor_i(bnr,H0,flag));
+  return gerepilecopy(av, bnrconductormod(bnr,H0,flag,NULL));
 }
 
 long
@@ -1872,12 +1872,13 @@ GEN
 bnrconductorofchar(GEN bnr, GEN chi)
 {
   pari_sp av = avma;
-  GEN cyc, K;
+  GEN cyc, K, MOD;
   checkbnr(bnr);
   cyc = bnr_get_cyc(bnr);
   if (!char_check(cyc,chi)) pari_err_TYPE("bnrconductorofchar",chi);
-  K = charker(cyc,chi); if (lg(K) == 1) K = NULL;
-  return gerepilecopy(av, bnrconductor_i(bnr, K, 0));
+  K = charker(cyc,chi); MOD = ZM_det(K);
+  if (lg(K) == 1) K = NULL;
+  return gerepilecopy(av, bnrconductormod(bnr, K, 0, MOD));
 }
 
 /* \sum U[i]*y[i], U[i],y[i] ZM, we allow lg(y) > lg(U). */
