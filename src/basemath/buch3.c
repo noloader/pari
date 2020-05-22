@@ -1736,10 +1736,10 @@ rnfisabelian(GEN nf, GEN pol)
  * corresponding conductor and congruence subgroup. Return
  * [cond,bnr(cond),H] where cond=[ideal,arch] is the conductor. */
 GEN
-rnfconductor(GEN bnf, GEN T)
+rnfconductor0(GEN bnf, GEN T, long flag)
 {
   pari_sp av = avma;
-  GEN D, nf, module, bnr, H, lim, Tr;
+  GEN D, nf, module, bnr, H, lim, Tr, MOD;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   Tr = rnfdisc_get_T(nf, T, &lim);
@@ -1774,12 +1774,13 @@ rnfconductor(GEN bnf, GEN T)
     }
   }
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
-  /* FIXME: can use stoi(degpol(T)) to compute H but bnr is then mod deg
-   * => breaks lfunabelianrelinit */
-  bnr = Buchray_i(bnf, module, nf_INIT|nf_GEN, NULL);
+  MOD = flag? utoipos(degpol(T)): NULL;
+  bnr = Buchray_i(bnf, module, nf_INIT|nf_GEN, MOD);
   H = rnfnormgroup_i(bnr,T); if (!H) { set_avma(av); return gen_0; }
-  return gerepilecopy(av, bnrconductor_i(bnr, H, 2));
+  return gerepilecopy(av, bnrconductormod(bnr, H, 2, MOD));
 }
+GEN
+rnfconductor(GEN bnf, GEN T) { return rnfconductor0(bnf, T, 0); }
 
 static GEN
 prV_norms(GEN v)

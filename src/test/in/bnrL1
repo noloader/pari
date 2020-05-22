@@ -13,7 +13,7 @@ setrand(1); bnrL1(bnrinit(K,[6,[1,1]]),,5)
 P=x^5-x^4-5*x^3+4*x^2+3*x-1;
 S=x^10-26*x^8+233*x^6-832*x^4+1024*x^2-401;
 bnf=bnfinit(a^2-401*25);
-cond=rnfconductor(bnf,P);
+cond=rnfconductor(bnf,P,1);
 bnr=bnrinit(bnf,cond[1]);
 real(bnrL1(bnr,cond[3],1))
 

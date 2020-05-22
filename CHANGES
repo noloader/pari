@@ -161,8 +161,9 @@ BA  45- closures: do not copy the full context, only the accessible part
     46- add optional argument to randomprime [select congruence class]
     47- add optional argument to sqrtint [set remainder]  [#2229]
     48- gammamellininv*(A,...): allow A to be an L-function
-    49- optional argument to bnrinit to compute Cl_f/n, avoids tough discrete logs
+    49- bnrinit: optional argument to compute Cl_f/n, avoids tough discrete logs
     50- rnfkummer: removed "all" flag, use bnrclassfield !
+    51- rnfconductor: flag to compute Cl_f/[K:Q] instead of Cl_f
 
   Added
      1- new GP function rootsof1
