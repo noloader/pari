@@ -3472,7 +3472,7 @@ treatspecialsigma(GEN bnr)
 GEN
 quadray(GEN D, GEN f, long prec)
 {
-  GEN bnr, y, bnf;
+  GEN bnr, y, bnf, H = NULL;
   pari_sp av = avma;
 
   if (isint1(f)) return quadhilbert(D, prec);
@@ -3480,10 +3480,10 @@ quadray(GEN D, GEN f, long prec)
   bnr = Buchray(bnf, f, nf_INIT|nf_GEN);
   if (is_pm1(bnr_get_no(bnr))) { set_avma(av); return pol_x(0); }
   if (signe(D) > 0)
-    y = bnrstark(bnr,NULL,prec);
+    y = bnrstark(bnr, H, prec);
   else
   {
-    bnr = gel(bnrconductor_i(bnr,NULL,2), 2);
+    bnr_subgroup_sanitize(&bnr, &H);
     y = treatspecialsigma(bnr);
     if (!y) y = computeP2(bnr, prec);
   }
