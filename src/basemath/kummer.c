@@ -1292,8 +1292,11 @@ bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
   else switch(typ(H))
   {
     case t_INT: mod = H; break;
-    case t_VEC: H = charker(cyc, H); /* character -> subgroup */
+    case t_VEC:
+      if (!char_check(cyc, H)) pari_err_TYPE("bnrclassfield [character]", H);
+      H = charker(cyc, H); /* character -> subgroup */
     case t_MAT:
+      H = hnfmodid(H, cyc); /* make sure H is a left divisor of Mat(cyc) */
       D = ZM_snf(H); /* structure of Cl_f / H */
       mod = lg(D) == 1? gen_1: gel(D,1);
       break;
