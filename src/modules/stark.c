@@ -496,7 +496,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
         for (s = 1; s <= narch; s++)
         { /* infinite part */
           GEN candD, ImC, bnrm;
-          long nbcand, c;
+          long lD, c;
           gel(arch,N+1-s) = gen_0;
 
           /* compute Clk(m), check if m is a conductor */
@@ -510,13 +510,13 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
 
           /* ... and its subgroups of index 2 with conductor m */
           candD = subgrouplist_cond_sub(bnrm, ImC, mkvec(gen_2));
-          nbcand = lg(candD) - 1;
-          for (c = 1; c <= nbcand; c++)
+          lD = lg(candD);
+          for (c = 1; c < lD; c++)
           {
             GEN D  = gel(candD,c); /* check if the conductor is suitable */
             long cpl;
-            GEN p1 = InitQuotient(D), p2;
-            GEN ord = gel(p1,1), cyc = gel(p1,2), map = gel(p1,3);
+            GEN QD = InitQuotient(D), p2;
+            GEN ord = gel(QD,1), cyc = gel(QD,2), map = gel(QD,3);
 
             if (!cyc_is_cyclic(cyc)) /* cyclic => suitable, else test */
             {
@@ -539,7 +539,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
             p2 = cgetg(6, t_VEC); /* p2[5] filled in CplxModulus */
             gel(p2,1) = bnrm;
             gel(p2,2) = D;
-            gel(p2,3) = InitQuotient(D);
+            gel(p2,3) = QD;
             gel(p2,4) = InitQuotient(ImC);
             if (DEBUGLEVEL>1)
               err_printf("\nTrying modulus = %Ps and subgroup = %Ps\n",
