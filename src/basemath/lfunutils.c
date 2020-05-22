@@ -803,7 +803,7 @@ static GEN
 lfunchigen(GEN bnr, GEN CHI)
 {
   pari_sp av = avma;
-  GEN v, N, sig, Ldchi, nf, nchi, NN;
+  GEN N, sig, Ldchi, nf, nchi, NN;
   long r1, r2, n1;
   int real;
 
@@ -811,36 +811,31 @@ lfunchigen(GEN bnr, GEN CHI)
   if (typ(CHI) == t_VEC && !RgV_is_ZV(CHI))
   {
     long map, i, l = lg(CHI);
-    GEN F, bnr0 = bnr, o = gen_1, D = cyc_normalize(bnr_get_cyc(bnr));
+    GEN F, chi = gel(CHI,1), bnr0 = bnr, o = gen_1;
+    GEN D = cyc_normalize(bnr_get_cyc(bnr));
     nchi = cgetg(l, t_VEC);
     N = bnr_get_mod(bnr);
-    v = bnrconductormod(bnr, gel(CHI,1), 2, charorder0(bnr,gel(CHI,1)));
-    F = gel(v,1); map = !gequal(N, F);
-    bnr = gel(v,2);
+    bnr_char_sanitize(&bnr, &chi);
+    F = bnr_get_mod(bnr); map = (bnr != bnr0);
     for (i = 1; i < l; i++)
     {
-      GEN C;
-      if (i == 1)
-        C = gel(v,3);
-      else
+      if (i > 1)
       {
-        C = gel(CHI,i);
-        if (!gequal(bnrconductormod(bnr0, C, 0, NULL), N))
+        chi = gel(CHI,i);
+        if (!gequal(bnrconductormod(bnr0, chi, 0, NULL), N))
           pari_err_TYPE("lfuncreate [different conductors]", CHI);
-        if (map) C = bnrchar_primitive_raw(bnr0, bnr, C);
+        if (map) chi = bnrchar_primitive_raw(bnr0, bnr, chi);
       }
-      C = char_normalize(C, D);
-      o = lcmii(o, gel(C,1)); /* lcm with charorder */
-      gel(nchi,i) = C;
+      chi = char_normalize(chi, D);
+      o = lcmii(o, gel(chi,1)); /* lcm with charorder */
+      gel(nchi,i) = chi;
     }
     nchi = mkvec2(o, char_renormalize(nchi, o));
   }
   else
   {
-    v = bnrconductormod(bnr, CHI, 2, charorder0(bnr,CHI));
-    bnr = gel(v,2);
-    CHI = gel(v,3); /* now CHI is primitive wrt bnr */
-    nchi = NULL;
+    bnr_char_sanitize(&bnr, &CHI);
+    nchi = NULL; /* now CHI is primitive wrt bnr */
   }
 
   N = bnr_get_mod(bnr);

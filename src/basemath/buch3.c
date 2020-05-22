@@ -358,13 +358,11 @@ bnr_subgroup_check(GEN bnr, GEN H, GEN *pdeg)
 void
 bnr_subgroup_sanitize(GEN *pbnr, GEN *pH)
 {
-  GEN D, cnd, T, mod, cyc, bnr = *pbnr, H = *pH;
+  GEN D, cnd, mod, cyc, bnr = *pbnr, H = *pH;
 
   if (nftyp(bnr)==typ_BNF) bnr = Buchray(bnr, gen_1, nf_INIT);
   else checkbnr(bnr);
-  T = nf_get_pol(bnr_get_nf(bnr));
   cyc = bnr_get_cyc(bnr);
-  if (!varn(T)) pari_err_PRIORITY("bnrclassfield", T, "=", 0);
   if (!H)
     mod = lg(cyc) == 1? gen_1: gel(cyc,1);
   else switch(typ(H))
@@ -382,6 +380,19 @@ bnr_subgroup_sanitize(GEN *pbnr, GEN *pH)
   }
   cnd = bnrconductormod(bnr, H, 2, mod);
   *pbnr = gel(cnd,2); *pH = gel(cnd,3);
+}
+void
+bnr_char_sanitize(GEN *pbnr, GEN *pchi)
+{
+  GEN cnd, cyc, bnr = *pbnr, chi = *pchi;
+
+  if (nftyp(bnr)==typ_BNF) bnr = Buchray(bnr, gen_1, nf_INIT);
+  else checkbnr(bnr);
+  cyc = bnr_get_cyc(bnr);
+  if (typ(chi) != t_VEC || !char_check(cyc, chi))
+    pari_err_TYPE("bnrclassfield [character]", chi);
+  cnd = bnrconductormod(bnr, chi, 2, charorder(cyc, chi));
+  *pbnr = gel(cnd,2); *pchi = gel(cnd,3);
 }
 
 
@@ -1902,13 +1913,12 @@ GEN
 bnrconductorofchar(GEN bnr, GEN chi)
 {
   pari_sp av = avma;
-  GEN cyc, K, MOD;
+  GEN cyc, K;
   checkbnr(bnr);
   cyc = bnr_get_cyc(bnr);
   if (!char_check(cyc,chi)) pari_err_TYPE("bnrconductorofchar",chi);
-  K = charker(cyc,chi); MOD = ZM_det(K);
-  if (lg(K) == 1) K = NULL;
-  return gerepilecopy(av, bnrconductormod(bnr, K, 0, MOD));
+  K = charker(cyc,chi); if (lg(K) == 1) K = NULL;
+  return gerepilecopy(av, bnrconductormod(bnr, K, 0, charorder(cyc,chi)));
 }
 
 /* \sum U[i]*y[i], U[i],y[i] ZM, we allow lg(y) > lg(U). */

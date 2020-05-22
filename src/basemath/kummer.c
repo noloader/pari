@@ -1277,6 +1277,15 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup)
   return _rnfkummer_step18(kum,bnr,subgroup, M, vecWB, vecMsup);
 }
 
+static void
+bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
+{
+  GEN T;
+  bnr_subgroup_sanitize(pbnr, pH);
+  T = nf_get_pol(bnr_get_nf(*pbnr));
+  if (!varn(T)) pari_err_PRIORITY("bnrclassfield", T, "=", 0);
+}
+
 static GEN
 _rnfkummer(GEN bnr, GEN subgroup, long prec)
 {
@@ -1284,7 +1293,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long prec)
   GEN gell;
   struct rnfkummer kum;
 
-  bnr_subgroup_sanitize(&bnr, &subgroup);
+  bnrclassfield_sanitize(&bnr, &subgroup);
   gell = get_gell(bnr,subgroup);
   if (typ(gell) != t_INT) pari_err_TYPE("rnfkummer",gell);
   ell = itou(gell);
@@ -1579,7 +1588,7 @@ bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
   long i, absolute, lPN;
   struct rnfkummer kum;
   if (flag<0 || flag>2) pari_err_FLAG("bnrclassfield [must be 0,1 or 2]");
-  bnr_subgroup_sanitize(&bnr, &subgroup);
+  bnrclassfield_sanitize(&bnr, &subgroup);
 
   N = ZM_det_triangular(subgroup);
   if (equali1(N)) { set_avma(av); return pol_x(0); }

@@ -2754,6 +2754,7 @@ GEN     signunits(GEN bignf);
 /* buch3.c */
 
 void    bnr_subgroup_sanitize(GEN *pbnr, GEN *pH);
+void    bnr_char_sanitize(GEN *pbnr, GEN *pchi);
 GEN     ABC_to_bnr(GEN A, GEN B, GEN C, GEN *H, int gen);
 GEN     Buchray(GEN bnf, GEN module, long flag);
 GEN     Buchraymod(GEN bnf, GEN f, long flag, GEN MOD);
