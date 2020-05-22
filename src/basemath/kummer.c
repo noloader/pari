@@ -1277,35 +1277,6 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup)
   return _rnfkummer_step18(kum,bnr,subgroup, M, vecWB, vecMsup);
 }
 
-static void
-bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
-{
-  GEN D, cnd, T, mod, cyc, bnr = *pbnr, H = *pH;
-
-  if (nftyp(bnr)==typ_BNF) bnr = Buchray(bnr, gen_1, nf_INIT);
-  else checkbnr(bnr);
-  T = nf_get_pol(bnr_get_nf(bnr));
-  cyc = bnr_get_cyc(bnr);
-  if (!varn(T)) pari_err_PRIORITY("bnrclassfield", T, "=", 0);
-  if (!H)
-    mod = lg(cyc) == 1? gen_1: gel(cyc,1);
-  else switch(typ(H))
-  {
-    case t_INT: mod = H; break;
-    case t_VEC:
-      if (!char_check(cyc, H)) pari_err_TYPE("bnrclassfield [character]", H);
-      H = charker(cyc, H); /* character -> subgroup */
-    case t_MAT:
-      H = hnfmodid(H, cyc); /* make sure H is a left divisor of Mat(cyc) */
-      D = ZM_snf(H); /* structure of Cl_f / H */
-      mod = lg(D) == 1? gen_1: gel(D,1);
-      break;
-    default: pari_err_TYPE("bnrclassfield [subgroup]", H);
-  }
-  cnd = bnrconductormod(bnr, H, 2, mod);
-  *pbnr = gel(cnd,2); *pH = gel(cnd,3);
-}
-
 static GEN
 _rnfkummer(GEN bnr, GEN subgroup, long prec)
 {
@@ -1313,7 +1284,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long prec)
   GEN gell;
   struct rnfkummer kum;
 
-  bnrclassfield_sanitize(&bnr, &subgroup);
+  bnr_subgroup_sanitize(&bnr, &subgroup);
   gell = get_gell(bnr,subgroup);
   if (typ(gell) != t_INT) pari_err_TYPE("rnfkummer",gell);
   ell = itou(gell);
@@ -1608,7 +1579,7 @@ bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
   long i, absolute, lPN;
   struct rnfkummer kum;
   if (flag<0 || flag>2) pari_err_FLAG("bnrclassfield [must be 0,1 or 2]");
-  bnrclassfield_sanitize(&bnr, &subgroup);
+  bnr_subgroup_sanitize(&bnr, &subgroup);
 
   N = ZM_det_triangular(subgroup);
   if (equali1(N)) { set_avma(av); return pol_x(0); }

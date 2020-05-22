@@ -1921,7 +1921,7 @@ group that stored in our \var{bnr}. You may also code the trivial subgroup by
 \kbd{NULL}. It is also allowed to replace $H$ by a character $\chi$ of the ray
 class group modulo \kbd{mod}: it represents the subgroup $\text{Ker} \chi$.
 
-\fun{GEN}{bnr_check_subgroup}{GEN bnr, GEN H, GEN *pdeg} given a \var{bnr}
+\fun{GEN}{bnr_subgroup_check}{GEN bnr, GEN H, GEN *pdeg} given a \var{bnr}
 attached to a modulus \var{mod}, check whether $H$ represents a congruence
 subgroup (of the ray class group modulo \var{mod}) and returns a normalized
 representation: \kbd{NULL} for the trivial subgroup, or in HNF, reduced

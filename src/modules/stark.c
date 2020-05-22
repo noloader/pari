@@ -2466,7 +2466,7 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
 {
   long N, newprec;
   pari_sp av = avma;
-  GEN bnf, p1, cycbnr, nf, data, dtQ;
+  GEN bnf, cyc, nf, data, dtQ;
 
   /* check the bnr */
   checkbnr(bnr);
@@ -2481,9 +2481,8 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
   if (nf_get_r2(nf)) pari_err_DOMAIN("bnrstark", "r2", "!=", gen_0, nf);
 
   /* compute bnr(conductor) */
-  p1     = bnrconductor_i(bnr, subgrp, 2);
-  bnr    = gel(p1,2); cycbnr = bnr_get_cyc(bnr);
-  subgrp = gel(p1,3);
+  bnr_subgroup_sanitize(&bnr, &subgrp);
+  cyc = bnr_get_cyc(bnr);
   if (gequal1( ZM_det_triangular(subgrp) )) { set_avma(av); return pol_x(0); }
 
   /* check the class field */
@@ -2503,7 +2502,7 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
     for (i = 1; i < l; i++)
     {
       if (is_pm1(gel(cyc,i))) continue;
-      H = ZM_hnfmodid(vecsplice(M,i), cycbnr);
+      H = ZM_hnfmodid(vecsplice(M,i), cyc);
       gel(vec,j++) = bnrstark(bnr, H, prec);
     }
     setlg(vec, j); return gerepilecopy(av, vec);
@@ -2539,7 +2538,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
   if (flag < 0 || flag > 8) pari_err_FLAG("bnrL1");
 
   cyc  = bnr_get_cyc(bnr);
-  subgp = bnr_check_subgroup(bnr, subgp, NULL);
+  subgp = bnr_subgroup_check(bnr, subgp, NULL);
   if (!subgp) subgp = diagonal_shallow(cyc);
 
   Qt = InitQuotient(subgp);
