@@ -572,6 +572,7 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
     for (i = 1; i < j; i++) /* modify beta as if bnf.gen were El*bnr.gen */
       if (typ(gel(El,i)) != t_INT && signe(gel(ep,i))) /* <==> != 1 */
         beta = famat_mulpow_shallow(beta, gel(El,i), negi(gel(ep,i)));
+    if (!MOD && !(flag & nf_GEN)) MOD = gel(cycray,1);
     ex = ZM2_ZC2_mul(bnr_get_U(bnr), ep, ideallogmod(nf, beta, bid, MOD));
   }
   ex = vecmodii(ex, cycray);

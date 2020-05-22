@@ -2614,10 +2614,12 @@ static GEN
 sprk_get_ff(GEN s) { return gel(s,4); }
 static GEN
 sprk_get_pr(GEN s) { GEN ff = gel(s,4); return modpr_get_pr(gel(ff,1)); }
-/* A = Npr-1, <g> = (Z_K/pr)^*, L2 to 1 + pr / 1 + pr^k */
-static void
-sprk_get_L2(GEN s, GEN *A, GEN *g, GEN *L2)
-{ GEN v = gel(s,5); *A = gel(v,1); *g = gel(v,2); *L2 = gel(v,3); }
+/* L2 to 1 + pr / 1 + pr^k */
+static GEN
+sprk_get_L2(GEN s) { return gmael(s,5,3); }
+/* lift to nf of primitive root of k(pr) */
+static GEN
+sprk_get_gnf(GEN s) { return gmael(s,5,2); }
 static void
 sprk_get_U2(GEN s, GEN *U1, GEN *U2)
 { GEN v = gel(s,6); *U1 = gel(v,1); *U2 = gel(v,2); }
@@ -2641,40 +2643,66 @@ famat_zlog_pr_coprime(GEN nf, GEN g, GEN e, GEN sprk)
   return log_prk(nf, x, sprk, NULL);
 }
 
+/* o t_INT, O = [ord,fa] format for multiple of o (for Fq_log);
+ * return o in [ord,fa] format */
+static GEN
+order_update(GEN o, GEN O)
+{
+  GEN p = gmael(O,2,1), z = o, P, E;
+  long i, j, l = lg(p);
+  P = cgetg(l, t_COL);
+  E = cgetg(l, t_COL);
+  for (i = j = 1; i < l; i++)
+  {
+    long v = Z_pvalrem(z, gel(p,i), &z);
+    if (v)
+    {
+      gel(P,j) = gel(p,i);
+      gel(E,j) = utoipos(v); j++;
+      if (is_pm1(z)) break;
+    }
+  }
+  setlg(P, j);
+  setlg(E, j); return mkvec2(o, mkmat2(P,E));
+}
+
 /* a in Z_K (t_COL or t_INT), pr prime ideal, sprk = sprkinit(nf,pr,k,x),
  * mod positive t_INT or NULL (meaning mod=0).
  * return log(a) modulo mod on SNF-generators of (Z_K/pr^k)^* */
 GEN
 log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
 {
-  GEN e, prk, A, g, L2, U1, U2, y, ff, o, N, T, p, modpr, pr, cyc;
+  GEN e, prk, g, U1, U2, y, ff, O, o, oN, gN,  N, T, p, modpr, pr, cyc;
 
   if (typ(a) == t_MAT) return famat_zlog_pr(nf, gel(a,1), gel(a,2), sprk, mod);
   N = NULL;
   ff = sprk_get_ff(sprk);
-  o = gmael(ff,3,1);
+  pr = gel(ff,1); /* modpr */
+  g = gN = gel(ff,2);
+  O = gel(ff,3); /* order of g = |Fq^*|, in [ord, fa] format */
+  o = oN = gel(O,1); /* order as a t_INT */
   prk = sprk_get_prk(sprk);
-  pr = gel(ff,1);
-  g = gel(ff,2);
   modpr = nf_to_Fq_init(nf, &pr, &T, &p);
-
   if (mod)
   {
     GEN d = gcdii(o,mod);
     if (!equalii(o, d))
     {
-      N = diviiexact(o,d);
+      N = diviiexact(o,d); /* > 1, coprime to p */
       a = nfpowmodideal(nf, a, N, prk);
-      g = Fq_pow(g, N, T, p);
-      o = d;
+      oN = d; /* order of g^N mod pr */
     }
   }
-  if (equali1(o)) e = gen_0;
-  else            e = Fq_log(nf_to_Fq(nf,a,modpr), g, o, T, p);
-
+  if (equali1(oN))
+    e = gen_0;
+  else
+  {
+    if (N) { O = order_update(oN, O); gN = Fq_pow(g, N, T, p); }
+    e = Fq_log(nf_to_Fq(nf,a,modpr), gN, O, T, p);
+  }
+  /* 0 <= e < oN is correct modulo oN */
   if (sprk_is_prime(sprk)) return mkcol(e); /* k = 1 */
 
-  sprk_get_L2(sprk, &A,&g,&L2);
   sprk_get_U2(sprk, &U1,&U2);
   cyc = sprk_get_cyc(sprk);
   if (mod)
@@ -2684,12 +2712,17 @@ log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
   }
   if (signe(e))
   {
-    GEN E = N? Fp_mul(e,N,o): e;
-    a = nfmulpowmodideal(nf, a, g, Fp_neg(E, o), prk);
+    GEN E = N? mulii(e, N): e;
+    a = nfmulpowmodideal(nf, a, sprk_get_gnf(sprk), Fp_neg(E, o), prk);
   }
-  y = ZM_ZC_mul(U2, log_prk1(nf, a, lg(U2)-1, L2, prk));
-  if (mod && N) y = ZC_Z_mul(y, Fp_inv(N,mod));
-  if (signe(e)) y = ZC_add(y, ZC_Z_mul(U1,e));
+  /* a = 1 mod pr */
+  y = log_prk1(nf, a, lg(U2)-1, sprk_get_L2(sprk), prk);
+  if (N)
+  { /* from DL(a^N) to DL(a) */
+    GEN E = gel(sprk_get_cyc(sprk), 1), q = powiu(p, Z_pval(E, p));
+    y = ZC_Z_mul(y, Fp_inv(N, q));
+  }
+  y = ZC_lincomb(gen_1, e, ZM_ZC_mul(U2,y), U1);
   return vecmodii(y, cyc);
 }
 GEN
@@ -2852,8 +2885,7 @@ ZM_ZMV_mul(GEN A, GEN U)
 static GEN
 sprk_log_prk1_2(GEN nf, GEN a, GEN sprk)
 {
-  GEN A, g, L2, U1, U2, y;
-  sprk_get_L2(sprk, &A,&g,&L2);
+  GEN U1, U2, y, L2 = sprk_get_L2(sprk);
   sprk_get_U2(sprk, &U1,&U2);
   y = ZM_ZC_mul(U2, log_prk1(nf, a, lg(U2)-1, L2, sprk_get_prk(sprk)));
   return vecmodii(y, sprk_get_cyc(sprk));
@@ -2866,7 +2898,7 @@ sprk_log_gen_pr2(GEN nf, GEN sprk, long e)
   long i, l;
   if (e == 2)
   {
-    GEN A, g, L, L2; sprk_get_L2(sprk,&A,&g,&L2); L = gel(L2,1);
+    GEN L2 = sprk_get_L2(sprk), L = gel(L2,1);
     G = gel(L,2); l = lg(G);
   }
   else
