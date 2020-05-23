@@ -2709,7 +2709,7 @@ long nfislocalpower(GEN nf, GEN pr, GEN a, GEN n);
 long rnfislocalcyclo(GEN rnf);
 
 /* bnfunits.c */
-GEN     bnfisunit(GEN bignf, GEN x);
+GEN     bnfisunit(GEN bnf, GEN x);
 GEN     bnfissunit(GEN bnf,GEN suni,GEN x);
 GEN     bnfsunit(GEN bnf,GEN s,long PREC);
 GEN     bnfunits(GEN bnf, GEN S);
@@ -2749,7 +2749,7 @@ GEN     nfcyclotomicunits(GEN nf, GEN zu);
 GEN     nfsign_units(GEN bnf, GEN archp, int add_zu);
 GEN     nfsign_tu(GEN bnf, GEN archp);
 GEN     nfsign_fu(GEN bnf, GEN archp);
-GEN     signunits(GEN bignf);
+GEN     signunits(GEN bnf);
 
 /* buch3.c */
 
@@ -2762,7 +2762,7 @@ GEN     bnrautmatrix(GEN bnr, GEN aut);
 GEN     bnr_subgroup_check(GEN bnr, GEN H, GEN *pdeg);
 GEN     bnrchar(GEN bnr, GEN g, GEN v);
 GEN     bnrchar_primitive(GEN bnr, GEN chi, GEN bnrc);
-GEN     bnrclassno(GEN bignf,GEN ideal);
+GEN     bnrclassno(GEN bnf,GEN ideal);
 GEN     bnrclassno0(GEN A,GEN B,GEN C);
 GEN     bnrclassnolist(GEN bnf,GEN listes);
 GEN     bnrchar_primitive_raw(GEN bnr, GEN bnrc, GEN chi);
@@ -2776,7 +2776,7 @@ GEN     bnrdisc(GEN bnr, GEN H, long flag);
 GEN     bnrdisclist0(GEN bnf,GEN borne, GEN arch);
 GEN     bnrgaloismatrix(GEN bnr, GEN aut);
 GEN     bnrgaloisapply(GEN bnr, GEN mat, GEN x);
-GEN     bnrinit0(GEN bignf,GEN ideal,long flag);
+GEN     bnrinit0(GEN bnf,GEN ideal,long flag);
 GEN     bnrinitmod(GEN bnf, GEN ideal, long flag, GEN MOD);
 long    bnrisconductor0(GEN A, GEN B, GEN C);
 long    bnrisconductor(GEN bnr, GEN H);
@@ -2784,7 +2784,7 @@ long    bnrisgalois(GEN bnr, GEN M, GEN H);
 GEN     bnrisprincipalmod(GEN bnf, GEN x, GEN mod, long flag);
 GEN     bnrisprincipal(GEN bnf, GEN x,long flag);
 GEN     bnrsurjection(GEN bnr1, GEN bnr2);
-GEN     bnfnarrow(GEN bignf);
+GEN     bnfnarrow(GEN bnf);
 long    bnfcertify(GEN bnf);
 long    bnfcertify0(GEN bnf, long flag);
 GEN     decodemodule(GEN nf, GEN fa);
