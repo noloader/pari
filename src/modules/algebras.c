@@ -3295,6 +3295,7 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
     pari_err_PRIORITY("nfgrunwaldwang", pol_x(var), ">=", vnf);
   if (typ(Lpr) != t_VEC) pari_err_TYPE("nfgrunwaldwang",Lpr);
   if (lg(Lpr) != lg(Ld)) pari_err_DIM("nfgrunwaldwang [#Lpr != #Ld]");
+  if (nf_get_degree(nf)==1) Lpr = gcopy(Lpr);
   for (i=1; i<lg(Lpr); i++) {
     pr = gel(Lpr,i);
     if (nf_get_degree(nf)==1 && typ(pr)==t_INT)

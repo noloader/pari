@@ -2315,6 +2315,12 @@ al = algtableinit([matid(2),[0,0;1,0]],2);
 m = [[1,1]~,[1,0]~;[0,1]~,[0,0]~];
 type(algsqr(al,m))=="t_MAT"
 
+print("GW modified arguments");
+L = [2,3];
+Q = nfinit('z);
+gw = nfgrunwaldwang(Q,L,[2 | p <- L],[1],'y);
+print(L==[2,3]);
+
 \\algpoleval type check
 setrand(1);
 nf = nfinit(y^2-5);

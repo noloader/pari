@@ -2406,6 +2406,8 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
+GW modified arguments
+1
   ***   at top-level: algpoleval(al,pol,a)==0
   ***                 ^-----------------------
   *** algpoleval: sorry, algpoleval with x in basis form and pol not in Q[x] is not yet implemented.
@@ -2420,4 +2422,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: al2=algtensor(al,al)
   ***                     ^----------------
   *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-Total time spent: 1452
+Total time spent: 1428
