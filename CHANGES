@@ -162,7 +162,7 @@ BA  45- closures: do not copy the full context, only the accessible part
     47- add optional argument to sqrtint [set remainder]  [#2229]
     48- gammamellininv*(A,...): allow A to be an L-function
     49- bnrinit: optional argument to compute Cl_f/n, avoids tough discrete logs
-    50- rnfkummer: removed "all" flag, use bnrclassfield !
+    50- rnfkummer: removed "all" flag, function now obsolete. Use bnrclassfield!
     51- rnfconductor: flag to compute Cl_f/[K:Q] instead of Cl_f
 
   Added
