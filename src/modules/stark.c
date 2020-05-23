@@ -276,13 +276,12 @@ LiftChar(GEN Qt, GEN cyc, GEN chi)
 static GEN
 ComputeKernel0(GEN P, GEN cycA, GEN cycB)
 {
-  pari_sp av = avma;
   long nbA = lg(cycA)-1, rk;
   GEN U, DB = diagonal_shallow(cycB);
 
   rk = nbA + lg(cycB) - lg(ZM_hnfall_i(shallowconcat(P, DB), &U, 1));
   U = matslice(U, 1,nbA, 1,rk);
-  return gerepileupto(av, ZM_hnfmodid(U, cycA));
+  return ZM_hnfmodid(U, cycA);
 }
 
 /* Let m and n be two moduli such that n|m and let C be a congruence
@@ -435,21 +434,24 @@ subgp_intersect(GEN cyc, GEN A, GEN B)
   return ZM_hnfmodid(ZM_mul(A,U), cyc);
 }
 
- /* Let f be a conductor without infinite part and let C be a
-   congruence group modulo f, compute (m,D) such that D is a
-   congruence group of conductor m where m is a multiple of f
-   divisible by all the infinite places but one, D is a subgroup of
-   index 2 of Im(C) in Clk(m), and m is such that the intersection
-   of the subgroups H of Clk(m)/D such that the quotient is
-   cyclic and no prime divding m, but the one infinite prime, is
-   totally split in the extension corresponding to H is trivial.
-   Return bnr(m), D, the quotient Ck(m)/D and Clk(m)/Im(C) */
+/* Let (f,C) be a conductor without infinite part and a congruence group mod f.
+ * Compute (m,D) such that D is a congruence group of conductor m, f | m,
+ * divisible by all the infinite places but one, D is a subgroup of index 2 of
+ * Cm = Ker: Clk(m) -> Clk(f)/C. Consider further the subgroups H of Clk(m)/D
+ * with cyclic quotient Clk(m)/H such that no place dividing m is totally split
+ * in the extension KH corresponding to H: we want their intersection to be
+ * trivial. These H correspond to (the kernels of Galois orbits of) characters
+ * chi of Clk(m)/D such that chi(log_gen_arch(m_oo)) != 1 and for all pr | m
+ * we either have
+ * - chi(log_gen_pr(pr,1)) != 1 [pr | cond(chi) => ramified in KH]
+ * - or [pr \nmid cond(chi)] chi lifted to Clk(m/pr^oo) is not trivial at pr.
+ * We want the map from Clk(m)/D given by the vector of such caracters to have
+ * trivial kernel. Return bnr(m), D, Ck(m)/D and Clk(m)/Cm */
 static GEN
 FindModulus(GEN bnr, GEN dtQ, long *newprec)
 {
-  const long limnorm = 400;
-  long n, i, maxnorm, minnorm, N;
-  long first = 1, pr, rb, oldcpl = -1, iscyc;
+  const long LIMNORM = 400;
+  long n, i, maxnorm, minnorm, N, pr, rb, first = 1, oldcpl = -1, iscyc;
   pari_sp av = avma;
   GEN bnf, nf, f, varch, m, rep = NULL;
 
@@ -459,7 +461,8 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
   f   = gel(bnr_get_mod(bnr), 1);
 
   /* if cpl < rb, it is not necessary to try another modulus */
-  rb = expi( powii(mulii(nf_get_disc(nf), ZM_det_triangular(f)), gmul2n(bnr_get_no(bnr), 3)) );
+  rb = expi( powii(mulii(nf_get_disc(nf), ZM_det_triangular(f)),
+                   gmul2n(bnr_get_no(bnr), 3)) );
 
   /* Initialization of the possible infinite part */
   varch = cgetg(N+1,t_VEC);
@@ -471,12 +474,11 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
   }
   m = cgetg(3, t_VEC);
 
-  /* go from minnorm up to maxnorm. If necessary, increase these values.
-   * If we cannot find a suitable conductor of norm < limnorm, stop */
-  maxnorm = 50;
+  /* Go from minnorm up to maxnorm; if necessary, increase these values.
+   * If the extension is cyclic then a suitable conductor exists and we go on
+   * until we find it. Else, stop at norm LIMNORM. */
   minnorm = 1;
-
-  /* if the extension is cyclic then we _must_ find a suitable conductor */
+  maxnorm = 50;
   iscyc = cyc_is_cyclic(gel(dtQ,2));
 
   if (DEBUGLEVEL>1)
@@ -498,7 +500,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
         gel(m,1) = idealmul(nf, f, gel(idnormn,i));
         for (s = 1; s <= N; s++)
         { /* infinite part */
-          GEN candD, ImC, bnrm;
+          GEN candD, Cm, bnrm;
           long lD, c;
 
           gel(m,2) = gel(varch,s);
@@ -507,17 +509,15 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
           if (!bnrisconductor(bnrm, NULL)) continue;
 
           /* compute Im(C) in Clk(m)... */
-          ImC = ComputeKernel(bnrm, bnr, dtQ);
-
+          Cm = ComputeKernel(bnrm, bnr, dtQ);
           /* ... and its subgroups of index 2 with conductor m */
-          candD = subgrouplist_cond_sub(bnrm, ImC, mkvec(gen_2));
+          candD = subgrouplist_cond_sub(bnrm, Cm, mkvec(gen_2));
           lD = lg(candD);
           for (c = 1; c < lD; c++)
           {
-            GEN D  = gel(candD,c); /* check if the conductor is suitable */
-            long cpl;
-            GEN QD = InitQuotient(D), p2;
+            GEN p2, D = gel(candD,c), QD = InitQuotient(D);
             GEN ord = gel(QD,1), cyc = gel(QD,2), map = gel(QD,3);
+            long cpl;
 
             if (!cyc_is_cyclic(cyc)) /* cyclic => suitable, else test */
             {
@@ -541,7 +541,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
             gel(p2,1) = bnrm;
             gel(p2,2) = D;
             gel(p2,3) = QD;
-            gel(p2,4) = InitQuotient(ImC);
+            gel(p2,4) = InitQuotient(Cm);
             if (DEBUGLEVEL>1)
               err_printf("\nTrying modulus = %Ps and subgroup = %Ps\n",
                          bnr_get_mod(bnrm), D);
@@ -550,7 +550,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
             {
               *newprec = pr;
               guncloneNULL(rep);
-              rep    = gclone(p2);
+              rep = gclone(p2);
               oldcpl = cpl;
             }
             if (oldcpl < rb) goto END; /* OK */
@@ -565,8 +565,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
     /* if necessary compute more ideals */
     minnorm = maxnorm;
     maxnorm <<= 1;
-    if (!iscyc && maxnorm > limnorm) return NULL;
-
+    if (!iscyc && maxnorm > LIMNORM) return NULL;
   }
 END:
   if (DEBUGLEVEL>1)
