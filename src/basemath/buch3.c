@@ -378,6 +378,7 @@ bnr_subgroup_sanitize(GEN *pbnr, GEN *pH)
       mod = lg(D) == 1? gen_1: gel(D,1);
       break;
     default: pari_err_TYPE("bnr_subroup_sanitize [subgroup]", H);
+      mod = NULL;
   }
   cnd = bnrconductormod(bnr, H, 2, mod);
   *pbnr = gel(cnd,2); *pH = gel(cnd,3);
@@ -1580,11 +1581,10 @@ bnrisconductor(GEN bnr, GEN H0)
 {
   pari_sp av = avma;
   long j, k, l;
-  GEN bnf, archp, e, H;
+  GEN archp, e, H;
   zlog_S S;
 
   checkbnr(bnr);
-  bnf = bnr_get_bnf(bnr);
   init_zlog(&S, bnr_get_bid(bnr));
   if (!S.no2) return 0;
   H = bnr_subgroup_check(bnr, H0, NULL);

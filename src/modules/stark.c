@@ -2464,7 +2464,7 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
 {
   long N, newprec;
   pari_sp av = avma;
-  GEN bnf, cyc, nf, data, dtQ;
+  GEN bnf, nf, data, dtQ;
 
   /* check the bnr */
   checkbnr(bnr);
@@ -2480,7 +2480,6 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
 
   /* compute bnr(conductor) */
   bnr_subgroup_sanitize(&bnr, &subgrp);
-  cyc = bnr_get_cyc(bnr);
   if (gequal1( ZM_det_triangular(subgrp) )) { set_avma(av); return pol_x(0); }
 
   /* check the class field */

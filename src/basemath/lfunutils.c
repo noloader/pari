@@ -811,12 +811,12 @@ lfunchigen(GEN bnr, GEN CHI)
   if (typ(CHI) == t_VEC && !RgV_is_ZV(CHI))
   {
     long map, i, l = lg(CHI);
-    GEN F, chi = gel(CHI,1), bnr0 = bnr, o = gen_1;
+    GEN chi = gel(CHI,1), bnr0 = bnr, o = gen_1;
     GEN D = cyc_normalize(bnr_get_cyc(bnr));
     nchi = cgetg(l, t_VEC);
     N = bnr_get_mod(bnr);
     bnr_char_sanitize(&bnr, &chi);
-    F = bnr_get_mod(bnr); map = (bnr != bnr0);
+    map = (bnr != bnr0);
     for (i = 1; i < l; i++)
     {
       if (i > 1)
