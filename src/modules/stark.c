@@ -448,10 +448,10 @@ static GEN
 FindModulus(GEN bnr, GEN dtQ, long *newprec)
 {
   const long limnorm = 400;
-  long n, i, narch, maxnorm, minnorm, N;
+  long n, i, maxnorm, minnorm, N;
   long first = 1, pr, rb, oldcpl = -1, iscyc;
   pari_sp av = avma;
-  GEN bnf, nf, f, arch, m, rep = NULL;
+  GEN bnf, nf, f, varch, m, rep = NULL;
 
   bnf = bnr_get_bnf(bnr);
   nf  = bnf_get_nf(bnf);
@@ -462,11 +462,14 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
   rb = expi( powii(mulii(nf_get_disc(nf), ZM_det_triangular(f)), gmul2n(bnr_get_no(bnr), 3)) );
 
   /* Initialization of the possible infinite part */
-  arch = const_vec(N, gen_1);
-
-  /* narch = (N == 2)? 1: N; -- if N=2, only one case is necessary */
-  narch = N;
-  m = mkvec2(NULL, arch);
+  varch = cgetg(N+1,t_VEC);
+  for (i = 1; i <= N; i++)
+  {
+    GEN a = const_vec(N,gen_1);
+    gel(a, N+1-i) = gen_0;
+    gel(varch, i) = a;
+  }
+  m = cgetg(3, t_VEC);
 
   /* go from minnorm up to maxnorm. If necessary, increase these values.
    * If we cannot find a suitable conductor of norm < limnorm, stop */
@@ -493,17 +496,15 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
         long s;
 
         gel(m,1) = idealmul(nf, f, gel(idnormn,i));
-        for (s = 1; s <= narch; s++)
+        for (s = 1; s <= N; s++)
         { /* infinite part */
           GEN candD, ImC, bnrm;
           long lD, c;
-          gel(arch,N+1-s) = gen_0;
 
+          gel(m,2) = gel(varch,s);
           /* compute Clk(m), check if m is a conductor */
           bnrm = Buchray(bnf, m, nf_INIT);
-          c = bnrisconductor(bnrm, NULL);
-          gel(arch,N+1-s) = gen_1;
-          if (!c) continue;
+          if (!bnrisconductor(bnrm, NULL)) continue;
 
           /* compute Im(C) in Clk(m)... */
           ImC = ComputeKernel(bnrm, bnr, dtQ);
