@@ -3282,11 +3282,11 @@ get_vecsmall(GEN v)
 GEN
 nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
 {
-  ulong n;
+  ulong n, ell, ell2;
   pari_sp av = avma;
-  GEN nf, bnf, pr;
+  GEN nf, bnf;
   long t, w, i, vnf;
-  ulong ell, ell2;
+
   if (var < 0) var = 0;
   nf = get_nf(nf0,&t);
   if (!nf) pari_err_TYPE("nfgrunwaldwang",nf0);
@@ -3295,9 +3295,9 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
     pari_err_PRIORITY("nfgrunwaldwang", pol_x(var), ">=", vnf);
   if (typ(Lpr) != t_VEC) pari_err_TYPE("nfgrunwaldwang",Lpr);
   if (lg(Lpr) != lg(Ld)) pari_err_DIM("nfgrunwaldwang [#Lpr != #Ld]");
-  if (nf_get_degree(nf)==1) Lpr = gcopy(Lpr);
+  if (nf_get_degree(nf)==1) Lpr = shallowcopy(Lpr);
   for (i=1; i<lg(Lpr); i++) {
-    pr = gel(Lpr,i);
+    GEN pr = gel(Lpr,i);
     if (nf_get_degree(nf)==1 && typ(pr)==t_INT)
       gel(Lpr,i) = gel(idealprimedec(nf,pr), 1);
     else checkprid(pr);
