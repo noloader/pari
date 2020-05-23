@@ -232,7 +232,7 @@ bad inputs
   *** bnrclassfield: incorrect type in allhnfmod [integer matrix] (t_MAT).
   ***   at top-level: bnrclassfield(K,1/2)
   ***                 ^--------------------
-  *** bnrclassfield: incorrect type in bnrclassfield [subgroup] (t_FRAC).
+  *** bnrclassfield: incorrect type in bnr_subroup_sanitize [subgroup] (t_FRAC).
   ***   at top-level: bnrclassfield(K,matid(2))
   ***                 ^-------------------------
   *** bnrclassfield: inconsistent dimensions in ZM_hnfmod.
@@ -251,4 +251,4 @@ bad inputs
   ***   at top-level: bnrclassfield(bnfinit(x))
   ***                 ^-------------------------
   *** bnrclassfield: incorrect priority in bnrclassfield: variable x = x
-Total time spent: 3997
+Total time spent: 4049
