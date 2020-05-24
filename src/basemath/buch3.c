@@ -414,7 +414,7 @@ ZM_content_mul(GEN u, GEN c, GEN *pd)
 static GEN
 Buchray_i(GEN bnf, GEN module, long flag, GEN MOD)
 {
-  GEN nf, cyc, gen, Cyc, Gen, clg, h, logU, U, Ui, vu;
+  GEN nf, cyc0, cyc, gen, Cyc, Gen, clg, h, logU, U, Ui, vu;
   GEN bid, cycbid, genbid, H, El;
   long RU, Ri, j, ngen;
   const long add_gen = flag & nf_GEN;
@@ -426,7 +426,7 @@ Buchray_i(GEN bnf, GEN module, long flag, GEN MOD)
   nf = bnf_get_nf(bnf);
   RU = lg(nf_get_roots(nf))-1; /* #K.futu */
   El = Gen = NULL; /* gcc -Wall */
-  cyc = bnf_get_cyc(bnf);
+  cyc = cyc0 = bnf_get_cyc(bnf);
   gen = bnf_get_gen(bnf); ngen = lg(cyc)-1;
 
   bid = checkbid_i(module);
@@ -499,9 +499,9 @@ Buchray_i(GEN bnf, GEN module, long flag, GEN MOD)
         c = famat_mulpow_shallow(c, gel(El,j),gel(cyc,j));
       gel(logs,j) = ideallogmod(nf, c, bid, MOD); /* = log(Gen[j]^cyc[j]) */
     }
-    /* [ cyc  0 ]
+    /* [ cyc0 0 ]
      * [-logs H ] = relation matrix for generators Gen of Cl_f */
-    h = shallowconcat(vconcat(diagonal_shallow(cyc), gneg_i(logs)),
+    h = shallowconcat(vconcat(diagonal_shallow(cyc0), gneg_i(logs)),
                       vconcat(zeromat(ngen, Ri), H));
     h = ZM_hnf(h);
     if (MOD) h = ZM_hnfmodid(h, MOD);

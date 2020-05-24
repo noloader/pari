@@ -122,5 +122,9 @@ bnrisprincipal(bnr,idealprimedec(bnr,13)[1],0)
 bnr=bnrinit(bnf,3,,3); bnr.cyc
 bnrisprincipal(bnr,idealprimedec(bnr,13)[1],0)
 
+\\ wrong relations => bug in rnfkummer
+setrand(1); bnr=bnrinit(bnfinit(y^4-y^3+16*y^2-16*y+61),5,,5);
+#bnrclassfield(bnr,5)
+
 \\ Errors
 bnrisprincipal(bnrinit(bnf, 1), 1);
