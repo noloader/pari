@@ -5,9 +5,7 @@ do(nf,f, H = 0)=
 {
   setrand(1); print(count++);
   f=liftpol(rnfkummer(bnrinit(bnfinit(nf,1),f), H));
-  if (count == 5, #Str(f) <= 150,
-      count == 10, #Str(f) <= 750,
-      count == 11, #Str(f) <= 600, f);
+  if (count == 11, #Str(f) <= 600, f);
 }
 
 
