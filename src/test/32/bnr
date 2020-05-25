@@ -95,6 +95,7 @@
 [3, 3, 3]
 [2, 2, 1]~
 2
+2
   ***   at top-level: bnrisprincipal(bnrinit(bnf,1),1)
   ***                 ^--------------------------------
   *** bnrisprincipal: missing bnr generators: please use bnrinit(,,1).

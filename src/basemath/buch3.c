@@ -496,15 +496,14 @@ Buchray_i(GEN bnf, GEN module, long flag, GEN MOD)
     {
       GEN c = gel(cycgen,j);
       if (typ(gel(El,j)) != t_INT) /* <==> != 1 */
-        c = famat_mulpow_shallow(c, gel(El,j),gel(cyc,j));
+        c = famat_mulpow_shallow(c, gel(El,j),gel(cyc0,j));
       gel(logs,j) = ideallogmod(nf, c, bid, MOD); /* = log(Gen[j]^cyc[j]) */
     }
     /* [ cyc0 0 ]
      * [-logs H ] = relation matrix for generators Gen of Cl_f */
-    h = shallowconcat(vconcat(diagonal_shallow(cyc0), gneg_i(logs)),
+    h = shallowconcat(vconcat(diagonal_shallow(cyc0), ZM_neg(logs)),
                       vconcat(zeromat(ngen, Ri), H));
-    h = ZM_hnf(h);
-    if (MOD) h = ZM_hnfmodid(h, MOD);
+    h = MOD? ZM_hnfmodid(h, MOD): ZM_hnf(h);
   }
   Cyc = ZM_snf_group(h, &U, &Ui);
   /* Gen = clg.gen*U, clg.gen = Gen*Ui */
