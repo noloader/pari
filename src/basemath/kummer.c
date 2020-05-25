@@ -488,6 +488,58 @@ lift_if_rational(GEN x)
   return x;
 }
 
+/* lift elt t in nf to nfz, algebraic form */
+static GEN
+lifttoKz(GEN nf, GEN t, compo_s *C)
+{
+  GEN x = nf_to_scalar_or_alg(nf, t);
+  if (typ(x) != t_POL) return x;
+  return RgX_RgXQ_eval(x, C->p, C->R);
+}
+/* lift ideal id in nf to nfz */
+static GEN
+ideallifttoKz(GEN nfz, GEN nf, GEN id, compo_s *C)
+{
+  GEN I = idealtwoelt(nf,id);
+  GEN x = nf_to_scalar_or_alg(nf, gel(I,2));
+  if (typ(x) != t_POL) return gel(I,1);
+  gel(I,2) = algtobasis(nfz, RgX_RgXQ_eval(x, C->p, C->R));
+  return idealhnf_two(nfz,I);
+}
+
+static GEN
+prlifttoKz_i(GEN nfz, GEN nf, GEN pr, compo_s *C)
+{
+  GEN p = pr_get_p(pr), T = nf_get_pol(nfz);
+  if (nf_get_degree(nf) != 1)
+  { /* restrict to primes above pr */
+    GEN t = pr_get_gen(pr);
+    t = Q_primpart( lifttoKz(nf,t,C) );
+    T = FpX_gcd(FpX_red(T,p), FpX_red(t,p), p);
+    T = FpX_normalize(T, p);
+  }
+  return gel(FpX_factor(T, p), 1);
+}
+/* lift ideal pr in nf to ONE prime in nfz (the others are conjugate under tau
+ * and bring no further information on e_1 W). Assume pr coprime to
+ * index of both nf and nfz, and unramified in Kz/K (minor simplification) */
+static GEN
+prlifttoKz(GEN nfz, GEN nf, GEN pr, compo_s *C)
+{
+  GEN P = prlifttoKz_i(nfz, nf, pr, C);
+  return idealprimedec_kummer(nfz, gel(P,1), pr_get_e(pr), pr_get_p(pr));
+}
+static GEN
+prlifttoKzall(GEN nfz, GEN nf, GEN pr, compo_s *C)
+{
+  GEN P = prlifttoKz_i(nfz, nf, pr, C), p = pr_get_p(pr), vP;
+  long l = lg(P), e = pr_get_e(pr), i;
+  vP = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+    gel(vP,i) = idealprimedec_kummer(nfz,gel(P,i), e, p);
+  return vP;
+}
+
 static GEN
 get_badbnf(GEN bnf)
 {
@@ -501,59 +553,112 @@ get_badbnf(GEN bnf)
   }
   return bad;
 }
-/* Let K base field, L/K described by bnr (conductor f) + H. Return a list of
+/* test whether H has index p */
+static int
+H_is_good(GEN H, GEN p)
+{
+  long l = lg(H), status = 0, i;
+  for (i = 1; i < l; i++)
+    if (equalii(gcoeff(H,i,i), p) && ++status > 1) return 0;
+  return status == 1;
+}
+/* Let K base field, L/K described by bnr (conductor F) + H. Return a list of
  * primes coprime to f*ell of degree 1 in K whose images in Cl_f(K) together
  * with ell*Cl_f(K), generate H:
  * thus they all split in Lz/Kz; t in Kz is such that
  * t^(1/p) generates Lz => t is an ell-th power in k(pr) for all such primes.
  * Restrict to primes not dividing
- * - the index fz of the polynomial defining Kz, or
- * - the modulus, or
- * - ell, or
- * - a generator in bnf.gen or bnfz.gen */
+ * - the index of the polynomial defining Kz,
+ * - the modulus,
+ * - ell,
+ * - a generator in bnf.gen or bnfz.gen.
+ * If ell | F and Kz != K, set compute the congruence group Hz over Kz
+ * and set *Fz to the conductor. */
 static GEN
-get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
+get_prlist(GEN bnr, GEN H, ulong ell, GEN *Fz, struct rnfkummer *kum)
 {
   pari_sp av0 = avma;
+  GEN gell = utoipos(ell), Hz = NULL, bnrz = NULL, cycz = NULL, nfz = NULL;
+  GEN cyc = bnr_get_cyc(bnr), nf = bnr_get_nf(bnr), F = gel(bnr_get_mod(bnr),1);
+  GEN bad, Hsofar, L = cgetg(1, t_VEC);
   forprime_t T;
   ulong p;
-  GEN L, nf, cyc, bad, cond, condZ, Hsofar;
-  L = cgetg(1, t_VEC);
-  cyc = bnr_get_cyc(bnr);
-  nf = bnr_get_nf(bnr);
+  int Ldone = 0;
 
-  cond = gel(bnr_get_mod(bnr), 1);
-  condZ = gcoeff(cond,1,1);
   bad = get_badbnf(bnr_get_bnf(bnr));
-  if (bnfz)
+  if (kum)
   {
+    GEN bnfz = kum->bnfz, ideal = gel(bnr_get_mod(bnr), 1);
     GEN badz = lcmii(get_badbnf(bnfz), nf_get_index(bnf_get_nf(bnfz)));
-    bad = mulii(bad,badz);
+    bad = lcmii(bad,badz);
+    nfz = bnf_get_nf(bnfz);
+    *Fz = ideallifttoKz(nfz, nf, ideal, &kum->COMPO);
+    if (dvdiu(gcoeff(ideal,1,1), ell))
+    { /* ell | N(ideal), need Hz = Ker N: Cl_Kz(bothz) -> Cl_K(ideal)/H
+       * to update conductor */
+      bnrz = Buchraymod(bnfz, *Fz, nf_INIT, gell);
+      cycz = bnr_get_cyc(bnrz);
+      Hz = diagonal_shallow(ZV_gcdmod(cycz, gell));
+      if (H_is_good(Hz, gell))
+      {
+        *Fz = bnrconductormod(bnrz, Hz, 0, gell);
+        gerepileall(av0, 2, &L, Fz); return L;
+      }
+    }
   }
-  bad = lcmii(muliu(condZ, ell), bad);
-  /* restrict to primes not dividing bad */
-  u_forprime_init(&T, 2, ULONG_MAX);
-  Hsofar = ZM_hnfmodid(scalarmat(utoi(ell),lg(cyc)-1),cyc);
-  if (ZM_equal(Hsofar, H)) return gerepilecopy(av0, L);
+  bad = lcmii(gcoeff(F,1,1), bad);
+  cyc = ZV_gcdmod(cyc, gell);
+  Hsofar = diagonal_shallow(cyc);
+  if (H_is_good(Hsofar, gell))
+  {
+    Ldone = 1;
+    if (!Hz) { gerepileall(av0, Fz? 2: 1, &L, Fz); return L; }
+  }
+  /* restrict to primes not dividing bad and 1 mod ell */
+  u_forprime_arith_init(&T, 2, ULONG_MAX, 1, ell);
   while ((p = u_forprime_next(&T)))
   {
     GEN LP;
     long i, l;
-    if (p == ell || !umodiu(bad, p)) continue;
+    if (!umodiu(bad, p)) continue;
     LP = idealprimedec_limit_f(nf, utoipos(p), 1);
     l = lg(LP);
     for (i = 1; i < l; i++)
     {
       pari_sp av = avma;
-      GEN M, P = gel(LP,i), v = bnrisprincipalmod(bnr, P, utoi(ell), 0);
+      GEN M, P = gel(LP,i), v = bnrisprincipalmod(bnr, P, gell, 0);
       if (!hnf_invimage(H, v)) { set_avma(av); continue; }
-      M = shallowconcat(Hsofar, v);
-      M = ZM_hnfmodid(M, cyc);
-      if (ZM_equal(M, Hsofar)) continue;
+      /* P in H */
+      M = ZM_hnfmodid(shallowconcat(Hsofar, v), cyc);
+      if (Hz)
+      { /* N_{Kz/K} P in H hence P in Hz */
+        GEN vP = prlifttoKzall(nfz, nf, P, &kum->COMPO);
+        long j, lv = lg(vP);
+        for (j = 1; j < lv; j++)
+        {
+          v = bnrisprincipalmod(bnrz, gel(vP,j), gell, 0);
+          if (!ZV_equal0(v))
+          {
+            Hz = ZM_hnfmodid(shallowconcat(Hz,v), cycz);
+            if (H_is_good(Hz, gell))
+            {
+              *Fz = bnrconductormod(bnrz, Hz, 0, gell);
+              L = vec_append(L, gel(vP,1));
+              gerepileall(av0, 2, &L, Fz); return L;
+            }
+          }
+        }
+        P = gel(vP,1);
+      }
+      else if (kum) P = prlifttoKz(nfz, nf, P, &kum->COMPO);
+      if (Ldone || ZM_equal(M, Hsofar)) continue;
       L = vec_append(L, P);
       Hsofar = M;
-      /* the primes in L generate H */
-      if (ZM_equal(M, H)) return gerepilecopy(av0, L);
+      if (H_is_good(Hsofar, gell))
+      {
+        Ldone = 1;
+        if (!Hz) { gerepileall(av0, Fz? 2: 1, &L, Fz); return L; }
+      }
     }
   }
   pari_err_BUG("rnfkummer [get_prlist]");
@@ -599,6 +704,8 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
   long i, j, degK, dK, lSml2, lSl2, lSp, rc, lW, prec;
   GEN bnf, nf,bid, ideal, arch, cycgen, cyc, Sp, prSp, matP;
   GEN gell, xell, u, M, K, y, vecMsup, vecW, vecWB, vecBp, msign;
+  /* primes landing in subgroup must be totally split */
+  GEN Lpr = get_prlist(bnr, subgroup, ell, NULL, NULL);
   primlist L;
 
   bnf = bnr_get_bnf(bnr); if (!bnf_get_sunits(bnf)) bnf_build_units(bnf);
@@ -649,11 +756,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
   }
   lW = lg(vecW);
   M = vconcat(M, shallowconcat(zero_Flm(rc,lW-1), matP));
-  { /* primes landing in subgroup must be totally split */
-    GEN Lpr = get_prlist(bnr, subgroup, ell, NULL);
-    GEN M2 = subgroup_info(bnf, Lpr, ell, vecWB);
-    M = vconcat(M, M2);
-  }
+  M = vconcat(M, subgroup_info(bnf, Lpr, ell, vecWB));
   K = Flm_ker(M, ell);
   dK = lg(K)-1;
   y = cgetg(dK+1,t_VECSMALL);
@@ -785,59 +888,6 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
   for (j = 1; j < l; j++)
     gel(vy,j) = shallowconcat(Flm_Flc_mul(M, gel(vz,j), ell), gel(vy,j));
   return Flm_ker(Flm_Fl_sub(vy, kum->g, ell), ell);
-}
-
-/* J a vector of elements in nfz = relative extension of nf by polrel,
- * return the Steinitz element attached to the module generated by J */
-static GEN
-Stelt(GEN nf, GEN J, GEN polrel)
-{
-  long i, l = lg(J), vx = varn(polrel);
-  GEN A = cgetg(l, t_VEC), I = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
-  {
-    GEN v = gel(J,i);
-    if (typ(v) == t_POL) { v = RgX_rem(v, polrel); setvarn(v,vx); }
-    gel(A,i) = v;
-    gel(I,i) = gen_1;
-  }
-  A = RgV_to_RgM(A, degpol(polrel));
-  return idealprod(nf, gel(nfhnf(nf, mkvec2(A,I)),2));
-}
-
-static GEN
-polrelKzK(toK_s *T, GEN x)
-{
-  GEN P = roots_to_pol(powtau(x, T->m, T->tau), 0);
-  long i, l = lg(P);
-  for (i=2; i<l; i++) gel(P,i) = downtoK(T, gel(P,i));
-  return P;
-}
-
-/* N: Cl_m(Kz) -> Cl_m(K), lift subgroup from bnr to bnrz using Algo 4.1.11 */
-static GEN
-invimsubgroup(GEN bnrz, GEN bnr, GEN subgroup, toK_s *T)
-{
-  long l, j;
-  GEN P, cyc, gen, U, polrel, StZk;
-  GEN nf = bnr_get_nf(bnr), nfz = bnr_get_nf(bnrz);
-  GEN polz = nf_get_pol(nfz), zkzD = nf_get_zkprimpart(nfz);
-
-  polrel = polrelKzK(T, pol_x(varn(polz)));
-  StZk = Stelt(nf, zkzD, polrel);
-  cyc = bnr_get_cyc(bnrz); l = lg(cyc);
-  gen = bnr_get_gen(bnrz);
-  P = cgetg(l,t_MAT);
-  for (j=1; j<l; j++)
-  {
-    GEN g, id = idealhnf_shallow(nfz, gel(gen,j));
-    g = Stelt(nf, RgV_RgM_mul(zkzD, id), polrel);
-    g = idealdiv(nf, g, StZk); /* N_{Kz/K}(gen[j]) */
-    gel(P,j) = isprincipalray(bnr, g);
-  }
-  (void)ZM_hnfall_i(shallowconcat(P, subgroup), &U, 1);
-  setlg(U, l); for (j=1; j<l; j++) setlg(U[j], l);
-  return ZM_hnfmodid(U, cyc);
 }
 
 static GEN
@@ -978,49 +1028,6 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   if (DEBUGLEVEL>1) err_printf("\n");
   (void)delete_var();
   (void)delete_var(); return pol_from_Newton(S);
-}
-
-/* lift elt t in nf to nfz, algebraic form */
-static GEN
-lifttoKz(GEN nf, GEN t, compo_s *C)
-{
-  GEN x = nf_to_scalar_or_alg(nf, t);
-  if (typ(x) != t_POL) return x;
-  return RgX_RgXQ_eval(x, C->p, C->R);
-}
-/* lift ideal id in nf to nfz */
-static GEN
-ideallifttoKz(GEN nfz, GEN nf, GEN id, compo_s *C)
-{
-  GEN I = idealtwoelt(nf,id);
-  GEN x = nf_to_scalar_or_alg(nf, gel(I,2));
-  if (typ(x) != t_POL) return gel(I,1);
-  gel(I,2) = algtobasis(nfz, RgX_RgXQ_eval(x, C->p, C->R));
-  return idealhnf_two(nfz,I);
-}
-/* lift ideal pr in nf to ONE prime in nfz (the others are conjugate under tau
- * and bring no further information on e_1 W). Assume pr coprime to
- * index of both nf and nfz, and unramified in Kz/K (minor simplification) */
-static GEN
-prlifttoKz(GEN nfz, GEN nf, GEN pr, compo_s *C)
-{
-  GEN F, p = pr_get_p(pr), t = pr_get_gen(pr), T = nf_get_pol(nfz);
-  if (nf_get_degree(nf) != 1)
-  { /* restrict to primes above pr */
-    t = Q_primpart( lifttoKz(nf,t,C) );
-    T = FpX_gcd(FpX_red(T,p), FpX_red(t,p), p);
-    T = FpX_normalize(T, p);
-  }
-  F = FpX_factor(T, p);
-  return idealprimedec_kummer(nfz,gcoeff(F,1,1), pr_get_e(pr), p);
-}
-static GEN
-get_przlist(GEN L, GEN nfz, GEN nf, compo_s *C)
-{
-  long i, l;
-  GEN M = cgetg_copy(L, &l);
-  for (i = 1; i < l; i++) gel(M,i) = prlifttoKz(nfz, nf, gel(L,i), C);
-  return M;
 }
 
 static void
@@ -1200,26 +1207,18 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
 }
 
 static GEN
-rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup)
+rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
 {
   ulong ell = kum->ell, mginv;
   GEN bnfz = kum->bnfz, nfz = bnf_get_nf(bnfz), cycgen = bnf_build_cycgen(bnfz);
-  GEN nf = bnr_get_nf(bnr), ideal = gel(bnr_get_mod(bnr), 1);
   GEN vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q = kum->Q;
   long lW = lg(vecW), rc = kum->rc, i, j, lSml2, lSp, lSl2, dc;
   toK_s *T = &kum->T;
   primlist L;
-  GEN gothf, idealz, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, vecMsup, M;
+  GEN gothf, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, vecMsup, M, lambdaWB;
+  /* primes landing in H must be totally split */
+  GEN Lpr = get_prlist(bnr, H, ell, &gothf, kum);
 
-  idealz = ideallifttoKz(nfz, nf, ideal, &kum->COMPO);
-  if (umodiu(gcoeff(ideal,1,1), ell)) gothf = idealz;
-  else
-  { /* ell | N(ideal) */
-    GEN gell = utoipos(ell);
-    GEN bnrz = Buchraymod(bnfz, idealz, nf_INIT|nf_GEN, gell);
-    GEN Hz = invimsubgroup(bnrz, bnr, subgroup, T);
-    gothf = bnrconductormod(bnrz, Hz, 0, gell);
-  }
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
   i = build_list_Hecke(&L, nfz, NULL, gothf, ell, T->tau);
   if (i) no_sol(i);
@@ -1267,14 +1266,10 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup)
     M = vconcat(M, shallowconcat(zero_Flm(dc,lW-1), QtP));
   }
   if (!M) M = zero_Flm(1, lSp-1 + lW-1);
-  { /* primes landing in subgroup must be totally split */
-    GEN lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
-    GEN Lpr = get_prlist(bnr, subgroup, ell, bnfz);
-    GEN Lprz= get_przlist(Lpr, nfz, nf, &kum->COMPO);
-    M = vconcat(M, subgroup_info(bnfz, Lprz, ell, lambdaWB));
-  }
+  lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
+  M = vconcat(M, subgroup_info(bnfz, Lpr, ell, lambdaWB));
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
-  return _rnfkummer_step18(kum,bnr,subgroup, M, vecWB, vecMsup);
+  return _rnfkummer_step18(kum, bnr, H, M, vecWB, vecMsup);
 }
 
 static void
