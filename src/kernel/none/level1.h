@@ -150,7 +150,7 @@ stack_malloc_align(size_t N, long k)
 {
   ulong d = ((ulong)avma) % k, e = ((ulong)N) % k;
   if (d) (void)new_chunk(d/sizeof(long));
-  if (k) N += k-e;
+  if (e) N += k-e;
   return (char*) new_chunk(nchar2nlong(N));
 }
 
