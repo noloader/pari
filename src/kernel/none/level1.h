@@ -161,6 +161,15 @@ stack_calloc(size_t N)
   memset(p, 0, N); return p;
 }
 
+INLINE char *
+stack_calloc_align(size_t N, long k)
+{
+  ulong d = ((ulong)avma) % k, e = ((ulong)N) % k;
+  if (d) (void)new_chunk(d/sizeof(long));
+  if (e) N += k-e;
+  return stack_calloc(N);
+}
+
 /* cgetg(lg(x), typ(x)), set *lx. Implicit unsetisclone() */
 INLINE GEN
 cgetg_copy(GEN x, long *plx) {

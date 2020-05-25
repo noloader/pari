@@ -1161,6 +1161,9 @@ be a multiple of the \kbd{sizeof(long)}.
 \fun{char*}{stack_calloc}{size_t n} as \kbd{stack\_malloc}, setting the memory
 to zero.
 
+\fun{char*}{stack_calloc_align}{size_t n, long k} as
+\kbd{stack\_malloc\_align}, setting the memory to zero.
+
 \noindent Objects allocated through these last three functions cannot be
 \kbd{gerepile}'d, since they are not yet valid \kbd{GEN}s: their codewords
 must be filled first.

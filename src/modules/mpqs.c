@@ -183,7 +183,7 @@ mpqs_sieve_array_ctor(mpqs_handle_t *h)
   long size = (h->M << 1) + 1;
   mpqs_int32_t size_of_FB = h->size_of_FB;
 
-  h->sieve_array = (unsigned char *) stack_malloc_align(size, sizeof(mpqs_mask));
+  h->sieve_array = (unsigned char *) stack_calloc_align(size, sizeof(mpqs_mask));
   h->sieve_array_end = h->sieve_array + size - 2;
   h->sieve_array_end[1] = 255; /* sentinel */
   h->candidates = (long *)stack_malloc(MPQS_CANDIDATE_ARRAY_SIZE * sizeof(long));

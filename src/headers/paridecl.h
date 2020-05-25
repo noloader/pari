@@ -5534,6 +5534,7 @@ INLINE void   stackdummy(pari_sp av, pari_sp ltop);
 INLINE char  *stack_malloc(size_t N);
 INLINE char  *stack_malloc_align(size_t N, long k);
 INLINE char  *stack_calloc(size_t N);
+INLINE char  *stack_calloc_align(size_t N, long k);
 INLINE GEN    stoi(long x);
 INLINE GEN    stor(long x, long prec);
 INLINE GEN    subii(GEN x, GEN y);
