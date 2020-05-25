@@ -814,7 +814,7 @@ polrelKzK(toK_s *T, GEN x)
   return P;
 }
 
-/* N: Cl_m(Kz) --> Cl_m(K), lift subgroup from bnr to bnrz using Algo 4.1.11 */
+/* N: Cl_m(Kz) -> Cl_m(K), lift subgroup from bnr to bnrz using Algo 4.1.11 */
 static GEN
 invimsubgroup(GEN bnrz, GEN bnr, GEN subgroup, toK_s *T)
 {
@@ -1204,7 +1204,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup)
 {
   ulong ell = kum->ell, mginv;
   GEN bnfz = kum->bnfz, nfz = bnf_get_nf(bnfz), cycgen = bnf_build_cycgen(bnfz);
-  GEN nf = bnr_get_nf(bnr), bid = bnr_get_bid(bnr), ideal = bid_get_ideal(bid);
+  GEN nf = bnr_get_nf(bnr), ideal = gel(bnr_get_mod(bnr), 1);
   GEN vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q = kum->Q;
   long lW = lg(vecW), rc = kum->rc, i, j, lSml2, lSp, lSl2, dc;
   toK_s *T = &kum->T;
