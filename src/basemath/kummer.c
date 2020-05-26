@@ -679,7 +679,7 @@ subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
 static GEN
 rnfkummersimple(GEN bnr, GEN H, long ell)
 {
-  long i, j, degK, lSp, rc, prec;
+  long i, j, degK, lSp, rc;
   GEN bnf, nf,bid, ideal, cycgen, cyc, Sp, prSp, matP;
   GEN be, gell, u, M, K, vecW, vecWB, vecBp, ESml2;
   /* primes landing in H must be totally split */
@@ -694,22 +694,19 @@ rnfkummersimple(GEN bnr, GEN H, long ell)
   i = build_list_Hecke(&Sp, &prSp, &ESml2, nf, bid_get_fact2(bid), ideal, ell, NULL);
   if (i) no_sol(i);
 
-  lSp = lg(Sp);
   cycgen = bnf_build_cycgen(bnf);
   cyc = bnf_get_cyc(bnf); rc = prank(cyc, ell);
 
   vecW = get_Selmer(bnf, cycgen, rc);
   u = get_u(cyc, rc, ell);
 
+  lSp = lg(Sp);
   vecBp = cgetg(lSp, t_VEC);
   matP  = cgetg(lSp, t_MAT);
   for (j = 1; j < lSp; j++)
     isprincipalell(bnf,gel(Sp,j), cycgen,u,ell,rc, &gel(matP,j), &gel(vecBp,j));
   vecWB = shallowconcat(vecW, vecBp);
 
-  prec = DEFAULTPREC +
-      nbits2extraprec(((degK-1) * (gexpo(vecWB) + gexpo(nf_get_M(nf)))));
-  if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf, prec);
   M = matlogall(nf, vecWB, 0, 0, ell, prSp, ESml2);
   M = vconcat(M, shallowconcat(zero_Flm(rc,lg(vecW)-1), matP));
   M = vconcat(M, subgroup_info(bnf, Lpr, ell, vecWB));
@@ -1127,8 +1124,8 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
   i = build_list_Hecke(&Sp, &prSp, &ESml2, nfz, NULL, gothf, ell, T->tau);
   if (i) no_sol(i);
 
-  lSp = lg(Sp);
   if (DEBUGLEVEL>2) err_printf("Step 12\n");
+  lSp = lg(Sp);
   vecAp = cgetg(lSp, t_VEC);
   vecBp = cgetg(lSp, t_VEC);
   matP  = cgetg(lSp, t_MAT);
