@@ -664,13 +664,13 @@ subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
 }
 
 static GEN
-rnfkummersimple(GEN bnr, GEN subgroup, long ell)
+rnfkummersimple(GEN bnr, GEN H, long ell)
 {
   long i, j, degK, lSml2, lSl2, lSp, rc, lW, prec;
   GEN bnf, nf,bid, ideal, cycgen, cyc, Sp, prSp, matP;
   GEN be, gell, u, M, K, vecW, vecWB, vecBp;
-  /* primes landing in subgroup must be totally split */
-  GEN Lpr = get_prlist(bnr, subgroup, ell, NULL, NULL);
+  /* primes landing in H must be totally split */
+  GEN Lpr = get_prlist(bnr, H, ell, NULL, NULL);
   primlist L;
 
   bnf = bnr_get_bnf(bnr); if (!bnf_get_sunits(bnf)) bnf_build_units(bnf);
@@ -1186,30 +1186,27 @@ bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
 }
 
 static GEN
-_rnfkummer(GEN bnr, GEN subgroup, long prec)
+_rnfkummer(GEN bnr, GEN H, long prec)
 {
   ulong ell;
   GEN gell;
   struct rnfkummer kum;
 
-  bnrclassfield_sanitize(&bnr, &subgroup);
-  gell = get_gell(bnr,subgroup);
+  bnrclassfield_sanitize(&bnr, &H);
+  gell = get_gell(bnr,H);
   if (typ(gell) != t_INT) pari_err_TYPE("rnfkummer",gell);
   ell = itou(gell);
   if (ell == 1) return pol_x(0);
   if (!uisprime(ell)) pari_err_IMPL("rnfkummer for composite relative degree");
   if (bnf_get_tuN(bnr_get_bnf(bnr)) % ell == 0)
-    return rnfkummersimple(bnr, subgroup, ell);
+    return rnfkummersimple(bnr, H, ell);
   rnfkummer_init(&kum, bnr_get_bnf(bnr), ell, prec);
-  return rnfkummer_ell(&kum, bnr, subgroup);
+  return rnfkummer_ell(&kum, bnr, H);
 }
 
 GEN
-rnfkummer(GEN bnr, GEN subgroup, long prec)
-{
-  pari_sp av = avma;
-  return gerepilecopy(av, _rnfkummer(bnr, subgroup, prec));
-}
+rnfkummer(GEN bnr, GEN H, long prec)
+{ pari_sp av = avma; return gerepilecopy(av, _rnfkummer(bnr, H, prec)); }
 
 /*******************************************************************/
 /*                        bnrclassfield                            */
