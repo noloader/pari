@@ -2700,7 +2700,10 @@ ldata_vecan(GEN van, long L, long prec)
       an = vecan_closure(an, L, prec);
       n = lg(an)-1;
       if (n < L)
+      {
         pari_warn(warner, "#an = %ld < %ld, results may be imprecise", n, L);
+        an = shallowconcat(an, zerovec(L-n));
+      }
       break;
     case t_LFUN_CLOSURE0:
       pari_err_BUG("ldata_vecan: please call ldata_newprec");/*LCOV_EXCL_LINE*/

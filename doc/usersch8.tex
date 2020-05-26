@@ -91,8 +91,8 @@ shallow result. Exception if \kbd{obj} cannot be converted.
 
 \fun{int}{sdomain_isincl}{double k, GEN dom, GEN dom0}
 
-\fun{GEN}{ldata_vecan}{GEN ldata, long L, long prec}
-return the vector of coefficients of indices $1$ to $L$ to precision
+\fun{GEN}{ldata_vecan}{GEN ldata, long N, long prec}
+return the vector of coefficients of indices $1$ to $N$ to precision
 \kbd{prec}. The output is allowed to be a \typ{VECSMALL} when the
 coefficients are known to be all integral and fit into a \kbd{long};
 for instance the Dirichlet $L$ function of a real character or the

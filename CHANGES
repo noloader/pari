@@ -99,6 +99,7 @@ BA  76- [mpi] sending t_LIST to remote nodes did not work.
 BA  77- my(a,b); parvector(1,i,self()) --> SEGV
 AP  78- bnrclassfield(,,2) --> sometimes relative polynomial
 AP  79- nfgrunwaldwang could modify its arguments
+    80- ldata_vecan(an, N, prec): make sure the function returns N coefficients
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
