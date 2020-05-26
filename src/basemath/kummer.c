@@ -643,7 +643,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN *Fz, struct rnfkummer *kum)
             if (H_is_good(Hz, gell))
             {
               *Fz = bnrconductormod(bnrz, Hz, 0, gell);
-              L = vec_append(L, gel(vP,1));
+              if (!Ldone) L = vec_append(L, gel(vP,1));
               gerepileall(av0, 2, &L, Fz); return L;
             }
           }
