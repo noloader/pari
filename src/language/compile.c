@@ -739,9 +739,10 @@ countmatrixelts(long n)
 {
   long x,i;
   if (n==-1 || tree[n].f==Fnoarg) return 0;
-  for(x=n, i=0; tree[x].f==Fmatrixelts ;x=tree[x].x)
-    if (tree[x].f!=Fnoarg) i++;
-  return i+1;
+  for(x=n, i=0; tree[x].f==Fmatrixelts; x=tree[x].x)
+    if (tree[tree[x].y].f!=Fnoarg) i++;
+  if (tree[x].f!=Fnoarg) i++;
+  return i;
 }
 
 static long
