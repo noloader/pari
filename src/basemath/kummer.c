@@ -282,65 +282,64 @@ get_gell(GEN bnr, GEN subgp)
   return det(subgp);
 }
 
-typedef struct {
-  GEN Sm, Sml1, Sml2, Sl, ESml2;
-} primlist;
-
 static int
-build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, long ell, tau_s *tau)
+build_list_Hecke(GEN *pSp, GEN *pprSp, GEN *pESml2, GEN nfz, GEN fa, GEN gothf,
+                 long ell, tau_s *tau)
 {
-  GEN listpr, listex, pr, factell;
-  long vp, i, l, degKz = nf_get_degree(nfz);
+  GEN P, E, faell, Sl, Sm, Sml1, Sml2, ESml2;
+  long i, l;
 
   if (!fa) fa = idealfactor(nfz, gothf);
-  listpr = gel(fa,1);
-  listex = gel(fa,2); l = lg(listpr);
-  L->Sm  = vectrunc_init(l);
-  L->Sml1= vectrunc_init(l);
-  L->Sml2= vectrunc_init(l);
-  L->Sl  = vectrunc_init(l+degKz);
-  L->ESml2=vecsmalltrunc_init(l);
-  for (i=1; i<l; i++)
+  P = gel(fa,1);
+  E = gel(fa,2); l = lg(P);
+  Sm  = vectrunc_init(l);
+  Sml1= vectrunc_init(l);
+  Sml2= vectrunc_init(l);
+  Sl  = vectrunc_init(l + nf_get_degree(nfz));
+  ESml2=vecsmalltrunc_init(l);
+  for (i = 1; i < l; i++)
   {
-    pr = gel(listpr,i);
-    vp = itos(gel(listex,i));
+    GEN pr = gel(P,i);
+    long vp = itos(gel(E,i));
     if (!equaliu(pr_get_p(pr), ell))
     {
       if (vp != 1) return 1;
-      if (!isconjinprimelist(L->Sm,pr,tau)) vectrunc_append(L->Sm,pr);
+      if (!isconjinprimelist(Sm,pr,tau)) vectrunc_append(Sm,pr);
     }
     else
     {
       long e = pr_get_e(pr), vd = (vp-1)*(ell-1)-ell*e;
       if (vd > 0) return 4;
-      if (vd==0)
+      if (vd == 0)
       {
-        if (!isconjinprimelist(L->Sml1,pr,tau)) vectrunc_append(L->Sml1, pr);
+        if (!isconjinprimelist(Sml1,pr,tau)) vectrunc_append(Sml1, pr);
       }
       else
       {
         if (vp==1) return 2;
-        if (!isconjinprimelist(L->Sml2,pr,tau))
+        if (!isconjinprimelist(Sml2,pr,tau))
         {
-          vectrunc_append(L->Sml2, pr);
-          vecsmalltrunc_append(L->ESml2, vp);
+          vectrunc_append(Sml2, pr);
+          vecsmalltrunc_append(ESml2, vp);
         }
       }
     }
   }
-  factell = idealprimedec(nfz,utoipos(ell)); l = lg(factell);
-  for (i=1; i<l; i++)
+  faell = idealprimedec(nfz,utoipos(ell)); l = lg(faell);
+  for (i = 1; i < l; i++)
   {
-    pr = gel(factell,i);
-    if (!idealval(nfz,gothf,pr) && !isconjinprimelist(L->Sl,pr,tau))
-      vectrunc_append(L->Sl, pr);
+    GEN pr = gel(faell,i);
+    if (!idealval(nfz, gothf, pr) && !isconjinprimelist(Sl, pr, tau))
+      vectrunc_append(Sl, pr);
   }
-  return 0; /* OK */
+  *pESml2 = ESml2;
+  *pSp = shallowconcat(Sm, Sml1);
+  *pprSp = shallowconcat(Sml2, Sl); return 0; /* OK */
 }
 
 /* Return a Flm */
 static GEN
-logall(GEN nf, GEN vec, long lW, long mginv, long ell, GEN pr, long ex)
+logall(GEN nf, GEN vec, long lW, long mgi, long ell, GEN pr, long ex)
 {
   pari_sp av = avma;
   GEN m, M, sprk = log_prk_init(nf, pr, ex);
@@ -352,10 +351,24 @@ logall(GEN nf, GEN vec, long lW, long mginv, long ell, GEN pr, long ex)
   {
     m = log_prk(nf, gel(vec,i), sprk, utoi(ell));
     setlg(m, ellrank+1);
-    if (i < lW) m = gmulsg(mginv, m);
+    if (i < lW) m = gmulsg(mgi, m);
     gel(M,i) = ZV_to_Flv(m, ell);
   }
   return gerepilecopy(av, M);
+}
+static GEN
+matlogall(GEN nf, GEN vecWA, long lW, long mgi, long ell, GEN prSp, GEN ESml2)
+{
+  GEN M = NULL;
+  long i, lSl2 = lg(prSp), lSml2 = lg(ESml2);
+  for (i = 1; i < lSl2; i++)
+  {
+    GEN pr = gel(prSp,i);
+    long z = ell * (pr_get_e(pr) / (ell-1));
+    if (i < lSml2) z += 1 - ESml2[i];
+    M = vconcat(M, logall(nf, vecWA,lW,mgi,ell, pr,z));
+  }
+  return M;
 }
 
 /* compute the u_j (see remark 5.2.15.) */
@@ -666,12 +679,11 @@ subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
 static GEN
 rnfkummersimple(GEN bnr, GEN H, long ell)
 {
-  long i, j, degK, lSml2, lSl2, lSp, rc, lW, prec;
+  long i, j, degK, lSp, rc, prec;
   GEN bnf, nf,bid, ideal, cycgen, cyc, Sp, prSp, matP;
-  GEN be, gell, u, M, K, vecW, vecWB, vecBp;
+  GEN be, gell, u, M, K, vecW, vecWB, vecBp, ESml2;
   /* primes landing in H must be totally split */
   GEN Lpr = get_prlist(bnr, H, ell, NULL, NULL);
-  primlist L;
 
   bnf = bnr_get_bnf(bnr); if (!bnf_get_sunits(bnf)) bnf_build_units(bnf);
   nf  = bnf_get_nf(bnf);
@@ -679,13 +691,10 @@ rnfkummersimple(GEN bnr, GEN H, long ell)
 
   bid = bnr_get_bid(bnr);
   ideal= bid_get_ideal(bid);
-  i = build_list_Hecke(&L, nf, bid_get_fact2(bid), ideal, ell, NULL);
+  i = build_list_Hecke(&Sp, &prSp, &ESml2, nf, bid_get_fact2(bid), ideal, ell, NULL);
   if (i) no_sol(i);
 
-  lSml2 = lg(L.Sml2);
-  Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp);
-  prSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(prSp);
-
+  lSp = lg(Sp);
   cycgen = bnf_build_cycgen(bnf);
   cyc = bnf_get_cyc(bnf); rc = prank(cyc, ell);
 
@@ -701,16 +710,8 @@ rnfkummersimple(GEN bnr, GEN H, long ell)
   prec = DEFAULTPREC +
       nbits2extraprec(((degK-1) * (gexpo(vecWB) + gexpo(nf_get_M(nf)))));
   if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf, prec);
-  M = NULL;
-  for (i = 1; i < lSl2; i++)
-  {
-    GEN pr = gel(prSp,i);
-    long z = ell * (pr_get_e(pr) / (ell-1));
-    if (i < lSml2) z += 1 - L.ESml2[i];
-    M = vconcat(M, logall(nf, vecWB, 0,0, ell, pr,z));
-  }
-  lW = lg(vecW);
-  M = vconcat(M, shallowconcat(zero_Flm(rc,lW-1), matP));
+  M = matlogall(nf, vecWB, 0, 0, ell, prSp, ESml2);
+  M = vconcat(M, shallowconcat(zero_Flm(rc,lg(vecW)-1), matP));
   M = vconcat(M, subgroup_info(bnf, Lpr, ell, vecWB));
   K = Flm_ker(M, ell);
   if (ell == 2)
@@ -1113,24 +1114,20 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
 static GEN
 rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
 {
-  ulong ell = kum->ell, mginv;
+  ulong ell = kum->ell, mgi;
   GEN bnfz = kum->bnfz, nfz = bnf_get_nf(bnfz), cycgen = bnf_build_cycgen(bnfz);
   GEN K, be, P, vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q = kum->Q;
-  long lW = lg(vecW), rc = kum->rc, i, j, lSml2, lSp, lSl2, dc;
+  long lW = lg(vecW), rc = kum->rc, i, j, lSp, dc;
   toK_s *T = &kum->T;
-  primlist L;
-  GEN gothf, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, M, lambdaWB;
+  GEN gothf, ESml2, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, M, lambdaWB;
   /* primes landing in H must be totally split */
   GEN Lpr = get_prlist(bnr, H, ell, &gothf, kum);
 
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
-  i = build_list_Hecke(&L, nfz, NULL, gothf, ell, T->tau);
+  i = build_list_Hecke(&Sp, &prSp, &ESml2, nfz, NULL, gothf, ell, T->tau);
   if (i) no_sol(i);
 
-  lSml2 = lg(L.Sml2);
-  Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp);
-  prSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(prSp);
-
+  lSp = lg(Sp);
   if (DEBUGLEVEL>2) err_printf("Step 12\n");
   vecAp = cgetg(lSp, t_VEC);
   vecBp = cgetg(lSp, t_VEC);
@@ -1148,22 +1145,14 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
   vecWB = shallowconcat(vecW, vecBp);
 
   if (DEBUGLEVEL>2) err_printf("Step 14, 15 and 17\n");
-  mginv = Fl_div(T->m, kum->g, ell);
-  M = NULL;
-  for (i = 1; i < lSl2; i++)
-  {
-    GEN pr = gel(prSp,i);
-    long z = ell * (pr_get_e(pr) / (ell-1));
-    if (i < lSml2) z += 1 - L.ESml2[i];
-    M = vconcat(M, logall(nfz, vecWA,lW,mginv,ell, pr,z));
-  }
+  mgi = Fl_div(T->m, kum->g, ell);
+  M = matlogall(nfz, vecWA, lW, mgi, ell, prSp, ESml2);
   dc = lg(Q)-1;
   if (dc)
   {
     GEN QtP = Flm_mul(Flm_transpose(Q), matP, ell);
     M = vconcat(M, shallowconcat(zero_Flm(dc,lW-1), QtP));
   }
-  if (!M) M = zero_Flm(1, lSp-1 + lW-1);
   lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
   M = vconcat(M, subgroup_info(bnfz, Lpr, ell, lambdaWB));
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
