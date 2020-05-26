@@ -1863,8 +1863,8 @@ idealsqr_aux(GEN nf, GEN x, long tx)
         x = scalarmat(x, N);
       }
       else
-      {
-        x = ZM_hnfmodid(m, gcdii(sqri(a), zkmultable_capZ(m)));
+      { /* could use gcdii(sqri(a), zkmultable_capZ(m)), but costly */
+        x = ZM_hnfmodid(m, sqri(a));
         if (cx) cx = gsqr(cx);
         if (cx) x = ZM_Q_mul(x, cx);
       }
@@ -2263,8 +2263,8 @@ idealpow_aux(GEN nf, GEN x, long tx, GEN n)
         x = scalarmat(x, N);
       }
       else
-      {
-        x = ZM_hnfmodid(m, gcdii(powii(a,n1), zkmultable_capZ(m)));
+      { /* could use gcdii(powii(a,n1), zkmultable_capZ(m)), but costly */
+        x = ZM_hnfmodid(m, powii(a,n1));
         if (cx) cx = powgi(cx,n);
         if (s<0) {
           GEN xZ = gcoeff(x,1,1);
