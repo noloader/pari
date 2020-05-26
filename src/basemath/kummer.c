@@ -63,16 +63,13 @@ increment(GEN y, long k, long d)
 }
 
 static int
-ok_congruence(GEN X, ulong ell, long lW, GEN vecMsup)
+ok_congruence(GEN X, ulong ell, long lW)
 {
   long i, l;
   l = lg(X);
   for (i=lW; i<l; i++)
     if (X[i] == 0) return 0;
   if (lW >= l && zv_equal0(X)) return 0;
-  l = lg(vecMsup);
-  for (i=1; i<l; i++)
-    if (zv_equal0(Flm_Flc_mul(gel(vecMsup,i),X, ell))) return 0;
   return 1;
 }
 
@@ -703,7 +700,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
 {
   long i, j, degK, dK, lSml2, lSl2, lSp, rc, lW, prec;
   GEN bnf, nf,bid, ideal, arch, cycgen, cyc, Sp, prSp, matP;
-  GEN gell, xell, u, M, K, y, vecMsup, vecW, vecWB, vecBp, msign;
+  GEN gell, xell, u, M, K, y, vecW, vecWB, vecBp, msign;
   /* primes landing in subgroup must be totally split */
   GEN Lpr = get_prlist(bnr, subgroup, ell, NULL, NULL);
   primlist L;
@@ -740,18 +737,12 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
   msign = nfsign(nf, vecWB);
   arch = ZV_to_zv(arch);
 
-  vecMsup = cgetg(lSml2,t_VEC);
   M = NULL;
   for (i = 1; i < lSl2; i++)
   {
     GEN pr = gel(prSp,i);
-    long e = pr_get_e(pr), z = ell * (e / (ell-1));
-
-    if (i < lSml2)
-    {
-      z += 1 - L.ESml2[i];
-      gel(vecMsup,i) = logall(nf, vecWB, 0,0, ell, pr,z+1);
-    }
+    long z = ell * (pr_get_e(pr) / (ell-1));
+    if (i < lSml2) z += 1 - L.ESml2[i];
     M = vconcat(M, logall(nf, vecWB, 0,0, ell, pr,z));
   }
   lW = lg(vecW);
@@ -771,7 +762,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
     {
       pari_sp av = avma;
       GEN X = Flm_Flc_mul(K, y, ell);
-      if (ok_congruence(X, ell, lW, vecMsup) && ok_sign(X, msign, arch))
+      if (ok_congruence(X, ell, lW) && ok_sign(X, msign, arch))
       {/* be satisfies all congruences, x^ell - be is irreducible, signature
         * and relative discriminant are correct */
         GEN P = NULL, be = compute_beta(X, vecWB, gell, bnf);
@@ -1117,7 +1108,7 @@ _rnfkummer_step5(struct rnfkummer *kum, GEN vselmer)
 
 static GEN
 _rnfkummer_step18(struct rnfkummer *kum, GEN bnr, GEN subgroup, GEN M,
-     GEN vecWB, GEN vecMsup)
+     GEN vecWB)
 {
   ulong ell = kum->ell;
   long i, dK, lW = lg(kum->vecW);
@@ -1136,7 +1127,7 @@ _rnfkummer_step18(struct rnfkummer *kum, GEN bnr, GEN subgroup, GEN M,
     do
     { /* cf. algo 5.3.18 */
       GEN X = Flm_Flc_mul(K, y, ell);
-      if (ok_congruence(X, ell, lW, vecMsup))
+      if (ok_congruence(X, ell, lW))
       {
         pari_sp av = avma;
         GEN be = compute_beta(X, vecWB, gell, kum->bnfz);
@@ -1215,7 +1206,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
   long lW = lg(vecW), rc = kum->rc, i, j, lSml2, lSp, lSl2, dc;
   toK_s *T = &kum->T;
   primlist L;
-  GEN gothf, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, vecMsup, M, lambdaWB;
+  GEN gothf, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, M, lambdaWB;
   /* primes landing in H must be totally split */
   GEN Lpr = get_prlist(bnr, H, ell, &gothf, kum);
 
@@ -1245,18 +1236,12 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
 
   if (DEBUGLEVEL>2) err_printf("Step 14, 15 and 17\n");
   mginv = Fl_div(T->m, kum->g, ell);
-  vecMsup = cgetg(lSml2,t_VEC);
   M = NULL;
   for (i = 1; i < lSl2; i++)
   {
     GEN pr = gel(prSp,i);
-    long e = pr_get_e(pr), z = ell * (e / (ell-1));
-
-    if (i < lSml2)
-    {
-      z += 1 - L.ESml2[i];
-      gel(vecMsup,i) = logall(nfz, vecWA,lW,mginv,ell, pr,z+1);
-    }
+    long z = ell * (pr_get_e(pr) / (ell-1));
+    if (i < lSml2) z += 1 - L.ESml2[i];
     M = vconcat(M, logall(nfz, vecWA,lW,mginv,ell, pr,z));
   }
   dc = lg(Q)-1;
@@ -1269,7 +1254,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
   lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
   M = vconcat(M, subgroup_info(bnfz, Lpr, ell, lambdaWB));
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
-  return _rnfkummer_step18(kum, bnr, H, M, vecWB, vecMsup);
+  return _rnfkummer_step18(kum, bnr, H, M, vecWB);
 }
 
 static void
