@@ -2701,6 +2701,19 @@ cxq_init(GEN g, long tg, GEN *a, GEN *b, char *buf)
 }
 
 static void
+print_coef(GEN g, long i, long j, pariout_t *T, pari_str *S)
+{ (void)T; str_long(S, coeff(g,i,j)); }
+static void
+print_gcoef(GEN g, long i, long j, pariout_t *T, pari_str *S)
+{
+  GEN gij = gcoeff(g, i, j);
+  if (typ(gij)==t_CLOSURE)
+  { str_putc(S, '('); bruti(gij, T, S); str_putc(S, ')'); }
+  else
+    bruti(gij, T, S);
+}
+
+static void
 bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
 {
   long l,i,j,r, tg = typ(g);
@@ -2896,26 +2909,22 @@ bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
 
     case t_MAT:
     {
-      OUT_FUN print;
+      void (*print)(GEN,long,long,pariout_t *,pari_str *);
 
       r = lg(g); if (r==1) { str_puts(S, "[;]"); return; }
       l = lgcols(g); if (l==1) { mat0n(S, r-1); return; }
-      print = (typ(gel(g,1)) == t_VECSMALL)? prints: bruti;
+      print = (typ(gel(g,1)) == t_VECSMALL)? print_coef: print_gcoef;
       if (l==2)
       {
         str_puts(S, "Mat(");
-        if (r == 2) { print(gcoeff(g,1,1),T,S); str_putc(S, ')'); return; }
+        if (r == 2) { print(g, 1, 1,T, S); str_putc(S, ')'); return; }
       }
       str_putc(S, '[');
       for (i=1; i<l; i++)
       {
         for (j=1; j<r; j++)
         {
-          GEN gij = gcoeff(g,i,j);
-          int add_paren = (j==r-1 && i<l-1 && typ(gij)==t_CLOSURE);
-          if (add_paren) str_putc(S, '(');
-          print(gij,T,S);
-          if (add_paren) str_putc(S, ')');
+          print(g, i, j, T, S);
           if (j<r-1) comma_sp(T,S);
         }
         if (i<l-1) semicolon_sp(T,S);
