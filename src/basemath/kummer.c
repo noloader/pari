@@ -668,7 +668,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
 {
   long i, j, degK, lSml2, lSl2, lSp, rc, lW, prec;
   GEN bnf, nf,bid, ideal, cycgen, cyc, Sp, prSp, matP;
-  GEN be, gell, xell, u, M, K, vecW, vecWB, vecBp;
+  GEN be, gell, u, M, K, vecW, vecWB, vecBp;
   /* primes landing in subgroup must be totally split */
   GEN Lpr = get_prlist(bnr, subgroup, ell, NULL, NULL);
   primlist L;
@@ -724,12 +724,11 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
   }
   else
     K = gel(K,1);
-  xell = pol_xn(ell, 0);
   gell = utoipos(ell);
   be = compute_beta(K, vecWB, gell, bnf);
   be = nf_to_scalar_or_alg(nf, be);
   if (typ(be) == t_POL) be = mkpolmod(be, nf_get_pol(nf));
-  return gsub(xell, be);
+  return gsub(pol_xn(ell, 0), be);
 }
 
 static ulong
