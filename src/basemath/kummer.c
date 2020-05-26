@@ -48,22 +48,7 @@ prank(GEN cyc, long ell)
   return i-1;
 }
 
-/* increment y, which runs through [0,d-1]^(k-1). Return 0 when done. */
-static int
-increment(GEN y, long k, long d)
-{
-  long i = k, j;
-  do
-  {
-    if (--i == 0) return 0;
-    y[i]++;
-  } while (y[i] >= d);
-  for (j = i+1; j < k; j++) y[j] = 0;
-  return 1;
-}
-
 /* REDUCTION MOD ell-TH POWERS */
-
 /* make be integral by multiplying by t in (Q^*)^ell */
 static GEN
 reduce_mod_Qell(GEN bnfz, GEN be, GEN gell)
@@ -681,9 +666,9 @@ subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
 static GEN
 rnfkummersimple(GEN bnr, GEN subgroup, long ell)
 {
-  long i, j, degK, dK, lSml2, lSl2, lSp, rc, lW, prec;
-  GEN bnf, nf,bid, ideal, arch, cycgen, cyc, Sp, prSp, matP;
-  GEN gell, xell, u, M, K, y, vecW, vecWB, vecBp, msign;
+  long i, j, degK, lSml2, lSl2, lSp, rc, lW, prec;
+  GEN bnf, nf,bid, ideal, cycgen, cyc, Sp, prSp, matP;
+  GEN be, gell, xell, u, M, K, vecW, vecWB, vecBp;
   /* primes landing in subgroup must be totally split */
   GEN Lpr = get_prlist(bnr, subgroup, ell, NULL, NULL);
   primlist L;
@@ -694,7 +679,6 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
 
   bid = bnr_get_bid(bnr);
   ideal= bid_get_ideal(bid);
-  arch = bid_get_arch(bid); /* this is the conductor */
   i = build_list_Hecke(&L, nf, bid_get_fact2(bid), ideal, ell, NULL);
   if (i) no_sol(i);
 
@@ -717,9 +701,6 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
   prec = DEFAULTPREC +
       nbits2extraprec(((degK-1) * (gexpo(vecWB) + gexpo(nf_get_M(nf)))));
   if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf, prec);
-  msign = nfsign(nf, vecWB);
-  arch = ZV_to_zv(arch);
-
   M = NULL;
   for (i = 1; i < lSl2; i++)
   {
@@ -732,32 +713,23 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
   M = vconcat(M, shallowconcat(zero_Flm(rc,lW-1), matP));
   M = vconcat(M, subgroup_info(bnf, Lpr, ell, vecWB));
   K = Flm_ker(M, ell);
-  dK = lg(K)-1;
-  y = cgetg(dK+1,t_VECSMALL);
+  if (ell == 2)
+  {
+    GEN msign = nfsign(nf, vecWB), y;
+    GEN arch = ZV_to_zv(bid_get_arch(bid)); /* the conductor */
+    msign = Flm_mul(msign, K, 2);
+    y = Flm_ker(msign, 2);
+    y = zv_equal0(arch)? gel(y,1): Flm_Flc_invimage(msign, arch, 2);
+    K = Flm_Flc_mul(K, y, 2);
+  }
+  else
+    K = gel(K,1);
   xell = pol_xn(ell, 0);
   gell = utoipos(ell);
-  dK = lg(K)-1;
-  while (dK)
-  {
-    for (i=1; i<dK; i++) y[i] = 0;
-    y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at i'th position */
-    do
-    {
-      pari_sp av = avma;
-      GEN X = Flm_Flc_mul(K, y, ell);
-      if (zv_equal(Flm_Flc_mul(msign, X, 2), arch))
-      {/* be satisfies all congruences, x^ell - be is irreducible, signature
-        * and relative discriminant are correct */
-        GEN be = compute_beta(X, vecWB, gell, bnf);
-        be = nf_to_scalar_or_alg(nf, be);
-        if (typ(be) == t_POL) be = mkpolmod(be, nf_get_pol(nf));
-        return gsub(xell, be);
-      }
-      set_avma(av);
-    } while (increment(y, dK, ell));
-    y[dK--] = 0;
-  }
-  return gen_0;
+  be = compute_beta(K, vecWB, gell, bnf);
+  be = nf_to_scalar_or_alg(nf, be);
+  if (typ(be) == t_POL) be = mkpolmod(be, nf_get_pol(nf));
+  return gsub(xell, be);
 }
 
 static ulong
@@ -1087,23 +1059,21 @@ _rnfkummer_step5(struct rnfkummer *kum, GEN vselmer)
   settyp(W, t_VEC); return W;
 }
 
+/* cf. algo 5.3.18 */
 static GEN
 _rnfkummer_step18(struct rnfkummer *kum, GEN bnr, GEN subgroup, GEN M,
      GEN vecWB)
 {
   ulong ell = kum->ell;
-  GEN K, nf = bnr_get_nf(bnr), gell = utoipos(ell);
+  GEN be, P, K, nf = bnr_get_nf(bnr), gell = utoipos(ell);
 
-  K = Flm_ker(M, ell);
   if (DEBUGLEVEL>2) err_printf("Step 18\n");
-  if (lg(K) != 2) pari_err_BUG("rnfkummer [dK != 1]");
-  { /* cf. algo 5.3.18 */
-    GEN be = compute_beta(gel(K,1), vecWB, gell, kum->bnfz);
-    GEN P = compute_polrel(kum, be);
-    nfX_Z_normalize(nf, P);
-    if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
-    return P;
-  }
+  K = Flm_ker(M, ell);
+  be = compute_beta(gel(K,1), vecWB, gell, kum->bnfz);
+  P = compute_polrel(kum, be);
+  nfX_Z_normalize(nf, P);
+  if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
+  return P;
 }
 
 /* alg 5.3.5 */
