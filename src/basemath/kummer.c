@@ -1058,23 +1058,6 @@ _rnfkummer_step5(struct rnfkummer *kum, GEN vselmer)
   settyp(W, t_VEC); return W;
 }
 
-/* cf. algo 5.3.18 */
-static GEN
-_rnfkummer_step18(struct rnfkummer *kum, GEN bnr, GEN subgroup, GEN M,
-     GEN vecWB)
-{
-  ulong ell = kum->ell;
-  GEN be, P, K, nf = bnr_get_nf(bnr), gell = utoipos(ell);
-
-  if (DEBUGLEVEL>2) err_printf("Step 18\n");
-  K = Flm_ker(M, ell);
-  be = compute_beta(gel(K,1), vecWB, gell, kum->bnfz);
-  P = compute_polrel(kum, be);
-  nfX_Z_normalize(nf, P);
-  if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
-  return P;
-}
-
 /* alg 5.3.5 */
 static void
 rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
@@ -1132,7 +1115,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
 {
   ulong ell = kum->ell, mginv;
   GEN bnfz = kum->bnfz, nfz = bnf_get_nf(bnfz), cycgen = bnf_build_cycgen(bnfz);
-  GEN vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q = kum->Q;
+  GEN K, be, P, vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q = kum->Q;
   long lW = lg(vecW), rc = kum->rc, i, j, lSml2, lSp, lSl2, dc;
   toK_s *T = &kum->T;
   primlist L;
@@ -1184,7 +1167,13 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
   lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
   M = vconcat(M, subgroup_info(bnfz, Lpr, ell, lambdaWB));
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
-  return _rnfkummer_step18(kum, bnr, H, M, vecWB);
+  K = Flm_ker(M, ell);
+  if (DEBUGLEVEL>2) err_printf("Step 18\n");
+  be = compute_beta(gel(K,1), vecWB, utoipos(ell), kum->bnfz);
+  P = compute_polrel(kum, be);
+  nfX_Z_normalize(bnr_get_nf(bnr), P);
+  if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
+  return P;
 }
 
 static void
