@@ -150,8 +150,8 @@ tauofalg(GEN x, tau_s *tau) {
 
 struct rnfkummer
 {
-  GEN bnfz, u, vecC, Q, vecW;
-  ulong g, ell;
+  GEN bnfz, u, vecC, tQ, vecW;
+  ulong mgi, g, ell;
   long rc;
   compo_s COMPO;
   tau_s tau;
@@ -339,25 +339,22 @@ build_list_Hecke(GEN *pSp, GEN *pprSp, GEN *pESml2, GEN nfz, GEN fa, GEN gothf,
 
 /* Return a Flm */
 static GEN
-logall(GEN nf, GEN vec, long lW, long mgi, long ell, GEN pr, long ex)
+logall(GEN nf, GEN v, long lW, long mgi, long ell, GEN sprk)
 {
-  pari_sp av = avma;
-  GEN m, M, sprk = log_prk_init(nf, pr, ex);
-  long ellrank, i, l = lg(vec);
-
-  ellrank = prank(gel(sprk,1), ell);
-  M = cgetg(l,t_MAT);
-  for (i=1; i<l; i++)
+  long i, l = lg(v), rk = prank(gel(sprk,1), ell);
+  GEN M = cgetg(l,t_MAT);
+  for (i = 1; i < l; i++)
   {
-    m = log_prk(nf, gel(vec,i), sprk, utoi(ell));
-    setlg(m, ellrank+1);
-    if (i < lW) m = gmulsg(mgi, m);
-    gel(M,i) = ZV_to_Flv(m, ell);
+    GEN c = log_prk(nf, gel(v,i), sprk, utoi(ell));
+    setlg(c, rk+1);
+    c = ZV_to_Flv(c, ell);
+    if (i < lW) c = Flv_Fl_mul(c, mgi, ell);
+    gel(M,i) = c;
   }
-  return gerepilecopy(av, M);
+  return M;
 }
 static GEN
-matlogall(GEN nf, GEN vecWA, long lW, long mgi, long ell, GEN prSp, GEN ESml2)
+matlogall(GEN nf, GEN v, long lW, long mgi, long ell, GEN prSp, GEN ESml2)
 {
   GEN M = NULL;
   long i, lSl2 = lg(prSp), lSml2 = lg(ESml2);
@@ -366,7 +363,7 @@ matlogall(GEN nf, GEN vecWA, long lW, long mgi, long ell, GEN prSp, GEN ESml2)
     GEN pr = gel(prSp,i);
     long z = ell * (pr_get_e(pr) / (ell-1));
     if (i < lSml2) z += 1 - ESml2[i];
-    M = vconcat(M, logall(nf, vecWA,lW,mgi,ell, pr,z));
+    M = vconcat(M, logall(nf, v, lW, mgi, ell, log_prk_init(nf, pr, z)));
   }
   return M;
 }
@@ -1015,12 +1012,12 @@ nfX_Z_normalize(GEN nf, GEN P)
   }
 }
 
-/* set kum->vecC, kum->Q */
+/* set kum->vecC, kum->tQ */
 static void
 _rnfkummer_step4(struct rnfkummer *kum, GEN cycgen, long d, long m)
 {
   long i, j, rc = kum->rc;
-  GEN vecC, vecB = cgetg(rc+1,t_VEC), Tc = cgetg(rc+1,t_MAT);
+  GEN Q, vecC, vecB = cgetg(rc+1,t_VEC), Tc = cgetg(rc+1,t_MAT);
   GEN gen = bnf_get_gen(kum->bnfz), u = kum->u;
   ulong ell = kum->ell;
   for (j=1; j<=rc; j++)
@@ -1043,7 +1040,8 @@ _rnfkummer_step4(struct rnfkummer *kum, GEN cycgen, long d, long m)
     }
     for (i = 1; i <= rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
   }
-  kum->Q = Flm_ker(Flm_Fl_sub(Flm_transpose(Tc), kum->g, ell), ell);
+  Q = Flm_ker(Flm_Fl_sub(Flm_transpose(Tc), kum->g, ell), ell);
+  kum->tQ = lg(Q) == 1? NULL: Flm_transpose(Q);
 }
 
 static GEN
@@ -1092,6 +1090,7 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   kum->rc = prank(cyc, ell);
   kum->u = get_u(cyc, kum->rc, ell);
   kum->g = g;
+  kum->mgi = Fl_div(m, g, ell);
 
   vselmer = get_Selmer(bnfz, cycgen, kum->rc);
   get_tau(kum);
@@ -1111,10 +1110,10 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
 static GEN
 rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
 {
-  ulong ell = kum->ell, mgi;
+  ulong ell = kum->ell;
   GEN bnfz = kum->bnfz, nfz = bnf_get_nf(bnfz), cycgen = bnf_build_cycgen(bnfz);
-  GEN K, be, P, vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q = kum->Q;
-  long lW = lg(vecW), rc = kum->rc, i, j, lSp, dc;
+  GEN K, be, P, vecC = kum->vecC, vecW = kum->vecW, u = kum->u;
+  long lW = lg(vecW), rc = kum->rc, i, j, lSp;
   toK_s *T = &kum->T;
   GEN gothf, ESml2, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, M, lambdaWB;
   /* primes landing in H must be totally split */
@@ -1142,13 +1141,11 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
   vecWB = shallowconcat(vecW, vecBp);
 
   if (DEBUGLEVEL>2) err_printf("Step 14, 15 and 17\n");
-  mgi = Fl_div(T->m, kum->g, ell);
-  M = matlogall(nfz, vecWA, lW, mgi, ell, prSp, ESml2);
-  dc = lg(Q)-1;
-  if (dc)
+  M = matlogall(nfz, vecWA, lW, kum->mgi, ell, prSp, ESml2);
+  if (kum->tQ)
   {
-    GEN QtP = Flm_mul(Flm_transpose(Q), matP, ell);
-    M = vconcat(M, shallowconcat(zero_Flm(dc,lW-1), QtP));
+    GEN QtP = Flm_mul(kum->tQ, matP, ell);
+    M = vconcat(M, shallowconcat(zero_Flm(lgcols(kum->tQ)-1,lW-1), QtP));
   }
   lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
   M = vconcat(M, subgroup_info(bnfz, Lpr, ell, lambdaWB));
