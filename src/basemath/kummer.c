@@ -62,23 +62,6 @@ increment(GEN y, long k, long d)
   return 1;
 }
 
-static int
-ok_congruence(GEN X, ulong ell, long lW)
-{
-  long i, l;
-  l = lg(X);
-  for (i=lW; i<l; i++)
-    if (X[i] == 0) return 0;
-  if (lW >= l && zv_equal0(X)) return 0;
-  return 1;
-}
-
-static int
-ok_sign(GEN X, GEN msign, GEN arch)
-{
-  return zv_equal(Flm_Flc_mul(msign, X, 2), arch);
-}
-
 /* REDUCTION MOD ell-TH POWERS */
 
 /* make be integral by multiplying by t in (Q^*)^ell */
@@ -762,15 +745,13 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell)
     {
       pari_sp av = avma;
       GEN X = Flm_Flc_mul(K, y, ell);
-      if (ok_congruence(X, ell, lW) && ok_sign(X, msign, arch))
+      if (zv_equal(Flm_Flc_mul(msign, X, 2), arch))
       {/* be satisfies all congruences, x^ell - be is irreducible, signature
         * and relative discriminant are correct */
-        GEN P = NULL, be = compute_beta(X, vecWB, gell, bnf);
+        GEN be = compute_beta(X, vecWB, gell, bnf);
         be = nf_to_scalar_or_alg(nf, be);
         if (typ(be) == t_POL) be = mkpolmod(be, nf_get_pol(nf));
-        P = gsub(xell, be);
-        if (dK == 1 ||
-            ZM_equal(rnfnormgroup(bnr,P),subgroup)) return P; /*DONE*/
+        return gsub(xell, be);
       }
       set_avma(av);
     } while (increment(y, dK, ell));
@@ -1111,38 +1092,18 @@ _rnfkummer_step18(struct rnfkummer *kum, GEN bnr, GEN subgroup, GEN M,
      GEN vecWB)
 {
   ulong ell = kum->ell;
-  long i, dK, lW = lg(kum->vecW);
-  GEN K, y, nf = bnr_get_nf(bnr), gell = utoipos(ell), res = NULL;
+  GEN K, nf = bnr_get_nf(bnr), gell = utoipos(ell);
 
   K = Flm_ker(M, ell);
   if (DEBUGLEVEL>2) err_printf("Step 18\n");
-  dK = lg(K)-1;
-  y = cgetg(dK+1,t_VECSMALL);
-
-  dK = lg(K)-1;
-  while (dK)
-  {
-    for (i=1; i<dK; i++) y[i] = 0;
-    y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at dK'th position */
-    do
-    { /* cf. algo 5.3.18 */
-      GEN X = Flm_Flc_mul(K, y, ell);
-      if (ok_congruence(X, ell, lW))
-      {
-        pari_sp av = avma;
-        GEN be = compute_beta(X, vecWB, gell, kum->bnfz);
-        GEN P = compute_polrel(kum, be);
-        nfX_Z_normalize(nf, P);
-        if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
-        if (dK == 1 ||
-            ZM_equal(subgroup, rnfnormgroup(bnr, P))) return P; /* DONE */
-        set_avma(av);
-      }
-    } while (increment(y, dK, ell));
-    y[dK--] = 0;
+  if (lg(K) != 2) pari_err_BUG("rnfkummer [dK != 1]");
+  { /* cf. algo 5.3.18 */
+    GEN be = compute_beta(gel(K,1), vecWB, gell, kum->bnfz);
+    GEN P = compute_polrel(kum, be);
+    nfX_Z_normalize(nf, P);
+    if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
+    return P;
   }
-  if (!res) pari_err_BUG("kummer [no solution]");
-  return res;
 }
 
 /* alg 5.3.5 */
