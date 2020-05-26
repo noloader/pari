@@ -834,7 +834,7 @@ identity_F2wB(void)
 static GEN
 find_nonsingular_sub(GEN t, GEN last_s, GEN *pt_s)
 {
-  long i, j, dim;
+  long i, j, dim = 0;
   ulong mask, row_i, row_j;
   long last_dim = lg(last_s)-1;
   GEN s = cgetg(BIL+1, t_VECSMALL);
@@ -855,7 +855,6 @@ find_nonsingular_sub(GEN t, GEN last_s, GEN *pt_s)
 
   /* compute the inverse of t[][] */
 
-  dim = 1;
   for (i = 1; i <= BIL; i++)
   {
     mask = 1UL<<(cols[i]-1);
@@ -881,7 +880,7 @@ find_nonsingular_sub(GEN t, GEN last_s, GEN *pt_s)
           uel(M1,row_j) ^= uel(M1,row_i);
         }
       }
-      s[dim++] = cols[i];
+      s[++dim] = cols[i];
       continue;
     }
     for (j = i; j <= BIL; j++)
@@ -913,7 +912,7 @@ find_nonsingular_sub(GEN t, GEN last_s, GEN *pt_s)
     mask |= 1UL<<(last_s[i]-1);
   if (mask != (ulong)(-1))
     return NULL; /* Failure */
-  setlg(s, dim);
+  setlg(s, dim+1);
   set_avma(av);
   *pt_s = s;
   return M1;
