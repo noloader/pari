@@ -79,4 +79,7 @@ P = idealprimedec(bnf, 3^30 + 4)[1];
 bnfisprincipal(bnf,P,1+4);
 bnfisprincipal(bnf,P,1);
 
+\\loss of accuracy
+bnf=bnfinit(a^3 - 65249548*a - 207761301170,1);exponent(bnf[3])
+
 \\ ERRORS: keep at end of file

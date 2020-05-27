@@ -4062,7 +4062,8 @@ START:
       AU = RgM_mul(A, U);
       A = cleanarch(AU, N, PREC);
       if (DEBUGLEVEL) timer_printf(&T, "units LLL + cleanarch");
-      if (!A) {
+      if (!A || (lg(A) > 1 && gprecision(A) <= 2))
+      {
         long add = nbits2extraprec( gexpo(AU) + 64 ) - gprecision(AU);
         precpb = "cleanarch"; PREC += maxss(add, 1); continue;
       }
