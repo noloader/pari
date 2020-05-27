@@ -1693,13 +1693,6 @@ ZM_hnflll(GEN A, GEN *ptB, int remove)
       {
         long row0, row1;
         reduce2(A,B,k,i,&row0,&row1,lambda,D);
-        if (gc_needed(av,3))
-        {
-          GEN b = D-1;
-          if (DEBUGMEM>1) pari_warn(warnmem,"hnflll (reducing), kmax = %ld",kmax);
-          gerepileall(av, B? 4: 3, &A, &lambda, &b, &B);
-          D = b+1;
-        }
       }
       if (++k > kmax) kmax = k;
     }
@@ -1708,6 +1701,7 @@ ZM_hnflll(GEN A, GEN *ptB, int remove)
       GEN b = D-1;
       if (DEBUGMEM>1) pari_warn(warnmem,"hnflll, kmax = %ld / %ld",kmax,n-1);
       gerepileall(av, B? 4: 3, &A, &lambda, &b, &B);
+      if (gc_needed(av,1)) paristack_resize(0); /* avoid desperation GC */
       D = b+1;
     }
   }
