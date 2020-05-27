@@ -281,19 +281,15 @@ get_gell(GEN bnr, GEN subgp)
 static long
 get_z(GEN pr, long ell) { return ell * (pr_get_e(pr) / (ell-1)); }
 static void
-list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, GEN gothf, long ell,
-           tau_s *tau)
+list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, long ell, tau_s *tau)
 {
-  GEN P, E, faell, Sl, S, Sl1, Sl2, Vml2, Vl;
-  long i, l;
+  GEN P = gel(fa,1), E = gel(fa,2), faell, Sl, S, Sl1, Sl2, Vl, Vl2;
+  long i, l = lg(P);
 
-  if (!fa) fa = idealfactor(nfz, gothf);
-  P = gel(fa,1);
-  E = gel(fa,2); l = lg(P);
   S  = vectrunc_init(l);
   Sl1= vectrunc_init(l);
   Sl2= vectrunc_init(l);
-  Vml2= vectrunc_init(l);
+  Vl2= vectrunc_init(l);
   for (i = 1; i < l; i++)
   {
     GEN pr = gel(P,i);
@@ -307,7 +303,7 @@ list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, GEN gothf, long ell,
       else if (!prconj_in_list(Sl2,pr,tau)) /* => v > 1 */
       {
         vectrunc_append(Sl2, pr);
-        vectrunc_append(Vml2, log_prk_init(nfz, pr, get_z(pr,ell) + 1 - v));
+        vectrunc_append(Vl2, log_prk_init(nfz, pr, get_z(pr,ell) + 1 - v));
       }
     }
   }
@@ -317,13 +313,13 @@ list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, GEN gothf, long ell,
   for (i = 1; i < l; i++)
   {
     GEN pr = gel(faell,i);
-    if (!idealval(nfz, gothf, pr) && !prconj_in_list(Sl, pr, tau))
+    if (!tablesearch(P, pr, cmp_prime_ideal) && !prconj_in_list(Sl, pr, tau))
     {
       vectrunc_append(Sl, pr);
       vectrunc_append(Vl, log_prk_init(nfz, pr, get_z(pr,ell)));
     }
   }
-  *pvsprk = shallowconcat(Vml2, Vl);
+  *pvsprk = shallowconcat(Vl2, Vl);
   *pSp = shallowconcat(S, Sl1);
 }
 
@@ -533,9 +529,9 @@ H_is_good(GEN H, GEN p)
  * - ell,
  * - a generator in bnf.gen or bnfz.gen.
  * If ell | F and Kz != K, set compute the congruence group Hz over Kz
- * and set *Fz to the conductor. */
+ * and set *pfa to the conductor factorization. */
 static GEN
-get_prlist(GEN bnr, GEN H, ulong ell, GEN *Fz, struct rnfkummer *kum)
+get_prlist(GEN bnr, GEN H, ulong ell, GEN *pfa, struct rnfkummer *kum)
 {
   pari_sp av0 = avma;
   GEN gell = utoipos(ell), Hz = NULL, bnrz = NULL, cycz = NULL, nfz = NULL;
@@ -552,17 +548,18 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN *Fz, struct rnfkummer *kum)
     GEN badz = lcmii(get_badbnf(bnfz), nf_get_index(bnf_get_nf(bnfz)));
     bad = lcmii(bad,badz);
     nfz = bnf_get_nf(bnfz);
-    *Fz = ideallifttoKz(nfz, nf, ideal, &kum->COMPO);
-    if (dvdiu(gcoeff(ideal,1,1), ell))
+    ideal = ideallifttoKz(nfz, nf, ideal, &kum->COMPO);
+    *pfa = idealfactor(nfz, ideal); /* FIXME: use bid_get_fact info */
+    if (dvdiu(idealdown(nf, ideal), ell))
     { /* ell | N(ideal), need Hz = Ker N: Cl_Kz(bothz) -> Cl_K(ideal)/H
        * to update conductor */
-      bnrz = Buchraymod(bnfz, *Fz, nf_INIT, gell);
+      bnrz = Buchraymod(bnfz, *pfa, nf_INIT, gell);
       cycz = bnr_get_cyc(bnrz);
       Hz = diagonal_shallow(ZV_gcdmod(cycz, gell));
       if (H_is_good(Hz, gell))
       {
-        *Fz = bnrconductormod(bnrz, Hz, 0, gell);
-        gerepileall(av0, 2, &L, Fz); return L;
+        *pfa = gel(bnrconductor_factored(bnrz, Hz), 2);
+        gerepileall(av0, 2, &L, pfa); return L;
       }
     }
   }
@@ -572,7 +569,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN *Fz, struct rnfkummer *kum)
   if (H_is_good(Hsofar, gell))
   {
     Ldone = 1;
-    if (!Hz) { gerepileall(av0, Fz? 2: 1, &L, Fz); return L; }
+    if (!Hz) { gerepileall(av0, pfa? 2: 1, &L, pfa); return L; }
   }
   /* restrict to primes not dividing bad and 1 mod ell */
   u_forprime_arith_init(&T, 2, ULONG_MAX, 1, ell);
@@ -602,9 +599,9 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN *Fz, struct rnfkummer *kum)
             Hz = ZM_hnfmodid(shallowconcat(Hz,v), cycz);
             if (H_is_good(Hz, gell))
             {
-              *Fz = bnrconductormod(bnrz, Hz, 0, gell);
+              *pfa = gel(bnrconductor_factored(bnrz, Hz), 2);
               if (!Ldone) L = vec_append(L, gel(vP,1));
-              gerepileall(av0, 2, &L, Fz); return L;
+              gerepileall(av0, 2, &L, pfa); return L;
             }
           }
         }
@@ -617,7 +614,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN *Fz, struct rnfkummer *kum)
       if (H_is_good(Hsofar, gell))
       {
         Ldone = 1;
-        if (!Hz) { gerepileall(av0, Fz? 2: 1, &L, Fz); return L; }
+        if (!Hz) { gerepileall(av0, pfa? 2: 1, &L, pfa); return L; }
       }
     }
   }
@@ -662,7 +659,7 @@ static GEN
 rnfkummersimple(GEN bnr, GEN H, long ell)
 {
   long j, lSp, rc;
-  GEN bnf, nf,bid, ideal, cycgen, cyc, Sp, vsprk, matP;
+  GEN bnf, nf,bid, cycgen, cyc, Sp, vsprk, matP;
   GEN be, gell, u, M, K, vecW, vecWB, vecBp;
   /* primes landing in H must be totally split */
   GEN Lpr = get_prlist(bnr, H, ell, NULL, NULL);
@@ -670,8 +667,7 @@ rnfkummersimple(GEN bnr, GEN H, long ell)
   bnf = bnr_get_bnf(bnr); if (!bnf_get_sunits(bnf)) bnf_build_units(bnf);
   nf  = bnf_get_nf(bnf);
   bid = bnr_get_bid(bnr);
-  ideal= bid_get_ideal(bid);
-  list_Hecke(&Sp, &vsprk, nf, bid_get_fact2(bid), ideal, ell, NULL);
+  list_Hecke(&Sp, &vsprk, nf, bid_get_fact2(bid), ell, NULL);
 
   cycgen = bnf_build_cycgen(bnf);
   cyc = bnf_get_cyc(bnf); rc = prank(cyc, ell);
@@ -1097,12 +1093,12 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
   GEN K, be, P, vecC = kum->vecC, vecW = kum->vecW, u = kum->u;
   long lW = lg(vecW), rc = kum->rc, j, lSp;
   toK_s *T = &kum->T;
-  GEN gothf, vsprk, Sp, vecAp, vecBp, matP, vecWA, vecWB, M, lambdaWB;
+  GEN faFz, vsprk, Sp, vecAp, vecBp, matP, vecWA, vecWB, M, lambdaWB;
   /* primes landing in H must be totally split */
-  GEN Lpr = get_prlist(bnr, H, ell, &gothf, kum);
+  GEN Lpr = get_prlist(bnr, H, ell, &faFz, kum);
 
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
-  list_Hecke(&Sp, &vsprk, nfz, NULL, gothf, ell, T->tau);
+  list_Hecke(&Sp, &vsprk, nfz, faFz, ell, T->tau);
 
   if (DEBUGLEVEL>2) err_printf("Step 12\n");
   lSp = lg(Sp);

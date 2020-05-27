@@ -318,7 +318,7 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   setlg(U, lg(H));
   for (j = 1; j < lg(U); j++) setlg(gel(U,j), lg(H));
   p1 = ZM_hnfmodid(U, bnr_get_cyc(bnr)); /* H as a subgroup of bnr */
-  modH = bnrconductor_i(bnr, p1, 0);
+  modH = bnrconductor_raw(bnr, p1);
   mod  = bnr_get_mod(bnr);
 
   /* is the signature correct? */
@@ -370,7 +370,7 @@ get_listCR(GEN bnr, GEN dtQ)
   { /* lift a character of D in Clk(m) */
     GEN cond, lchi = LiftChar(dtQ, Mr, gel(vecchi,i));
     if (hash_search(S, lchi)) continue;
-    cond = bnrconductorofchar(bnr, lchi);
+    cond = bnrconductor_raw(bnr, lchi);
     if (gequal0(gel(cond,2))) continue;
     /* the infinite part of chi is non trivial */
     gel(listCR,nc++) = mkvec2(lchi, cond);
@@ -2560,7 +2560,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
     if (!a)
     {
       nc++;
-      gel(listCR,nc) = mkvec2(lchi, bnrconductorofchar(bnr, lchi));
+      gel(listCR,nc) = mkvec2(lchi, bnrconductor_raw(bnr, lchi));
       indCR[i]  = nc;
       invCR[nc] = i;
     }

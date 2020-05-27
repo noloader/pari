@@ -166,6 +166,7 @@ BA  45- closures: do not copy the full context, only the accessible part
     49- bnrinit: optional argument to compute Cl_f/n, avoids tough discrete logs
     50- rnfkummer: removed "all" flag, function now obsolete. Use bnrclassfield!
     51- rnfconductor: flag to compute Cl_f/[K:Q] instead of Cl_f
+    52- bnrconductor_i is now obsolete, use bnrconductor_raw or bnrconductormod
 
   Added
      1- new GP function rootsof1
@@ -266,6 +267,7 @@ BA  86- [libpari] F2Ms_ker, F2Ms_colelim, F2Ms_to_F2m, F2m_to_F2Ms
     88- [libpari] bnr_subgroup_check
     89- [libpari] pow2Pis, powPis
 AP  90- [libpari] bnrisprincipalmod, ideallogmod
+    91- [libpari] bnrconductor_raw, bnrconductor_factored
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

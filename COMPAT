@@ -68,6 +68,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     new gen_ZpM_Dixon with simpler interface
   - QXQ_div_ratlift was renamed to QXQ_div
   - Z_to_F2x(x,v): v is now a shifted variable number
+  - bnrconductor_i is now obsolete, use bnrconductor_raw or bnrconductormod
 
 * Specific to the pthread interface
 ===================================

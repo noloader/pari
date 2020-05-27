@@ -1455,7 +1455,7 @@ bnrconductor0(GEN A, GEN B, GEN C, long flag)
 {
   pari_sp av = avma;
   GEN H, bnr = ABC_to_bnr(A,B,C,&H, 0);
-  return gerepilecopy(av, bnrconductor_i(bnr, H, flag));
+  return gerepilecopy(av, bnrconductormod(bnr, H, flag, NULL));
 }
 
 long
@@ -1493,6 +1493,73 @@ static int
 contains(GEN H, GEN A)
 { return H? (hnf_solve(H, A) != NULL): gequal0(A); }
 
+/* finite part of the conductor of H is S.P^e2*/
+static GEN
+cond0_e(GEN bnr, GEN H, zlog_S *S)
+{
+  long j, k, l = lg(S->k), iscond0 = S->no2;
+  GEN e = S->k, e2 = cgetg(l, t_COL);
+  for (k = 1; k < l; k++)
+  {
+    for (j = itos(gel(e,k)); j > 0; j--)
+    {
+      if (!contains(H, bnr_log_gen_pr(bnr, S, j, k))) break;
+      iscond0 = 0;
+    }
+    gel(e2,k) = utoi(j);
+  }
+  return iscond0? NULL: e2;
+}
+/* infinite part of the conductor of H in archp form */
+static GEN
+condoo_archp(GEN bnr, GEN H, zlog_S *S)
+{
+  GEN archp = S->archp, archp2 = leafcopy(archp);
+  long j, k, l = lg(archp);
+  for (k = j = 1; k < l; k++)
+  {
+    if (!contains(H, bnr_log_gen_arch(bnr, S, k)))
+    {
+      archp2[j++] = archp[k];
+      continue;
+    }
+  }
+  if (j == l) return S->archp;
+  setlg(archp2, j); return archp2;
+}
+/* MOD useless in this function */
+static GEN
+bnrconductor_factored_i(GEN bnr, GEN H, long raw)
+{
+  GEN nf, bid, ideal, arch, archp, e, fa, cond = NULL;
+  zlog_S S;
+
+  checkbnr(bnr);
+  bid = bnr_get_bid(bnr); init_zlog(&S, bid);
+  nf = bnr_get_nf(bnr);
+  H = bnr_subgroup_check(bnr, H, NULL);
+  e = cond0_e(bnr, H, &S); /* in terms of S.P */
+  archp = condoo_archp(bnr, H, &S);
+  ideal = e? factorbackprime(nf, S.P, e): bid_get_ideal(bid);
+  if (archp == S.archp)
+  {
+    if (!e) cond = bnr_get_mod(bnr);
+    arch = bid_get_arch(bid);
+  }
+  else
+    arch = indices_to_vec01(archp, nf_get_r1(nf));
+  if (!cond) cond = mkvec2(ideal, arch);
+  if (raw) return cond;
+  fa = e? famat_remove_trivial(mkmat2(S.P, e)): bid_get_fact(bid);
+  return mkvec2(cond, fa);
+}
+GEN
+bnrconductor_factored(GEN bnr, GEN H)
+{ return bnrconductor_factored_i(bnr, H, 0); }
+GEN
+bnrconductor_raw(GEN bnr, GEN H)
+{ return bnrconductor_factored_i(bnr, H, 1); }
+
 /* (see bnrdisc_i). Given a bnr, and a subgroup
  * H0 (possibly given as a character chi, in which case H0 = ker chi) of the
  * ray class group, compute the conductor of H if flag=0. If flag > 0, compute
@@ -1502,50 +1569,37 @@ contains(GEN H, GEN A)
 GEN
 bnrconductormod(GEN bnr, GEN H0, long flag, GEN MOD)
 {
-  long j, k, l;
-  GEN nf, bid, ideal, archp, bnrc, e2, e, cond, H;
-  int iscond0, iscondinf = 1, ischi;
+  GEN nf, bid, ideal, arch, archp, bnrc, e, H, cond = NULL;
+  int ischi;
   zlog_S S;
 
   checkbnr(bnr);
   bid = bnr_get_bid(bnr); init_zlog(&S, bid);
-  iscond0 = S.no2;
   nf = bnr_get_nf(bnr);
   H = bnr_subgroup_check(bnr, H0, NULL);
-
-  archp = leafcopy(S.archp);
-  e     = S.k; l = lg(e);
-  e2 = cgetg(l, t_COL);
-  for (k = 1; k < l; k++)
+  e = cond0_e(bnr, H, &S);
+  archp = condoo_archp(bnr, H, &S);
+  if (archp == S.archp)
   {
-    for (j = itos(gel(e,k)); j > 0; j--)
+    if (!e) cond = bnr_get_mod(bnr);
+    arch = gel(bnr_get_mod(bnr), 2);
+  }
+  else
+    arch = indices_to_vec01(archp, nf_get_r1(nf));
+  if (!flag)
+  {
+    if (!cond)
     {
-      if (!contains(H, bnr_log_gen_pr(bnr, &S, j, k))) break;
-      iscond0 = 0;
+      ideal = e? factorbackprime(nf, S.P, e): bid_get_ideal(bid);
+      cond = mkvec2(ideal, arch);
     }
-    gel(e2,k) = stoi(j);
+    return cond;
   }
-  l = lg(archp);
-  for (k = 1; k < l; k++)
-  {
-    if (!contains(H, bnr_log_gen_arch(bnr, &S, k))) continue;
-    archp[k] = 0;
-    iscondinf = 0;
-  }
-  if (!iscondinf)
-  {
-    for (j = k = 1; k < l; k++)
-      if (archp[k]) archp[j++] = archp[k];
-    setlg(archp, j);
-  }
-  ideal = iscond0? bid_get_ideal(bid): factorbackprime(nf, S.P, e2);
-  cond = mkvec2(ideal, indices_to_vec01(archp, nf_get_r1(nf)));
-  if (!flag) return cond;
 
   /* character or subgroup ? */
   ischi = H0 && typ(H0) == t_VEC;
-  if (iscond0 && iscondinf)
-  {
+  if (cond)
+  { /* same conductor */
     bnrc = bnr;
     if (ischi)
       H = H0;
@@ -1555,13 +1609,15 @@ bnrconductormod(GEN bnr, GEN H0, long flag, GEN MOD)
   else
   {
     long flag = lg(bnr_get_clgp(bnr)) == 4? nf_INIT | nf_GEN: nf_INIT;
-    bnrc = Buchray_i(bnr, cond, flag, MOD);
+    GEN fa = famat_remove_trivial(mkmat2(S.P, e? e: S.k)), bid;
+    bid = Idealstar(nf, mkvec2(fa, arch), nf_INIT | nf_GEN);
+    bnrc = Buchray_i(bnr, bid, flag, MOD);
+    cond = bnr_get_mod(bnrc);
     if (ischi)
       H = bnrchar_primitive_raw(bnr, bnrc, H0);
     else
       H = imageofgroup(bnr, bnrc, H);
   }
-
   if (flag == 1) bnrc = bnr_get_clgp(bnrc);
   return mkvec3(cond, bnrc, H);
 }
@@ -1913,12 +1969,7 @@ GEN
 bnrconductorofchar(GEN bnr, GEN chi)
 {
   pari_sp av = avma;
-  GEN cyc, K;
-  checkbnr(bnr);
-  cyc = bnr_get_cyc(bnr);
-  if (!char_check(cyc,chi)) pari_err_TYPE("bnrconductorofchar",chi);
-  K = charker(cyc,chi); if (lg(K) == 1) K = NULL;
-  return gerepilecopy(av, bnrconductormod(bnr, K, 0, charorder(cyc,chi)));
+  return gerepilecopy(av, bnrconductor_raw(bnr, chi));
 }
 
 /* \sum U[i]*y[i], U[i],y[i] ZM, we allow lg(y) > lg(U). */

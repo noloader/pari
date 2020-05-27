@@ -3056,7 +3056,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
   if (is_nf_factor(ideal))
   {
     fa = ideal;
-    x = idealfactorback(nf, gel(fa,1), gel(fa,2), 0);
+    x = factorbackprime(nf, gel(fa,1), gel(fa,2));
   }
   else
   {

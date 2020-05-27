@@ -822,9 +822,17 @@ lfunchigen(GEN bnr, GEN CHI)
       if (i > 1)
       {
         chi = gel(CHI,i);
-        if (!gequal(bnrconductormod(bnr0, chi, 0, NULL), N))
-          pari_err_TYPE("lfuncreate [different conductors]", CHI);
-        if (map) chi = bnrchar_primitive_raw(bnr0, bnr, chi);
+        if (!map)
+        {
+          if (!bnrisconductor(bnr, chi))
+            pari_err_TYPE("lfuncreate [different conductors]", CHI);
+        }
+        else
+        {
+          if (!gequal(bnrconductor_raw(bnr0, chi), N))
+            pari_err_TYPE("lfuncreate [different conductors]", CHI);
+          chi = bnrchar_primitive_raw(bnr0, bnr, chi);
+        }
       }
       chi = char_normalize(chi, D);
       o = lcmii(o, gel(chi,1)); /* lcm with charorder */

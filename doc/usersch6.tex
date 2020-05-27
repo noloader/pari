@@ -1933,9 +1933,12 @@ attached class field: the index of $H$ in the ray class group.
 \fun{GEN}{bnrconductor}{GEN bnr, GEN H, long flag} see the documentation of
 the GP function.
 
-\fun{GEN}{bnrconductor_i}{GEN bnr, GEN H, long flag} shallow
-variant of \kbd{bnrconductor}. Useful when $\fl=2$ and the conductor
-is the \kbd{bnr} modulus: avoids copying the \kbd{bnr} (wasteful).
+\fun{GEN}{bnrconductor_factored}{GEN bnr, GEN H}
+return a pair $[F,\var{fa}]$ where $F$ is the conductor and \var{fa} is the
+factorization of the finite part of the conductor. Shallow function.
+
+\fun{GEN}{bnrconductor_raw}{GEN bnr, GEN H} return the conductor of $H$.
+Shallow function.
 
 \fun{long}{bnrisconductor}{GEN bnr, GEN H} returns 1 is the class field
 defined by the subgroup $H$ (of the ray class group mod $f$ coded in \kbd{bnr})
@@ -2184,6 +2187,13 @@ not \kbd{nf\_GENMAT}. Don't use them:
 \noindent Superseded by \tet{idealappr} (\fl is ignored)
 
 \fun{GEN}{idealappr0}{GEN nf, GEN x, long flag}
+
+\noindent Superseded by \kbd{bnrconductor\_raw} or \kbd{bnrconductormod}:
+
+\fun{GEN}{bnrconductor_i}{GEN bnr, GEN H, long flag} shallow variant of
+\kbd{bnrconductor}.
+
+\fun{GEN}{bnrconductorofchar}{GEN bnr, GEN chi}
 
 \section{Galois extensions of $\Q$}
 
