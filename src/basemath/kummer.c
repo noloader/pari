@@ -676,7 +676,7 @@ subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
 static GEN
 rnfkummersimple(GEN bnr, GEN H, long ell)
 {
-  long i, j, degK, lSp, rc;
+  long i, j, lSp, rc;
   GEN bnf, nf,bid, ideal, cycgen, cyc, Sp, prSp, matP;
   GEN be, gell, u, M, K, vecW, vecWB, vecBp, ESml2;
   /* primes landing in H must be totally split */
@@ -684,12 +684,10 @@ rnfkummersimple(GEN bnr, GEN H, long ell)
 
   bnf = bnr_get_bnf(bnr); if (!bnf_get_sunits(bnf)) bnf_build_units(bnf);
   nf  = bnf_get_nf(bnf);
-  degK = nf_get_degree(nf);
-
   bid = bnr_get_bid(bnr);
   ideal= bid_get_ideal(bid);
   i = build_list_Hecke(&Sp, &prSp, &ESml2, nf, bid_get_fact2(bid), ideal, ell, NULL);
-  if (i) no_sol(i);
+  if (i) { no_sol(i); return NULL; }
 
   cycgen = bnf_build_cycgen(bnf);
   cyc = bnf_get_cyc(bnf); rc = prank(cyc, ell);
@@ -1121,7 +1119,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
 
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
   i = build_list_Hecke(&Sp, &prSp, &ESml2, nfz, NULL, gothf, ell, T->tau);
-  if (i) no_sol(i);
+  if (i) { no_sol(i); return NULL; }
 
   if (DEBUGLEVEL>2) err_printf("Step 12\n");
   lSp = lg(Sp);
