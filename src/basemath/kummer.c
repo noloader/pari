@@ -1341,7 +1341,7 @@ bnrclassfield_primepower(struct rnfkummer *pkum, GEN bnr, GEN subgroup, GEN p,
   res = cgetg(l,t_VEC);
   for (i = 1; i < l; i++)
   {
-    GEN H = gel(subs,i), cnd = bnrconductormod(bnr, hnfmodid(H,p), 2, p);
+    GEN H = gel(subs,i), cnd = bnrconductormod(bnr, hnfmodid(H,p), p);
     GEN pol, pe, bnr2 = gel(cnd,2), Hp = gel(cnd,3);
     if (pkum) pol = rnfkummer_ell(pkum, bnr2, Hp);
     else      pol = rnfkummersimple(bnr2, Hp, itos(p));

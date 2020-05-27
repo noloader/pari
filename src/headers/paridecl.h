@@ -2768,7 +2768,7 @@ GEN     bnrclassnolist(GEN bnf,GEN listes);
 GEN     bnrchar_primitive_raw(GEN bnr, GEN bnrc, GEN chi);
 GEN     bnrconductor_factored(GEN bnr, GEN H);
 GEN     bnrconductor_raw(GEN bnr, GEN H);
-GEN     bnrconductormod(GEN bnr, GEN H0, long flag, GEN MOD);
+GEN     bnrconductormod(GEN bnr, GEN H0, GEN MOD);
 GEN     bnrconductor0(GEN A, GEN B, GEN C, long flag);
 GEN     bnrconductor(GEN bnr, GEN H0, long flag);
 GEN     bnrconductor_i(GEN bnr, GEN H0, long flag);

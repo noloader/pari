@@ -380,7 +380,7 @@ bnr_subgroup_sanitize(GEN *pbnr, GEN *pH)
     default: pari_err_TYPE("bnr_subroup_sanitize [subgroup]", H);
       mod = NULL;
   }
-  cnd = bnrconductormod(bnr, H, 2, mod);
+  cnd = bnrconductormod(bnr, H, mod);
   *pbnr = gel(cnd,2); *pH = gel(cnd,3);
 }
 void
@@ -393,7 +393,7 @@ bnr_char_sanitize(GEN *pbnr, GEN *pchi)
   cyc = bnr_get_cyc(bnr);
   if (typ(chi) != t_VEC || !char_check(cyc, chi))
     pari_err_TYPE("bnr_char_sanitize [character]", chi);
-  cnd = bnrconductormod(bnr, chi, 2, charorder(cyc, chi));
+  cnd = bnrconductormod(bnr, chi, charorder(cyc, chi));
   *pbnr = gel(cnd,2); *pchi = gel(cnd,3);
 }
 
@@ -1450,12 +1450,13 @@ ABC_to_bnr(GEN A, GEN B, GEN C, GEN *H, int gen)
   *H = NULL; return NULL; /* LCOV_EXCL_LINE */
 }
 
+/* OBSOLETE */
 GEN
 bnrconductor0(GEN A, GEN B, GEN C, long flag)
 {
   pari_sp av = avma;
   GEN H, bnr = ABC_to_bnr(A,B,C,&H, 0);
-  return gerepilecopy(av, bnrconductormod(bnr, H, flag, NULL));
+  return gerepilecopy(av, bnrconductor_i(bnr, H, flag));
 }
 
 long
@@ -1567,9 +1568,9 @@ bnrconductor_raw(GEN bnr, GEN H)
  * if flag = 1: [[ideal,arch],[hm,cyc,gen],H']
  * if flag = 2: [[ideal,arch],newbnr,H'] */
 GEN
-bnrconductormod(GEN bnr, GEN H0, long flag, GEN MOD)
+bnrconductormod(GEN bnr, GEN H0, GEN MOD)
 {
-  GEN nf, bid, ideal, arch, archp, bnrc, e, H, cond = NULL;
+  GEN nf, bid, arch, archp, bnrc, e, H, cond = NULL;
   int ischi;
   zlog_S S;
 
@@ -1586,15 +1587,6 @@ bnrconductormod(GEN bnr, GEN H0, long flag, GEN MOD)
   }
   else
     arch = indices_to_vec01(archp, nf_get_r1(nf));
-  if (!flag)
-  {
-    if (!cond)
-    {
-      ideal = e? factorbackprime(nf, S.P, e): bid_get_ideal(bid);
-      cond = mkvec2(ideal, arch);
-    }
-    return cond;
-  }
 
   /* character or subgroup ? */
   ischi = H0 && typ(H0) == t_VEC;
@@ -1608,27 +1600,35 @@ bnrconductormod(GEN bnr, GEN H0, long flag, GEN MOD)
   }
   else
   {
-    long flag = lg(bnr_get_clgp(bnr)) == 4? nf_INIT | nf_GEN: nf_INIT;
+    long fl = lg(bnr_get_clgp(bnr)) == 4? nf_INIT | nf_GEN: nf_INIT;
     GEN fa = famat_remove_trivial(mkmat2(S.P, e? e: S.k)), bid;
     bid = Idealstar(nf, mkvec2(fa, arch), nf_INIT | nf_GEN);
-    bnrc = Buchray_i(bnr, bid, flag, MOD);
+    bnrc = Buchray_i(bnr, bid, fl, MOD);
     cond = bnr_get_mod(bnrc);
     if (ischi)
       H = bnrchar_primitive_raw(bnr, bnrc, H0);
     else
       H = imageofgroup(bnr, bnrc, H);
   }
-  if (flag == 1) bnrc = bnr_get_clgp(bnrc);
   return mkvec3(cond, bnrc, H);
 }
+/* OBSOLETE */
 GEN
-bnrconductor_i(GEN bnr, GEN H0, long flag)
-{ return bnrconductormod(bnr,H0,flag,NULL); }
+bnrconductor_i(GEN bnr, GEN H, long flag)
+{
+  GEN v;
+  if (flag == 0) return bnrconductor_raw(bnr, H);
+  v = bnrconductormod(bnr, H, NULL);
+  if (flag == 1) gel(v,2) = bnr_get_clgp(gel(v,2));
+  return v;
+}
+/* OBSOLETE */
 GEN
-bnrconductor(GEN bnr, GEN H0, long flag)
+bnrconductor(GEN bnr, GEN H, long flag)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, bnrconductormod(bnr,H0,flag,NULL));
+  if (flag > 2 || flag < 0) pari_err_FLAG("bnrconductor");
+  return gerepilecopy(av, bnrconductor_i(bnr, H, flag));
 }
 
 long
@@ -1874,7 +1874,7 @@ rnfconductor0(GEN bnf, GEN T, long flag)
   MOD = flag? utoipos(degpol(T)): NULL;
   bnr = Buchray_i(bnf, module, nf_INIT|nf_GEN, MOD);
   H = rnfnormgroup_i(bnr,T); if (!H) { set_avma(av); return gen_0; }
-  return gerepilecopy(av, bnrconductormod(bnr, H, 2, MOD));
+  return gerepilecopy(av, bnrconductormod(bnr, H, MOD));
 }
 GEN
 rnfconductor(GEN bnf, GEN T) { return rnfconductor0(bnf, T, 0); }
