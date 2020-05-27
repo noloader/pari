@@ -1565,7 +1565,7 @@ red_mod_units(GEN col, GEN z)
   for (i=1; i<RU; i++) gel(x,i) = real_i(gel(col,i));
   gel(x,RU) = N2;
   x = lll(shallowconcat(mat,x));
-  if (typ(x) != t_MAT) return NULL;
+  if (typ(x) != t_MAT || lg(x) <= RU) return NULL;
   x = gel(x,RU);
   if (signe(gel(x,RU)) < 0) x = gneg_i(x);
   if (!gequal1(gel(x,RU))) pari_err_BUG("red_mod_units");
