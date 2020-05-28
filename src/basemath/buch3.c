@@ -608,14 +608,14 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
   else
   {
     GEN El = bnr_get_El(bnr);
-    GEN idep = bnfisprincipal0(bnf, x, nf_FORCE|nf_GENMAT);
-    GEN ep = gel(idep,1), beta = gel(idep,2);
-    long i, j = lg(ep);
-    for (i = 1; i < j; i++) /* modify beta as if bnf.gen were El*bnr.gen */
-      if (typ(gel(El,i)) != t_INT && signe(gel(ep,i))) /* <==> != 1 */
-        beta = famat_mulpow_shallow(beta, gel(El,i), negi(gel(ep,i)));
+    GEN v = bnfisprincipal0(bnf, x, nf_FORCE|nf_GENMAT);
+    GEN e = gel(v,1), b = gel(v,2);
+    long i, j = lg(e);
+    for (i = 1; i < j; i++) /* modify b as if bnf.gen were El*bnf.gen */
+      if (typ(gel(El,i)) != t_INT && signe(gel(e,i))) /* <==> != 1 */
+        b = famat_mulpow_shallow(b, gel(El,i), negi(gel(e,i)));
     if (!MOD && !(flag & nf_GEN)) MOD = gel(cycray,1);
-    ex = ZM2_ZC2_mul(bnr_get_U(bnr), ep, ideallogmod(nf, beta, bid, MOD));
+    ex = ZM2_ZC2_mul(bnr_get_U(bnr), e, ideallogmod(nf, b, bid, MOD));
   }
   ex = vecmodii(ex, cycray);
   if (!(flag & nf_GEN)) return gerepileupto(av, ex);
