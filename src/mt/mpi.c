@@ -20,7 +20,8 @@ static THREAD int pari_MPI_size, pari_MPI_rank;
 static THREAD long nbreq = 0;
 
 enum PMPI_cmd { PMPI_close, PMPI_worker, PMPI_work, PMPI_parisizemax,
-                PMPI_parisize, PMPI_precreal, PMPI_primetab, PMPI_eval,
+                PMPI_parisize, PMPI_precreal, PMPI_primetab,
+                PMPI_varpriority, PMPI_eval,
                 PMPI_exportadd, PMPI_exportdel};
 
 struct mt_mstate
@@ -39,6 +40,14 @@ send_long(long a, long dest)
 {
   BLOCK_SIGINT_START
   MPI_Send(&a, 1, MPI_LONG, dest, 0, MPI_COMM_WORLD);
+  BLOCK_SIGINT_END
+}
+
+static void
+send_vlong(long *a, long n, long dest)
+{
+  BLOCK_SIGINT_START
+  MPI_Send(a, n, MPI_LONG, dest, 0, MPI_COMM_WORLD);
   BLOCK_SIGINT_END
 }
 
@@ -78,6 +87,13 @@ send_request_long(enum PMPI_cmd ecmd, long elt, int dest)
   send_long(elt, dest);
 }
 
+static void
+send_request_vlong(enum PMPI_cmd ecmd, long *a, long n, int dest)
+{
+  send_request(ecmd, dest);
+  send_vlong(a, n, dest);
+}
+
 static long
 recvfrom_long(int src)
 {
@@ -86,6 +102,14 @@ recvfrom_long(int src)
   MPI_Recv(&a, 1, MPI_LONG, src, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
   BLOCK_SIGINT_END
   return a;
+}
+
+static void
+recvfrom_vlong(long *a, long n, int src)
+{
+  BLOCK_SIGINT_START
+  MPI_Recv(a, n, MPI_LONG, src, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  BLOCK_SIGINT_END
 }
 
 static enum PMPI_cmd
@@ -217,6 +241,9 @@ pari_MPI_child(void)
     case PMPI_eval:
       (void) closure_evalgen(recvfrom_GEN(0));
       set_avma(av);
+      break;
+    case PMPI_varpriority:
+      recvfrom_vlong(varpriority-1,MAXVARN+2,0);
       break;
     case PMPI_exportadd:
     {
@@ -413,6 +440,7 @@ mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
       send_request_long(PMPI_parisize, mtparisize, i);
       send_request_long(PMPI_parisizemax, mtparisizemax, i);
       send_request_long(PMPI_precreal, get_localbitprec(), i);
+      send_request_vlong(PMPI_varpriority,varpriority-1,MAXVARN+2, i);
       send_request_GEN(PMPI_primetab, primetab, i);
       send_request_GEN(PMPI_worker, worker, i);
     }

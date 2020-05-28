@@ -864,11 +864,9 @@ varstate_restore(struct pari_varstate *s)
 void
 pari_set_varstate(long *vp, struct pari_varstate *vs)
 {
-  long i;
   var_restore(vs);
-  varpriority = (long*)newblock((MAXVARN+2)) + 1;
-  varpriority[-1] = 1-LONG_MAX;
-  for (i = 0; i < max_avail; i++) varpriority[i] = vp[i];
+  varpriority = (long*)newblock(MAXVARN+2) + 1;
+  memcpy(varpriority-1,vp-1,(MAXVARN+2)*sizeof(long));
 }
 
 /* must come before destruction of functions_hash */

@@ -102,6 +102,7 @@ AP  79- nfgrunwaldwang could modify its arguments
     80- ldata_vecan(an, N, prec): make sure the function returns N coefficients
     81- T=Pol([1,0,6748,-750056,45535504,-2530688944,140646000784]);
         bnfinit(T,1).cyc -> [240, 12, 4, 2, 2, 2] (instead of [120, 4, 4, 2])
+BA  82- [mt] variable priorities in threads could be incorrect.
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
