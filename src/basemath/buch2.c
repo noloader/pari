@@ -3215,7 +3215,7 @@ bnf_build_cheapfu(GEN bnf)
   {
     pari_sp av = avma;
     long e = gexpo(real_i(bnf_get_logfu(bnf)));
-    set_avma(av); if (e < 18) return vecsplice(bnf_build_units(bnf), 1);
+    set_avma(av); if (e < 13) return vecsplice(bnf_build_units(bnf), 1);
   }
   return NULL;
 }
