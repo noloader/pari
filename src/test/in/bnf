@@ -82,4 +82,7 @@ bnfisprincipal(bnf,P,1);
 \\loss of accuracy
 bnf=bnfinit(a^3 - 65249548*a - 207761301170,1);exponent(bnf[3])
 
+\\ wrong cyclic components
+setrand(1);bnfinit(a^6+6748*a^4-750056*a^3+45535504*a^2-2530688944*a+140646000784,1).cyc
+
 \\ ERRORS: keep at end of file

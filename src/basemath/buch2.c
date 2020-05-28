@@ -2866,24 +2866,23 @@ compute_multiple_of_R_pivot(GEN X, GEN x0/*unused*/, long ix, GEN c)
   return (k && ex > -32)? k: lx;
 }
 
-/* A = complex logarithmic embeddings of units (u_j) found so far,
+/* Ar = (log |sigma_i(u_j)|) for units (u_j) found so far,
  * RU = R1+R2 = unit rank, N = field degree
  * need = unit rank defect
  * L = NULL (prec problem) or B^(-1) * A with approximate rational entries
  * (as t_REAL), B a submatrix of A, with (probably) maximal rank RU */
 static GEN
-compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
+compute_multiple_of_R(GEN Ar, long RU, long N, long *pneed, long *bit, GEN *ptL)
 {
-  GEN T, d, mdet, Im_mdet, kR, xreal, L;
+  GEN T, d, mdet, Im_mdet, kR, L;
   long i, j, r, R1 = 2*RU - N;
   int precpb;
   pari_sp av = avma;
 
-  if (RU == 1) { *ptL = zeromat(0, lg(A)-1); return gen_1; }
+  if (RU == 1) { *ptL = zeromat(0, lg(Ar)-1); return gen_1; }
 
   if (DEBUGLEVEL) err_printf("\n#### Computing regulator multiple\n");
-  xreal = real_i(A); /* = (log |sigma_i(u_j)|) */
-  mdet = clean_cols(xreal, &precpb);
+  mdet = clean_cols(Ar, &precpb);
   /* will cause precision to increase on later failure, but we may succeed! */
   *ptL = precpb? NULL: gen_1;
   T = cgetg(RU+1,t_COL);
@@ -2921,7 +2920,7 @@ compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
   if (!L || (*bit = - gexpo(RgM_Rg_sub(RgM_mul(L,Im_mdet), gen_1))) < 16)
   { *ptL = NULL; return gerepilecopy(av,kR); }
 
-  L = RgM_mul(rowslice(L,2,RU), xreal); /* approximate rational entries */
+  L = RgM_mul(rowslice(L,2,RU), Ar); /* approximate rational entries */
   gerepileall(av,2, &L, &kR);
   *ptL = L; return kR;
 }
@@ -2956,11 +2955,11 @@ bad_check(GEN c)
  *
  * Output: *ptkR = R, *ptU = basis of fundamental units (in terms lambda) */
 static long
-compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
+compute_R(GEN Ar, GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
 {
   pari_sp av = avma;
   long r, reason, RU = lg(lambda) == 1? 1: lgcols(lambda);
-  GEN L, H, D, den, R, c;
+  GEN A, L, H, D, den, R, R2, U, c;
 
   *ptL = NULL;
   if (DEBUGLEVEL) err_printf("\n#### Computing check\n");
@@ -2993,7 +2992,7 @@ compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
       return fupb_PRECI;
     }
   }
-  H = ZM_hnf(L); r = lg(H)-1;
+  H = ZM_hnflll(L,&U,1); r = lg(H)-1;
   if (!r || r != nbrows(H))
     R = gen_0; /* wrong rank */
   else
@@ -3006,6 +3005,11 @@ compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
   c = gmul(R,z); /* should be n (= 1 if we are done) */
   if (DEBUGLEVEL) err_printf("\n#### Tentative regulator: %.28Pg\n", R);
   if ((reason = bad_check(c))) return gc_long(av, reason);
+  /* one final check: comppute directly the regulator from A */
+  A = RgM_mul(Ar, vecslice(U,lg(U)-r, lg(U)-1));
+  /* could loop over the r possibilities */
+  R2 = det(rowsplice(A,1)); setsigne(R2,1);
+  if (gexpo(gsub(R,R2)) > -3) return gc_long(av, fupb_PRECI);
   *ptkR = R; *ptL = L; return fupb_NONE;
 }
 static GEN
@@ -3643,7 +3647,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   double LOGD, LOGD2, lim;
   GEN computed = NULL, fu = NULL, zu, nf, M_sn, D, A, W, R, h, Ce, PERM;
   GEN small_multiplier, auts, cyclic, embs, SUnits;
-  GEN res, L, invhr, B, C, C0, lambda, dep, clg1, clg2, Vbase;
+  GEN res, L, invhr, B, C, lambda, dep, clg1, clg2, Vbase;
   const char *precpb = NULL;
   nfmaxord_t nfT;
   RELCACHE_t cache;
@@ -3801,6 +3805,7 @@ START:
 
   do
   {
+    GEN Ar, C0;
     do
     {
       pari_sp av4 = avma;
@@ -4015,7 +4020,8 @@ START:
     }
     A = vecslice(C, 1, zc); /* cols corresponding to units */
     if (flag) A = rowslice(A, 1, RU);
-    R = compute_multiple_of_R(A, RU, N, &need, &bit, &lambda);
+    Ar = real_i(A);
+    R = compute_multiple_of_R(Ar, RU, N, &need, &bit, &lambda);
     if (need < old_need) small_fail = 0;
     /* we have computed way more relations than should be necessary */
     if (TRIES < 3 && LIMC < LIMCMAX / 24 &&
@@ -4031,7 +4037,8 @@ START:
     }
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
-    switch (compute_R(lambda, mulir(h,invhr), flag? 0: RgM_bit(C, bit), &L, &R))
+    switch (compute_R(Ar, lambda, mulir(h,invhr), flag? 0: RgM_bit(C, bit),
+                      &L, &R))
     {
       case fupb_RELAT:
         need = 1; /* not enough relations */
