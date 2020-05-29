@@ -5857,7 +5857,7 @@ nf2_get_conj(GEN nf)
 static long
 mfisdihedral(GEN vF, GEN DIH)
 {
-  GEN vG = gel(DIH,1), M = gel(DIH,2), v, G, bnr, w, gen, cyc, D, f, nf, con;
+  GEN vG = gel(DIH,1), M = gel(DIH,2), v, G, bnr, w, gen, D, f, nf, con;
   GEN f0, f0b, xin;
   long i, l, e, j, L, n;
   if (lg(M) == 1) return 0;
@@ -5868,7 +5868,7 @@ mfisdihedral(GEN vF, GEN DIH)
     if (!gequal0(gel(v,i))) break;
   if (i == l) return 0;
   G = gel(vG,i);
-  bnr = gel(G,2); cyc = bnr_get_cyc(bnr); D = gel(cyc,1);
+  bnr = gel(G,2); D = cyc_get_expo(bnr_get_cyc(bnr));
   w = gel(G,3);
   f = bnr_get_mod(bnr);
   nf = bnr_get_nf(bnr);
@@ -9513,11 +9513,7 @@ cmp_small_priority(void *E, GEN a, GEN b)
   return cmpss(prio[(long)a], prio[(long)b]);
 }
 static long
-znstar_get_expo(GEN G)
-{
-  GEN cyc = znstar_get_cyc(G);
-  return (lg(cyc) == 1)? 1: itou(gel(cyc,1));
-}
+znstar_get_expo(GEN G) { return itou(cyc_get_expo(znstar_get_cyc(G))); }
 
 /* Return [vchi, bymod, vG]:
  * vG[f] = znstar(f,1) for f a conductor of (at least) a char mod N; else NULL

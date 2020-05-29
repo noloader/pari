@@ -363,8 +363,7 @@ bnr_subgroup_sanitize(GEN *pbnr, GEN *pH)
   if (nftyp(bnr)==typ_BNF) bnr = Buchray(bnr, gen_1, nf_INIT);
   else checkbnr(bnr);
   cyc = bnr_get_cyc(bnr);
-  if (!H)
-    mod = lg(cyc) == 1? gen_1: gel(cyc,1);
+  if (!H) mod = cyc_get_expo(cyc);
   else switch(typ(H))
   {
     case t_INT: mod = H; break;
@@ -1237,7 +1236,7 @@ bnfcertify0(GEN bnf, long flag)
     while ( (p = u_forprime_next(&T)) ) check_prime(p, nf, &S);
   if (lg(cyc) > 1)
   {
-    GEN f = Z_factor(gel(cyc,1)), P = gel(f,1);
+    GEN f = Z_factor(cyc_get_expo(cyc)), P = gel(f,1);
     long i;
     if (DEBUGLEVEL>1) err_printf("  Primes dividing h(K)\n\n");
     for (i = lg(P)-1; i; i--)

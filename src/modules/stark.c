@@ -2724,7 +2724,8 @@ quadhilbertreal(GEN D, long prec)
   cyc = bnf_get_cyc(bnf);
   if (lg(cyc) == 1) { set_avma(av); return pol_x(0); }
   /* if the exponent of the class group is 2, use Genus Theory */
-  if (absequaliu(gel(cyc,1), 2)) return gerepileupto(av, GenusFieldQuadReal(D));
+  if (absequaliu(cyc_get_expo(cyc), 2))
+    return gerepileupto(av, GenusFieldQuadReal(D));
 
   bnr  = Buchray(bnf, gen_1, nf_INIT);
   M = diagonal_shallow(bnr_get_cyc(bnr));

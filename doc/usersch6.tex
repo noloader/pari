@@ -117,6 +117,10 @@ entries: $[N,\var{cyc}]$ or $[N,\var{cyc}, \var{gen}]$.
 \fun{GEN}{abgrp_get_gen}{GEN x}
  extract the generators \var{gen} from an abelian group structure.
 
+\fun{GEN}{cyc_get_expo}{GEN cyc}
+ return the exponent of the group with structure \kbd{cyc}; $0$ for an infinite
+group.
+
 \fun{void}{checkmodpr}{GEN modpr} Raise an exception if the argument is not a
 \kbd{modpr} structure (from \kbd{nfmodprinit}).
 

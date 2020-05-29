@@ -2514,7 +2514,7 @@ idealprincipalunits_i(GEN nf, GEN pr, long k, GEN *pU)
     h = principal_units_relations(nf, L2, prk, lg(vg)-1);
     h = ZM_hnfall_i(h, NULL, 0);
     cyc = ZM_snf_group(h, pU, &Ui);
-    c = lg(Ui); gen = cgetg(c, t_VEC); EX = gel(cyc,1);
+    c = lg(Ui); gen = cgetg(c, t_VEC); EX = cyc_get_expo(cyc);
     for (j = 1; j < c; j++)
       gel(gen,j) = famat_to_nf_modideal_coprime(nf, vg, gel(Ui,j), prk, EX);
   }
@@ -2577,7 +2577,7 @@ sprkinit(GEN nf, GEN pr, long k, GEN x)
     long j, l;
     w = idealprincipalunits_i(nf, pr, k, &U);
     /* incorporate (Z_K/pr)^*, order A coprime to B = expo(1+pr/1+pr^k)*/
-    cyc = leafcopy(gel(w,1)); B = gel(cyc,1); AB = mulii(A,B);
+    cyc = leafcopy(gel(w,1)); B = cyc_get_expo(cyc); AB = mulii(A,B);
     gen = leafcopy(gel(w,2));
     prk = gel(w,3);
     g = nfpowmodideal(nf, g, B, prk);
@@ -2601,11 +2601,7 @@ sprkinit(GEN nf, GEN pr, long k, GEN x)
 static GEN
 sprk_get_cyc(GEN s) { return gel(s,1); }
 static GEN
-sprk_get_expo(GEN s)
-{
-  GEN cyc = sprk_get_cyc(s);
-  return lg(cyc) == 1? gen_1: gel(cyc, 1);
-}
+sprk_get_expo(GEN s) { return cyc_get_expo(sprk_get_cyc(s)); }
 static GEN
 sprk_get_gen(GEN s) { return gel(s,2); }
 static GEN
@@ -2974,7 +2970,7 @@ bid_grp(GEN nf, GEN U, GEN cyc, GEN g, GEN F, GEN sarch)
   G = cgetg(c,t_VEC);
   if (c > 1)
   {
-    GEN U0, Uoo, EX = gel(cyc,1); /* exponent of bid */
+    GEN U0, Uoo, EX = cyc_get_expo(cyc); /* exponent of bid */
     long i, hU = nbrows(U), nba = lg(sarch_get_cyc(sarch))-1; /* #f_oo */
     if (!nba) { U0 = U; Uoo = NULL; }
     else if (nba == hU) { U0 = NULL; Uoo = U; }

@@ -429,8 +429,7 @@ static void
 subgroup_engine(subgp_iter *T)
 {
   pari_sp av = avma;
-  GEN B,L,fa,primlist,p,listL,indexsubq = NULL;
-  GEN cyc = T->cyc;
+  GEN N, B, L, fa, primlist, p, listL, indexsubq = NULL, cyc = T->cyc;
   long i,j,k,imax,lprim, n = lg(cyc);
 
   if (n == 1) {
@@ -441,8 +440,9 @@ subgroup_engine(subgp_iter *T)
     }
     set_avma(av); return;
   }
-  if (!signe(gel(cyc,1))) pari_err_TYPE("forsubgroup [infinite group]", cyc);
-  fa = Z_factor(gel(cyc,1)); primlist = gel(fa,1);
+  N = cyc_get_expo(cyc);
+  if (!signe(N)) pari_err_TYPE("forsubgroup [infinite group]", cyc);
+  fa = Z_factor(N); primlist = gel(fa,1);
   listL = cgetg_copy(primlist, &lprim);
   imax = k = 0;
   for (i=1; i<lprim; i++)
