@@ -297,8 +297,8 @@ nfislocalpower_i(GEN nf, GEN pr, GEN a, GEN n)
   else /* straight Hensel */
     t = 2 * e * v + 1;
   G = Idealstarprk(nf, pr, t, nf_INIT);
-  L = ideallog(nf, a, G);
-  return (ZV_equal0(L) || ZV_pval(L, p) >= v);
+  L = ideallogmod(nf, a, G, powiu(p, v));
+  return ZV_equal0(L) || ZV_pval(L, p) >= v;
 }
 long
 nfislocalpower(GEN nf, GEN pr, GEN a, GEN n)

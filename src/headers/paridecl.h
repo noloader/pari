@@ -5621,6 +5621,7 @@ INLINE GEN    bnr_get_bid(GEN bnr);
 INLINE GEN    bnr_get_mod(GEN bnr);
 INLINE GEN    bnr_get_nf(GEN bnr);
 INLINE int    checkell_i(GEN e);
+INLINE GEN    cyc_get_expo(GEN c);
 INLINE GEN    ell_get_a1(GEN e);
 INLINE GEN    ell_get_a2(GEN e);
 INLINE GEN    ell_get_a3(GEN e);

@@ -1361,6 +1361,7 @@ bnrsurjection(GEN bnr1, GEN bnr2)
   GEN bnf = bnr_get_bnf(bnr2), nf = bnf_get_nf(bnf);
   GEN M, U = bnr_get_U(bnr2), bid2 = bnr_get_bid(bnr2);
   GEN gen1 = bid_get_gen(bnr_get_bid(bnr1));
+  GEN e2 = cyc_get_expo(bnr_get_cyc(bnr2));
   long i, l = lg(bnf_get_cyc(bnf)), lb = lg(gen1);
   /* p(bnr1.gen) = p(bnr1 gens) * bnr1.Ui
    *             = (bnr2 gens) * P * bnr1.Ui
@@ -1368,7 +1369,7 @@ bnrsurjection(GEN bnr1, GEN bnr2)
 
   /* p(bid1.gen) on bid2.gen */
   M = cgetg(lb, t_MAT);
-  for (i = 1; i < lb; i++) gel(M,i) = ideallog(nf, gel(gen1,i), bid2);
+  for (i = 1; i < lb; i++) gel(M,i) = ideallogmod(nf, gel(gen1,i), bid2, e2);
   /* [U[1], U[2]] * [Id, 0; N, M] = [U[1] + U[2]*N, U[2]*M] */
   M = ZM_mul(gel(U,2), M);
   if (l > 1)
@@ -1388,7 +1389,7 @@ bnrsurjection(GEN bnr1, GEN bnr2)
         if (typ(gel(El1,i)) != t_INT) /* else El1[i] = 1 => El2[i] = 1 */
         {
           GEN z = nfdiv(nf,gel(El1,i),gel(El2,i));
-          c = ZC_add(c, ZM_ZC_mul(U2,ideallog(nf, z, bid2)));
+          c = ZC_add(c, ZM_ZC_mul(U2, ideallogmod(nf, z, bid2, e2)));
         }
         gel(T,i) = c;
       }

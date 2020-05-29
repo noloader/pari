@@ -2781,6 +2781,8 @@ nf_get_sign(GEN nf, long *r1, long *r2)
 }
 
 INLINE GEN
+cyc_get_expo(GEN c) { return lg(c) == 1? gen_1: gel(c,1); }
+INLINE GEN
 abgrp_get_no(GEN x) { return gel(x,1); }
 INLINE GEN
 abgrp_get_cyc(GEN x) { return gel(x,2); }
