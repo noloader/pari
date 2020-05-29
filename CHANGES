@@ -170,6 +170,7 @@ BA  45- closures: do not copy the full context, only the accessible part
     50- rnfkummer: removed "all" flag, function now obsolete. Use bnrclassfield!
     51- rnfconductor: flag to compute Cl_f/[K:Q] instead of Cl_f
     52- bnrconductor_i is now obsolete, use bnrconductor_raw or bnrconductormod
+    53- dvdxxx(x,y) allow y = 0 [and return 0 unless x = 0]
 
   Added
      1- new GP function rootsof1

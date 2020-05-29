@@ -947,20 +947,25 @@ INLINE int
 dvdii(GEN x, GEN y)
 {
   pari_sp av = avma;
-  GEN r = remii(x,y);
+  GEN r;
+  if (!signe(x)) return 1;
+  if (!signe(y)) return 0;
+  r = remii(x,y);
   return gc_bool(av, r == gen_0);
 }
 INLINE int
 dvdsi(long x, GEN y)
 {
-  if (!signe(y)) return x == 0;
+  if (x == 0) return 1;
+  if (!signe(y)) return 0;
   if (lgefint(y) != 3) return 0;
   return x % y[2] == 0;
 }
 INLINE int
 dvdui(ulong x, GEN y)
 {
-  if (!signe(y)) return x == 0;
+  if (x == 0) return 1;
+  if (!signe(y)) return 0;
   if (lgefint(y) != 3) return 0;
   return x % y[2] == 0;
 }
