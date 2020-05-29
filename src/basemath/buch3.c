@@ -1375,25 +1375,24 @@ bnrsurjection(GEN bnr1, GEN bnr2)
   { /* non trivial class group */
     /* p(bnf.gen * bnr1.El) in terms of bnf.gen * bnr2.El and bid2.gen */
     GEN El2 = bnr_get_El(bnr2), El1 = bnr_get_El(bnr1);
-    GEN N = cgetg(l, t_MAT);
     long ngen2 = lg(bid_get_gen(bid2))-1;
     if (!ngen2)
       M = gel(U,1);
     else
     {
+      GEN U1 = gel(U,1), U2 = gel(U,2), T = cgetg(l, t_MAT);
+      /* T = U1 + U2 log(El2/El1) */
       for (i = 1; i < l; i++)
       { /* bnf gen in bnr1 is bnf.gen * El1 = bnf gen in bnr 2 * El1/El2 */
-        GEN z;
-        if (typ(gel(El1,i)) == t_INT)
-          z = zerocol(ngen2);
-        else
+        GEN c = gel(U1,i);
+        if (typ(gel(El1,i)) != t_INT) /* else El1[i] = 1 => El2[i] = 1 */
         {
-          z = nfdiv(nf,gel(El1,i),gel(El2,i));
-          z = ideallog(nf, z, bid2);
+          GEN z = nfdiv(nf,gel(El1,i),gel(El2,i));
+          c = ZC_add(c, ZM_ZC_mul(U2,ideallog(nf, z, bid2)));
         }
-        gel(N,i) = z;
+        gel(T,i) = c;
       }
-      M = shallowconcat(ZM_add(gel(U,1), ZM_mul(gel(U,2),N)), M);
+      M = shallowconcat(T, M);
     }
   }
   return ZM_mul(M, bnr_get_Ui(bnr1));
