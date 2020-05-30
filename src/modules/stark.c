@@ -932,15 +932,13 @@ InitChar(GEN bnr, GEN listCR, long prec)
 static GEN
 CharNewPrec(GEN dataCR, GEN nf, long prec)
 {
-  long j, l = lg(dataCR), N = nf_get_degree(nf);
-  GEN C = sqrtr(divir(absi_shallow(nf_get_disc(nf)), powru(mppi(prec), N)));
+  GEN C = get_C(nf, prec);
+  long j, l = lg(dataCR);
   for (j = 1; j < l; j++)
   {
     GEN dtcr = gel(dataCR,j), f0 = gel(ch_cond(dtcr),1);
     ch_C(dtcr) = mulrr(C, gsqrt(ZM_det_triangular(f0), prec));
-
     gmael(ch_bnr(dtcr), 1, 7) = nf;
-
     ch_CHI( dtcr) = get_Char(gel(ch_CHI(dtcr), 1), prec);
     ch_CHI0(dtcr) = get_Char(gel(ch_CHI0(dtcr),1), prec);
   }
@@ -1666,7 +1664,7 @@ RecCoeff(GEN nf,  GEN pol,  long v, long prec)
   for (j = 2; j <= cl+1; j++)
   {
     GEN t = gel(pol, j);
-    if (prec2nbits(gprecision(t)) - gexpo(t) < 34) return NULL;
+    if (prec2nbits(precision(t)) - gexpo(t) < 34) return NULL;
   }
 
   md = cl/2;
@@ -2137,18 +2135,14 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
     N0[j] = zeta_get_N0(c, limx);
     if (n0 < N0[j]) n0  = N0[j];
   }
-  i0 = zeta_get_i0(r1, r2, prec2nbits(prec), limx);
+  cScT.i0 = i0 = zeta_get_i0(r1, r2, prec2nbits(prec), limx);
   if (DEBUGLEVEL>1) err_printf("i0 = %ld, N0 = %ld\n",i0, n0);
   InitPrimes(bnr, n0, &LIST);
-
   prec2 = precdbl(prec) + EXTRA_PREC;
   cScT.powracpi = powersr(sqrtr(mppi(prec2)), r1);
-
   cScT.cS = cgetg(n0+1, t_VEC);
   cScT.cT = cgetg(n0+1, t_VEC);
   for (j=1; j<=n0; j++) gel(cScT.cS,j) = gel(cScT.cT,j) = NULL;
-
-  cScT.i0 = i0;
 
   av1 = avma;
   for (jc = 1; jc <= ncond; jc++)
@@ -2436,7 +2430,7 @@ LABDOUB:
     if (DEBUGLEVEL) pari_warn(warnprec, "AllStark", newprec);
 
     nf = nfnewprec_shallow(nf, newprec);
-    dataCR = CharNewPrec(dataCR, nf, newprec);
+    dataCR = CharNewPrec(dataCR, nf, precdbl(newprec) + EXTRA_PREC);
 
     gerepileall(av, 2, &nf, &dataCR);
     goto LABDOUB;
