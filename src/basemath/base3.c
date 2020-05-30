@@ -2632,11 +2632,11 @@ famat_zlog_pr(GEN nf, GEN g, GEN e, GEN sprk, GEN mod)
 }
 /* famat_zlog_pr assuming (g,sprk.pr) = 1 */
 static GEN
-famat_zlog_pr_coprime(GEN nf, GEN g, GEN e, GEN sprk)
+famat_zlog_pr_coprime(GEN nf, GEN g, GEN e, GEN sprk, GEN MOD)
 {
   GEN x = famat_to_nf_modideal_coprime(nf, g, e, sprk_get_prk(sprk),
                                        sprk_get_expo(sprk));
-  return log_prk(nf, x, sprk, NULL);
+  return log_prk(nf, x, sprk, MOD);
 }
 
 /* o t_INT, O = [ord,fa] format for multiple of o (for Fq_log);
@@ -3197,7 +3197,7 @@ ideallog_units0(GEN bnf, GEN bid, GEN MOD)
       GEN sprk = gel(S.sprk, i);
       GEN Xi = sunits_makecoprime(X, sprk_get_pr(sprk), sprk_get_prk(sprk));
       for (j = 1; j < lU; j++)
-        gcoeff(y,i,j) = famat_zlog_pr_coprime(nf, Xi, gel(U,j), sprk);
+        gcoeff(y,i,j) = famat_zlog_pr_coprime(nf, Xi, gel(U,j), sprk, MOD);
     }
     if (l0 != l)
       for (j = 1; j < lU; j++) gcoeff(y,l0,j) = Flc_to_ZC(gel(D,j));
@@ -3223,7 +3223,7 @@ log_prk_units(GEN nf, GEN D, GEN sprk)
     X = sunits_makecoprime(X, sprk_get_pr(sprk), sprk_get_prk(sprk));
     L = cgetg(lU, t_MAT);
     for (j = 1; j < lU; j++)
-      gel(L,j) = famat_zlog_pr_coprime(nf, X, gel(U,j), sprk);
+      gel(L,j) = famat_zlog_pr_coprime(nf, X, gel(U,j), sprk, NULL);
   }
   return vec_prepend(L, Ltu);
 }
