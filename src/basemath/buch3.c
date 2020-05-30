@@ -1348,19 +1348,19 @@ bnrchar(GEN bnr, GEN g, GEN v)
   return gerepilecopy(av, bnrchar_i(bnr,g,v));
 }
 
-/* Let bnr1, bnr2 be such that mod(bnr2) | mod(bnr1), compute the matrix of the
- * surjective map p: Cl(bnr1) ->> Cl(bnr2). Write (bnr gens) for the
- * concatenation of the bnf [corrected by El] and bid generators; and
- * bnr.gen for the SNF generators. Then
- * bnr.gen = (bnf.gen*bnr.El | bid.gen) bnr.Ui
- * (bnf.gen*bnr.El | bid.gen) = bnr.gen * bnr.U */
+/* Let bnr1, bnr2 be such that mod(bnr2) | mod(bnr1), compute surjective map
+ *   p: Cl(bnr1) ->> Cl(bnr2).
+ * Write (bnr gens) for the concatenation of the bnf [corrected by El] and bid
+ * generators; and bnr.gen for the SNF generators. Then
+ *   bnr.gen = (bnf.gen*bnr.El | bid.gen) bnr.Ui
+ *  (bnf.gen*bnr.El | bid.gen) = bnr.gen * bnr.U */
 GEN
 bnrsurjection(GEN bnr1, GEN bnr2)
 {
   GEN bnf = bnr_get_bnf(bnr2), nf = bnf_get_nf(bnf);
   GEN M, U = bnr_get_U(bnr2), bid2 = bnr_get_bid(bnr2);
   GEN gen1 = bid_get_gen(bnr_get_bid(bnr1));
-  GEN e2 = cyc_get_expo(bnr_get_cyc(bnr2));
+  GEN cyc2 = bnr_get_cyc(bnr2), e2 = cyc_get_expo(cyc2);
   long i, l = lg(bnf_get_cyc(bnf)), lb = lg(gen1);
   /* p(bnr1.gen) = p(bnr1 gens) * bnr1.Ui
    *             = (bnr2 gens) * P * bnr1.Ui
@@ -1395,7 +1395,7 @@ bnrsurjection(GEN bnr1, GEN bnr2)
       M = shallowconcat(T, M);
     }
   }
-  return ZM_mul(M, bnr_get_Ui(bnr1));
+  return mkvec3(ZM_mul(M, bnr_get_Ui(bnr1)), bnr_get_cyc(bnr1), cyc2);
 }
 
 /* Given normalized chi on bnr.clgp of conductor bnrc.mod,
@@ -1405,24 +1405,23 @@ bnrsurjection(GEN bnr1, GEN bnr2)
 GEN
 bnrchar_primitive(GEN bnr, GEN nchi, GEN bnrc)
 {
-  GEN Mc, U, M = bnrsurjection(bnr, bnrc);
+  GEN U, S = bnrsurjection(bnr, bnrc), M = gel(S,1);
+  GEN Mc = diagonal_shallow(gel(S,3));
   long l = lg(M);
 
-  Mc = diagonal_shallow(bnr_get_cyc(bnrc));
   (void)ZM_hnfall_i(shallowconcat(M, Mc), &U, 1); /* identity */
   U = matslice(U,1,l-1, l,lg(U)-1);
   return char_simplify(gel(nchi,1), ZV_ZM_mul(gel(nchi,2), U));
 }
 
-/* s: <gen> = Cl_f --> Cl_f2 --> 0, H subgroup of Cl_f (generators given as
+/* s: <gen> = Cl_f -> Cl_f2 -> 0, H subgroup of Cl_f (generators given as
  * HNF on [gen]). Return subgroup s(H) in Cl_f2 */
 static GEN
 imageofgroup(GEN bnr, GEN bnr2, GEN H)
 {
-  GEN H2, cyc2 = bnr_get_cyc(bnr2);
+  GEN cyc2 = bnr_get_cyc(bnr2);
   if (!H) return diagonal_shallow(cyc2);
-  H2 = ZM_mul(bnrsurjection(bnr, bnr2), H);
-  return ZM_hnfmodid(H2, cyc2); /* s(H) in Cl_n */
+  return ag_subgroup_image(bnrsurjection(bnr, bnr2), H);
 }
 GEN
 bnrchar_primitive_raw(GEN bnr, GEN bnrc, GEN chi)

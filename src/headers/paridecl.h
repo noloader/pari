@@ -5025,6 +5025,8 @@ void    forsubgroup(void *E, long fun(void*,GEN), GEN cyc, GEN B);
 
 /* stark.c */
 
+GEN     ag_kernel(GEN S);
+GEN     ag_subgroup_image(GEN S, GEN H);
 GEN     bnrL1(GEN bnr, GEN sbgrp, long flag, long prec);
 GEN     bnrrootnumber(GEN bnr, GEN chi, long flag, long prec);
 GEN     bnrstark(GEN bnr, GEN subgroup, long prec);

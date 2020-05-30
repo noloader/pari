@@ -171,6 +171,7 @@ BA  45- closures: do not copy the full context, only the accessible part
     51- rnfconductor: flag to compute Cl_f/[K:Q] instead of Cl_f
     52- bnrconductor_i is now obsolete, use bnrconductor_raw or bnrconductormod
     53- dvdxxx(x,y) allow y = 0 [and return 0 unless x = 0]
+    54- [libpari] bnrsurjection now returns [matrix, cyc(F), cyc(f)]
 
   Added
      1- new GP function rootsof1

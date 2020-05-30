@@ -271,18 +271,20 @@ LiftChar(GEN Qt, GEN cyc, GEN chi)
   return char_denormalize(cyc, d, c);
 }
 
-/* Let s: A -> B given by P, and let cycA, cycB be the cyclic structure of
- * A and B, compute the kernel of s. */
-static GEN
-ComputeKernel0(GEN P, GEN cycA, GEN cycB)
+/* Let s: A -> B given by [P,cycA,cycB] A and B, compute the kernel of s. */
+GEN
+ag_kernel(GEN S)
 {
-  long nbA = lg(cycA)-1, rk;
-  GEN U, DB = diagonal_shallow(cycB);
+  GEN U, P = gel(S,1), cycA = gel(S,2), DB = diagonal_shallow(gel(S,3));
+  long nA = lg(cycA)-1, rk;
 
-  rk = nbA + lg(cycB) - lg(ZM_hnfall_i(shallowconcat(P, DB), &U, 1));
-  U = matslice(U, 1,nbA, 1,rk);
-  return ZM_hnfmodid(U, cycA);
+  rk = nA + lg(DB) - lg(ZM_hnfall_i(shallowconcat(P, DB), &U, 1));
+  return ZM_hnfmodid(matslice(U, 1,nA, 1,rk), cycA);
 }
+/* let H be a subgroup of A; return s(H) */
+GEN
+ag_subgroup_image(GEN S, GEN H)
+{ return ZM_hnfmodid(ZM_mul(gel(S,1), H),  gel(S,3)); }
 
 /* Let m and n be two moduli such that n|m and let C be a congruence
    group modulo n, compute the corresponding congruence group modulo m
@@ -291,8 +293,9 @@ static GEN
 ComputeKernel(GEN bnrm, GEN bnrn, GEN dtQ)
 {
   pari_sp av = avma;
-  GEN P = ZM_mul(gel(dtQ,3), bnrsurjection(bnrm, bnrn));
-  return gerepileupto(av, ComputeKernel0(P, bnr_get_cyc(bnrm), gel(dtQ,2)));
+  GEN S = bnrsurjection(bnrm, bnrn);
+  GEN P = ZM_mul(gel(dtQ,3), gel(S,1));
+  return gerepileupto(av, ag_kernel(mkvec3(P, gel(S,2), gel(dtQ,2))));
 }
 
 static long
@@ -307,14 +310,14 @@ static long
 IsGoodSubgroup(GEN H, GEN bnr, GEN map)
 {
   pari_sp av = avma;
-  GEN mod, modH, p1, p2, U, P, PH, bnrH, iH, qH;
+  GEN S, mod, modH, p1, U, P, PH, bnrH, iH, qH;
   long j;
 
   p1 = InitQuotient(H);
   /* quotient is non cyclic */
   if (!cyc_is_cyclic(gel(p1,2))) return gc_long(av,0);
 
-  p2 = ZM_hnfall_i(shallowconcat(map,H), &U, 0);
+  (void)ZM_hnfall_i(shallowconcat(map,H), &U, 0);
   setlg(U, lg(H));
   for (j = 1; j < lg(U); j++) setlg(gel(U,j), lg(H));
   p1 = ZM_hnfmodid(U, bnr_get_cyc(bnr)); /* H as a subgroup of bnr */
@@ -331,9 +334,9 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   bnrH = Buchray(bnr, modH, nf_INIT);
   P = divcond(bnr);
   PH = divcond(bnrH);
-  p2 = ZM_mul(bnrsurjection(bnr, bnrH), p1);
+  S = bnrsurjection(bnr, bnrH);
   /* H as a subgroup of bnrH */
-  iH = ZM_hnfmodid(p2,  bnr_get_cyc(bnrH));
+  iH = ag_subgroup_image(S, p1);
   qH = InitQuotient(iH);
   for (j = 1; j < lg(P); j++)
   {

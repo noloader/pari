@@ -5878,9 +5878,10 @@ mfisdihedral(GEN vF, GEN DIH)
   if (!gequal(f0,f0b))
   { /* finite part of conductor not ambiguous */
     GEN a = idealmul(nf, f0, idealdivexact(nf, f0b, idealadd(nf, f0, f0b)));
-    GEN bnr0 = bnr;
+    GEN bnr0 = bnr, S;
     bnr = Buchray(bnr_get_bnf(bnr), mkvec2(a, gel(f,2)), nf_INIT | nf_GEN);
-    xin = RgV_RgM_mul(xin, bnrsurjection(bnr, bnr0));
+    S = bnrsurjection(bnr, bnr0);
+    xin = RgV_RgM_mul(xin, gel(S,1));
     /* still xi(gen[i]) = e(xin[i] / D), for the new generators */
   }
   gen = bnr_get_gen(bnr); L = lg(gen);
