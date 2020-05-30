@@ -2785,6 +2785,7 @@ long    bnrisconductor(GEN bnr, GEN H);
 long    bnrisgalois(GEN bnr, GEN M, GEN H);
 GEN     bnrisprincipalmod(GEN bnf, GEN x, GEN mod, long flag);
 GEN     bnrisprincipal(GEN bnf, GEN x,long flag);
+GEN     bnrmap(GEN A, GEN B);
 GEN     bnrsurjection(GEN bnr1, GEN bnr2);
 GEN     bnfnarrow(GEN bnf);
 long    bnfcertify(GEN bnf);

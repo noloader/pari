@@ -1395,7 +1395,66 @@ bnrsurjection(GEN bnr1, GEN bnr2)
       M = shallowconcat(T, M);
     }
   }
+  /* could reduce the matrix mod cyc2 */
   return mkvec3(ZM_mul(M, bnr_get_Ui(bnr1)), bnr_get_cyc(bnr1), cyc2);
+}
+
+/* nchi a normalized character, S a surjective map ; return S(nchi)
+ * still normalized wrt the original cyclic structure (S[2]) */
+static GEN
+ag_nchar_image(GEN S, GEN nchi)
+{
+  GEN U, M = gel(S,1), Mc = diagonal_shallow(gel(S,3));
+  long l = lg(M);
+
+  (void)ZM_hnfall_i(shallowconcat(M, Mc), &U, 1); /* identity */
+  U = matslice(U,1,l-1, l,lg(U)-1);
+  return char_simplify(gel(nchi,1), ZV_ZM_mul(gel(nchi,2), U));
+}
+static GEN
+ag_char_image(GEN S, GEN chi)
+{
+  GEN nchi = char_normalize(chi, cyc_normalize(gel(S,2)));
+  GEN DC = ag_nchar_image(S, nchi);
+  return char_denormalize(gel(S,3), gel(DC,1), gel(DC,2));
+}
+
+GEN
+bnrmap(GEN A, GEN B)
+{
+  pari_sp av = avma;
+  GEN KA, KB, M, c, C;
+  if ((KA = checkbnf_i(A)))
+  {
+    checkbnr(A); checkbnr(B); KB = bnr_get_bnf(B);
+    if (!gidentical(KA, KB))
+      pari_err_TYPE("bnrmap [different fields]", mkvec2(KA,KB));
+    return gerepilecopy(av, bnrsurjection(A,B));
+  }
+  if (lg(A) != 4 || typ(A) != t_VEC) pari_err_TYPE("bnrmap [not a map]", A);
+  M = gel(A,1); c = gel(A,2); C = gel(A,3);
+  if (typ(M) != t_MAT || !RgM_is_ZM(M) || typ(c) != t_VEC ||
+      typ(C) != t_VEC || lg(c) != lg(M) || (lg(M) > 1 && lgcols(M) != lg(C)))
+        pari_err_TYPE("bnrmap [not a map]", A);
+  switch(typ(B))
+  {
+    case t_INT: /* subgroup */
+      B = scalarmat_shallow(B, lg(C)-1);
+      B = ZM_hnfmodid(B, C); break;
+    case t_MAT: /* subgroup */
+      if (!RgM_is_ZM(B)) pari_err_TYPE("bnrmap [not a subgroup]", B);
+      B = ZM_hnfmodid(B, c); B = ag_subgroup_image(A, B); break;
+    case t_VEC: /* character */
+      if (!char_check(c, B))
+        pari_err_TYPE("bnrmap [not a character mod mA]", B);
+      B = ag_char_image(A, B); break;
+    case t_COL: /* discrete log mod mA */
+      if (lg(B) != lg(c) || !RgV_is_ZV(B))
+        pari_err_TYPE("bnrmap [not a discrete log]", B);
+      B = vecmodii(ZM_ZC_mul(M, B), C);
+      return gerepileupto(av, B);
+  }
+  return gerepilecopy(av, B);
 }
 
 /* Given normalized chi on bnr.clgp of conductor bnrc.mod,
@@ -1404,31 +1463,21 @@ bnrsurjection(GEN bnr1, GEN bnr2)
  *   chic(genc[i]) = zeta_C^chic[i]), C = cyc_normalize(bnr.cyc)[1] */
 GEN
 bnrchar_primitive(GEN bnr, GEN nchi, GEN bnrc)
-{
-  GEN U, S = bnrsurjection(bnr, bnrc), M = gel(S,1);
-  GEN Mc = diagonal_shallow(gel(S,3));
-  long l = lg(M);
-
-  (void)ZM_hnfall_i(shallowconcat(M, Mc), &U, 1); /* identity */
-  U = matslice(U,1,l-1, l,lg(U)-1);
-  return char_simplify(gel(nchi,1), ZV_ZM_mul(gel(nchi,2), U));
-}
+{ return ag_nchar_image(bnrsurjection(bnr, bnrc), nchi); }
 
 /* s: <gen> = Cl_f -> Cl_f2 -> 0, H subgroup of Cl_f (generators given as
  * HNF on [gen]). Return subgroup s(H) in Cl_f2 */
 static GEN
 imageofgroup(GEN bnr, GEN bnr2, GEN H)
 {
-  GEN cyc2 = bnr_get_cyc(bnr2);
-  if (!H) return diagonal_shallow(cyc2);
+  if (!H) return diagonal_shallow(bnr_get_cyc(bnr2));
   return ag_subgroup_image(bnrsurjection(bnr, bnr2), H);
 }
 GEN
 bnrchar_primitive_raw(GEN bnr, GEN bnrc, GEN chi)
 {
-  GEN nchi = char_normalize(chi, cyc_normalize(bnr_get_cyc(bnr)));
-  GEN DC = bnrchar_primitive(bnr, nchi, bnrc);
-  return char_denormalize(bnr_get_cyc(bnrc), gel(DC,1), gel(DC,2));
+  GEN S = bnrsurjection(bnr, bnrc);
+  return ag_char_image(S, chi);
 }
 
 /* convert A,B,C to [bnr, H] */

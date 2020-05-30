@@ -274,6 +274,7 @@ BA  86- [libpari] F2Ms_ker, F2Ms_colelim, F2Ms_to_F2m, F2m_to_F2Ms
 AP  90- [libpari] bnrisprincipalmod, ideallogmod
     91- [libpari] bnrconductor_raw, bnrconductor_factored
     92- [libpari] cyc_get_expo
+    93- new GP function bnrmap
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
