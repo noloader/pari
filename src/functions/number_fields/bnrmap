@@ -25,7 +25,7 @@ Doc: This function has two different uses:
 
  \item if $A$ is a projection map as above and $B$ is either a congruence
  subgroup $H$, or a ray class character $\chi$, or a discrete logarithm
- (from \kbd{bnrisprincipal)  modulo $m_A$ whose conductor
+ (from \kbd{bnrisprincipal})  modulo $m_A$ whose conductor
  divides $m_B$, return the image of the subgroup (resp. the character, the
  discrete logarighm) as defined modulo $m_B$. The main use of this variant is
  to compute the primitive subgroup or character attached to a \var{bnr} modulo

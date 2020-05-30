@@ -75,12 +75,11 @@ to relative extensions $L/K$.\hfill\break
 \subsec{bnf members: {\rm same as \var{nf}, plus}}
 \beginindentedkeys
 \li{underlying \var{nf}}{\var{bnf}.nf}
-\li{classgroup}{\var{bnf}.clgp}
-\li{regulator}{\var{bnf}.reg}
+\li{class group, regulator}{\var{bnf}.clgp, \var{bnf}.reg}
 \li{fundamental/torsion units}{\var{bnf}.fu{\rm, }\var{bnf}.tu}
 \endindentedkeys
-\newcolumn
 \li{add $S$-class group and units, yield \var{bnf}S}{bnfsunit$(\var{bnf},S)$}
+\newcolumn
 
 \li{init class field structure \var{bnr}}{bnrinit$(\var{bnf},m,\{\fl\})$}
 %
@@ -88,7 +87,7 @@ to relative extensions $L/K$.\hfill\break
 \beginindentedkeys
 \li{underlying \var{bnf}}{\var{bnr}.bnf}
 \li{big ideal structure}{\var{bnr}.bid}
-\li{modulus}{\var{bnr}.mod}
+\li{modulus $m$}{\var{bnr}.mod}
 \li{structure of $(\ZZ_K/m)^*$}{\var{bnr}.zkst}
 \endindentedkeys
 
@@ -210,6 +209,7 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \li{conductor of character $\chi$}{bnrconductor$(\var{bnr},\var{chi})$}
 \li{conductor of extension}{bnrconductor$(a_1,\{a_2\},\{\fl\})$}
 \li{conductor of extension $K[Y]/(g)$}{rnfconductor$(\var{bnf},g)$}
+\li{canonical projection $\text{Cl}_F\to\text{Cl}_f$, $f\mid F$}{bnrmap}
 \li{Artin group of extension $K[Y]/(g)$}{rnfnormgroup$(\var{bnr},g)$}
 \li{subgroups of \var{bnr}, index $<=b$}{subgrouplist$(\var{bnr},b,\{\fl\})$}
 \li{class field defined by $H < \text{Cl}_f$}{bnrclassfield$(\var{bnr},H)$}
@@ -218,16 +218,14 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \li{is $a$ an $n$-th power in $K_v$ ?}{nfislocalpower$(\var{nf},v,a,n)$}
 \li{cyclic $L/K$ satisf. local conditions}
    {nfgrunwaldwang$(\var{nf},P,D,\var{pl})$}
-\smallskip
+\shortcopyrightnotice
+\newcolumn
 \subsec{Logarithmic class group}
 \li{logarithmic $\ell$-class group}{bnflog$(\var{bnf},\ell)$}
 \li{$[\tilde{e}(F_v/\Q_p),\tilde{f}(F_v/\Q_p)]$}
    {bnflogef$(\var{bnf},\var{pr})$}
 \li{$\exp \deg_F(A)$}{bnflogdegree$(\var{bnf}, A, \ell)$}
 \li{is $\ell$-extension $L/K$ locally cyclotomic}{rnfislocalcyclo$(\var{rnf})$}
-
-\shortcopyrightnotice
-\newcolumn
 
 \section{Ideals: {\rm elements, primes, or matrix of generators in HNF}}
 \li{is $id$ an ideal in \var{nf} ?}{nfisideal$(\var{nf},id)$}
@@ -291,6 +289,13 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \li{export a group for GAP/MAGMA}{galoisexport$(G,\{\fl\})$}
 \li{subgroups of the Galois group $G$}{galoissubgroups$(G)$}
 \li{is subgroup $H$ normal?}{galoisisnormal$(G,H)$}
+
+\newcolumn
+\title{\TITLE}
+\centerline{(PARI-GP version \PARIversion)}
+
+\medskip
+
 \li{subfields from subgroups}{galoissubfields$(G,\{\fl\},\{v\})$}
 \li{fixed field}{galoisfixedfield$(G,\var{perm},\{\fl\},\{v\})$}
 \li{Frobenius at maximal ideal $P$}{idealfrobenius$(\var{nf},G,P)$}
@@ -298,12 +303,6 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \li{is $G$ abelian?}{galoisisabelian$(G,\{\fl\})$}
 \li{abelian number fields/$\QQ$}{galoissubcyclo(N,H,\{\fl\},\{v\})}
 
-\newcolumn
-\title{\TITLE}
-
-\centerline{(PARI-GP version \PARIversion)}
-
-\medskip
 \subsec{The \kbd{galpol} package}
 \li{query the package: polynomial}{galoisgetpol(a,b,\{s\})}
 \li{\dots : permutation group}{galoisgetgroup(a,{b})}
@@ -369,6 +368,9 @@ Extension $L/K$ is defined by $T\in K[x]$.
 \li{reduced basis for $M$}{rnflllgram$(\var{nf},T,M)$}
 \li{determinant of pseudo-matrix $M$}{rnfdet$(\var{nf},M)$}
 \li{Steinitz class of $M$}{rnfsteinitz$(\var{nf},M)$}
+\newcolumn
+
+
 \li{$\ZZ_K$-basis of $M$ if $\ZZ_K$-free, or $0$}{rnfhnfbasis$(\var{bnf},M)$}
 \li{$n$-basis of $M$, or $(n+1)$-generating set}{rnfbasis$(\var{bnf},M)$}
 \li{is $M$ a free $\ZZ_K$-module?}{rnfisfree$(\var{bnf},M)$}
@@ -420,8 +422,6 @@ $A$ is a general associative algebra given by a multiplication table \var{mt}
 \li{$\{x\in al\mid lat1\cdot x\subset lat2\}$}{alglatrighttransporter$(\var{al},\var{lat1},\var{lat2})$}
 \li{test~$x\in lat$ (set~$c =$ coord. of~$x$)}{alglatcontains$(\var{al},\var{lat},x,\{\& c\})$}
 \li{element of~$lat$ with coordinates~$c$}{alglatelement$(\var{al},\var{lat},c)$}
-
-\smallskip
 \subsec{Operations on elements}
 \li{$a+b$, $a-b$, $-a$}{algadd$(\var{al},a,b)${\rm, }algsub{\rm, }algneg}
 \li{$a\times b$, $a^2$}{algmul$(\var{al},a,b)${\rm, }algsqr}
@@ -438,9 +438,9 @@ $A$ is a general associative algebra given by a multiplication table \var{mt}
 \li{given $a\in A$ and polynomial $T$, return $T(a)$}
    {algpoleval$(\var{al},T,a)$}
 \li{random element in a box}{algrandom$(\var{al}, b)$}
-
 \vfill
 \copyrightnotice
+\newcolumn
 
 \section{Central Simple Algebras}
 $A$ is a central simple algebra over a number field $K$; represented by
