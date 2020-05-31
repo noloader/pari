@@ -1902,30 +1902,23 @@ QuadGetST(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
     }
     for (k = 1; k <= nChar; k++)
     {
-      const long t = LChar[k], d = degs[t];
-      const GEN dtcr = gel(dataCR, t), z = gel(ch_CHI(dtcr), 2);
-      GEN p1 = gen_0, p2 = gen_0;
+      long u = LChar[k], d = degs[u], c;
+      GEN dtcr = gel(dataCR, u), z, s, t;
       int **matan;
-      long c = 0;
 
-      if (DEBUGLEVEL>1)
-        err_printf("\tcharacter no: %ld (%ld/%ld)\n", t,k,nChar);
-      if (isintzero( ch_comp(gel(dataCR, t)) ))
-      {
-        if (DEBUGLEVEL>1) err_printf("\t  no need to compute this character\n");
-        continue;
-      }
-      av2 = avma;
-      matan = computean(gel(dataCR,t), &LIST, NN, d);
-      for (n = 1; n <= NN; n++)
+      if (isintzero(ch_comp(dtcr))) continue;
+      if (DEBUGLEVEL>1) err_printf("\tchar no: %ld (%ld/%ld)\n", u,k,nChar);
+      z = gel(ch_CHI(dtcr), 2); s = t = gen_0; av2 = avma;
+      matan = computean(gel(dataCR,u), &LIST, NN, d);
+      for (n = 1, c = 0; n <= NN; n++)
         if ((an = EvalCoeff(z, matan[n], d)))
         {
-          p1 = gadd(p1, gmul(an, gel(vf0,n)));
-          p2 = gadd(p2, gmul(an, gel(vf1,n)));
-          if (++c == 256) { gerepileall(av2,2, &p1,&p2); c = 0; }
+          s = gadd(s, gmul(an, gel(vf0,n)));
+          t = gadd(t, gmul(an, gel(vf1,n)));
+          if (++c == 256) { gerepileall(av2,2, &s,&t); c = 0; }
         }
-      gaffect(gmul(cf0, p1), gel(S,t));
-      gaffect(gmul(cf1,  conj_i(p2)), gel(T,t));
+      gaffect(gmul(cf0, s), gel(S,u));
+      gaffect(gmul(cf1, conj_i(t)), gel(T,u));
       FreeMat(matan,NN); set_avma(av2);
     }
     if (DEBUGLEVEL>1) err_printf("\n");
@@ -2156,31 +2149,26 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
     av2 = avma;
     for (k = 1; k <= nChar; k++)
     {
-      const long t = LChar[k];
-      if (DEBUGLEVEL>1)
-        err_printf("\tcharacter no: %ld (%ld/%ld)\n", t,k,nChar);
+      long d, c, u = LChar[k];
+      GEN dtcr = gel(dataCR, u), z, s, t;
+      int **matan;
 
-      if (!isintzero( ch_comp(gel(dataCR, t)) ))
-      {
-        const long d = degs[t];
-        const GEN dtcr = gel(dataCR, t), z = gel(ch_CHI(dtcr), 2);
-        GEN p1 = gen_0, p2 = gen_0;
-        long c = 0;
-        int **matan = ComputeCoeff(gel(dataCR,t), &LIST, NN, d);
-        for (n = 1; n <= NN; n++)
-          if ((an = EvalCoeff(z, matan[n], d)))
-          {
-           get_cS_cT(&cScT, n);
-           p1 = gadd(p1, gmul(an, gel(cScT.cS,n)));
-           p2 = gadd(p2, gmul(an, gel(cScT.cT,n)));
-           if (++c == 256) { gerepileall(av2,2, &p1,&p2); c = 0; }
-          }
-        gaffect(p1,        gel(S,t));
-        gaffect(conj_i(p2), gel(T,t));
-        FreeMat(matan, NN); set_avma(av2);
-      }
-      else if (DEBUGLEVEL>1)
-        err_printf("\t  no need to compute this character\n");
+      if (isintzero(ch_comp(dtcr))) continue;
+      if (DEBUGLEVEL>1) err_printf("\tchar no: %ld (%ld/%ld)\n", u,k,nChar);
+      z = gel(ch_CHI(dtcr), 2);
+      d = degs[u]; s = t = gen_0;
+      matan = ComputeCoeff(gel(dataCR,u), &LIST, NN, d);
+      for (n = 1, c = 0; n <= NN; n++)
+        if ((an = EvalCoeff(z, matan[n], d)))
+        {
+          get_cS_cT(&cScT, n);
+          s = gadd(s, gmul(an, gel(cScT.cS,n)));
+          t = gadd(t, gmul(an, gel(cScT.cT,n)));
+          if (++c == 256) { gerepileall(av2,2, &s,&t); c = 0; }
+        }
+      gaffect(s,         gel(S,u));
+      gaffect(conj_i(t), gel(T,u));
+      FreeMat(matan, NN); set_avma(av2);
     }
     if (DEBUGLEVEL>1) err_printf("\n");
     set_avma(av1);
