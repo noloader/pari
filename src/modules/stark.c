@@ -351,27 +351,25 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   return gc_long(av,1);
 }
 
-/* compute the list of characters to consider for AllStark and
-   initialize precision-independent data to compute with them */
+/* compute the list of characters to consider for AllStark */
 static GEN
 get_listCR(GEN bnr, GEN dtQ)
 {
-  GEN listCR, vecchi, Mr;
+  GEN listCR, vchi, cyc = bnr_get_cyc(bnr);
   long hD, h, nc, i, tnc;
   hashtable *S;
 
-  Mr = bnr_get_cyc(bnr);
   hD = itos(gel(dtQ,1));
   h  = hD >> 1;
 
   listCR = cgetg(h+1, t_VEC); /* non-conjugate chars */
   nc = tnc = 1;
-  vecchi = EltsOfGroup(hD, gel(dtQ,2));
+  vchi = EltsOfGroup(hD, gel(dtQ,2));
   S = hash_create(h, (ulong(*)(void*))&hash_GEN,
                      (int(*)(void*,void*))&ZV_equal, 1);
   for (i = 1; tnc <= h; i++)
   { /* lift a character of D in Clk(m) */
-    GEN cond, lchi = LiftChar(dtQ, Mr, gel(vecchi,i));
+    GEN cond, lchi = LiftChar(dtQ, cyc, gel(vchi,i));
     if (hash_search(S, lchi)) continue;
     cond = bnrconductor_raw(bnr, lchi);
     if (gequal0(gel(cond,2))) continue;
@@ -379,10 +377,10 @@ get_listCR(GEN bnr, GEN dtQ)
     gel(listCR,nc++) = mkvec2(lchi, cond);
 
     /* if chi is not real, add its conjugate character to S */
-    if (absequaliu(charorder(Mr,lchi), 2)) tnc++;
+    if (absequaliu(charorder(cyc,lchi), 2)) tnc++;
     else
     {
-      hash_insert(S, charconj(Mr, lchi), (void*)1);
+      hash_insert(S, charconj(cyc, lchi), (void*)1);
       tnc+=2;
     }
   }
@@ -409,18 +407,15 @@ CplxModulus(GEN data, long *newprec)
     pr = nbits2extraprec( gexpo(pol) );
     if (pr < 0) pr = 0;
     dprec = maxss(dprec, pr) + EXTRA_PREC;
-    if (!gequal0(leading_coeff(pol)))
-    {
-      cpl = RgX_fpnorml2(pol, DEFAULTPREC);
-      if (!gequal0(cpl)) break;
-    }
+    cpl = RgX_fpnorml2(pol, DEFAULTPREC);
+    if (!gequal0(cpl)) break;
     if (DEBUGLEVEL>1) pari_warn(warnprec, "CplxModulus", dprec);
   }
-  ex = gexpo(cpl); set_avma(av);
+  ex = gexpo(cpl);
   if (DEBUGLEVEL>1) err_printf("cpl = 2^%ld\n", ex);
 
   gel(data,5) = listCR;
-  *newprec = dprec; return ex;
+  *newprec = dprec; return gc_long(av, ex);
 }
 
 /* return A \cap B in abelian group defined by cyc. NULL = whole group */
@@ -1311,12 +1306,13 @@ static void
 InitPrimes(GEN bnr, ulong N0, LISTray *R)
 {
   GEN bnf = bnr_get_bnf(bnr), cond = gel(bnr_get_mod(bnr), 1);
-  long p,j,k,l, condZ = itos(gcoeff(cond,1,1)), N = lg(cond)-1;
-  GEN tmpray, tabpr, prime, BOUND, nf = bnf_get_nf(bnf);
+  long p, l, condZ, N = lg(cond)-1;
+  GEN DL, prime, BOUND, nf = bnf_get_nf(bnf);
   forprime_t T;
 
-  R->condZ = condZ; l = primepi_upper_bound(N0) * N;
-  tmpray = cgetg(N+1, t_VEC);
+  R->condZ = condZ = itos(gcoeff(cond,1,1));
+  l = primepi_upper_bound(N0) * N;
+  DL = cgetg(N+1, t_VEC);
   R->L1 = vecsmalltrunc_init(l);
   R->L1ray = vectrunc_init(l);
   u_forprime_init(&T, 2, N0);
@@ -1325,25 +1321,27 @@ InitPrimes(GEN bnr, ulong N0, LISTray *R)
   while ( (p = u_forprime_next(&T)) )
   {
     pari_sp av = avma;
+    long j, k, lP;
+    GEN P;
     prime[2] = p;
     if (DEBUGLEVEL>1 && (p & 2047) == 1) err_printf("%ld ", p);
-    tabpr = idealprimedec_limit_norm(nf, prime, BOUND);
-    for (j = 1; j < lg(tabpr); j++)
+    P = idealprimedec_limit_norm(nf, prime, BOUND); lP = lg(P);
+    for (j = 1; j < lP; j++)
     {
-      GEN pr  = gel(tabpr,j);
-      if (condZ % p == 0 && idealval(nf, cond, pr))
+      GEN pr  = gel(P,j), dl = NULL;
+      if (condZ % p || !idealval(nf, cond, pr))
       {
-        gel(tmpray,j) = NULL; continue;
+        dl = gclone( isprincipalray(bnr, pr) );
+        vecsmalltrunc_append(R->L1, upowuu(p, pr_get_f(pr)));
       }
-      vecsmalltrunc_append(R->L1, upowuu(p, pr_get_f(pr)));
-      gel(tmpray,j) = gclone( isprincipalray(bnr, pr) );
+      gel(DL,j) = dl;
     }
     set_avma(av);
     for (k = 1; k < j; k++)
     {
-      if (!tmpray[k]) continue;
-      vectrunc_append(R->L1ray, ZC_copy(gel(tmpray,k)));
-      gunclone(gel(tmpray,k));
+      if (!DL[k]) continue;
+      vectrunc_append(R->L1ray, ZC_copy(gel(DL,k)));
+      gunclone(gel(DL,k));
     }
   }
 }
