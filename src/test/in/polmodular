@@ -211,3 +211,7 @@ check_eval_modpoly( 5, 7, p, [3901199766181530739, 4054334766401667256, 16751141
 \\check_eval_modpoly(23, 7, factorial(12), XXXX);
 check_eval_modpoly(23, 7, p, [2360118342899681926, 2787294817779511277, 18359991236545579908]);
 }
+{
+  my(p=randomprime(10^100),q=Mod(random(p),p));
+  if(subst(polmodular(7),x,q)!=polmodular(7,,q),error("polmodular(7,,q)"));
+}

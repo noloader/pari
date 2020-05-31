@@ -969,7 +969,7 @@ typedef struct {
 
 static long
 discriminant_with_classno_at_least(disc_info Ds[MODPOLY_MAX_DCNT], long L,
-  long inv, long ignore_sparse);
+  long inv, GEN Q, long ignore_sparse);
 
 /**
  * SECTION: Hard-coded evaluation functions for modular polynomials of
@@ -1851,7 +1851,7 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
   dbg_printf(1)("Calculating modular polynomial of level %lu for invariant %d\n", L, inv);
   if (L <= modinv_max_internal_level(inv)) return polmodular_small_ZM(L,inv,db);
 
-  Dcnt = discriminant_with_classno_at_least(Ds, L, inv, USE_SPARSE_FACTOR);
+  Dcnt = discriminant_with_classno_at_least(Ds, L, inv, Q, USE_SPARSE_FACTOR);
   for (d = 0; d < Dcnt; d++) nprimes += Ds[d].nprimes;
   modpoly = cgetg(nprimes+1, t_VEC);
   plist = cgetg(nprimes+1, t_VECSMALL);
@@ -2297,7 +2297,7 @@ polmodular0_powerup_ZM(long L, long inv, GEN *db)
   long e = modinv_parent_power(inv);
   disc_info Ds[MODPOLY_MAX_DCNT];
   /* FIXME: We throw away the table of fundamental discriminants here. */
-  long nDs = discriminant_with_classno_at_least(Ds, L, inv, IGNORE_SPARSE_FACTOR);
+  long nDs = discriminant_with_classno_at_least(Ds, L, inv, NULL, IGNORE_SPARSE_FACTOR);
   if (nDs != 1) pari_err_BUG("polmodular0_powerup_ZM");
   D = Ds[0].D1;
   nprimes = Ds[0].nprimes + 1;
@@ -3980,7 +3980,7 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
  * inv.  Return the number of discriminants found. */
 static long
 discriminant_with_classno_at_least(disc_info bestD[MODPOLY_MAX_DCNT],
-  long L, long inv, long ignore_sparse)
+  long L, long inv, GEN Q, long ignore_sparse)
 {
   enum { SMALL_L_BOUND = 101 };
   long max_max_D = 160000 * (inv ? 2 : 1);
@@ -4008,6 +4008,7 @@ discriminant_with_classno_at_least(disc_info bestD[MODPOLY_MAX_DCNT],
   L0 = select_L0(L, inv, 0);
   max_L1 = L / 2 + 2;    /* for L=11 we need L1=7 for j */
   minbits = modpoly_height_bound(L, inv);
+  if (Q) minbits += expi(Q);
   minD = 7;
 
   while ( ! best_cnt) {
