@@ -352,40 +352,41 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   return gc_long(av,1);
 }
 
-/* compute the list of characters to consider for AllStark */
+/* compute list of characters trivial on H, modulo complex conjugation;
+ * trivial character comes last. If flag is set, impose a non-trivial conductor
+ * at infinity */
 static GEN
-get_listCR(GEN bnr, GEN dtQ)
+get_listCR(GEN bnr, GEN dtQ, long flag)
 {
   GEN listCR, vchi, cyc = bnr_get_cyc(bnr);
-  long hD, h, nc, i, tnc;
+  long hD, h, n, i;
   hashtable *S;
 
   hD = itos(gel(dtQ,1));
   h  = hD >> 1;
 
-  listCR = cgetg(h+1, t_VEC); /* non-conjugate chars */
-  nc = tnc = 1;
+  listCR = cgetg(hD+1, t_VEC); /* non-conjugate chars */
   vchi = EltsOfGroup(hD, gel(dtQ,2));
-  S = hash_create(h, (ulong(*)(void*))&hash_GEN,
-                     (int(*)(void*,void*))&ZV_equal, 1);
-  for (i = 1; tnc <= h; i++)
+  S = hash_create(hD, (ulong(*)(void*))&hash_GEN,
+                  (int(*)(void*,void*))&ZV_equal, 1);
+  if (flag) hD--; /* remove trivial char */
+  for (i = n = 1; i <= hD; i++)
   { /* lift a character of D in Clk(m) */
-    GEN cond, lchi = LiftChar(dtQ, cyc, gel(vchi,i));
+    GEN F, lchi = LiftChar(dtQ, cyc, gel(vchi,i)), cchi = NULL;
+
     if (hash_search(S, lchi)) continue;
-    cond = bnrconductor_raw(bnr, lchi);
-    if (gequal0(gel(cond,2))) continue;
-    /* the infinite part of chi is non trivial */
-    gel(listCR,nc++) = mkvec2(lchi, cond);
+    F = bnrconductor_raw(bnr, lchi);
+    if (flag && gequal0(gel(F,2))) continue; /* f_oo(chi) trivial ? */
 
     /* if chi is not real, add its conjugate character to S */
-    if (absequaliu(charorder(cyc,lchi), 2)) tnc++;
-    else
+    if (!absequaliu(charorder(cyc,lchi), 2))
     {
-      hash_insert(S, charconj(cyc, lchi), (void*)1);
-      tnc+=2;
+      cchi = charconj(cyc, lchi);
+      hash_insert(S, cchi, (void*)1);
     }
+    gel(listCR, n++) = cchi? mkvec3(lchi, F, cchi): mkvec2(lchi, F);
   }
-  setlg(listCR, nc); return listCR;
+  setlg(listCR, n); return listCR;
 }
 
 static GEN InitChar(GEN bnr, GEN listCR, long prec);
@@ -399,7 +400,7 @@ CplxModulus(GEN data, long *newprec)
   pari_sp av;
   GEN pol, listCR, cpl, bnr = gel(data,1);
 
-  listCR = get_listCR(bnr, gel(data,3));
+  listCR = get_listCR(bnr, gel(data,3), 1);
   for (av = avma;; set_avma(av))
   {
     gel(data,5) = InitChar(bnr, listCR, dprec);
@@ -2477,69 +2478,50 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
 GEN
 bnrL1(GEN bnr, GEN subgp, long flag, long prec)
 {
-  GEN cyc, L1, allCR, listCR;
-  GEN indCR, invCR, Qt;
-  long cl, i, nc;
+  GEN L1, listCR, Qt, z;
+  long l, h;
   pari_sp av = avma;
 
   checkbnr(bnr);
   if (flag < 0 || flag > 8) pari_err_FLAG("bnrL1");
 
-  cyc  = bnr_get_cyc(bnr);
   subgp = bnr_subgroup_check(bnr, subgp, NULL);
-  if (!subgp) subgp = diagonal_shallow(cyc);
+  if (!subgp) subgp = diagonal_shallow(bnr_get_cyc(bnr));
 
   Qt = InitQuotient(subgp);
-  cl = itou(gel(Qt,1));
-
-  allCR = EltsOfGroup(cl, gel(Qt,2)); /* all characters */
-  listCR = cgetg(cl, t_VEC); /* non-trivial characters modulo conjugation */
-  indCR = cgetg(cl, t_VECSMALL);
-  invCR = cgetg(cl, t_VECSMALL); nc = 0;
-  for (i = 1; i < cl; i++)
-  { /* lift to a character on Cl(bnr) */
-    GEN chi = LiftChar(Qt, cyc, gel(allCR,i)), cchi = charconj(cyc, chi);
-    long j;
-    for (j = 1; j <= nc; j++)
-      if (ZV_equal(gmael(listCR, j, 1), cchi)) break;
-    if (j > nc)
-    {
-      nc++;
-      gel(listCR,nc) = mkvec2(chi, bnrconductor_raw(bnr, chi));
-      indCR[i]  = nc;
-      invCR[nc] = i;
-    }
-    else
-      indCR[i] = -invCR[j];
-    gel(allCR,i) = chi;
-  }
-  settyp(allCR[cl], t_VEC); /* set correct type for trivial character */
-
-  setlg(listCR, nc + 1);
-  L1 = cgetg((flag&1)? cl: cl+1, t_VEC);
-  if (nc)
+  listCR = get_listCR(bnr, Qt, 0);
+  l = lg(listCR);
+  h = itou(gel(Qt,1));
+  L1 = cgetg((flag&1)? h: h+1, t_VEC);
+  if (l > 1)
   {
     GEN dataCR = InitChar(bnr, listCR, prec);
     GEN W, S, T, vChar = sortChars(dataCR);
+    long i, j;
+
     GetST(bnr, &S, &T, dataCR, vChar, prec);
     W = ComputeAllArtinNumbers(dataCR, vChar, 1, prec);
-    for (i = 1; i < cl; i++)
+    for (i = j = 1; i < l; i++)
     {
-      long a = indCR[i];
-      if (a > 0)
-        gel(L1,i) = GetValue(gel(dataCR,a), gel(W,a), gel(S,a), gel(T,a),
-                             flag, prec);
-      else
-        gel(L1,i) = conj_i(gel(L1,-a));
+      GEN chi = gel(listCR,i);
+      z = GetValue(gel(dataCR,i), gel(W,i), gel(S,i), gel(T,i), flag, prec);
+      gel(L1,j++) = (flag & 4)? mkvec2(gel(chi,1), z): z;
+      if (lg(chi) == 4)
+      { /* non-real */
+        z = conj_i(z);
+        gel(L1, j++) = (flag & 4)? mkvec2(gel(chi,3), z): z;
+      }
     }
   }
   if (!(flag & 1))
-    gel(L1,cl) = GetValue1(bnr, flag & 2, prec);
-  else
-    cl--;
-
-  if (flag & 4) {
-    for (i = 1; i <= cl; i++) gel(L1,i) = mkvec2(gel(allCR,i), gel(L1,i));
+  { /* trivial character */
+    z = GetValue1(bnr, flag & 2, prec);
+    if (flag & 4)
+    {
+      GEN chi = zerovec(lg(bnr_get_cyc(bnr))-1);
+      settyp(chi, t_VEC); z = mkvec2(chi, z);
+    }
+    gel(L1,h) = z;
   }
   return gerepilecopy(av, L1);
 }
