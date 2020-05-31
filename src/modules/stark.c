@@ -247,7 +247,7 @@ GetDeg(GEN dataCR)
 /********************************************************************/
 /*                    1rst part: find the field K                   */
 /********************************************************************/
-static GEN AllStark(GEN data, GEN nf, long flag, long prec);
+static GEN AllStark(GEN data, long flag, long prec);
 
 /* Columns of C [HNF] give the generators of a subgroup of the finite abelian
  * group A [ in terms of implicit generators ], compute data to work in A/C:
@@ -395,23 +395,21 @@ static GEN InitChar(GEN bnr, GEN listCR, long prec);
 static long
 CplxModulus(GEN data, long *newprec)
 {
-  long ex, dprec = DEFAULTPREC;
+  long dprec = DEFAULTPREC;
   pari_sp av;
-  GEN pol, listCR, cpl, bnr = gel(data,1), nf = checknf(bnr);
+  GEN pol, listCR, cpl, bnr = gel(data,1);
 
   listCR = get_listCR(bnr, gel(data,3));
   for (av = avma;; set_avma(av))
   {
     gel(data,5) = InitChar(bnr, listCR, dprec);
-    pol = AllStark(data, nf, -1, dprec);
+    pol = AllStark(data, -1, dprec);
     dprec = maxss(dprec, nbits2extraprec(gexpo(pol))) + EXTRA_PREC;
-    cpl = RgX_fpnorml2(pol, DEFAULTPREC);
+    cpl = RgX_fpnorml2(pol, LOWDEFAULTPREC);
     if (!gequal0(cpl)) break;
     if (DEBUGLEVEL>1) pari_warn(warnprec, "CplxModulus", dprec);
   }
-  ex = gexpo(cpl);
-  if (DEBUGLEVEL>1) err_printf("cpl = 2^%ld\n", ex);
-  *newprec = dprec; return ex;
+  *newprec = dprec; return gexpo(cpl);
 }
 
 /* return A \cap B in abelian group defined by cyc. NULL = whole group */
@@ -446,7 +444,7 @@ static GEN
 FindModulus(GEN bnr, GEN dtQ, long *newprec)
 {
   const long LIMNORM = 400;
-  long n, i, maxnorm, minnorm, N, pr, rb, iscyc, oldcpl = LONG_MAX;
+  long n, i, maxnorm, minnorm, N, pr, rb, iscyc, olde = LONG_MAX;
   pari_sp av = avma;
   GEN bnf, nf, f, varch, m, rep = NULL;
 
@@ -512,7 +510,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
           {
             GEN p2, D = gel(candD,c), QD = InitQuotient(D);
             GEN ord = gel(QD,1), cyc = gel(QD,2), map = gel(QD,3);
-            long cpl;
+            long e;
 
             if (!cyc_is_cyclic(cyc)) /* cyclic => suitable, else test */
             {
@@ -537,13 +535,14 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
             if (DEBUGLEVEL>1)
               err_printf("\nTrying modulus = %Ps and subgroup = %Ps\n",
                          bnr_get_mod(bnrm), D);
-            cpl = CplxModulus(p2, &pr);
-            if (cpl < oldcpl)
+            e = CplxModulus(p2, &pr);
+            if (DEBUGLEVEL>1) err_printf("cpl = 2^%ld\n", e);
+            if (e < olde)
             {
               guncloneNULL(rep); rep = gclone(p2);
-              *newprec = pr; oldcpl = cpl;
+              *newprec = pr; olde = e;
             }
-            if (oldcpl < rb) goto END; /* OK */
+            if (olde < rb) goto END; /* OK */
             if (DEBUGLEVEL>1) err_printf("Trying to find another modulus...");
           }
         }
@@ -2260,14 +2259,14 @@ GenusFieldQuadImag(GEN disc)
 
 /* if flag != 0, computes a fast and crude approximation of the result */
 static GEN
-AllStark(GEN data,  GEN nf,  long flag,  long newprec)
+AllStark(GEN data,  long flag,  long newprec)
 {
   const long BND = 300;
   long cl, i, j, cpt = 0, N, h, v, n, r1, r2, den;
   pari_sp av, av2;
   int **matan;
-  GEN bnr = gel(data,1), p1, p2, S, T, polrelnum, polrel, Lp, W, vzeta;
-  GEN vChar, degs, C, dataCR, cond1, L1, an;
+  GEN bnr = gel(data,1), nf = bnr_get_nf(bnr), p1, p2, S, T;
+  GEN polrelnum, polrel, Lp, W, vzeta, vChar, degs, C, dataCR, cond1, L1, an;
   LISTray LIST;
   pari_timer ti;
 
@@ -2462,7 +2461,7 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
   }
   if (DEBUGLEVEL>1 && newprec > prec)
     err_printf("new precision: %ld\n", newprec);
-  return gerepileupto(av, AllStark(data, nf, 0, newprec));
+  return gerepileupto(av, AllStark(data, 0, newprec));
 }
 
 /* For each character of Cl(bnr)/subgp, compute L(1, chi) (or equivalently
@@ -2710,7 +2709,7 @@ quadhilbertreal(GEN D, long prec)
         if (DEBUGLEVEL>1) err_printf("new precision: %ld\n", newprec);
         nf = nfnewprec_shallow(nf, newprec);
       }
-      pol = AllStark(data, nf, 0, newprec);
+      pol = AllStark(data, 0, newprec);
     } pari_ENDCATCH;
     if (pol) {
       pol = makescind(nf, pol);
