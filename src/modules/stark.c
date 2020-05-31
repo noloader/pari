@@ -1951,7 +1951,7 @@ get_cS_cT(ST_t *T, long n)
   GEN csurn, nsurc, lncsurn, A, B, s, t, Z, aij, bij;
   long i, j, r, i0;
 
-  if (T->cS[n]) return;
+  if (gel(T->cS,n)) return;
 
   av = avma;
   aij = T->aij; i0= T->i0;
