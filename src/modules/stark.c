@@ -2104,17 +2104,13 @@ static void
 GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
 {
   pari_sp av = avma, av1, av2;
-  long ncond, n, j, k, jc, n0, prec2, i0, r1, r2;
+  long n, j, k, jc, n0, prec2, i0, r1, r2, ncond = lg(vChar)-1;
   GEN nf = checknf(bnr), T = *pT, S = *pS;
-  GEN N0, C, an, degs, limx;
+  GEN N0, C, an, limx, degs = GetDeg(dataCR);
   LISTray LIST;
   ST_t cScT;
 
-  /* initializations */
-  degs = GetDeg(dataCR);
-  ncond = lg(vChar)-1;
   nf_get_sign(nf,&r1,&r2);
-
   C  = cgetg(ncond+1, t_VEC);
   N0 = cgetg(ncond+1, t_VECSMALL);
   n0 = 0;
@@ -2138,14 +2134,14 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
   av1 = avma;
   for (jc = 1; jc <= ncond; jc++)
   {
-    const GEN LChar = gel(vChar,jc);
-    const long nChar = lg(LChar)-1, NN = N0[jc];
+    GEN LChar = gel(vChar,jc);
+    long nChar = lg(LChar)-1, N = N0[jc];
 
     if (DEBUGLEVEL>1)
-      err_printf("* conductor no %ld/%ld (N = %ld)\n\tInit: ", jc,ncond,NN);
+      err_printf("* conductor no %ld/%ld (N = %ld)\n\tInit: ", jc,ncond,N);
 
     cScT.c1 = gel(C,jc);
-    init_cScT(&cScT, gel(dataCR, LChar[1]), NN, prec2);
+    init_cScT(&cScT, gel(dataCR, LChar[1]), N, prec2);
     av2 = avma;
     for (k = 1; k <= nChar; k++)
     {
@@ -2157,8 +2153,8 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
       if (DEBUGLEVEL>1) err_printf("\tchar no: %ld (%ld/%ld)\n", u,k,nChar);
       z = gel(ch_CHI(dtcr), 2);
       d = degs[u]; s = t = gen_0;
-      matan = ComputeCoeff(gel(dataCR,u), &LIST, NN, d);
-      for (n = 1, c = 0; n <= NN; n++)
+      matan = ComputeCoeff(dtcr, &LIST, N, d);
+      for (n = 1, c = 0; n <= N; n++)
         if ((an = EvalCoeff(z, matan[n], d)))
         {
           get_cS_cT(&cScT, n);
@@ -2168,7 +2164,7 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
         }
       gaffect(s,         gel(S,u));
       gaffect(conj_i(t), gel(T,u));
-      FreeMat(matan, NN); set_avma(av2);
+      FreeMat(matan, N); set_avma(av2);
     }
     if (DEBUGLEVEL>1) err_printf("\n");
     set_avma(av1);
