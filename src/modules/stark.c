@@ -222,6 +222,7 @@ get_prdiff(GEN bnr, GEN condc)
   setlg(prdiff, nd); return prdiff;
 }
 
+#define ch_prec(x) realprec(gel(x,1))
 #define ch_C(x)    gel(x,1)
 #define ch_bnr(x)  gel(x,2)
 #define ch_3(x)    gel(x,3)
@@ -389,13 +390,12 @@ get_listCR(GEN bnr, GEN dtQ)
 
 static GEN InitChar(GEN bnr, GEN listCR, long prec);
 
-/* Given a conductor and a subgroups, return the corresponding
-   complexity and precision required using quickpol. Fill data[5] with
-   listCR */
+/* Given a conductor and a subgroups, return the corresponding complexity and
+ * precision required using quickpol. Fill data[5] with listCR */
 static long
 CplxModulus(GEN data, long *newprec)
 {
-  long pr, ex, dprec = DEFAULTPREC;
+  long ex, dprec = DEFAULTPREC;
   pari_sp av;
   GEN pol, listCR, cpl, bnr = gel(data,1), nf = checknf(bnr);
 
@@ -404,18 +404,14 @@ CplxModulus(GEN data, long *newprec)
   {
     gel(data,5) = InitChar(bnr, listCR, dprec);
     pol = AllStark(data, nf, -1, dprec);
-    pr = nbits2extraprec( gexpo(pol) );
-    if (pr < 0) pr = 0;
-    dprec = maxss(dprec, pr) + EXTRA_PREC;
+    dprec = maxss(dprec, nbits2extraprec(gexpo(pol))) + EXTRA_PREC;
     cpl = RgX_fpnorml2(pol, DEFAULTPREC);
     if (!gequal0(cpl)) break;
     if (DEBUGLEVEL>1) pari_warn(warnprec, "CplxModulus", dprec);
   }
   ex = gexpo(cpl);
   if (DEBUGLEVEL>1) err_printf("cpl = 2^%ld\n", ex);
-
-  gel(data,5) = listCR;
-  *newprec = dprec; return gc_long(av, ex);
+  *newprec = dprec; return ex;
 }
 
 /* return A \cap B in abelian group defined by cyc. NULL = whole group */
@@ -432,6 +428,7 @@ subgp_intersect(GEN cyc, GEN A, GEN B)
   return ZM_hnfmodid(ZM_mul(A,U), cyc);
 }
 
+static void CharNewPrec(GEN dataCR, long prec);
 /* Let (f,C) be a conductor without infinite part and a congruence group mod f.
  * Compute (m,D) such that D is a congruence group of conductor m, f | m,
  * divisible by all the infinite places but one, D is a subgroup of index 2 of
@@ -449,7 +446,7 @@ static GEN
 FindModulus(GEN bnr, GEN dtQ, long *newprec)
 {
   const long LIMNORM = 400;
-  long n, i, maxnorm, minnorm, N, pr, rb, first = 1, oldcpl = -1, iscyc;
+  long n, i, maxnorm, minnorm, N, pr, rb, iscyc, oldcpl = LONG_MAX;
   pari_sp av = avma;
   GEN bnf, nf, f, varch, m, rep = NULL;
 
@@ -535,29 +532,22 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
               if (!ok) continue;
             }
 
-            p2 = cgetg(6, t_VEC); /* p2[5] filled in CplxModulus */
-            gel(p2,1) = bnrm;
-            gel(p2,2) = D;
-            gel(p2,3) = QD;
-            gel(p2,4) = InitQuotient(Cm);
+            /* p2[5] filled in CplxModulus */
+            p2 = mkvec5(bnrm, D, QD, InitQuotient(Cm), NULL);
             if (DEBUGLEVEL>1)
               err_printf("\nTrying modulus = %Ps and subgroup = %Ps\n",
                          bnr_get_mod(bnrm), D);
             cpl = CplxModulus(p2, &pr);
-            if (oldcpl < 0 || cpl < oldcpl)
+            if (cpl < oldcpl)
             {
-              *newprec = pr;
-              guncloneNULL(rep);
-              rep = gclone(p2);
-              oldcpl = cpl;
+              guncloneNULL(rep); rep = gclone(p2);
+              *newprec = pr; oldcpl = cpl;
             }
             if (oldcpl < rb) goto END; /* OK */
-
             if (DEBUGLEVEL>1) err_printf("Trying to find another modulus...");
-            first = 0;
           }
         }
-        if (!first) goto END; /* OK */
+        if (rep) goto END; /* OK */
       }
     }
     /* if necessary compute more ideals */
@@ -569,7 +559,7 @@ END:
   if (DEBUGLEVEL>1)
     err_printf("No, we're done!\nModulus = %Ps and subgroup = %Ps\n",
                bnr_get_mod(gel(rep,1)), gel(rep,2));
-  gel(rep,5) = InitChar(gel(rep,1), gel(rep,5), *newprec);
+  CharNewPrec(gel(rep,5), *newprec);
   return gerepilecopy(av, rep);
 }
 
@@ -923,21 +913,26 @@ InitChar(GEN bnr, GEN listCR, long prec)
   return dataCR;
 }
 
-/* recompute dataCR with the new precision */
-static GEN
-CharNewPrec(GEN dataCR, GEN nf, long prec)
+/* recompute dataCR with the new precision, modify bnr components in place */
+static void
+CharNewPrec(GEN dataCR, long prec)
 {
-  GEN C = get_C(nf, prec);
-  long j, l = lg(dataCR);
+  long j, l, prec2 = precdbl(prec) + EXTRA_PREC;
+  GEN C, nf, dtcr = gel(dataCR,1);
+
+  if (ch_prec(dtcr) >= prec2) return;
+  nf = bnr_get_nf(ch_bnr(dtcr));
+  if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf, prec); /* not prec2 */
+  C = get_C(nf, prec2); l = lg(dataCR);
   for (j = 1; j < l; j++)
   {
-    GEN dtcr = gel(dataCR,j), f0 = gel(ch_cond(dtcr),1);
-    ch_C(dtcr) = mulrr(C, gsqrt(ZM_det_triangular(f0), prec));
+    GEN f0;
+    dtcr = gel(dataCR,j); f0 = gel(ch_cond(dtcr),1);
+    ch_C(dtcr) = mulrr(C, gsqrt(ZM_det_triangular(f0), prec2));
     gmael(ch_bnr(dtcr), 1, 7) = nf;
-    ch_CHI( dtcr) = get_Char(gel(ch_CHI(dtcr), 1), prec);
-    ch_CHI0(dtcr) = get_Char(gel(ch_CHI0(dtcr),1), prec);
+    ch_CHI( dtcr) = get_Char(gel(ch_CHI(dtcr), 1), prec2);
+    ch_CHI0(dtcr) = get_Char(gel(ch_CHI0(dtcr),1), prec2);
   }
-  return dataCR;
 }
 
 /********************************************************************/
@@ -1459,8 +1454,7 @@ sortChars(GEN dataCR)
 }
 
 /* Given W(chi), S(chi) and T(chi), return L(1, chi) if fl & 1, else
-   [r(chi), c(chi)] where L(s, chi) ~ c(chi) s^r(chi) at s = 0.
-   If fl & 2, adjust the value to get L_S(s, chi). */
+   [r(chi), c(chi)] where L(s, chi) ~ c(chi) s^r(chi) at s = 0. */
 static GEN
 GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
 {
@@ -2289,11 +2283,6 @@ AllStark(GEN data,  GEN nf,  long flag,  long newprec)
   cl = lg(dataCR)-1;
   degs = GetDeg(dataCR);
   h  = itos(ZM_det_triangular(gel(data,2))) >> 1;
-
-LABDOUB:
-  if (DEBUGLEVEL) timer_start(&ti);
-  av = avma;
-
   /* characters with rank > 1 should not be computed */
   for (i = 1; i <= cl; i++)
   {
@@ -2301,6 +2290,9 @@ LABDOUB:
     if (L_vanishes_at_0(chi)) ch_comp(chi) = gen_0;
   }
 
+LABDOUB:
+  if (DEBUGLEVEL) timer_start(&ti);
+  av = avma;
   W = ComputeAllArtinNumbers(dataCR, vChar, (flag >= 0), newprec);
   if (DEBUGLEVEL) timer_printf(&ti,"Compute W");
   Lp = cgetg(cl + 1, t_VEC);
@@ -2379,9 +2371,7 @@ LABDOUB:
     }
     timer_printf(&ti, "Compute %s", flag? "quickpol": "polrelnum");
   }
-
-  if (flag)
-    return gerepilecopy(av, polrelnum);
+  if (flag) return gerepilecopy(av, polrelnum);
 
   /* try to recognize this polynomial */
   polrel = RecCoeff(nf, polrelnum, v, newprec);
@@ -2410,11 +2400,8 @@ LABDOUB:
     if (incr_pr < 0) incr_pr = -incr_pr + EXTRA_BITS;
     newprec += nbits2extraprec(maxss(3*EXTRA_BITS, cpt*incr_pr));
     if (DEBUGLEVEL) pari_warn(warnprec, "AllStark", newprec);
-
-    nf = nfnewprec_shallow(nf, newprec);
-    dataCR = CharNewPrec(dataCR, nf, precdbl(newprec) + EXTRA_PREC);
-
-    gerepileall(av, 2, &nf, &dataCR);
+    CharNewPrec(dataCR, newprec);
+    nf = bnr_get_nf(ch_bnr(gel(dataCR,1)));
     goto LABDOUB;
   }
 
@@ -2473,12 +2460,8 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
     }
     setlg(vec, j); return gerepilecopy(av, vec);
   }
-
-  if (newprec > prec)
-  {
-    if (DEBUGLEVEL>1) err_printf("new precision: %ld\n", newprec);
-    nf = nfnewprec_shallow(nf, newprec);
-  }
+  if (DEBUGLEVEL>1 && newprec > prec)
+    err_printf("new precision: %ld\n", newprec);
   return gerepileupto(av, AllStark(data, nf, 0, newprec));
 }
 
