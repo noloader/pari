@@ -192,7 +192,7 @@ ComputeLift(GEN Qt)
   long i, h = itos(gel(Qt,1));
 
   e = EltsOfGroup(h, gel(Qt,2));
-  if (!RgM_isidentity(U))
+  if (!ZM_isidentity(U))
   {
     GEN Ui = ZM_inv(U,NULL);
     for (i = 1; i <= h; i++) gel(e,i) = ZM_ZC_mul(Ui, gel(e,i));
@@ -512,7 +512,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
           lD = lg(candD);
           for (c = 1; c < lD; c++)
           {
-            GEN p2, CR, vChar, D = gel(candD,c), QD = InitQuotient(D);
+            GEN data, CR, vChar, D = gel(candD,c), QD = InitQuotient(D);
             GEN ord = gel(QD,1), cyc = gel(QD,2), map = gel(QD,3);
             long e;
 
@@ -527,26 +527,24 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
                 if (IK && gidentical(IH, IK)) continue;
                 if (IsGoodSubgroup(H, bnrm, map))
                 {
-                  IK = IH;
+                  IK = IH; /* intersection of all good subgroups */
                   if (equalii(ord, ZM_det_triangular(IK))) { ok = 1; break; }
                 }
               }
               if (!ok) continue;
             }
-
-            /* p2[5] filled in CplxModulus */
             CR = get_CR(bnrm, QD, 1);
             vChar = sortChars(CR);
-            p2 = mkvecn(7, bnrm, D, QD, InitQuotient(Cm),
-                        InitChar(bnrm, CR, vChar, DEFAULTPREC), CR, vChar);
+            data = mkvec5(bnrm, D, ComputeLift(InitQuotient(Cm)),
+                          InitChar(bnrm, CR, vChar, DEFAULTPREC), vChar);
             if (DEBUGLEVEL>1)
               err_printf("\nTrying modulus = %Ps and subgroup = %Ps\n",
                          bnr_get_mod(bnrm), D);
-            e = CplxModulus(p2, &pr);
+            e = CplxModulus(data, &pr);
             if (DEBUGLEVEL>1) err_printf("cpl = 2^%ld\n", e);
             if (e < olde)
             {
-              guncloneNULL(rep); rep = gclone(p2);
+              guncloneNULL(rep); rep = gclone(data);
               *newprec = pr; olde = e;
             }
             if (olde < rb) goto END; /* OK */
@@ -911,7 +909,7 @@ static void
 CharNewPrec(GEN data, long prec)
 {
   long j, l, prec2 = precdbl(prec) + EXTRA_PREC;
-  GEN C, nf, dataCR = gel(data, 5), D = gel(dataCR,1);
+  GEN C, nf, dataCR = gel(data,4), D = gel(dataCR,1);
 
   if (ch_prec(D) >= prec2) return;
   nf = bnr_get_nf(ch_bnr(D));
@@ -2253,8 +2251,8 @@ AllStark(GEN data,  long flag,  long newprec)
   nf_get_sign(nf, &r1,&r2);
   N     = nf_get_degree(nf);
   cond1 = gel(bnr_get_mod(bnr), 2);
-  dataCR = gel(data,5);
-  vChar = gel(data,7);
+  dataCR = gel(data,4);
+  vChar = gel(data,5);
 
   v = 1;
   while (gequal1(gel(cond1,v))) v++;
@@ -2321,8 +2319,7 @@ LABDOUB:
     }
   }
 
-  p1 = ComputeLift(gel(data,4));
-
+  p1 = gel(data,3);
   den = flag ? h: 2*h;
   vzeta = cgetg(h + 1, t_VEC);
   for (i = 1; i <= h; i++)
