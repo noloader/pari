@@ -326,9 +326,8 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   return gc_long(av,1);
 }
 
-/* compute list of characters trivial on H, modulo complex conjugation;
- * trivial character comes last. If flag is set, impose a non-trivial conductor
- * at infinity */
+/* compute list of non-trivial characters trivial on H, modulo complex
+ * conjugation. If flag is set, impose a non-trivial conductor at infinity */
 static GEN
 get_CR(GEN bnr, GEN dtQ, long flag)
 {
@@ -340,8 +339,7 @@ get_CR(GEN bnr, GEN dtQ, long flag)
   vchi = cyc2elts(gel(dtQ,2));
   S = hash_create(hD, (ulong(*)(void*))&hash_GEN,
                   (int(*)(void*,void*))&ZV_equal, 1);
-  if (flag) hD--; /* remove trivial char */
-  for (i = n = 1; i <= hD; i++)
+  for (i = n = 1; i < hD; i++) /* remove i = hD: trivial char */
   { /* lift a character of D in Clk(m) */
     GEN F, lchi = LiftChar(dtQ, cyc, zv_to_ZV(gel(vchi,i))), cchi = NULL;
 
@@ -349,9 +347,8 @@ get_CR(GEN bnr, GEN dtQ, long flag)
     F = bnrconductor_raw(bnr, lchi);
     if (flag && gequal0(gel(F,2))) continue; /* f_oo(chi) trivial ? */
 
-    /* if chi is not real, add its conjugate character to S */
-    if (!absequaliu(charorder(cyc,lchi), 2))
-    {
+    if (abscmpiu(charorder(cyc,lchi), 2) > 0)
+    { /* non-real chi: add its conjugate character to S */
       cchi = charconj(cyc, lchi);
       hash_insert(S, cchi, (void*)1);
     }
@@ -747,8 +744,8 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 /********************************************************************/
 
 /* Let chi be a character, A(chi) corresponding to the primes dividing diff
-   at s = flag. If s = 0, returns [r, A] where r is the order of vanishing
-   at s = 0 corresponding to diff. No GC */
+ * at s = flag. If s = 0, returns [r, A] where r is the order of vanishing
+ * at s = 0 corresponding to diff. */
 static GEN
 AChi(GEN dtcr, long *r, long flag, long prec)
 {
@@ -1402,12 +1399,11 @@ ppgamma(ST_t *T, long prec)
   set_avma(av);
 }
 
-/* Given W(chi), S(chi) and T(chi), return L(1, chi) if fl & 1, else
-   [r(chi), c(chi)] where L(s, chi) ~ c(chi) s^r(chi) at s = 0. */
+/* chi != 1. Return L(1, chi) if fl & 1, else [r, c] where L(s, chi) ~ c s^r
+ * at s = 0. */
 static GEN
 GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
 {
-  pari_sp av = avma;
   GEN cf, z;
   long q, b, c, r;
   int isreal = (ch_deg(dtcr) <= 2);
@@ -1432,7 +1428,7 @@ GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
     if (fl & 2) z = gmul(z, AChi(dtcr, &r, 0, prec));
     z = mkvec2(utoi(b + c + r), z);
   }
-  return gerepilecopy(av, z);
+  return z;
 }
 
 /* return the order and the first non-zero term of L(s, chi0)
@@ -1440,26 +1436,18 @@ GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
 static GEN
 GetValue1(GEN bnr, long flag, long prec)
 {
-  GEN bnf = checkbnf(bnr), nf = bnf_get_nf(bnf);
-  GEN h, R, c, diff;
-  long i, l, r, r1, r2;
-  pari_sp av = avma;
-
-  nf_get_sign(nf, &r1,&r2);
-  h = bnf_get_no(bnf);
-  R = bnf_get_reg(bnf);
-
-  c = gneg_i(gdivgs(mpmul(h, R), bnf_get_tuN(bnf)));
-  r = r1 + r2 - 1;
-
+  GEN bnf = bnr_get_bnf(bnr), nf = bnf_get_nf(bnf);
+  GEN h = bnf_get_no(bnf), R = bnf_get_reg(bnf);
+  GEN c = gdivgs(mpmul(h, R), -bnf_get_tuN(bnf));
+  long r = lg(nf_get_roots(nf)) - 2; /* r1 + r2 - 1 */;
   if (flag)
   {
-    diff = divcond(bnr);
+    GEN diff = divcond(bnr);
+    long i, l;
     l = lg(diff) - 1; r += l;
-    for (i = 1; i <= l; i++)
-      c = gmul(c, glog(pr_norm(gel(diff,i)), prec));
+    for (i = 1; i <= l; i++) c = gmul(c, glog(pr_norm(gel(diff,i)), prec));
   }
-  return gerepilecopy(av, mkvec2(stoi(r), c));
+  return mkvec2(utoi(r), c);
 }
 
 /********************************************************************/
@@ -2431,8 +2419,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
   if (!subgp) subgp = diagonal_shallow(bnr_get_cyc(bnr));
 
   Qt = InitQuotient(subgp);
-  CR = get_CR(bnr, Qt, 0);
-  l = lg(CR);
+  CR = get_CR(bnr, Qt, 0); l = lg(CR);
   h = itou(gel(Qt,1));
   L1 = cgetg((flag&1)? h: h+1, t_VEC);
   if (l > 1)
@@ -2461,7 +2448,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
     if (flag & 4)
     {
       GEN chi = zerovec(lg(bnr_get_cyc(bnr))-1);
-      settyp(chi, t_VEC); z = mkvec2(chi, z);
+      z = mkvec2(chi, z);
     }
     gel(L1,h) = z;
   }
