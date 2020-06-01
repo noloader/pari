@@ -2359,28 +2359,40 @@ LABDOUB:
 /********************************************************************/
 /*                        Main functions                            */
 /********************************************************************/
+static GEN
+bnrstark_cyclic(GEN bnr, GEN dtQ, long prec)
+{
+  GEN v, vH, cyc = gel(dtQ,2), U = gel(dtQ,3), M = ZM_inv(U, NULL);
+  long i, j, l = lg(M);
+
+  /* M = indep. generators of Cl_f/subgp, restrict to cyclic components */
+  vH = cgetg(l, t_VEC);
+  for (i = j = 1; i < l; i++)
+  {
+    if (is_pm1(gel(cyc,i))) break;
+    gel(vH, j++) = ZM_hnfmodid(vecsplice(M,i), cyc);
+  }
+  setlg(vH, j); v = cgetg(l, t_VEC);
+  for (i = 1; i < j; i++) gel(v,i) = bnrstark(bnr, gel(vH,i), prec);
+  return v;
+}
 GEN
 bnrstark(GEN bnr, GEN subgrp, long prec)
 {
-  long N, newprec;
+  long newprec;
   pari_sp av = avma;
-  GEN bnf, nf, data, dtQ;
+  GEN nf, data, dtQ;
 
   /* check the bnr */
-  checkbnr(bnr);
-  bnf = bnr_get_bnf(bnr);
-  nf  = bnf_get_nf(bnf);
-  N   = nf_get_degree(nf);
-  if (N == 1) return galoissubcyclo(bnr, subgrp, 0, 0);
-
-  /* check the bnf */
+  checkbnr(bnr); nf  = bnr_get_nf(bnr);
+  if (nf_get_degree(nf) == 1) return galoissubcyclo(bnr, subgrp, 0, 0);
   if (!nf_get_varn(nf))
     pari_err_PRIORITY("bnrstark", nf_get_pol(nf), "=", 0);
   if (nf_get_r2(nf)) pari_err_DOMAIN("bnrstark", "r2", "!=", gen_0, nf);
 
   /* compute bnr(conductor) */
   bnr_subgroup_sanitize(&bnr, &subgrp);
-  if (gequal1( ZM_det_triangular(subgrp) )) { set_avma(av); return pol_x(0); }
+  if (gequal1(ZM_det_triangular(subgrp))) { set_avma(av); return pol_x(0); }
 
   /* check the class field */
   if (!gequal0(gel(bnr_get_mod(bnr), 2)))
@@ -2389,21 +2401,7 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
   /* find a suitable extension N */
   dtQ = InitQuotient(subgrp);
   data  = FindModulus(bnr, dtQ, &newprec);
-  if (!data)
-  {
-    GEN vec, H, cyc = gel(dtQ,2), U = gel(dtQ,3), M = RgM_inv(U);
-    long i, j = 1, l = lg(M);
-
-    /* M = indep. generators of Cl_f/subgp, restrict to cyclic components */
-    vec = cgetg(l, t_VEC);
-    for (i = 1; i < l; i++)
-    {
-      if (is_pm1(gel(cyc,i))) continue;
-      H = ZM_hnfmodid(vecsplice(M,i), cyc);
-      gel(vec,j++) = bnrstark(bnr, H, prec);
-    }
-    setlg(vec, j); return gerepilecopy(av, vec);
-  }
+  if (!data) return gerepileupto(av, bnrstark_cyclic(bnr, dtQ, prec));
   if (DEBUGLEVEL>1 && newprec > prec)
     err_printf("new precision: %ld\n", newprec);
   return gerepileupto(av, AllStark(data, 0, newprec));
@@ -2581,67 +2579,27 @@ static GEN
 quadhilbertreal(GEN D, long prec)
 {
   pari_sp av = avma;
+  GEN bnf, pol, bnr, dtQ, data, M;
   long newprec;
-  GEN bnf;
-  VOLATILE GEN bnr, dtQ, data, nf, cyc, M;
-  pari_timer ti;
-  if (DEBUGLEVEL) timer_start(&ti);
+  pari_timer T;
 
-  (void)&prec; /* prevent longjmp clobbering it */
-  (void)&bnf;  /* prevent longjmp clobbering it, avoid warning due to
-                * quadray_init call : discards qualifiers from pointer type */
   quadray_init(&D, NULL, &bnf, prec);
-  cyc = bnf_get_cyc(bnf);
-  if (lg(cyc) == 1) { set_avma(av); return pol_x(0); }
-  /* if the exponent of the class group is 2, use Genus Theory */
-  if (absequaliu(cyc_get_expo(cyc), 2))
-    return gerepileupto(av, GenusFieldQuadReal(D));
-
+  switch(itou_or_0(cyc_get_expo(bnf_get_cyc(bnf))))
+  {
+    case 1: set_avma(av); return pol_x(0);
+    case 2: return gerepileupto(av, GenusFieldQuadReal(D));
+  }
   bnr  = Buchray(bnf, gen_1, nf_INIT);
   M = diagonal_shallow(bnr_get_cyc(bnr));
   dtQ = InitQuotient(M);
-  nf  = bnf_get_nf(bnf);
 
-  for(;;) {
-    VOLATILE GEN pol = NULL;
-    pari_CATCH(e_PREC) {
-      prec += EXTRA_PREC;
-      if (DEBUGLEVEL) pari_warn(warnprec, "quadhilbertreal", prec);
-      bnr = bnrnewprec_shallow(bnr, prec);
-      bnf = bnr_get_bnf(bnr);
-      nf  = bnf_get_nf(bnf);
-    } pari_TRY {
-      /* find the modulus defining N */
-      pari_timer T;
-      if (DEBUGLEVEL) timer_start(&T);
-      data = FindModulus(bnr, dtQ, &newprec);
-      if (DEBUGLEVEL) timer_printf(&T,"FindModulus");
-      if (!data)
-      {
-        long i, l = lg(M);
-        GEN vec = cgetg(l, t_VEC);
-        for (i = 1; i < l; i++)
-        {
-          GEN t = gcoeff(M,i,i);
-          gcoeff(M,i,i) = gen_1;
-          gel(vec,i) = bnrstark(bnr, M, prec);
-          gcoeff(M,i,i) = t;
-        }
-        return gerepileupto(av, vec);
-      }
-
-      if (newprec > prec)
-      {
-        if (DEBUGLEVEL>1) err_printf("new precision: %ld\n", newprec);
-        nf = nfnewprec_shallow(nf, newprec);
-      }
-      pol = AllStark(data, 0, newprec);
-    } pari_ENDCATCH;
-    if (pol) {
-      pol = makescind(nf, pol);
-      return gerepileupto(av, polredbest(pol, 0));
-    }
-  }
+  if (DEBUGLEVEL) timer_start(&T);
+  data = FindModulus(bnr, dtQ, &newprec);
+  if (DEBUGLEVEL) timer_printf(&T,"FindModulus");
+  if (!data) return gerepileupto(av, bnrstark_cyclic(bnr, dtQ, prec));
+  pol = AllStark(data, 0, newprec);
+  pol = makescind(bnf_get_nf(bnf), pol);
+  return gerepileupto(av, polredbest(pol, 0));
 }
 
 /*******************************************************************/
