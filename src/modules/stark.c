@@ -569,16 +569,14 @@ get_ilambda(GEN nf, GEN fa, GEN foo)
   return idealchinese(nf, mkvec2(x, foo), w);
 }
 /* compute the list of W(chi) such that Ld(s,chi) = W(chi) Ld(1 - s, chi*),
- * for all chi in LCHI. All chi have the same conductor (= cond(bnr)).
- * if check == 0 do not check the result */
+ * for all chi in LCHI. All chi have the same conductor (= cond(bnr)). */
 static GEN
-ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
+ArtinNumber(GEN bnr, GEN LCHI, long prec)
 {
   long ic, i, j, nz, nChar = lg(LCHI)-1;
-  pari_sp av = avma, av2;
-  GEN sqrtnc, cond, condZ, cond0, cond1, nf, T;
-  GEN cyc, vN, vB, diff, vt, idh, zid, gen, z, nchi;
-  GEN indW, W, classe, s0, s, den, ilambda, sarch;
+  pari_sp av2;
+  GEN sqrtnc, cond, condZ, cond0, cond1, nf, T, cyc, vN, vB, diff, vt, idh;
+  GEN zid, gen, z, nchi, indW, W, classe, s0, s, den, ilambda, sarch;
   CHI_t **lC;
   GROUP_t G;
 
@@ -690,17 +688,15 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   for (ic = 1; ic <= nChar; ic++)
   {
     s0 = gmul(gel(s,ic), CHI_eval(lC[ic], classe));
-    s0 = gdiv(s0, sqrtnc);
-    if (check && - expo(subrs(gnorm(s0), 1)) < prec2nbits(prec) >> 1)
-      pari_err_BUG("ArtinNumber");
-    gel(W, indW[ic]) = gmul(s0, z);
+    gel(W, indW[ic]) = gmul(gdiv(s0, sqrtnc), z);
   }
-  return gerepilecopy(av, W);
+  return W;
 }
 
 static GEN
-ComputeAllArtinNumbers(GEN dataCR, GEN vChar, int check, long prec)
+AllArtinNumbers(GEN dataCR, GEN vChar, long prec)
 {
+  pari_sp av = avma;
   long j, k, cl = lg(dataCR) - 1, J = lg(vChar)-1;
   GEN W = cgetg(cl+1,t_VEC), WbyCond, LCHI;
 
@@ -714,14 +710,11 @@ ComputeAllArtinNumbers(GEN dataCR, GEN vChar, int check, long prec)
       err_printf("* Root Number: cond. no %ld/%ld (%ld chars)\n", j, J, l-1);
     LCHI = cgetg(l, t_VEC);
     for (k = 1; k < l; k++) gel(LCHI,k) = ch_CHI0(gel(ldata,k));
-    WbyCond = ArtinNumber(bnr, LCHI, check, prec);
+    WbyCond = ArtinNumber(bnr, LCHI, prec);
     for (k = 1; k < l; k++) gel(W,LChar[k]) = gel(WbyCond,k);
   }
-  return W;
+  return gerepilecopy(av, W);
 }
-static GEN
-SingleArtinNumber(GEN bnr, GEN chi, long prec)
-{ return gel(ArtinNumber(bnr, mkvec(chi), 1, prec), 1); }
 
 /* compute the constant W of the functional equation of
    Lambda(chi). If flag = 1 then chi is assumed to be primitive */
@@ -729,7 +722,7 @@ GEN
 bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 {
   pari_sp av = avma;
-  GEN cyc;
+  GEN cyc, W;
 
   if (flag < 0 || flag > 1) pari_err_FLAG("bnrrootnumber");
   checkbnr(bnr);
@@ -745,7 +738,8 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
   }
   chi = char_normalize(chi, cyc_normalize(cyc));
   chi = get_Char(chi, prec);
-  return gerepilecopy(av, SingleArtinNumber(bnr, chi, prec));
+  W = ArtinNumber(bnr, mkvec(chi), prec);
+  return gerepilecopy(av, gel(W,1));
 }
 
 /********************************************************************/
@@ -756,7 +750,7 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
    at s = flag. If s = 0, returns [r, A] where r is the order of vanishing
    at s = 0 corresponding to diff. No GC */
 static GEN
-ComputeAChi(GEN dtcr, long *r, long flag, long prec)
+AChi(GEN dtcr, long *r, long flag, long prec)
 {
   GEN A, diff = ch_diff(dtcr), bnrc = ch_bnr(dtcr), chi  = ch_CHI0(dtcr);
   long i, l = lg(diff);
@@ -778,7 +772,7 @@ ComputeAChi(GEN dtcr, long *r, long flag, long prec)
   }
   return A;
 }
-/* simplified version of ComputeAchi: return 1 if L(0,chi) = 0 */
+/* simplified version of Achi: return 1 if L(0,chi) = 0 */
 static int
 L_vanishes_at_0(GEN dtcr)
 {
@@ -1426,7 +1420,7 @@ GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
     z = gadd(S, gmul(W, T));
     if (isreal) z = real_i(z);
     z = gdiv(z, cf);
-    if (fl & 2) z = gmul(z, ComputeAChi(dtcr, &r, 1, prec));
+    if (fl & 2) z = gmul(z, AChi(dtcr, &r, 1, prec));
   }
   else
   { /* (W(chi).S(conj(chi)) + T(chi)) / (sqrt(Pi)^q 2^{r1 - q}) */
@@ -1435,7 +1429,7 @@ GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
     z = gadd(gmul(W, conj_i(S)), conj_i(T));
     if (isreal) z = real_i(z);
     z = gdiv(z, cf); r = 0;
-    if (fl & 2) z = gmul(z, ComputeAChi(dtcr, &r, 0, prec));
+    if (fl & 2) z = gmul(z, AChi(dtcr, &r, 0, prec));
     z = mkvec2(utoi(b + c + r), z);
   }
   return gerepilecopy(av, z);
@@ -2246,7 +2240,7 @@ AllStark(GEN data,  long flag,  long newprec)
 LABDOUB:
   if (DEBUGLEVEL) timer_start(&ti);
   av = avma;
-  W = ComputeAllArtinNumbers(dataCR, vChar, (flag >= 0), newprec);
+  W = AllArtinNumbers(dataCR, vChar, newprec);
   if (DEBUGLEVEL) timer_printf(&ti,"Compute W");
   Lp = cgetg(cl + 1, t_VEC);
   if (!flag)
@@ -2289,7 +2283,7 @@ LABDOUB:
     for (i = 1; i <= cl; i++)
     {
       long r;
-      GEN WW, A = ComputeAChi(gel(dataCR,i), &r, 0, newprec);
+      GEN WW, A = AChi(gel(dataCR,i), &r, 0, newprec);
       WW = gmul(gel(C,i), gmul(A, gel(W,i)));
       gel(Lp,i) = gdiv(gmul(WW, conj_i(gel(L1,i))), p1);
     }
@@ -2450,7 +2444,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
     long i, j;
 
     GetST(bnr, &S, &T, dataCR, vChar, prec);
-    W = ComputeAllArtinNumbers(dataCR, vChar, 1, prec);
+    W = AllArtinNumbers(dataCR, vChar, prec);
     for (i = j = 1; i < l; i++)
     {
       GEN chi = gel(CR,i);
