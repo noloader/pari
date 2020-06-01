@@ -137,30 +137,7 @@ NextElt(GROUP_t *G)
   return i; /* we have multiplied by gen[i] */
 }
 
-/* Compute all the elements of a group given by its SNF */
-static GEN
-EltsOfGroup(long order, GEN cyc)
-{
-  long i;
-  GEN rep;
-  GROUP_t G;
-
-  G.cyc = gtovecsmall(cyc);
-  G.r = lg(cyc)-1;
-  G.j = zero_zv(G.r);
-
-  rep = cgetg(order + 1, t_VEC);
-  gel(rep,order) = vecsmall_to_col(G.j);
-
-  for  (i = 1; i < order; i++)
-  {
-    (void)NextElt(&G);
-    gel(rep,i) = vecsmall_to_col(G.j);
-  }
-  return rep;
-}
-
-/* enumerate all group elements */
+/* enumerate all group elements; trivial elt comes last */
 GEN
 cyc2elts(GEN cyc)
 {
@@ -181,23 +158,6 @@ cyc2elts(GEN cyc)
     gel(z,i) = leafcopy(G.j);
   }
   return z;
-}
-
-/* Let Qt as given by InitQuotient, compute a system of
-   representatives of the quotient */
-static GEN
-ComputeLift(GEN Qt)
-{
-  GEN e, U = gel(Qt,3);
-  long i, h = itos(gel(Qt,1));
-
-  e = EltsOfGroup(h, gel(Qt,2));
-  if (!ZM_isidentity(U))
-  {
-    GEN Ui = ZM_inv(U,NULL);
-    for (i = 1; i <= h; i++) gel(e,i) = ZM_ZC_mul(Ui, gel(e,i));
-  }
-  return e;
 }
 
 /* nchi: a character given by a vector [d, (c_i)], e.g. from char_normalize
@@ -268,6 +228,23 @@ LiftChar(GEN Qt, GEN cyc, GEN chi)
   GEN nchi = char_normalize(chi, ncyc);
   GEN c = ZV_ZM_mul(gel(nchi,2), U), d = gel(nchi,1);
   return char_denormalize(cyc, d, c);
+}
+
+/* Let C be a subgroup, system of representatives of the quotient */
+static GEN
+ag_subgroup_classes(GEN C)
+{
+  GEN U, D = ZM_snfall_i(C, &U, NULL, 1), e = cyc2elts(D);
+  long i, l = lg(e);
+
+  if (ZM_isidentity(U))
+    for (i = 1; i < l; i++) (void)vecsmall_to_vec_inplace(gel(e,i));
+  else
+  {
+    GEN Ui = ZM_inv(U,NULL);
+    for (i = 1; i < l; i++) gel(e,i) = ZM_zc_mul(Ui, gel(e,i));
+  }
+  return e;
 }
 
 /* Let s: A -> B given by [P,cycA,cycB] A and B, compute the kernel of s. */
@@ -361,13 +338,13 @@ get_CR(GEN bnr, GEN dtQ, long flag)
   hashtable *S;
 
   CR = cgetg(hD+1, t_VEC); /* non-conjugate chars */
-  vchi = EltsOfGroup(hD, gel(dtQ,2));
+  vchi = cyc2elts(gel(dtQ,2));
   S = hash_create(hD, (ulong(*)(void*))&hash_GEN,
                   (int(*)(void*,void*))&ZV_equal, 1);
   if (flag) hD--; /* remove trivial char */
   for (i = n = 1; i <= hD; i++)
   { /* lift a character of D in Clk(m) */
-    GEN F, lchi = LiftChar(dtQ, cyc, gel(vchi,i)), cchi = NULL;
+    GEN F, lchi = LiftChar(dtQ, cyc, zv_to_ZV(gel(vchi,i))), cchi = NULL;
 
     if (hash_search(S, lchi)) continue;
     F = bnrconductor_raw(bnr, lchi);
@@ -535,7 +512,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
             }
             CR = get_CR(bnrm, QD, 1);
             vChar = sortChars(CR);
-            data = mkvec5(bnrm, D, ComputeLift(InitQuotient(Cm)),
+            data = mkvec5(bnrm, D, ag_subgroup_classes(Cm),
                           InitChar(bnrm, CR, vChar, DEFAULTPREC), vChar);
             if (DEBUGLEVEL>1)
               err_printf("\nTrying modulus = %Ps and subgroup = %Ps\n",
