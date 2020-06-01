@@ -51,7 +51,7 @@ chi_get_gdeg(GEN chi) { return gmael(chi,1,1); }
 static long
 chi_get_deg(GEN chi) { return itou(chi_get_gdeg(chi)); }
 
-/* Compute the image of logelt by character chi, as a complex number */
+/* Compute the image of logelt by character chi, zeta_ord(chi)^n; return n */
 static ulong
 CharEval_n(GEN chi, GEN logelt)
 {
@@ -224,8 +224,7 @@ InitQuotient(GEN C)
 static GEN
 LiftChar(GEN Qt, GEN cyc, GEN chi)
 {
-  GEN ncyc = gel(Qt,5), U = gel(Qt,3);
-  GEN nchi = char_normalize(chi, ncyc);
+  GEN ncyc = gel(Qt,5), U = gel(Qt,3), nchi = char_normalize(chi, ncyc);
   GEN c = ZV_ZM_mul(gel(nchi,2), U), d = gel(nchi,1);
   return char_denormalize(cyc, d, c);
 }
@@ -2309,10 +2308,8 @@ LABDOUB:
       if (chi_get_deg(CHI) != 2) t = gmul2n(t, 1); /* character not real */
       z = gadd(z, t);
     }
-    gel(vzeta,i) = gdivgs(z, den);
+    gel(vzeta,i) = gmul2n(gcosh(gdivgs(z,den), newprec), 1);
   }
-  for (j = 1; j <= h; j++)
-    gel(vzeta,j) = gmul2n(gcosh(gel(vzeta,j), newprec), 1);
   polrelnum = roots_to_pol(vzeta, 0);
   if (DEBUGLEVEL)
   {
