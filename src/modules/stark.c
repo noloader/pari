@@ -46,10 +46,8 @@ typedef struct {
 /********************************************************************/
 static GEN
 chi_get_c(GEN chi) { return gmael(chi,1,2); }
-static GEN
-chi_get_gdeg(GEN chi) { return gmael(chi,1,1); }
 static long
-chi_get_deg(GEN chi) { return itou(chi_get_gdeg(chi)); }
+chi_get_deg(GEN chi) { return itou(gmael(chi,1,1)); }
 
 /* Compute the image of logelt by character chi, zeta_ord(chi)^n; return n */
 static ulong
@@ -189,18 +187,11 @@ get_prdiff(GEN D, GEN Dc)
 #define ch_CHI(x)  gel(x,4)
 #define ch_diff(x) gel(x,5)
 #define ch_CHI0(x) gel(x,6)
-#define ch_comp(x) gel(x,7)
+#define ch_small(x) gel(x,7)
+#define ch_comp(x) gel(x,7)[1]
+#define ch_phideg(x) gel(x,7)[2]
 static long
 ch_deg(GEN dtcr) { return chi_get_deg(ch_CHI(dtcr)); }
-
-static GEN
-GetDeg(GEN dataCR)
-{
-  long i, l = lg(dataCR);
-  GEN degs = cgetg(l, t_VECSMALL);
-  for (i = 1; i < l; i++) degs[i] = eulerphiu(ch_deg(gel(dataCR,i)));
-  return degs;
-}
 
 /********************************************************************/
 /*                    1rst part: find the field K                   */
@@ -857,7 +848,7 @@ InitChar(GEN bnr, GEN CR, GEN vChar, long prec)
       if (a > 1) gel(dataCR, i) = D = leafcopy(D);
       chi = char_normalize(chi,ncyc);
       ch_CHI(D) = get_Char(chi, prec2);
-      ch_comp(D) = gen_1; /* compute this character (by default) */
+      ch_small(D) = mkvecsmall2(1, eulerphiu(itou(gel(chi,1))));
 
       if (bnrc == bnr)
         ch_CHI0(D) = ch_CHI(D);
@@ -1759,11 +1750,10 @@ QuadGetST(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
 {
   pari_sp av = avma, av1, av2;
   long ncond, n, j, k, n0;
-  GEN N0, C, T = *pT, S = *pS, an, degs, cs;
+  GEN N0, C, T = *pT, S = *pS, an, cs;
   LISTray LIST;
 
   /* initializations */
-  degs = GetDeg(dataCR);
   ncond = lg(vChar)-1;
   C    = cgetg(ncond+1, t_VEC);
   N0   = cgetg(ncond+1, t_VECSMALL);
@@ -1831,12 +1821,13 @@ QuadGetST(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
     }
     for (k = 1; k <= nChar; k++)
     {
-      long u = LChar[k], d = degs[u], c;
+      long u = LChar[k], d, c;
       GEN dtcr = gel(dataCR, u), z, s, t;
       int **matan;
 
-      if (isintzero(ch_comp(dtcr))) continue;
+      if (!ch_comp(dtcr)) continue;
       if (DEBUGLEVEL>1) err_printf("\tchar no: %ld (%ld/%ld)\n", u,k,nChar);
+      d = ch_phideg(dtcr);
       z = gel(ch_CHI(dtcr), 2); s = t = gen_0; av2 = avma;
       matan = computean(gel(dataCR,u), &LIST, NN, d);
       for (n = 1, c = 0; n <= NN; n++)
@@ -2035,7 +2026,7 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
   pari_sp av = avma, av1, av2;
   long n, j, k, jc, n0, prec2, i0, r1, r2, ncond = lg(vChar)-1;
   GEN nf = checknf(bnr), T = *pT, S = *pS;
-  GEN N0, C, an, limx, degs = GetDeg(dataCR);
+  GEN N0, C, an, limx;
   LISTray LIST;
   ST_t cScT;
 
@@ -2078,10 +2069,10 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
       GEN dtcr = gel(dataCR, u), z, s, t;
       int **matan;
 
-      if (isintzero(ch_comp(dtcr))) continue;
+      if (!ch_comp(dtcr)) continue;
       if (DEBUGLEVEL>1) err_printf("\tchar no: %ld (%ld/%ld)\n", u,k,nChar);
       z = gel(ch_CHI(dtcr), 2);
-      d = degs[u]; s = t = gen_0;
+      d = ch_phideg(dtcr); s = t = gen_0;
       matan = ComputeCoeff(dtcr, &LIST, N, d);
       for (n = 1, c = 0; n <= N; n++)
         if ((an = EvalCoeff(z, matan[n], d)))
@@ -2202,7 +2193,7 @@ AllStark(GEN data,  long flag,  long newprec)
   pari_sp av, av2;
   int **matan;
   GEN bnr = gel(data,1), nf = bnr_get_nf(bnr), p1, p2, S, T;
-  GEN polrelnum, polrel, Lp, W, vzeta, vChar, degs, C, dataCR, cond1, L1, an;
+  GEN polrelnum, polrel, Lp, W, vzeta, vChar, C, dataCR, cond1, L1, an;
   LISTray LIST;
   pari_timer ti;
 
@@ -2216,13 +2207,12 @@ AllStark(GEN data,  long flag,  long newprec)
   while (gequal1(gel(cond1,v))) v++;
 
   cl = lg(dataCR)-1;
-  degs = GetDeg(dataCR);
   h  = itos(ZM_det_triangular(gel(data,2))) >> 1;
   /* characters with rank > 1 should not be computed */
   for (i = 1; i <= cl; i++)
   {
     GEN chi = gel(dataCR, i);
-    if (L_vanishes_at_0(chi)) ch_comp(chi) = gen_0;
+    if (L_vanishes_at_0(chi)) ch_comp(chi) = 0;
   }
 
 LABDOUB:
@@ -2238,7 +2228,7 @@ LABDOUB:
     for (i = 1; i <= cl; i++)
     {
       GEN chi = gel(dataCR, i), v = gen_0;
-      if (!isintzero( ch_comp(chi) ))
+      if (ch_comp(chi))
         v = gel(GetValue(chi, gel(W,i), gel(S,i), gel(T,i), 2, newprec), 2);
       gel(Lp, i) = v;
     }
@@ -2257,11 +2247,12 @@ LABDOUB:
     for (i = 1; i <= cl; i++)
     {
       GEN dtcr = gel(dataCR,i);
-      matan = ComputeCoeff(dtcr, &LIST, n, degs[i]);
+      long d = ch_phideg(dtcr);
+      matan = ComputeCoeff(dtcr, &LIST, n, d);
       av2 = avma;
       p1 = real_0(newprec); p2 = gel(ch_CHI(dtcr), 2);
       for (j = 1; j <= n; j++)
-        if ( (an = EvalCoeff(p2, matan[j], degs[i])) )
+        if ( (an = EvalCoeff(p2, matan[j], d)) )
           p1 = gadd(p1, gdivgs(an, j));
       gel(L1,i) = gerepileupto(av2, p1);
       FreeMat(matan, n);
