@@ -168,12 +168,13 @@ BA  45- closures: do not copy the full context, only the accessible part
     46- add optional argument to randomprime [select congruence class]
     47- add optional argument to sqrtint [set remainder]  [#2229]
     48- gammamellininv*(A,...): allow A to be an L-function
-    49- bnrinit: optional argument to compute Cl_f/n, avoids tough discrete logs
+    49- bnrinit: optional argument to compute Cl_f/n, avoid tough discrete logs
     50- rnfkummer: removed "all" flag, function now obsolete. Use bnrclassfield!
     51- rnfconductor: flag to compute Cl_f/[K:Q] instead of Cl_f
     52- bnrconductor_i is now obsolete, use bnrconductor_raw or bnrconductormod
     53- dvdxxx(x,y) allow y = 0 [and return 0 unless x = 0]
     54- [libpari] bnrsurjection now returns [matrix, cyc(F), cyc(f)]
+    55- idealstar: optional argument to compute G/G^n, avoid tough discrete logs
 
   Added
      1- new GP function rootsof1

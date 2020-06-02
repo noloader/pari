@@ -318,7 +318,7 @@ bnrinit(bnf,f,{flag=0},{cycmod}): given a bnf as output by bnfinit and a
 modulus f, initializes data linked to the ray class group structure 
 corresponding to this module. flag is optional, and can be 0: default, 1: 
 compute also the generators. If the positive integer cycmod is present, only 
-compute the ray class group modulo cycmod.
+compute the ray class group modulo cycmod-th powers.
 
 
   ***   at top-level: buchrayinit()
@@ -332,7 +332,7 @@ bnrinit(bnf,f,{flag=0},{cycmod}): given a bnf as output by bnfinit and a
 modulus f, initializes data linked to the ray class group structure 
 corresponding to this module. flag is optional, and can be 0: default, 1: 
 compute also the generators. If the positive integer cycmod is present, only 
-compute the ray class group modulo cycmod.
+compute the ray class group modulo cycmod-th powers.
 
 
   ***   at top-level: buchrayinitgen()
@@ -346,7 +346,7 @@ bnrinit(bnf,f,{flag=0},{cycmod}): given a bnf as output by bnfinit and a
 modulus f, initializes data linked to the ray class group structure 
 corresponding to this module. flag is optional, and can be 0: default, 1: 
 compute also the generators. If the positive integer cycmod is present, only 
-compute the ray class group modulo cycmod.
+compute the ray class group modulo cycmod-th powers.
 
 
   ***   at top-level: buchreal()
@@ -4158,16 +4158,16 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: zidealstar(nf,I) ===> idealstar(nf,I)
 
-idealstar({nf},N,{flag=1}): gives the structure of (Z_K/N)^*, where N is a 
-modulus (an ideal in any form or a vector [f0, foo], where f0 is an ideal and 
-foo is a {0,1}-vector with r1 components. flag is optional, and can be 0: 
-simply gives the structure as an abelian group, i.e. a 3-component vector 
-[h,d,g] where h is the order, d the orders of the cyclic factors and g the 
-generators; if flag=1 (default), gives a bid structure used in ideallog to 
-compute discrete logarithms; underlying generators are well-defined but not 
-explicitly computed, which saves time; if flag=2, same as with flag=1 except 
-that the generators are also given. If nf is omitted, N must be an integer and 
-we return the structure of (Z/NZ)^*.
+idealstar({nf},N,{flag=1},{cycmod}): gives the structure of (Z_K/N)^*, where N 
+is a modulus (an ideal in any form or a vector [f0, foo], where f0 is an ideal 
+and foo is a {0,1}-vector with r1 components. If the positive integer cycmod is 
+present, only compute the group modulo cycmod-th powers. flag is optional, and 
+can be 0: structure as an abelian group [h,d,g] where h is the order, d the 
+orders of the cyclic factors and g the generators; if flag=1 (default), gives a 
+bid structure used in ideallog to compute discrete logarithms; underlying 
+generators are well-defined but not explicitly computed, which saves time; if 
+flag=2, same as with flag=1 except that the generators are also given. If nf is 
+omitted, N must be an integer and we return the structure of (Z/NZ)^*.
 
 
   ***   at top-level: zidealstarinit()
@@ -4177,16 +4177,16 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: zidealstarinit(nf,id) ===> idealstar(nf,id,1)
 
-idealstar({nf},N,{flag=1}): gives the structure of (Z_K/N)^*, where N is a 
-modulus (an ideal in any form or a vector [f0, foo], where f0 is an ideal and 
-foo is a {0,1}-vector with r1 components. flag is optional, and can be 0: 
-simply gives the structure as an abelian group, i.e. a 3-component vector 
-[h,d,g] where h is the order, d the orders of the cyclic factors and g the 
-generators; if flag=1 (default), gives a bid structure used in ideallog to 
-compute discrete logarithms; underlying generators are well-defined but not 
-explicitly computed, which saves time; if flag=2, same as with flag=1 except 
-that the generators are also given. If nf is omitted, N must be an integer and 
-we return the structure of (Z/NZ)^*.
+idealstar({nf},N,{flag=1},{cycmod}): gives the structure of (Z_K/N)^*, where N 
+is a modulus (an ideal in any form or a vector [f0, foo], where f0 is an ideal 
+and foo is a {0,1}-vector with r1 components. If the positive integer cycmod is 
+present, only compute the group modulo cycmod-th powers. flag is optional, and 
+can be 0: structure as an abelian group [h,d,g] where h is the order, d the 
+orders of the cyclic factors and g the generators; if flag=1 (default), gives a 
+bid structure used in ideallog to compute discrete logarithms; underlying 
+generators are well-defined but not explicitly computed, which saves time; if 
+flag=2, same as with flag=1 except that the generators are also given. If nf is 
+omitted, N must be an integer and we return the structure of (Z/NZ)^*.
 
 
   ***   at top-level: zidealstarinitgen()
@@ -4196,16 +4196,16 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: zidealstarinitgen(nf,id) ===> idealstar(nf,id,2)
 
-idealstar({nf},N,{flag=1}): gives the structure of (Z_K/N)^*, where N is a 
-modulus (an ideal in any form or a vector [f0, foo], where f0 is an ideal and 
-foo is a {0,1}-vector with r1 components. flag is optional, and can be 0: 
-simply gives the structure as an abelian group, i.e. a 3-component vector 
-[h,d,g] where h is the order, d the orders of the cyclic factors and g the 
-generators; if flag=1 (default), gives a bid structure used in ideallog to 
-compute discrete logarithms; underlying generators are well-defined but not 
-explicitly computed, which saves time; if flag=2, same as with flag=1 except 
-that the generators are also given. If nf is omitted, N must be an integer and 
-we return the structure of (Z/NZ)^*.
+idealstar({nf},N,{flag=1},{cycmod}): gives the structure of (Z_K/N)^*, where N 
+is a modulus (an ideal in any form or a vector [f0, foo], where f0 is an ideal 
+and foo is a {0,1}-vector with r1 components. If the positive integer cycmod is 
+present, only compute the group modulo cycmod-th powers. flag is optional, and 
+can be 0: structure as an abelian group [h,d,g] where h is the order, d the 
+orders of the cyclic factors and g the generators; if flag=1 (default), gives a 
+bid structure used in ideallog to compute discrete logarithms; underlying 
+generators are well-defined but not explicitly computed, which saves time; if 
+flag=2, same as with flag=1 except that the generators are also given. If nf is 
+omitted, N must be an integer and we return the structure of (Z/NZ)^*.
 
 
   ***   at top-level: box()
@@ -4526,4 +4526,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 9

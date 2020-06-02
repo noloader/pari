@@ -2542,28 +2542,35 @@ idealprincipalunits(GEN nf, GEN pr, long k)
  * Two extra components are present iff k > 1: L2, U
  * L2  : list of data structures to compute local DL in (Z_K/pr)^*,
  *       and 1 + pr^a/ 1 + pr^b for various a < b <= min(2a, k)
- * U   : base change matrices to convert a vector of local DL to DL wrt gen */
+ * U   : base change matrices to convert a vector of local DL to DL wrt gen
+ * If MOD is not NULL, initialize G / G^MOD instead */
 static GEN
-sprkinit(GEN nf, GEN pr, long k, GEN x)
+sprkinit(GEN nf, GEN pr, long k, GEN x, GEN MOD)
 {
-  GEN T, p, modpr, cyc, gen, g, g0, ord0, A, prk, U, L2;
+  GEN T, p, modpr, cyc, gen, g, g0, A, prk, U, L2, ord0 = NULL;
   long f = pr_get_f(pr);
 
   if(DEBUGLEVEL>3) err_printf("treating pr^%ld, pr = %Ps\n",k,pr);
   modpr = nf_to_Fq_init(nf, &pr,&T,&p);
+  if (MOD)
+  {
+    GEN A = subiu(powiu(p,f), 1), d = gcdii(A, MOD);
+    ord0 = mkvec2(A, Z_factor(d)); /* true order, factorization of order in G/G^MOD */
+  }
   /* (Z_K / pr)^* */
   if (f == 1)
-  {
-    g0 = g = pgener_Fp(p);
-    ord0 = get_arith_ZZM(subiu(p,1));
+  { /* FIXME: could remove 2 from list */
+    g0 = g = MOD? pgener_Fp_local(p, gmael(ord0,2,1)): pgener_Fp(p);
+    if (!ord0) ord0 = get_arith_ZZM(subiu(p,1));
   }
   else
   {
-    g0 = g = gener_FpXQ(T,p, &ord0);
+    g0 = g = MOD? gener_FpXQ_local(T, p, gmael(ord0,2,1)): gener_FpXQ(T,p, &ord0);
     g = Fq_to_nf(g, modpr);
     if (typ(g) == t_POL) g = poltobasis(nf, g);
   }
   A = gel(ord0, 1); /* Norm(pr)-1 */
+  /* If MOD != NULL, d = gcd(A, MOD): g^(A/d) has order d */
   if (k == 1)
   {
     cyc = mkvec(A);
@@ -2723,7 +2730,7 @@ log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
 }
 GEN
 log_prk_init(GEN nf, GEN pr, long k)
-{ return sprkinit(checknf(nf),pr,k,NULL);}
+{ return sprkinit(checknf(nf),pr,k,NULL,NULL);}
 GEN
 veclog_prk(GEN nf, GEN v, GEN sprk)
 {
@@ -3014,7 +3021,7 @@ famat_strip2(GEN fa)
 /* Compute [[ideal,arch], [h,[cyc],[gen]], idealfact, [liste], U]
    flag may include nf_GEN | nf_INIT */
 static GEN
-Idealstar_i(GEN nf, GEN ideal, long flag)
+Idealstarmod_i(GEN nf, GEN ideal, long flag, GEN MOD)
 {
   long i, k, nbp, R1;
   GEN y, cyc, U, u1 = NULL, fa, fa2, sprk, x, arch, archp, E, P, sarch, gen;
@@ -3049,6 +3056,12 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
     arch = zerovec(R1);
     archp = cgetg(1, t_VECSMALL);
   }
+  if (MOD)
+  {
+    if (typ(MOD) != t_INT) pari_err_TYPE("bnrinit [incorrect cycmod]", MOD);
+    if (mpodd(MOD) && lg(archp) != 1)
+      MOD = shifti(MOD, 1); /* ensure elements of G^MOD are >> 0 */
+  }
   if (is_nf_factor(ideal))
   {
     fa = ideal;
@@ -3076,7 +3089,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
     gen = cgetg(nbp+1,t_VEC);
     for (i = 1; i <= nbp; i++)
     {
-      GEN L = sprkinit(nf, gel(P,i), itou(gel(E,i)), t);
+      GEN L = sprkinit(nf, gel(P,i), itou(gel(E,i)), t, MOD);
       gel(sprk,i) = L;
       gel(cyc,i) = sprk_get_cyc(L);
       /* true gens are congruent to those mod x AND positive at archp */
@@ -3100,17 +3113,19 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
   return mkvec5(mkvec2(x, arch), y, mkvec2(fa,fa2), mkvec2(sprk, sarch), U);
 }
 GEN
-Idealstar(GEN nf, GEN ideal, long flag)
+Idealstarmod(GEN nf, GEN ideal, long flag, GEN MOD)
 {
   pari_sp av = avma;
   if (!nf) nf = nfinit(pol_x(0), DEFAULTPREC);
-  return gerepilecopy(av, Idealstar_i(nf, ideal, flag));
+  return gerepilecopy(av, Idealstarmod_i(nf, ideal, flag, MOD));
 }
+GEN
+Idealstar(GEN nf, GEN ideal, long flag) { return Idealstarmod(nf, ideal, flag, NULL); }
 GEN
 Idealstarprk(GEN nf, GEN pr, long k, long flag)
 {
   pari_sp av = avma;
-  GEN z = Idealstar_i(nf, mkmat2(mkcol(pr),mkcols(k)), flag);
+  GEN z = Idealstarmod_i(nf, mkmat2(mkcol(pr),mkcols(k)), flag, NULL);
   return gerepilecopy(av, z);
 }
 
@@ -3126,17 +3141,19 @@ zidealstar(GEN nf, GEN ideal)
 { return Idealstar(nf,ideal, nf_GEN); }
 
 GEN
-idealstar0(GEN nf, GEN ideal,long flag)
+idealstarmod(GEN nf, GEN ideal, long flag, GEN MOD)
 {
   switch(flag)
   {
-    case 0: return Idealstar(nf,ideal, nf_GEN);
-    case 1: return Idealstar(nf,ideal, nf_INIT);
-    case 2: return Idealstar(nf,ideal, nf_INIT|nf_GEN);
+    case 0: return Idealstarmod(nf,ideal, nf_GEN, MOD);
+    case 1: return Idealstarmod(nf,ideal, nf_INIT, MOD);
+    case 2: return Idealstarmod(nf,ideal, nf_INIT|nf_GEN, MOD);
     default: pari_err_FLAG("idealstar");
   }
   return NULL; /* LCOV_EXCL_LINE */
 }
+GEN
+idealstar0(GEN nf, GEN ideal,long flag) { return idealstarmod(nf, ideal, flag, NULL); }
 
 void
 check_nfelt(GEN x, GEN *den)
@@ -3254,10 +3271,7 @@ ideallogmod(GEN nf, GEN x, GEN bid, GEN mod)
   return ideallog_i(checknf(nf), x, &S);
 }
 GEN
-ideallog(GEN nf, GEN x, GEN bid)
-{
-  return ideallogmod(nf, x, bid, NULL);
-}
+ideallog(GEN nf, GEN x, GEN bid) { return ideallogmod(nf, x, bid, NULL); }
 
 /*************************************************************************/
 /**                                                                     **/

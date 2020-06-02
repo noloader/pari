@@ -2253,6 +2253,7 @@ GEN     zkmodprinit(GEN nf, GEN pr);
 /* base3.c */
 
 GEN     Idealstar(GEN nf, GEN x,long flun);
+GEN     Idealstarmod(GEN nf, GEN ideal, long flag, GEN MOD);
 GEN     Idealstarprk(GEN nf, GEN pr, long k, long flag);
 GEN     RgC_to_nfC(GEN nf,GEN x);
 GEN     RgM_RgX_mul(GEN A, GEN x);
@@ -2278,6 +2279,7 @@ GEN     ideallog_units(GEN bnf, GEN bid);
 GEN     ideallog_units0(GEN bnf, GEN bid, GEN MOD);
 GEN     idealprincipalunits(GEN nf, GEN pr, long e);
 GEN     idealstar0(GEN nf, GEN x,long flag);
+GEN     idealstarmod(GEN nf, GEN ideal, long flag, GEN MOD);
 GEN     indices_to_vec01(GEN archp, long r);
 GEN     matalgtobasis(GEN nf, GEN x);
 GEN     matbasistoalg(GEN nf, GEN x);

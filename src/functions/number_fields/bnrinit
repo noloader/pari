@@ -7,7 +7,7 @@ Help: bnrinit(bnf,f,{flag=0},{cycmod}): given a bnf as output by
  linked to the ray class group structure corresponding to this module. flag
  is optional, and can be 0: default, 1: compute also the generators. If
  the positive integer cycmod is present, only compute the ray class group
- modulo cycmod.
+ modulo cycmod-th powers.
 Description:
  (gen,gen,?small):bnr       bnrinit0($1, $2, $3)
 Doc: $\var{bnf}$ is as

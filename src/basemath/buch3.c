@@ -411,7 +411,7 @@ ZM_content_mul(GEN u, GEN c, GEN *pd)
 }
 
 static GEN
-Buchray_i(GEN bnf, GEN module, long flag, GEN MOD)
+Buchraymod_i(GEN bnf, GEN module, long flag, GEN MOD)
 {
   GEN nf, cyc0, cyc, gen, Cyc, Gen, clg, h, logU, U, Ui, vu;
   GEN bid, cycbid, genbid, H, El;
@@ -429,7 +429,7 @@ Buchray_i(GEN bnf, GEN module, long flag, GEN MOD)
   gen = bnf_get_gen(bnf); ngen = lg(cyc)-1;
 
   bid = checkbid_i(module);
-  if (!bid) bid = Idealstar(nf,module,nf_GEN|nf_INIT);
+  if (!bid) bid = Idealstarmod(nf,module,nf_GEN|nf_INIT, MOD);
   cycbid = bid_get_cyc(bid);
   if (MOD)
   {
@@ -518,7 +518,7 @@ GEN
 Buchraymod(GEN bnf, GEN f, long flag, GEN MOD)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, Buchray_i(bnf, f, flag, MOD));
+  return gerepilecopy(av, Buchraymod_i(bnf, f, flag, MOD));
 }
 GEN
 bnrinitmod(GEN bnf, GEN f, long flag, GEN MOD)
@@ -1649,8 +1649,8 @@ bnrconductormod(GEN bnr, GEN H0, GEN MOD)
   {
     long fl = lg(bnr_get_clgp(bnr)) == 4? nf_INIT | nf_GEN: nf_INIT;
     GEN fa = famat_remove_trivial(mkmat2(S.P, e? e: S.k)), bid;
-    bid = Idealstar(nf, mkvec2(fa, arch), nf_INIT | nf_GEN);
-    bnrc = Buchray_i(bnr, bid, fl, MOD);
+    bid = Idealstarmod(nf, mkvec2(fa, arch), nf_INIT | nf_GEN, MOD);
+    bnrc = Buchraymod_i(bnr, bid, fl, MOD);
     cond = bnr_get_mod(bnrc);
     if (ischi)
       H = bnrchar_primitive_raw(bnr, bnrc, H0);
@@ -1919,7 +1919,7 @@ rnfconductor0(GEN bnf, GEN T, long flag)
   }
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
   MOD = flag? utoipos(degpol(T)): NULL;
-  bnr = Buchray_i(bnf, module, nf_INIT|nf_GEN, MOD);
+  bnr = Buchraymod_i(bnf, module, nf_INIT|nf_GEN, MOD);
   H = rnfnormgroup_i(bnr,T); if (!H) { set_avma(av); return gen_0; }
   return gerepilecopy(av, bnrconductormod(bnr, H, MOD));
 }

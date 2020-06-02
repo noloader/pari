@@ -111,6 +111,10 @@ p=406969676467377719018888256331;
 bnr=bnrinit(bnfinit(a^2+1),p^2);
 bnrclassfield(bnr,3)
 
+print("tough factorization for structure of k(pr)^*");
+setrand(1);p = randomprime(10^200,3);
+bnrclassfield(bnrinit(bnfinit(y), p,, 3), 3)
+
 print("vector of subgroups");
 filter(v)=[if (cmp(a,b=-subst(a,x,-x)) < 0,b,a)| a<-v][^1]; \\ avoid 32-bit differences
 pol=y^2+3299;
