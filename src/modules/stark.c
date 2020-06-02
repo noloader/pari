@@ -2071,6 +2071,8 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN CR, long prec)
     GEN LChar = gel(vChar,jc);
     long nChar = lg(LChar)-1, N = N0[jc];
 
+    /* Can discard completely a conductor if all chars satisfy L(0,chi) = 0
+     * Not sure whether this is possible. */
     if (DEBUGLEVEL>1)
       err_printf("* conductor no %ld/%ld (N = %ld)\n\tInit: ", jc,ncond,N);
 
