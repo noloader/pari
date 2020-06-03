@@ -902,7 +902,6 @@ GEN     RgXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T);
 
 /* subcyclo.c */
 
-GEN     bnr_to_znstar(GEN bnr, long *complex);
 GEN     galoiscyclo(long n, long v);
 GEN     znstar_bits(long n, GEN H);
 long    znstar_conductor(GEN H);

@@ -514,29 +514,42 @@ galoiscyclo(long n, long v)
   return gerepilecopy(av, grp);
 }
 
-/* Convert a bnrinit(Q,n) to a znstar(n)
- * complex is set to 0 if the bnr is real and to 1 if it is complex.
- * Not stack clean */
-GEN
-bnr_to_znstar(GEN bnr, long *complex)
+/* Convert a bnrinit(Q,n) to an abelian group similar to znstar(n), with
+ * t_INTMOD generators; set cx = 0 if the class field is real and to 1
+ * otherwise */
+static GEN
+bnr_to_abgrp(GEN bnr, long *cx)
 {
-  GEN gen, F, v, bid;
+  GEN gen, F, v, bid, Ui = NULL;
   long l, i;
   checkbnr(bnr);
   bid = bnr_get_bid(bnr);
-  gen = bid_get_gen(bid);
+  if (lg(bnr_get_clgp(bnr)) == 4)
+    gen = bnr_get_gen(bnr);
+  else
+  {
+    Ui = gmael(bnr,4,3);
+    if (ZM_isidentity(Ui)) Ui = NULL;
+    gen = bid_get_gen(bid);
+  }
   F = bid_get_ideal(bid);
   if (lg(F) != 2)
-    pari_err_DOMAIN("bnr_to_znstar", "bnr", "!=", strtoGENstr("Q"), bnr);
-  /* F is the finite part of the conductor, complex is the infinite part*/
+    pari_err_DOMAIN("bnr_to_abgrp", "bnr", "!=", strtoGENstr("Q"), bnr);
+  /* F is the finite part of the conductor, cx is the infinite part*/
   F = gcoeff(F, 1, 1);
-  *complex = signe(gel(bid_get_arch(bid), 1));
+  *cx = signe(gel(bid_get_arch(bid), 1));
   l = lg(gen); v = cgetg(l, t_VEC);
   for (i = 1; i < l; ++i)
   {
     GEN x = gel(gen,i);
     if (typ(x) == t_COL) x = gel(x,1);
     gel(v,i) = gmodulo(absi_shallow(x), F);
+  }
+  if (Ui)
+  { /* from bid.gen to bnr.gen (maybe one less) */
+    GEN w = v;
+    l = lg(Ui); v = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(v,i) = factorback2(w, gel(Ui, i));
   }
   return mkvec3(bnr_get_no(bnr), bnr_get_cyc(bnr), v);
 }
@@ -561,7 +574,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
       break;
     case t_VEC:
       if (lg(N)==7)
-        N = bnr_to_znstar(N,&complex);
+        N = bnr_to_abgrp(N,&complex);
       else if (checkznstar_i(N))
         N = mkvec3(znstar_get_no(N), znstar_get_cyc(N),
                    gmodulo(znstar_get_gen(N), znstar_get_N(N)));
