@@ -334,7 +334,7 @@
   *** galoissubcyclo: incorrect type in galoissubcyclo (t_VEC).
   ***   at top-level: galoissubcyclo(bnrinit(bnfinit(y^2+1),1),2)
   ***                 ^-------------------------------------------
-  *** galoissubcyclo: domain error in bnr_to_znstar: bnr != Q
+  *** galoissubcyclo: domain error in bnr_to_abgrp: bnr != Q
   ***   at top-level: polsubcyclo(-1,2)
   ***                 ^-----------------
   *** polsubcyclo: domain error in polsubcyclo: n <= 0
@@ -650,4 +650,4 @@ INFINITY
   ***                                   ^-
   ***   incorrect value for plothsizes: [2,
   ***                                      ^
-Total time spent: 8
+Total time spent: 17
