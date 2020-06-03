@@ -111,6 +111,14 @@ p=406969676467377719018888256331;
 bnr=bnrinit(bnfinit(a^2+1),p^2);
 bnrclassfield(bnr,3)
 
+print("vector of subgroups");
+pol=y^4-y^3+16*y^2-16*y+61;
+bnr=bnrinit(bnfinit(pol), 5,, 5);
+L=subgrouplist(bnr, [5], 1);
+bnrclassfield(bnr, L, 0)
+bnrclassfield(bnr, L, 1)
+bnrclassfield(bnr, L, 2)
+
 print("bad inputs");
 bnrclassfield(y^2+6,Mat(2))
 K = bnfinit(y^2+6);
