@@ -9,6 +9,7 @@ subgrouplist(K)
 subgrouplist(K, 2)
 subgrouplist(K, 2, 1)
 bnrconductor(bnfinit(K),4,Mat(3))
+subgrouplist(bnrinit(bnfinit(x),22))
 
 Qi = bnfinit(x^2+1);
 bnrL1(bnrinit(Qi,10,1),1);

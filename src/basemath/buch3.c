@@ -2644,6 +2644,7 @@ conductor_elts(GEN bnr)
   GEN e, L;
   zlog_S S;
 
+  if (!bnrisconductor(bnr, NULL)) return NULL;
   init_zlog(&S, bnr_get_bid(bnr));
   e = S.k; le = lg(e); la = lg(S.archp);
   L = cgetg(le + la - 1, t_VEC);
@@ -2665,10 +2666,10 @@ subgrouplist_cond_sub(GEN bnr, GEN C, GEN bound)
   long l, i, j;
   GEN D, Mr, U, T, subgrp, L, cyc = bnr_get_cyc(bnr);
 
+  L = conductor_elts(bnr); if (!L) return cgetg(1,t_VEC);
   Mr = diagonal_shallow(cyc);
   D = ZM_snfall_i(hnf_solve(C, Mr), &U, NULL, 1);
   T = ZM_mul(C, RgM_inv(U));
-  L = conductor_elts(bnr);
   subgrp  = subgrouplist(D, bound);
   l = lg(subgrp);
   for (i = j = 1; i < l; i++)
@@ -2684,15 +2685,18 @@ static GEN
 subgroupcond(GEN bnr, GEN indexbound)
 {
   pari_sp av = avma;
-  GEN li = subgroupcondlist(bnr_get_cyc(bnr), indexbound, conductor_elts(bnr));
+  GEN L = conductor_elts(bnr);
+
+  if (!L) return cgetg(1, t_VEC);
+  L = subgroupcondlist(bnr_get_cyc(bnr), indexbound, L);
   if (indexbound && typ(indexbound) != t_VEC)
   { /* sort by increasing index if not single value */
-    long i, l = lg(li);
+    long i, l = lg(L);
     GEN D = cgetg(l,t_VEC);
-    for (i=1; i<l; i++) gel(D,i) = ZM_det_triangular(gel(li,i));
-    li = vecreverse( vecpermute(li, indexsort(D)) );
+    for (i=1; i<l; i++) gel(D,i) = ZM_det_triangular(gel(L,i));
+    L = vecreverse( vecpermute(L, indexsort(D)) );
   }
-  return gerepilecopy(av,li);
+  return gerepilecopy(av, L);
 }
 
 GEN
