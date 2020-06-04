@@ -1452,8 +1452,9 @@ bnrclassfieldvec(GEN bnr, GEN v, long flag, long prec)
   struct rnfkummer **vkum;
   for (j = 1; j < lv; j++)
   {
-    GEN N, fa;
-    gel(vH,j) = bnr_subgroup_check(bnr, gel(v,j), &N);
+    GEN N, fa, H = bnr_subgroup_check(bnr, gel(v,j), &N);
+    if (!H) H = diagonal_shallow(bnr_get_cyc(bnr));
+    gel(vH,j) = H;
     gel(vfa,j) = fa = Z_factor(N);
     gel(vP,j) = ZV_to_zv(gel(fa, 1));
   }
