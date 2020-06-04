@@ -275,6 +275,7 @@ x^6 - 57359114958141*x^5 + 415278892309580*x^4 + 158443919723395*x^3 + 25440
 512362023304*x^5 + 594993807274093070*x^4 - 679595901143452255*x^3 + 3322228
 781762332610*x^2 - 1922704510727637770*x + 7057818029560232281]
 []
+[[x^3 - 3*x + y]]
 bad inputs
   ***   at top-level: bnrclassfield(y^2+6,Mat(2))
   ***                 ^---------------------------
@@ -303,4 +304,4 @@ bad inputs
   ***   at top-level: bnrclassfield(bnfinit(x))
   ***                 ^-------------------------
   *** bnrclassfield: incorrect priority in bnrclassfield: variable x = x
-Total time spent: 4602
+Total time spent: 5424

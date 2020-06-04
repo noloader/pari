@@ -119,6 +119,7 @@ bnrclassfield(bnr, L, 0)
 bnrclassfield(bnr, L, 1)
 bnrclassfield(bnr, L, 2)
 bnrclassfield(bnr,[])
+bnrclassfield(bnfinit(y^2+23),[Mat(3)])
 
 print("bad inputs");
 bnrclassfield(y^2+6,Mat(2))
