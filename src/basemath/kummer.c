@@ -1447,9 +1447,13 @@ static GEN
 bnrclassfieldvec(GEN bnr, GEN v, long flag, long prec)
 {
   long i, j, lP, lv = lg(v), w;
-  GEN bnf, vH = cgetg(lv, t_VEC), vfa = cgetg(lv, t_VEC), vres = cgetg(lv, t_VEC);
-  GEN vP = cgetg(lv, t_VEC), P;
+  GEN bnf, vH, vfa, vP, P, vres = cgetg(lv, t_VEC);
   struct rnfkummer **vkum;
+
+  if (lv == 1) return vres;
+  vH = cgetg(lv, t_VEC);
+  vP = cgetg(lv, t_VEC);
+  vfa = cgetg(lv, t_VEC);
   for (j = 1; j < lv; j++)
   {
     GEN N, fa, H = bnr_subgroup_check(bnr, gel(v,j), &N);

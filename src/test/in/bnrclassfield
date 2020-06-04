@@ -118,6 +118,7 @@ L=subgrouplist(bnr, [5], 1);
 bnrclassfield(bnr, L, 0)
 bnrclassfield(bnr, L, 1)
 bnrclassfield(bnr, L, 2)
+bnrclassfield(bnr,[])
 
 print("bad inputs");
 bnrclassfield(y^2+6,Mat(2))
