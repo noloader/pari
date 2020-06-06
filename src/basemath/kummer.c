@@ -1502,6 +1502,7 @@ bnrclassfieldvec(GEN bnr, GEN v, long flag, long prec)
   for (j = 1; j < lv; j++)
   {
     GEN N, fa, H = bnr_subgroup_check(bnr, gel(v,j), &N);
+    if (is_bigint(N)) pari_err_OVERFLOW("bnrclassfield [too large degree]");
     if (!H) H = diagonal_shallow(bnr_get_cyc(bnr));
     gel(vH,j) = H;
     gel(vfa,j) = fa = Z_factor(N);
@@ -1509,7 +1510,7 @@ bnrclassfieldvec(GEN bnr, GEN v, long flag, long prec)
   }
   vP = shallowconcat1(vP); vecsmall_sort(vP);
   vP = vecsmall_uniq_sorted(vP);
-  vkum = rnfkummer_initall(bnr, vP, prec);
+  if (lg(vP) > 1)vkum = rnfkummer_initall(bnr, vP, prec);
   P = bad_primes(bnr);
   for (j = 1; j < lv; j++)
     gel(w,j) = bnrclassfield_H(vkum, bnr, P, gel(vH,j), gel(vfa,j), flag, prec);
@@ -1538,10 +1539,9 @@ bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
   bnrclassfield_sanitize(&bnr, &subgroup);
   N = ZM_det_triangular(subgroup);
   if (equali1(N)) { set_avma(av); return pol_x(0); }
+  if (is_bigint(N)) pari_err_OVERFLOW("bnrclassfield [too large degree]");
   fa = Z_factor(N);
   PN = gel(fa,1); lPN = lg(PN);
-  if (lgefint(gel(PN,lPN-1)) > 3)
-    pari_err_OVERFLOW("bnrclassfield [extension of too large degree]");
   vkum = rnfkummer_initall(bnr, ZV_to_zv(PN), prec);
   P = bad_primes(bnr);
   return  gerepilecopy(av, bnrclassfield_H(vkum, bnr, P, subgroup, fa, flag, prec));
