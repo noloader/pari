@@ -12,7 +12,9 @@ Doc: \var{bnr} being as output by \kbd{bnrinit}, returns a relative equation
  for the class field corresponding to the congruence group defined by
  $(\var{bnr},\var{subgp})$ (the full ray class field if \var{subgp} is
  omitted). The subgroup can also be a \typ{INT}~$n$,
- meaning~$n \cdot \text{Cl}_f$.
+ meaning~$n \cdot \text{Cl}_f$. The function also handles a vector of
+ subgroup, e.g, from \tet{subgrouplist} and returns the vector of individual
+ results in this case.
 
  If $\fl=0$, returns a vector of polynomials such that the compositum of the
  corresponding fields is the class field; if $\fl=1$ returns a single
@@ -29,6 +31,12 @@ Doc: \var{bnr} being as output by \kbd{bnrinit}, returns a relative equation
  %4 = [24, 12, 12, 2]
  ? bnrclassfield(bnr,2) \\ maximal 2-elementary subextension
  %5 = [x^2 + (-21*y - 105), x^2 + (-5*y - 25), x^2 + (-y - 5), x^2 + (-y - 1)]
+ \\ quadratic extensions of maximal conductor
+ ? bnrclassfield(bnr, subgrouplist(bnr,[2]))
+ %6 = [[x^2 - 105], [x^2 + (-105*y^2 - 1260)], [x^2 + (-105*y - 525)],
+       [x^2 + (-105*y - 105)]]
+ ? #bnrclassfield(bnr,subgrouplist(bnr,[2],1)) \\ all quadratic extensions
+ %7 = 15
  @eprog\noindent When the subgroup contains $n \text{Cl}_f$, where $n$ is fixed,
  it is advised to directly compute the \kbd{bnr} modulo $n$ to avoid expensive
  discrete logarithms:
