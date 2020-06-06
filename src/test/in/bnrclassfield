@@ -115,6 +115,13 @@ print("tough factorization for structure of k(pr)^*");
 setrand(1);p = randomprime(10^200,3);
 bnrclassfield(bnrinit(bnfinit(y), p,, 3), 3)
 
+print("tough conductor factorization");
+setrand(1);
+p=randomprime(2^200,7);
+q=randomprime(2^200,7); bnf=bnfinit(polsubcyclo(7,2,a));
+M=matconcat([idealfactor(bnf,p),idealfactor(bnf,q)]~);
+bnr=bnrinit(bnf,M,,7); bnrclassfield(bnr)
+
 print("vector of subgroups");
 filter(v)=[if (cmp(a,b=-subst(a,x,-x)) < 0,b,a)| a<-v][^1]; \\ avoid 32-bit differences
 pol=y^2+3299;
