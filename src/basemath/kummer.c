@@ -1530,8 +1530,7 @@ GEN
 bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
 {
   pari_sp av = avma;
-  GEN N, fa, P, PN;
-  long lPN;
+  GEN N, fa, P;
   struct rnfkummer **vkum;
 
   if (flag<0 || flag>2) pari_err_FLAG("bnrclassfield [must be 0,1 or 2]");
@@ -1547,8 +1546,7 @@ bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
   if (equali1(N)) { set_avma(av); return pol_x(0); }
   if (is_bigint(N)) pari_err_OVERFLOW("bnrclassfield [too large degree]");
   fa = Z_factor(N);
-  PN = gel(fa,1); lPN = lg(PN);
-  vkum = rnfkummer_initall(bnr, ZV_to_zv(PN), prec);
+  vkum = rnfkummer_initall(bnr, ZV_to_zv(gel(fa,1)), prec);
   P = bad_primes(bnr);
   return  gerepilecopy(av, bnrclassfield_H(vkum, bnr, P, subgroup, fa, flag, prec));
 }
