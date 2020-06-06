@@ -58,7 +58,7 @@ reduce_mod_Qell(GEN bnfz, GEN be, GEN gell)
   be = Q_primitive_part(be, &c);
   if (c)
   {
-    GEN d, fa = factor(c);
+    GEN d, fa = Q_factor_limit(c, 1000000);
     gel(fa,2) = FpC_red(gel(fa,2), gell);
     d = factorback(fa);
     be = typ(be) == t_INT? mulii(be,d): ZC_Z_mul(be, d);
@@ -73,7 +73,7 @@ idealsqrtn(GEN nf, GEN x, GEN gn)
   long i, l, n = itos(gn);
   GEN fa, q, Ex, Pr;
 
-  fa = idealfactor(nf, x);
+  fa = idealfactor_partial(nf, x, utoi(1000000));
   Pr = gel(fa,1); l = lg(Pr);
   Ex = gel(fa,2); q = NULL;
   for (i=1; i<l; i++)
