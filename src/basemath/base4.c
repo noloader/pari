@@ -722,7 +722,7 @@ idealfactor_partial(GEN nf, GEN x, GEN L)
     gel(P,i) = typ(p) == t_INT? idealprimedec(nf, p): mkvec(p);
   }
   P = shallowconcat1(P); settyp(P, t_COL);
-  P = gen_sort_uniq(P, (void*)&cmp_prime_over_p, &cmp_nodata);
+  P = gen_sort_uniq(P, (void*)&cmp_prime_ideal, &cmp_nodata);
   E = cgetg_copy(P, &l);
   for (i = j = 1; i < l; i++)
   {
