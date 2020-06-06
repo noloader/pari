@@ -518,6 +518,14 @@ H_is_good(GEN H, GEN p)
     if (equalii(gcoeff(H,i,i), p) && ++status > 1) return 0;
   return status == 1;
 }
+static GEN
+bid_primes(GEN bid)
+{
+  GEN v = leafcopy(gel(bid_get_fact(bid),1));
+  long i, l = lg(v);
+  for (i = 1; i < l; i++) gel(v,i) = pr_get_p(gel(v,i));
+  settyp(v, t_VEC); return v;
+}
 /* Let K base field, L/K described by bnr (conductor F) + H. Return a list of
  * primes coprime to f*ell of degree 1 in K whose images in Cl_f(K) together
  * with ell*Cl_f(K), generate H:
@@ -549,7 +557,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN *pfa, struct rnfkummer *kum)
     bad = lcmii(bad,badz);
     nfz = bnf_get_nf(bnfz);
     ideal = ideallifttoKz(nfz, nf, ideal, &kum->COMPO);
-    *pfa = idealfactor(nfz, ideal); /* FIXME: use bid_get_fact info */
+    *pfa = idealfactor_partial(nfz, ideal, bid_primes(bnr_get_bid(bnr)));
     if (dvdiu(idealdown(nf, ideal), ell))
     { /* ell | N(ideal), need Hz = Ker N: Cl_Kz(bothz) -> Cl_K(ideal)/H
        * to update conductor */
@@ -1435,11 +1443,9 @@ nfcompositumall(GEN nf, GEN L)
 static GEN
 bad_primes(GEN bnr)
 {
-  GEN Pmod = leafcopy(gel(bid_get_fact(bnr_get_bid(bnr)),1));
-  long i, l = lg(Pmod);
-  for (i = 1; i < l; i++) gel(Pmod,i) = pr_get_p(gel(Pmod,i));
-  settyp(Pmod, t_VEC);
-  return ZV_sort_uniq(shallowconcat(nf_get_ramified_primes(bnr_get_nf(bnr)), Pmod));
+  GEN v = bid_primes(bnr_get_bid(bnr));
+  GEN r = nf_get_ramified_primes(bnr_get_nf(bnr));
+  return ZV_sort_uniq(shallowconcat(r, v));
 }
 static struct rnfkummer **
 rnfkummer_initall(GEN bnr, GEN vP, long prec)
