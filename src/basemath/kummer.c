@@ -1493,7 +1493,7 @@ bnrclassfieldvec(GEN bnr, GEN v, long flag, long prec)
 {
   long j, lv = lg(v);
   GEN vH, vfa, vP, P, w = cgetg(lv, t_VEC);
-  struct rnfkummer **vkum;
+  struct rnfkummer **vkum = NULL;
 
   if (lv == 1) return w;
   vH = cgetg(lv, t_VEC);
@@ -1510,7 +1510,7 @@ bnrclassfieldvec(GEN bnr, GEN v, long flag, long prec)
   }
   vP = shallowconcat1(vP); vecsmall_sort(vP);
   vP = vecsmall_uniq_sorted(vP);
-  if (lg(vP) > 1)vkum = rnfkummer_initall(bnr, vP, prec);
+  if (lg(vP) > 1) vkum = rnfkummer_initall(bnr, vP, prec);
   P = bad_primes(bnr);
   for (j = 1; j < lv; j++)
     gel(w,j) = bnrclassfield_H(vkum, bnr, P, gel(vH,j), gel(vfa,j), flag, prec);
