@@ -112,14 +112,15 @@ bnr=bnrinit(bnfinit(a^2+1),p^2);
 bnrclassfield(bnr,3)
 
 print("vector of subgroups");
-pol=y^4-y^3+16*y^2-16*y+61;
-bnr=bnrinit(bnfinit(pol), 5,, 5);
-L=subgrouplist(bnr, [5], 1);
-bnrclassfield(bnr, L, 0)
-bnrclassfield(bnr, L, 1)
-bnrclassfield(bnr, L, 2)
+filter(v)=[if (cmp(a,b=-subst(a,x,-x)) < 0,b,a)| a<-v][^1]; \\ avoid 32-bit differences
+pol=y^2+3299;
+bnr=bnrinit(bnfinit(pol), 3,, 3);
+L=subgrouplist(bnr, [3], 1);
+filter(bnrclassfield(bnr, L, 0))
+filter(bnrclassfield(bnr, L, 1))
+filter(bnrclassfield(bnr, L, 2))
 bnrclassfield(bnr,[])
-bnrclassfield(bnfinit(y^2+23),[Mat(3)])
+bnrclassfield(bnfinit(y^2+31),[Mat(3)])
 
 print("bad inputs");
 bnrclassfield(y^2+6,Mat(2))

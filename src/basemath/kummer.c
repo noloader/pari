@@ -1441,16 +1441,61 @@ bad_primes(GEN bnr)
   settyp(Pmod, t_VEC);
   return ZV_sort_uniq(shallowconcat(nf_get_ramified_primes(bnr_get_nf(bnr)), Pmod));
 }
+static struct rnfkummer **
+rnfkummer_initall(GEN bnr, GEN vP, long prec)
+{
+  long i, w, lP = lg(vP);
+  GEN bnf = bnr_get_bnf(bnr);
+  struct rnfkummer **vkum;
 
+  w = bnf_get_tuN(bnf);
+  vkum = (struct rnfkummer **)stack_malloc(vP[lP-1] * sizeof(struct rnfkummer*));
+  for (i = 1; i < lP; i++)
+  {
+    long p = vP[i];
+    if (w % p == 0) { vkum[p] = NULL; continue; }
+    vkum[p] = (struct rnfkummer *)stack_malloc(sizeof(struct rnfkummer));
+    rnfkummer_init(vkum[p], bnf, p, prec);
+  }
+  return vkum;
+}
+/* fully handle a single congruence subgroup H */
+static GEN
+bnrclassfield_H(struct rnfkummer **vkum, GEN bnr, GEN bad, GEN H0, GEN fa, long flag,
+                long prec)
+{
+  GEN PN = gel(fa,1), EN = gel(fa,2), res;
+  long i, lPN = lg(PN), absolute;
+
+  if (lPN == 1) return pol_x(0);
+  absolute = flag==2 && lPN==2 && !equali1(gel(EN,1)); /* one prime, exponent > 1 */
+  res = cgetg(lPN, t_VEC);
+  for (i = 1; i < lPN; i++)
+  {
+    GEN p = gel(PN,i), H = hnfmodid(H0, powii(p, gel(EN,i)));
+    long sp = itos(p);
+    if (absolute) absolute = FpM_rank(H,p)==lg(H)-2; /* cyclic */
+    gel(res,i) = bnrclassfield_primepower(vkum[sp], bnr, H, p, bad, absolute, prec);
+  }
+  res = liftpol_shallow(shallowconcat1(res));
+  res = gen_sort(res, (void*)cmp_RgX, gen_cmp_RgX);
+  if (flag)
+  {
+    GEN nf = bnr_get_nf(bnr);
+    res = nfcompositumall(nf, res);
+    if (flag==2 && !absolute) res = rnfequation(nf, res);
+  }
+  return res;
+}
 /* for a vector of subgroups */
 static GEN
 bnrclassfieldvec(GEN bnr, GEN v, long flag, long prec)
 {
-  long i, j, lP, lv = lg(v), w;
-  GEN bnf, vH, vfa, vP, P, vres = cgetg(lv, t_VEC);
+  long j, lv = lg(v);
+  GEN vH, vfa, vP, P, w = cgetg(lv, t_VEC);
   struct rnfkummer **vkum;
 
-  if (lv == 1) return vres;
+  if (lv == 1) return w;
   vH = cgetg(lv, t_VEC);
   vP = cgetg(lv, t_VEC);
   vfa = cgetg(lv, t_VEC);
@@ -1463,43 +1508,12 @@ bnrclassfieldvec(GEN bnr, GEN v, long flag, long prec)
     gel(vP,j) = ZV_to_zv(gel(fa, 1));
   }
   vP = shallowconcat1(vP); vecsmall_sort(vP);
-  vP = vecsmall_uniq_sorted(vP); lP = lg(vP);
-  bnf = bnr_get_bnf(bnr); w = bnf_get_tuN(bnf);
-  vkum = (struct rnfkummer **)stack_malloc(vP[lP-1] * sizeof(struct rnfkummer*));
-  for (i = 1; i < lP; i++)
-  {
-    long sp = vP[i];
-    if (w % sp == 0) { vkum[sp] = NULL; continue; }
-    vkum[sp] = (struct rnfkummer *)stack_malloc(sizeof(struct rnfkummer));
-    rnfkummer_init(vkum[sp], bnf, sp, prec);
-  }
+  vP = vecsmall_uniq_sorted(vP);
+  vkum = rnfkummer_initall(bnr, vP, prec);
   P = bad_primes(bnr);
   for (j = 1; j < lv; j++)
-  {
-    GEN fa = gel(vfa,j), PN = gel(fa,1), EN = gel(fa,2), res;
-    long lPN = lg(PN);
-    long absolute = flag==2 && lPN==2 && !equali1(gel(EN,1));
-
-    if (lPN == 1) { gel(vres,j) = pol_x(0); continue; }
-    res = cgetg(lPN, t_VEC);
-    for (i = 1; i < lPN; i++)
-    {
-      GEN p = gel(PN,i), H = hnfmodid(gel(vH,j), powii(p, gel(EN,i)));
-      long sp = itos(p);
-      if (absolute) absolute = FpM_rank(H,p)==lg(H)-2; /* cyclic */
-      gel(res,i) = bnrclassfield_primepower(vkum[sp], bnr, H, p, P, absolute, prec);
-    }
-    res = liftpol_shallow(shallowconcat1(res));
-    res = gen_sort(res, (void*)cmp_RgX, gen_cmp_RgX);
-    if (flag)
-    {
-      GEN nf = bnf_get_nf(bnf);
-      res = nfcompositumall(nf, res);
-      if (flag==2 && !absolute) res = rnfequation(nf, res);
-    }
-    gel(vres,j) = res;
-  }
-  return vres;
+    gel(w,j) = bnrclassfield_H(vkum, bnr, P, gel(vH,j), gel(vfa,j), flag, prec);
+  return w;
 }
 /* flag:
  * 0 list of polynomials whose compositum is the extension
@@ -1509,10 +1523,11 @@ GEN
 bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
 {
   pari_sp av = avma;
-  GEN N, fa, res, bnf, P, PN, EN;
-  long i, absolute, lPN;
-  struct rnfkummer kum;
+  GEN N, fa, P, PN;
+  long lPN;
+  struct rnfkummer **vkum;
 
+  if (flag<0 || flag>2) pari_err_FLAG("bnrclassfield [must be 0,1 or 2]");
   if (subgroup && typ(subgroup) == t_VEC)
   {
     if (nftyp(bnr)==typ_BNF) bnr = Buchray(bnr, gen_1, nf_INIT);
@@ -1520,40 +1535,14 @@ bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
     if (!char_check(bnr_get_cyc(bnr), subgroup))
       return gerepilecopy(av, bnrclassfieldvec(bnr, subgroup, flag, prec));
   }
-  if (flag<0 || flag>2) pari_err_FLAG("bnrclassfield [must be 0,1 or 2]");
   bnrclassfield_sanitize(&bnr, &subgroup);
-
   N = ZM_det_triangular(subgroup);
   if (equali1(N)) { set_avma(av); return pol_x(0); }
   fa = Z_factor(N);
   PN = gel(fa,1); lPN = lg(PN);
-  EN = gel(fa,2);
   if (lgefint(gel(PN,lPN-1)) > 3)
     pari_err_OVERFLOW("bnrclassfield [extension of too large degree]");
-  bnf = bnr_get_bnf(bnr);
-
-  absolute = flag==2 && lPN==2 && !equali1(gel(EN,1)); /* one prime, exponent > 1 */
-  res = cgetg(lPN, t_VEC); P = bad_primes(bnr);
-  for (i = 1; i < lPN; i++)
-  {
-    struct rnfkummer *pkum = NULL;
-    GEN p = gel(PN,i), H = hnfmodid(subgroup, powii(p, gel(EN,i)));
-    long sp = itos(p);
-    if (absolute) absolute = FpM_rank(H,p)==lg(H)-2; /* cyclic */
-    if (bnf_get_tuN(bnf) % sp)
-    {
-      pkum = &kum;
-      rnfkummer_init(pkum, bnf, sp, prec);
-    }
-    gel(res,i) = bnrclassfield_primepower(pkum, bnr, H, p, P, absolute, prec);
-  }
-  res = liftpol_shallow(shallowconcat1(res));
-  res = gen_sort(res, (void*)cmp_RgX, gen_cmp_RgX);
-  if (flag)
-  {
-    GEN nf = bnf_get_nf(bnf);
-    res = nfcompositumall(nf, res);
-    if (flag==2 && !absolute) res = rnfequation(nf, res);
-  }
-  return gerepileupto(av,res);
+  vkum = rnfkummer_initall(bnr, ZV_to_zv(PN), prec);
+  P = bad_primes(bnr);
+  return  gerepilecopy(av, bnrclassfield_H(vkum, bnr, P, subgroup, fa, flag, prec));
 }
