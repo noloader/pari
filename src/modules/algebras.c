@@ -4403,24 +4403,33 @@ matrix_perm(GEN perm, long n)
 GEN
 conjclasses_algcenter(GEN cc, GEN p)
 {
-  GEN mt, elts = gel(cc,1), conjclass = gel(cc,2), rep = gel(cc,3);
+  GEN mt, elts = gel(cc,1), conjclass = gel(cc,2), rep = gel(cc,3), card;
   long i, nbcl = lg(rep)-1, n = lg(elts)-1;
   pari_sp av;
+
+  card = zero_Flv(nbcl);
+  for (i=1; i<=n; i++) card[conjclass[i]]++;
 
   /* multiplication table of the center of Z[G] (class functions) */
   mt = cgetg(nbcl+1,t_VEC);
   for (i=1;i<=nbcl;i++) gel(mt,i) = zero_Flm_copy(nbcl,nbcl);
   av = avma;
-  for (i=1;i<=n;i++)
+  for (i=1;i<=nbcl;i++)
   {
-    GEN xi = gel(elts,i), mi = gel(mt,conjclass[i]);
-    long j;
+    GEN xi = gel(elts,rep[i]), mi = gel(mt,i);
+    long j,k;
     for (j=1;j<=n;j++)
     {
       GEN xj = gel(elts,j);
-      long k = vecsearch(elts, perm_mul(xi,xj), NULL), ck = conjclass[k];
-      if (rep[ck]==k) ucoeff(mi, ck, conjclass[j])++;
+      k = vecsearch(elts, perm_mul(xi,xj), NULL);
+      ucoeff(mi, conjclass[k], conjclass[j])++;
     }
+    for (k=1; k<=nbcl; k++)
+      for (j=1; j<=nbcl; j++)
+      {
+        ucoeff(mi,k,j) *= card[i];
+        ucoeff(mi,k,j) /= card[k];
+      }
     set_avma(av);
   }
   for (i=1;i<=nbcl;i++) gel(mt,i) = Flm_to_ZM(gel(mt,i));
