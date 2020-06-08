@@ -556,8 +556,9 @@ A finite field is encoded by any element (\typ{FFELT}).\hfil\break
 \li{Hurwitz's $\zeta(s,x)=\sum (n+x)^{-s}$}{zetahurwitz$(s,x)$}
 \li{multiple zeta value (MZV), $\zeta(s_1,\dots,s_k)$}{zetamult$(s,\{T\})$}
 \li{... init $T$ for MZV with $s_1+\dots+s_k\leq w$}{zetamultinit$(w)$}
-\li{all MZVs for all weights $\sum s_i \leq n$}{zetamultall$(n)$}
+\li{all MZVs for weight $\sum s_i = n$}{zetamultall$(n)$}
 \li{convert MZV id to $[s_1,\dots,s_k]$}{zetamultconvert$(f,\{\fl\})$}
+\li{multiple polylog $Li_{s_1,\dots s_k}(z_1,\dots,z_k)$}{polylogmult$(s,z)$}
 \li{incomplete $\Gamma$ function ($y=\Gamma(s)$)}{incgam$(s,x,\{y\})$}
 \li{complementary incomplete $\Gamma$}{incgamc$(s,x)$}
 \li{$\int_x^\infty e^{-t}\,dt/t$,\quad $(2/\sqrt\pi)\int_x^\infty e^{-t^2}dt$}
