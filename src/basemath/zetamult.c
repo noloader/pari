@@ -187,7 +187,7 @@ zetamultinit(long k, long prec)
 static GEN
 zetamult_i(GEN avec, GEN T, long prec)
 {
-  long k, n, i, j, l, lbin;
+  long k, n, i, j, l, L;
   GEN vpow, vphi, vbin, S, s, LR, MA, MR, evec;
 
   if (lg(avec) == 1) return gen_1;
@@ -217,22 +217,22 @@ zetamult_i(GEN avec, GEN T, long prec)
   vbin = gel(T,2);
   l = lg(LR); vphi = cgetg(l, t_VEC);
   for (j = 1; j < l; j++) gel(vphi,j) = phip(gel(LR,j), vpow);
-  lbin = lg(vbin);
-  S = cgetg(lbin, t_VEC);
+  L = lg(vbin);
+  S = cgetg(L, t_VEC);
   for (i = 1; i < k; i++)
   {
     long LA = la(evec[i],evec[i+1]);
     GEN phi1 = isinphi(LR, gel(MA,i), vphi);
     GEN phi2 = isinphi(LR, gel(MR,i), vphi);
     if (i == 1)
-      for (n = 1; n < lbin; n++)
+      for (n = 1; n < L; n++)
         gel(S,n) = lamul(LA, mpmul(gel(phi1,n), gel(phi2,n)));
     else
-      for (n = 1; n < lbin; n++)
+      for (n = 1; n < L; n++)
         gel(S,n) = mpadd(gel(S,n), lamul(LA, mpmul(gel(phi1,n), gel(phi2,n))));
   }
   s = gmul2n(gel(S,1), -1);
-  for (n = 2; n < lbin; n++) s = gadd(s, mpmul(gel(S,n), gel(vbin,n)));
+  for (n = 2; n < L; n++) s = gadd(s, mpmul(gel(S,n), gel(vbin,n)));
   return s;
 }
 GEN
@@ -927,7 +927,7 @@ atoind(GEN avec, long flag)
 { return atom(avec) + (flag? (1 << (zv_sum(avec) - 2)): 1); }
 /* If flag is set, L has all k1 <= k, otherwise only k */
 static GEN
-zetamultstar_i(GEN L, GEN avec, long flag, long prec)
+zetamultstar_i(GEN L, GEN avec, long flag)
 {
   GEN s = allstar(avec), S = gen_0;
   long i, l = lg(s);
@@ -969,7 +969,7 @@ zetamultall0(long k, long flag, long prec)
       pari_sp av = avma;
       long j, mc = m;
       for (j = k1; j >= 1; j--) { w[j] = mc & 1; mc >>= 1; }
-      gel(res, ct++) = gerepileupto(av, zetamultstar_i(L, etoa(w), fl >> 1, prec));
+      gel(res, ct++) = gerepileupto(av, zetamultstar_i(L, etoa(w), fl >> 1));
     }
   }
   if (flag & 8L) res = mkvec2(res, gel(Lind, 2));
