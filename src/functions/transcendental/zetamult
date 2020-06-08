@@ -1,30 +1,42 @@
 Function: zetamult
 Section: transcendental
-C-Name: zetamult0
-Prototype: GDGp
-Help: zetamult(s, {T}): multiple zeta value at integral s = [s1,...,sk];
- if given, T is the output of zetamultinit.
+C-Name: zetamult_interpolate
+Prototype: GDGDGp
+Help: zetamult(s,{t=0},{T}): multiple zeta value at integral s = [s1,...,sk];
+ more generally, return Yamamoto's t-MZV interpolation (star value for t = 1).
+ If given, T is the output of zetamultinit.
 Doc: For $s$ a vector of positive integers such that $s[1] \geq 2$,
  returns the multiple zeta value (MZV)
- $$\zeta(s_1,\dots, s_k) = \sum_{n_1>\dots>n_k>0} n_1^{-s_1}\dots n_k^{-s_k}.$$
+ $$\zeta(s_1,\dots, s_k) = \sum_{n_1>\dots>n_k>0} n_1^{-s_1}\dots n_k^{-s_k}$$
+ of length $k$ and weight $\sum_i s_i$.
+ More generally, return Yamamoto's $t$-MZV interpolation evaluated at $t$:
+ for $t = 0$, this is the ordinary MZV; for $t = 1$, we obtain the MZSV
+ star value, with $\geq$ instead of strict inequalities;
+ and of course, for $t = \kbd{'x}$ we obtain Yamamoto's one-variable polynomial.
  \bprog
  ? zetamult([2,1]) - zeta(3) \\ Euler's identity
  %1 = 0.E-38
+ ? zetamult([2,1])   \\ star value
+ %2 = 2.4041138063191885707994763230228999815
+ ? zetamult([2,1], 'x)
+ %3 = 1.20205[...]*x + 1.20205[...]
  @eprog\noindent
- If the bit precision is $B$, this function runs in time $\tilde{O}(k B^2)$.
+ If the bit precision is $B$, this function runs in time $\tilde{O}(k B^2)$
+ if \kbd{star} is unset and $\tilde{O}(2^kB^2)$ otherwise.
 
  If $T$ is provided, it must be the output of \kbd{zetamultinit}$(w)$ for
- some $w \geq s_1 + \dots + s_k$ and will provide a small speed up,
- usually about 10\%.
+ some $w \geq s_1 + \dots + s_k$ and will provide a small speed up for
+ non-star values, usually about 10\% to 40\%. For star values, the speedup
+ is smaller and becomes negligible as the weight increases.
  \bprog
  ? T = zetamultinit(20); s = [2,1,1,1,1,1,1,1,1];
- ? for(i=1,10^3, zetamult(s))
- time = 373 ms.
- ? for(i=1,10^3, zetamult(s, T)) \\ faster
- time = 279 ms.
- ? zetamult(vector(10,i,2), T)
+ ? for(i=1,10^4, zetamult(s))
+ time = 1,844 ms.
+ ? for(i=1,10^3, zetamult(s,, T)) \\ faster
+ time = 1,127 ms.
+ ? zetamult(vector(10,i,2),, T)
  %4 = 1.7165384749821433018378232207719985786 E-10
- ? zetamult(vector(11,i,2), T) \\ overshoot
+ ? zetamult(vector(11,i,2),, T) \\ overshoot, weight is 22
   ***   at top-level: zetamult(vector(11,i
   ***                 ^--------------------
   *** zetamult: domain error in zetamult: weight > 20
@@ -38,5 +50,6 @@ Doc: For $s$ a vector of positive integers such that $s[1] \geq 2$,
  \kbd{zetamultconvert} allows to pass from one format to the other; the
  function \kbd{zetamultall} computes simultaneously all MZVs of weight
  $\sum_{i\leq k} s_i$ up to $n$.
-
-Variant: Also available is \fun{GEN}{zetamult}{GEN avec, long prec}.
+Variant: Also available are
+ \fun{GEN}{zetamult0}{GEN s, GEN T, long prec} for $t = 0$ and
+ \fun{GEN}{zetamult}{GEN s, long prec} when further \kbd{T = NULL}.

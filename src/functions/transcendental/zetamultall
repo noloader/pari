@@ -1,9 +1,25 @@
 Function: zetamultall
 Section: transcendental
-C-Name: zetamultall
-Prototype: Lp
-Help: zetamultall(n): list of all multiple zeta values for weight up to n.
+C-Name: zetamultall0
+Prototype: LD0,L,p
+Help: zetamultall(k,{fl=0}): list of all multiple zeta values for weight k.
+ if bit 0 of fl is set, zetastar values. If bit 1 is set, give both among duals
+ (ignored if zetastar values). If bit 2 is set, all values up to weight k.
+ If bit 3 is set, return the 2-component vector [zetamultall, vecms], where
+ vecms is the vector of the corresponding indices m, i.e., such that
+ zetamult(zetamultconvert(vecms[i], 1)) = zetamultall[i]. It is necessary
+ to use zetamultconvert to have the corresponding avec.
 Doc: list of all multiple zeta values for weight $s_1 + \dots + s_k$ up to $n$.
+ If bit $0$ of \kbd{fl}
+ is set, star values. If bit $1$ of \kbd{fl} is set, give both among duals
+ (ignored if zetastar values). If bit $2$ of \kbd{fl} is set, all values up
+ to weight k. If bit $3$ of \kbd{fl} is set, return the 2-component vector
+ \kbd{[z, vecms]}, where \kbd{vecms} is the vector of the
+ corresponding indices $m$, i.e., such that
+ \kbd{zetamult(zetamultconvert(vecms[i],1))} = \kbd{z[i]}. Note
+ that it is necessary to use \kbd{zetamultconvert} to have the corresponding
+ \kbd{avec}.
+
  The function returns a vector with $2^{n-1}-1$ components whose $i$-th entry
  is the MZV of \kbd{index} $i$ (see \kbd{zetamult}).
  \bprog

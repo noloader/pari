@@ -5300,11 +5300,19 @@ int checkfarey_i(GEN F);
 
 /* zetamult.c */
 
+GEN     polylogmult(GEN avec, GEN zvec, long prec);
 GEN     zetamult(GEN avec, long prec);
+GEN     zetamult_interpolate1(GEN avec, GEN t, long prec);
+GEN     zetamult_interpolate2(GEN avec, GEN t, long prec);
+GEN     zetamult_zagier(GEN avec, long prec);
 GEN     zetamult0(GEN avec, GEN T, long prec);
+GEN     zetamult_interpolate(GEN avec, GEN t, GEN T, long prec);
 GEN     zetamultall(long k, long prec);
+GEN     zetamultall0(long k, long flstar, long prec);
 GEN     zetamultconvert(GEN a, long fl);
 GEN     zetamultinit(long k, long prec);
+GEN     zetamultaltrelations(long k, long prec);
+GEN     polylogmult_interpolate(GEN avec, GEN zvec, GEN t, long prec);
 
 /* level1.h */
 

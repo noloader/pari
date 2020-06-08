@@ -8,9 +8,16 @@ test(zetamult([2,2,2]), zeta(2)^3/6 + zeta(6)/3 - zeta(2)*zeta(4)/2)
 zetamult(2)
 zetamult([])
 
+s=[2,1,1,1,3];
+test(zetamult(s),polylogmult(s))
+zetamult(s,1)
+zetamult(s,x)
+
 default(realprecision,57);
-T=zetamultinit(30);
-for(k=1,10, print(Pi^(4*k) / zetamult(vector(2*k, j, 1+2*(j%2)))));
+T=zetamultinit(40);
+V=vector(10, k, vector(2*k, j, 1+2*(j%2)));
+for(k=1,#V, print(Pi^(4*k) / zetamult(V[k])));
+for(k=1,#V, print(Pi^(4*k) / zetamult(V[k],, T)));
 
 v = [zeta(9),Pi^2*zeta(7),Pi^4*zeta(5),Pi^6*zeta(3)];
 LD=[2,2,2,2];
@@ -22,7 +29,10 @@ LD=[2,2,2,2];
   );
 }
 
-zetamultall(5)
+polylogmult([6,1,2,3,4],[-1,1,1,1,1])
+polylogmult([6,1,2,3,4],[-1,1,1,1,1],x)
+for(i=1,7, print(zetamultall(5, i)))
+
 avec=[3,1,3,1];
 evec=[0,0,1,1,0,0,1,1];
 a=89;
@@ -53,3 +63,5 @@ zetamult([0,1,0])
 zetamult([0,-1,1])
 zetamult([1,-1,1])
 zetamult([1,0,1])
+zetamult([41],,T)
+polylogmult([2],[])
