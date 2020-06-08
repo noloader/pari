@@ -187,8 +187,9 @@ zetamultinit(long k, long prec)
 static GEN
 zetamult_i(GEN avec, GEN T, long prec)
 {
+  pari_sp av = avma;
   long k, n, i, j, l, L;
-  GEN vpow, vphi, vbin, S, s, LR, MA, MR, evec;
+  GEN vpow, vphi, vbin, LR, MA, MR, evec, vLA, v1, v2, S = NULL;
 
   if (lg(avec) == 1) return gen_1;
   evec = atoe(avec); k = lg(evec)-1; /* weight */
@@ -217,23 +218,27 @@ zetamult_i(GEN avec, GEN T, long prec)
   vbin = gel(T,2);
   l = lg(LR); vphi = cgetg(l, t_VEC);
   for (j = 1; j < l; j++) gel(vphi,j) = phip(gel(LR,j), vpow);
-  L = lg(vbin);
-  S = cgetg(L, t_VEC);
+  vLA = cgetg(k, t_VECSMALL);
+  v1 = cgetg(k, t_VEC);
+  v2 = cgetg(k, t_VEC);
   for (i = 1; i < k; i++)
   {
-    long LA = la(evec[i],evec[i+1]);
-    GEN phi1 = isinphi(LR, gel(MA,i), vphi);
-    GEN phi2 = isinphi(LR, gel(MR,i), vphi);
-    if (i == 1)
-      for (n = 1; n < L; n++)
-        gel(S,n) = lamul(LA, mpmul(gel(phi1,n), gel(phi2,n)));
-    else
-      for (n = 1; n < L; n++)
-        gel(S,n) = mpadd(gel(S,n), lamul(LA, mpmul(gel(phi1,n), gel(phi2,n))));
+    vLA[i] = la(evec[i],evec[i+1]);
+    gel(v1,i) = isinphi(LR, gel(MA,i), vphi);
+    gel(v2,i) = isinphi(LR, gel(MR,i), vphi);
   }
-  s = gmul2n(gel(S,1), -1);
-  for (n = 2; n < L; n++) s = gadd(s, mpmul(gel(S,n), gel(vbin,n)));
-  return s;
+  L = lg(vbin); av = avma;
+  for (n = 1; n < L; n++)
+  {
+    GEN s = lamul(vLA[1], mpmul(gmael(v1,1,n), gmael(v2,1,n)));
+    for (i = 2; i < k; i++)
+      s = mpadd(s, lamul(vLA[i], mpmul(gmael(v1,i,n), gmael(v2,i,n))));
+    if (n == 1)
+      S = gmul2n(s,-1);
+    else
+      S = gerepileupto(av, gadd(S, mpmul(s, gel(vbin,n))));
+  }
+  return S;
 }
 GEN
 zetamult0(GEN s, GEN T, long prec)
