@@ -31,3 +31,5 @@ Doc: \kbd{NK} being either \kbd{[N,1,CHI]} or an \kbd{mf} output by
  ? mfgaloistype(mf, F)
  %7 = 10
  @eprog
+ The function may also return~$0$ as a type when it failed to determine it; in
+ this case the correct type is either~$-12$ or~$-60$, and most likely~$-12$.
