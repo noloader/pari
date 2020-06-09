@@ -476,9 +476,9 @@ filllg1(GEN ibin1, GEN r1, GEN y, long nlim, long prec)
 }
 
 static GEN
-filltabM(GEN ibin, GEN ibin1, GEN evecinit, long nlim, long prec)
+filltabM(GEN ibin, GEN ibin1, GEN evecinit, long prec)
 {
-  long j, j1, k1, ltab,  N = nlim + 1, k = lg(evecinit) - 1;
+  long j, j1, k1, ltab, k = lg(evecinit), N = lg(ibin)-2;
   GEN tabevec, r1 = real_1(prec);
 
   if (k == 0) return ibin;
@@ -486,7 +486,7 @@ filltabM(GEN ibin, GEN ibin1, GEN evecinit, long nlim, long prec)
   {
     GEN y = gel(evecinit, 1);
     if (isintzero(y) || isint1(y)) return ibin1;
-    return filllg1(ibin1, r1, gel(evecinit, 1), nlim, prec);
+    return filllg1(ibin1, r1, gel(evecinit, 1), N, prec);
   }
   tabevec = findabvgenrec(evecinit, &findabvgen);
   ltab = lg(tabevec);
@@ -503,7 +503,7 @@ filltabM(GEN ibin, GEN ibin1, GEN evecinit, long nlim, long prec)
         if (isintzero(y) || isint1(y)) gel(e,1) = ibin1;
         else
         {
-          GEN res = filllg1(ibin1, r1, y, nlim, prec);
+          GEN res = filllg1(ibin1, r1, y, N, prec);
           gel(e,1) = res;
           for (j1 = j + 1; j1 < ltab; j1++)
           {
@@ -535,8 +535,8 @@ filltabM(GEN ibin, GEN ibin1, GEN evecinit, long nlim, long prec)
         b = k1 - 1;
         for (j2 = k1 - 2; j2 >= 1; j2--)
           if (!isintzero(gel(evec, j2 + 1))) { b = k1 - 1 - j2; break; }
-        tmp = cgetg(N + 1, t_VEC); gel(tmp, N) = gen_0;
-        for (n = nlim; n >= 1; n--)
+        tmp = cgetg(N+2, t_VEC); gel(tmp, N+1) = gen_0;
+        for (n = N; n >= 1; n--)
         {
           pari_sp av = avma;
           GEN z,p1,p2,p3, na = powuu(n,a), nb = powuu(n,b), nab = mulii(na,nb);
@@ -609,9 +609,9 @@ findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
   wfin[b + lw] = 1;
 }
 static GEN
-filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long nlim, long prec)
+filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long prec)
 {
-  long j, k1, ltab, N = nlim + 1, k = lg(evecinit) - 1;
+  long j, k1, ltab, k = lg(evecinit)-1, N = lg(ibin)-2;
   GEN tabevec;
 
   if (k == 0) return ibin;
@@ -642,8 +642,8 @@ filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long nlim, long prec)
         b = k1 - 1;
         for (j2 = k1 - 2; j2 >= 1; j2--)
           if (evec[j2 + 1]) { b = k1 - 1 - j2; break; }
-        tmp = cgetg(N + 1, t_VEC); gel(tmp, N) = gen_0;
-        for (n = nlim; n >= 1; n--)
+        tmp = cgetg(N + 2, t_VEC); gel(tmp, N+1) = gen_0;
+        for (n = N; n >= 1; n--)
         {
           GEN z = cgetr(prec);
           pari_sp av = avma;
@@ -689,8 +689,8 @@ zetamultevec(GEN evec, long prec)
     gel(ibin, n+1) = divru(mulru(gel(ibin, n), n), 4*n-2);
     gel(ibin1, n+1) = divru(gel(ibin, n+1), n);
   }
-  all = log? filltabM(ibin, ibin1, evec, N, prec2)
-           : filltabMs(ibin, ibin1, evec, N, prec2);
+  all = log? filltabM(ibin, ibin1, evec, prec2)
+           : filltabMs(ibin, ibin1, evec, prec2);
   return gprec_wtrunc(gel(all,1), prec);
 }
 
