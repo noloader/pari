@@ -69,26 +69,26 @@ zetamultdual(GEN avec)
   return gerepilecopy(av, etoa(revslice(e, lg(e))));
 }
 
-/* vphi[i] contains phip(j,avec[i..r]) for 1<= j < L
- * vpow[a][j] = j^-a as a t_INT or t_REAL; j < L */
+/* vpow[s][j] = j^-s as a t_INT or t_REAL; j < L
+ * return vphi s.t. vphi[i] = phi_j(a[i..r]) for 0 < j < L */
 static GEN
-phip(GEN avec, GEN vpow)
+get_vphi(GEN a, GEN vpow)
 {
-  long i, r = lg(avec) - 1;
+  long i, r = lg(a) - 1;
   GEN vphi = cgetg(r+1, t_VEC);
-  gel(vphi, r) = gel(vpow, avec[r]);
+  gel(vphi, r) = gel(vpow, a[r]);
   for (i = r-1; i >= 1; i--)
   {
-    GEN t, u, phi = gel(vphi,i+1), pow = gel(vpow, avec[i]);
+    GEN t, u, phi = gel(vphi,i+1), pow = gel(vpow, a[i]);
     long j, L = lg(pow);
     gel(vphi, i) = u = cgetg(L, t_VEC);
     gel(u,1) = gen_0;
     gel(u,2) = (i==r-1)? gel(pow,2): gen_0;
-    t = gel(phi,1); /* 0 or 1 */
+    t = gel(phi,1); /* gen_1 (i = r-1) or gen_0 (i < r-1) */
     for (j = 3; j < L; j++)
     {
       t = mpadd(t, gel(phi,j-1));
-      gel(u,j) = mpmul(t, gel(pow,j)); /* t / j^avec[i] */
+      gel(u,j) = mpmul(t, gel(pow,j)); /* t / j^a[i] */
     }
   }
   return vphi;
@@ -183,23 +183,23 @@ zetamultinit(long k, long prec)
   if (k <= 0) pari_err_DOMAIN("zetamultinit", "weight", "<=", gen_0, stoi(k));
   return gerepilecopy(av, zetamultinit_i(k, k-1, prec2nbits(prec)));
 }
-/* a vec a t_VECSMALL */
+/* a a t_VECSMALL */
 static GEN
-zetamult_i(GEN avec, GEN T, long prec)
+zetamult_i(GEN a, GEN T, long prec)
 {
   pari_sp av = avma;
   long k, n, i, j, l, L;
-  GEN vpow, vphi, vbin, LR, MA, MR, evec, vLA, v1, v2, S = NULL;
+  GEN vpow, vphi, vbin, LR, MA, MR, e, vLA, v1, v2, S = NULL;
 
-  if (lg(avec) == 1) return gen_1;
-  evec = atoe(avec); k = lg(evec)-1; /* weight */
+  if (lg(a) == 1) return gen_1;
+  e = atoe(a); k = lg(e)-1; /* weight */
   LR = cgetg(1, t_VEC);
   MA = cgetg(k, t_VEC);
   MR = cgetg(k, t_VEC);
   for (i = 1; i < k; i++)
   {
-    gel(MA,i) = etoa(revslice(evec, i+1));
-    gel(MR,i) = etoa(vecslice(evec, i+1, k));
+    gel(MA,i) = etoa(revslice(e, i+1));
+    gel(MR,i) = etoa(vecslice(e, i+1, k));
     LR = addevec(addevec(LR, gel(MA,i)), gel(MR,i));
   }
   if (!T)
@@ -217,13 +217,13 @@ zetamult_i(GEN avec, GEN T, long prec)
   vpow = gel(T,1);
   vbin = gel(T,2);
   l = lg(LR); vphi = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) gel(vphi,j) = phip(gel(LR,j), vpow);
+  for (j = 1; j < l; j++) gel(vphi,j) = get_vphi(gel(LR,j), vpow);
   vLA = cgetg(k, t_VECSMALL);
   v1 = cgetg(k, t_VEC);
   v2 = cgetg(k, t_VEC);
   for (i = 1; i < k; i++)
   {
-    vLA[i] = la(evec[i],evec[i+1]);
+    vLA[i] = la(e[i],e[i+1]);
     gel(v1,i) = isinphi(LR, gel(MA,i), vphi);
     gel(v2,i) = isinphi(LR, gel(MR,i), vphi);
   }
