@@ -1190,8 +1190,9 @@ ser_inv(GEN b)
   setvalp(x, -e); return gerepilecopy(av, x);
 }
 
-/* T t_POL in var v, mod out by T components of x which are
- * t_POL/t_RFRAC in v. Recursively */
+/* T t_POL in var v, mod out by T components of x which are t_POL/t_RFRAC in v.
+ * Recursively. Make sure that resulting polynomials of degree 0 in v are
+ * simplified (map K[X]_0 to K) */
 static GEN
 mod_r(GEN x, long v, GEN T)
 {
@@ -1226,7 +1227,9 @@ mod_r(GEN x, long v, GEN T)
       for (i = 2; i < lx; i++) gel(y,i) = mod_r(gel(x,i),v,T);
       return normalizepol_lg(y, lx);
     case t_RFRAC:
-      return gdiv(mod_r(gel(x,1),v,T), mod_r(gel(x,2),v,T));
+      x = gdiv(mod_r(gel(x,1),v,T), mod_r(gel(x,2),v,T));
+      if (typ(x) == t_POL && varn(x) == v && lg(x) == 3) x = gel(x,2);
+      return x;
     case t_VEC: case t_COL: case t_MAT:
       y = cgetg_copy(x, &lx);
       for (i = 1; i < lx; i++) gel(y,i) = mod_r(gel(x,i),v,T);
