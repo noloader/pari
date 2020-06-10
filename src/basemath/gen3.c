@@ -1215,7 +1215,12 @@ mod_r(GEN x, long v, GEN T)
       return normalize(y);
     case t_POL:
       w = varn(x);
-      if (w == v) return RgX_rem(x, T);
+      if (w == v)
+      {
+        x = RgX_rem(x, T);
+        if (!degpol(x)) x = gel(x,2);
+        return x;
+      }
       if (varncmp(v, w) < 0) return x;
       y = cgetg_copy(x, &lx); y[1] = x[1];
       for (i = 2; i < lx; i++) gel(y,i) = mod_r(gel(x,i),v,T);
