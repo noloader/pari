@@ -159,7 +159,7 @@ get_vbin(long N, long prec)
   for (n = 3; n <= N; n++) gel(v,n) = divru(mulru(gel(v,n-1), n), 4*n-2);
   return v;
 }
-/* m < k */
+/* length k */
 static GEN
 zetamultinit_i(long k, long m, long bitprec)
 {
@@ -182,21 +182,22 @@ zetamultinit_i(long k, long m, long bitprec)
   return mkvec2(vpow, get_vbin(N, prec));
 }
 GEN
-zetamultinit(long k, long prec)
+zetamultinit(long n, long prec)
 {
   pari_sp av = avma;
-  if (k <= 0) pari_err_DOMAIN("zetamultinit", "weight", "<=", gen_0, stoi(k));
-  return gerepilecopy(av, zetamultinit_i(k, k-1, prec2nbits(prec)));
+  if (n <= 2) pari_err_DOMAIN("zetamultinit", "weight", "<=", gen_2, stoi(n));
+  return gerepilecopy(av, zetamultinit_i(n-1, n-1, prec2nbits(prec)));
 }
 /* a a t_VECSMALL */
 static GEN
 zetamult_i(GEN a, GEN T, long prec)
 {
   pari_sp av = avma;
-  long k, n, i, j, l, L;
+  long k, m, n, i, j, l, L;
   GEN vpow, vphi, vbin, LR, MA, MR, e, vLA, v1, v2, S = NULL;
 
   if (lg(a) == 1) return gen_1;
+  if (lg(a) == 2) return szeta(a[1], prec);
   e = atoe(a); k = lg(e)-1; /* weight */
   LR = cgetg(1, t_VEC);
   MA = cgetg(k, t_VEC);
@@ -207,17 +208,13 @@ zetamult_i(GEN a, GEN T, long prec)
     gel(MR,i) = etoa(vecslice(e, i+1, k));
     LR = addevec(addevec(LR, gel(MA,i)), gel(MR,i));
   }
-  if (!T)
-  {
-    long m = vecvecsmall_max(LR); /* < k */
-    T = zetamultinit_i(k, m, prec2nbits(prec));
-  }
+  m = vecvecsmall_max(LR);
+  if (!T) T = zetamultinit_i(k, m, prec2nbits(prec));
   else
   {
-    long M;
     if (typ(T) != t_VEC || lg(T) != 3) pari_err_TYPE("zetamult", T);
-    M = lg(gel(T,1)); /* need M > m, which is < k */
-    if (M < k) pari_err_DOMAIN("zetamult", "weight", ">", utoi(M), utoi(k));
+    n = lg(gel(T,1));
+    if (n <= m) pari_err_DOMAIN("zetamult", "weight", ">", utoi(n), utoi(k));
   }
   vpow = gel(T,1);
   vbin = gel(T,2);
@@ -271,7 +268,7 @@ zetamult_interpolate(GEN s, GEN t, GEN T, long prec)
 
   avec = zetamultconvert(s, 1);
   v = allstar(avec); l = lg(v); la = lg(avec);
-  if (!T) T = zetamultinit_i(la-1, zv_sum(avec), prec2nbits(prec));
+  if (!T) T = zetamultinit_i(la-1, zv_sum(avec)-1, prec2nbits(prec));
   V = cgetg(la, t_VEC);
   for (i = 1; i < la; i++)
   { gel(V,i) = cgetr(prec + EXTRAPRECWORD); affur(0, gel(V,i)); }
