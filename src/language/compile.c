@@ -74,8 +74,10 @@ pari_translate_string(const char *src, char *s, char *entry)
 static GEN
 strntoGENexp(const char *str, long len)
 {
-  GEN z = cgetg(1+nchar2nlong(len-1), t_STR);
+  long n = nchar2nlong(len-1);
+  GEN z = cgetg(1+n, t_STR);
   const char *t = str+1;
+  z[n] = 0;
   if (!translate(&t, GSTR(z))) compile_err("run-away string",str);
   return z;
 }
