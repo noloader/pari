@@ -12,24 +12,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /********************************************************************/
 /**                                                                **/
-/**             MULTIPLE ZETA VALUES (AKHILESH ALGORITHM)          **/
+/**                         MULTIPLE ZETA VALUES                   **/
 /**                                                                **/
 /********************************************************************/
 #include "pari.h"
 #include "paripriv.h"
 
+/********************************************************************/
+/**                           CONVERSIONS                          **/
+/********************************************************************/
+/* vecsmall to binary */
 static long
-la(long e, long f) { return (e == f)? 2: (e? 1: 3); }
-static GEN
-lamul(long la, GEN s)
+fd(GEN evec, long a, long b)
 {
-  switch(la)
-  {
-    case 2: return gmul2n(s,1);
-    case 3: return gmulgs(s,3);
-    default: return s;
-  }
+  long i, s = 0;
+  for (i = a; i <= b; i++) s = evec[i] | (s << 1);
+  return s;
 }
+/* 2^(b-a+1) + fd(evec) */
+static long
+fd1(GEN evec, long a, long b)
+{
+  long i, s = 1;
+  for (i = a; i <= b; i++) s = evec[i] | (s << 1);
+  return s;
+}
+static GEN
+vfd(GEN evec, long a, long b)
+{
+  GEN e = cgetg(b - a + 2, t_VECSMALL);
+  long i;
+  for (i = a; i <= b; i++) e[i - a + 1] = evec[i];
+  return e;
+}
+
+/* m > 0 */
+static GEN
+mtoevec(GEN m)
+{
+  GEN e = vecsmall_append(binary_zv(m), 1);
+  e[1] = 0; return e;
+}
+static GEN
+etoindex(GEN evec) { return utoipos(fd1(evec, 2, lg(evec)-2)); }
 
 /* dual of evec[1..l-1] */
 static GEN
@@ -61,12 +86,84 @@ atoe(GEN avec)
   return evec;
 }
 
+
+/* Conversions: types are evec, avec, m (if evec=0y1, m=(1y)_2).
+   fl is respectively 0, 1, 2. Type of a is autodetected. */
+static GEN
+zetamultconvert_i(GEN a, long fl)
+{
+  long i, l;
+  if (fl < 0 || fl > 2) pari_err_FLAG("zetamultconvert");
+  switch(typ(a))
+  {
+    case t_INT:
+      if (signe(a) <= 0) pari_err_TYPE("zetamultconvert",a);
+      switch (fl)
+      {
+        case 0: a = mtoevec(a); break;
+        case 1: a = etoa(mtoevec(a)); break;
+        case 2: a = icopy(a); break;
+      }
+      break;
+    case t_VEC: case t_COL: case t_VECSMALL:
+      a = gtovecsmall(a);
+      l = lg(a);
+      if (a[1] == 0)
+      {
+        if (!a[l-1]) pari_err_TYPE("zetamultconvert", a);
+        for (i = 1; i < l; i++)
+          if (a[i] & ~1UL) pari_err_TYPE("zetamultconvert", a);
+        switch (fl)
+        {
+          case 1: a = etoa(a); break;
+          case 2: a = etoindex(a);
+        }
+      }
+      else
+      {
+        if (a[1] < 2) pari_err_TYPE("zetamultconvert", a);
+        for (i = 2; i < l; i++)
+          if (a[i] <= 0) pari_err_TYPE("zetamultconvert", a);
+        switch (fl)
+        {
+          case 0: a = atoe(a); break;
+          case 2: a = etoindex(atoe(a));
+        }
+      }
+      break;
+    default: pari_err_TYPE("zetamultconvert", a);
+  }
+  return a;
+}
+GEN
+zetamultconvert(GEN a, long fl)
+{
+  pari_sp av = avma;
+  return gerepileuptoleaf(av, zetamultconvert_i(a, fl));
+}
+
 GEN
 zetamultdual(GEN s)
 {
   pari_sp av = avma;
-  GEN e = zetamultconvert(s, 0);
+  GEN e = zetamultconvert_i(s, 0);
   return gerepileuptoleaf(av, etoa(revslice(e, lg(e))));
+}
+
+/********************************************************************/
+/**                      AKHILESH ALGORITHM                        **/
+/********************************************************************/
+static long
+la(long e, long f) { return (e == f)? 2: (e? 1: 3); }
+static GEN
+lamul(long la, GEN s)
+{
+  switch(la)
+  {
+    case 2: return gmul2n(s,1);
+    case 3: return gmulgs(s,3);
+    default: return s;
+  }
 }
 
 /* vpow[s][j] = j^-s as a t_INT or t_REAL; j < L
@@ -248,7 +345,7 @@ zetamult0(GEN s, GEN T, long prec)
   pari_sp av0 = avma, av;
   GEN z, avec, r = cgetr(prec);
 
-  av = avma; avec = zetamultconvert(s,1);
+  av = avma; avec = zetamultconvert_i(s,1);
   if (lg(avec) == 1) return gc_const(av0, gen_1);
   z = zetamult_i(avec, T, prec); affrr(z, r); return gc_const(av, r);
 }
@@ -266,7 +363,7 @@ zetamult_interpolate(GEN s, GEN t, GEN T, long prec)
   GEN avec, v, V;
   if (!t) return zetamult0(s, T, prec);
 
-  avec = zetamultconvert(s, 1);
+  avec = zetamultconvert_i(s, 1);
   v = allstar(avec); l = lg(v); la = lg(avec);
   if (!T) T = zetamultinit_i(la-1, zv_sum(avec)-1, prec2nbits(prec));
   V = cgetg(la, t_VEC);
@@ -285,32 +382,6 @@ zetamult_interpolate(GEN s, GEN t, GEN T, long prec)
 /**************************************************************/
 /*                         ALL MZV's                          */
 /**************************************************************/
-
-/* vecsmall to binary */
-static long
-fd(GEN evec, long a, long b)
-{
-  long i, s = 0;
-  for (i = a; i <= b; i++) s = evec[i] | (s << 1);
-  return s;
-}
-/* 2^(b-a+1) + fd(evec) */
-static long
-fd1(GEN evec, long a, long b)
-{
-  long i, s = 1;
-  for (i = a; i <= b; i++) s = evec[i] | (s << 1);
-  return s;
-}
-static GEN
-vfd(GEN evec, long a, long b)
-{
-  GEN e = cgetg(b - a + 2, t_VECSMALL);
-  long i;
-  for (i = a; i <= b; i++) e[i - a + 1] = evec[i];
-  return e;
-}
-
 /* Find all star avecs corresponding to given t_VECSMALL avec */
 static GEN
 allstar(GEN avec)
@@ -709,7 +780,7 @@ GEN
 polylogmult(GEN s, GEN zvec, long prec)
 {
   pari_sp av = avma;
-  GEN avec = zetamultconvert(s, 1);
+  GEN avec = zetamultconvert_i(s, 1);
 
   if (!zvec) return gerepileupto(av, zetamultrec_i(avec, prec));
   switch (typ(zvec))
@@ -734,7 +805,7 @@ polylogmult_interpolate(GEN s, GEN zvec, GEN t, long prec)
 
   if (!t) return polylogmult(s, zvec, prec);
   if (!zvec) return zetamult_interpolate(s, t, NULL, prec);
-  avec = zetamultconvert(s, 1); la = lg(avec);
+  avec = zetamultconvert_i(s, 1); la = lg(avec);
   AZ = allstar2(avec, zvec);
   A = gel(AZ, 1); l = lg(A);
   Z = gel(AZ, 2); V = zerovec(la-1);
@@ -984,66 +1055,6 @@ zetamultall0(long k, long flag, long prec)
 }
 GEN
 zetamultall(long k, long prec) { return zetamultall0(k, 6, prec); }
-
-/* m > 0 */
-static GEN
-mtoevec(GEN m)
-{
-  GEN e = vecsmall_append(binary_zv(m), 1);
-  e[1] = 0; return e;
-}
-static GEN
-etoindex(GEN evec) { return utoipos(fd1(evec, 2, lg(evec)-2)); }
-
-/* Conversions: types are evec, avec, m (if evec=0y1, m=(1y)_2).
-   fl is respectively 0, 1, 2. Type of a is autodetected. */
-GEN
-zetamultconvert(GEN a, long fl)
-{
-  pari_sp av = avma;
-  long i, l;
-  if (fl < 0 || fl > 2) pari_err_FLAG("zetamultconvert");
-  switch(typ(a))
-  {
-    case t_INT:
-      if (signe(a) <= 0) pari_err_TYPE("zetamultconvert",a);
-      switch (fl)
-      {
-        case 0: a = mtoevec(a); break;
-        case 1: a = etoa(mtoevec(a)); break;
-        case 2: a = icopy(a); break;
-      }
-      break;
-    case t_VEC: case t_COL: case t_VECSMALL:
-      a = gtovecsmall(a);
-      l = lg(a);
-      if (a[1] == 0)
-      {
-        if (!a[l-1]) pari_err_TYPE("zetamultconvert", a);
-        for (i = 1; i < l; i++)
-          if (a[i] & ~1UL) pari_err_TYPE("zetamultconvert", a);
-        switch (fl)
-        {
-          case 1: a = etoa(a); break;
-          case 2: a = etoindex(a);
-        }
-      }
-      else
-      {
-        if (a[1] < 2) pari_err_TYPE("zetamultconvert", a);
-        for (i = 2; i < l; i++)
-          if (a[i] <= 0) pari_err_TYPE("zetamultconvert", a);
-        switch (fl)
-        {
-          case 0: a = atoe(a); break;
-          case 2: a = etoindex(atoe(a));
-        }
-      }
-      break;
-    default: pari_err_TYPE("zetamultconvert", a);
-  }
-  return gerepileuptoleaf(av, a);
-}
 
 /* Don Zagier and Danylo Radchenko's routines */
 /* accuracy 2^(-b); s << (b/log b)^2, l << b/sqrt(log b) */
