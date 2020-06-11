@@ -52,6 +52,10 @@ for (i = 1, 2^10,
   if (zetamultconvert(a,2) != i, error(i))
 );
 }
+zetamultdual([4])
+zetamultdual([2,1,1])
+zetamultdual(4)
+zetamultdual([0,0,1,1,0,0,1,1])
 
 \\ Errors, keep at end of file
 zetamult([1,2])

@@ -62,11 +62,11 @@ atoe(GEN avec)
 }
 
 GEN
-zetamultdual(GEN avec)
+zetamultdual(GEN s)
 {
   pari_sp av = avma;
-  GEN e = atoe(gtovecsmall(avec));
-  return gerepilecopy(av, etoa(revslice(e, lg(e))));
+  GEN e = zetamultconvert(s, 0);
+  return gerepileuptoleaf(av, etoa(revslice(e, lg(e))));
 }
 
 /* vpow[s][j] = j^-s as a t_INT or t_REAL; j < L

@@ -1,0 +1,25 @@
+Function: zetamultdual
+Section: transcendental
+C-Name: zetamultdual
+Prototype: G
+Help: zetamultdual(s): a being either an evec, avec, or index m,
+ return the dual sequence in avec format.
+Doc: \kbd{a} being either an \kbd{evec}, \kbd{avec}, or index \kbd{m},
+ return the dual sequence in \kbd{avec} format, which has the same weight.
+ By the duality theorem, the corresponding zeta values are the same:
+ \bprog
+ ? zetamultdual([4])
+ %1 = Vecsmall([2, 1, 1])
+ ? zetamultdual(%)
+ %2 = Vecsmall([4])
+ ? zetamult(%1) - zetamult(%2)
+ %3 = 0.E-38
+ @eprog
+ In \kbd{evec} form, duality simply reverses the order of bits and swaps $0$
+ and $1$:
+ \bprog
+ ? zetamultconvert([4], 0)
+ %4 = Vecsmall([0, 0, 0, 1])
+ ? zetamultconvert([2,1,1], 0)
+ %5 = Vecsmall([0, 1, 1, 1])
+ @eprog

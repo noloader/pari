@@ -282,6 +282,7 @@ AP  90- [libpari] bnrisprincipalmod, ideallogmod
     92- [libpari] cyc_get_expo
     93- new GP function bnrmap
 HC  94- new GP function polylogmult
+    95- new GP function zetamultdual
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
