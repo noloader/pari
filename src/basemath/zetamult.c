@@ -80,16 +80,21 @@ get_vphi(GEN a, GEN vpow)
   for (i = r-1; i >= 1; i--)
   {
     GEN t, u, phi = gel(vphi,i+1), pow = gel(vpow, a[i]);
-    long j, L = lg(pow);
+    long j, L = lg(pow), J = minss(L, r-i), prec = realprec(gel(pow,L-1));
+    pari_sp av;
     gel(vphi, i) = u = cgetg(L, t_VEC);
-    gel(u,1) = gen_0;
-    gel(u,2) = (i==r-1)? gel(pow,2): gen_0;
-    t = gel(phi,1); /* gen_1 (i = r-1) or gen_0 (i < r-1) */
-    for (j = 3; j < L; j++)
+    for (j = 1; j <= J; j++) gel(u,j) = gen_0;
+    t = gel(phi,j-1); /* 1 if j == 2 */
+    gel(u,j) = j == 2? gel(pow,2): mpmul(t, gel(pow,j));
+    for (j = J+2; j < L; j++) gel(u,j) = cgetr(prec);
+    av = avma;
+    for (j = J+2; j < L; j++)
     {
       t = mpadd(t, gel(phi,j-1));
-      gel(u,j) = mpmul(t, gel(pow,j)); /* t / j^a[i] */
+      affrr(mpmul(t, gel(pow,j)), gel(u,j)); /* t / j^a[i] */
+      if (!(j & 0xff)) t = gerepileuptoleaf(av, t);
     }
+    set_avma(av);
   }
   return vphi;
 }
