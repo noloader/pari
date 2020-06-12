@@ -105,6 +105,7 @@ AP  79- nfgrunwaldwang could modify its arguments
 BA  82- [mt] variable priorities in threads could be incorrect.
     83- galoissubcyclo: wrong result with bnr input [#2232]
     84- subgrouplist(bnr) != [] when modulus is not the conductor
+    85- incorrect type checks in ideallist
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

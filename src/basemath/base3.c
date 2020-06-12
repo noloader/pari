@@ -3388,7 +3388,13 @@ Ideallist(GEN bnf, ulong bound, long flag)
     do_units? &join_unit
               : (big_id? &join_idealinit: &join_ideal);
 
-  nf = checknf(bnf);
+  if (do_units)
+  {
+    bnf = checkbnf(bnf);
+    nf = bnf_get_nf(bnf);
+  }
+  else
+    nf = checknf(bnf);
   if ((long)bound <= 0) return empty;
   id = matid(nf_get_degree(nf));
   if (big_id) id = Idealstar(nf,id, istar_flag);

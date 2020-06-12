@@ -37,6 +37,7 @@ K=nfnewprec(K);
 bnfisprincipal(K,A)
 nfnewprec(bnfinit(x));
 
+ideallist(bnrinit(K,1),2,2)
 l=ideallist(K,4,0);ideallistarch(K,l,[1])
 l=ideallist(K,3,3);L=ideallistarch(K,l,[1])
 bnrdisclist(K,l)
