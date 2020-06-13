@@ -2,11 +2,13 @@ Function: zetamultdual
 Section: transcendental
 C-Name: zetamultdual
 Prototype: G
-Help: zetamultdual(s): a being either an evec, avec, or index m,
+Help: zetamultdual(s): s being either an evec, avec, or index m,
  return the dual sequence in avec format.
-Doc: \kbd{a} being either an \kbd{evec}, \kbd{avec}, or index \kbd{m},
+Doc: $s$ being either an \kbd{evec}, \kbd{avec}, or index \kbd{m},
  return the dual sequence in \kbd{avec} format, which has the same weight.
- By the duality theorem, the corresponding zeta values are the same:
+ The dual of a sequence of  length $r$ and weight $k$ has length $k-r$ and
+ weight $k$. Duality is an involution and zeta values attached to
+ dual sequences are the same:
  \bprog
  ? zetamultdual([4])
  %1 = Vecsmall([2, 1, 1])

@@ -17,10 +17,19 @@ Doc: For $s$ a vector of positive integers and $z$ a vector of complex
  condition $n_1\ge \dots \ge n_r > 0$), evaluated at $t$.
 
  We must have $|z_1\cdots z_i|\le1$ for all $i$, and if $s_1=1$ we must have
- $z_1\ne1$. Even if $z$ is omitted, this function is often faster than the
+ $z_1\ne1$. Even if $z$ is omitted, this function may be faster than the
  function \kbd{zetamult}: this is usually the case in high accuracy, or if the
  weight is not too large.
  \bprog
  ? 8*polylogmult([2,1],[-1,1]) - zeta(3)
  %1 = 0.E-38
+ @eprog\noindent
+ \misctitle{Warning} The algorithm used is rigorous only when the $z_i$ are
+ $\pm 1$. It may not converge as some $z_i \neq 1$ becomes too close to $1$,
+ even at roots of $1$ of moderate order:
+ \bprog
+ ? polylogmult([2,1], (99+20*I)/101 * [1,1])
+ %1 = -1969551.68[...] - 2035013.45[...]*I \\ junk
+ ? polylogmult([2,1], exp(I*Pi/50)* [1,1])
+ %2 = -6.7 [...] E131 + 7.1 [...] E132*I   \\ junk
  @eprog
