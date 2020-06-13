@@ -179,6 +179,7 @@ BA  45- closures: do not copy the full context, only the accessible part
 HC  56- zetamultall: add flag and change default behaviour; now returns all zeta
         values "of weight k" instead of "to weight <= k" and only up to duality.
         The old behaviour is flag = 6
+    57- subgrouplist: allow any object affording a .cyc method
 
   Added
      1- new GP function rootsof1
@@ -284,6 +285,7 @@ AP  90- [libpari] bnrisprincipalmod, ideallogmod
     93- new GP function bnrmap
 HC  94- new GP function polylogmult
     95- new GP function zetamultdual
+    96- [libpari] checkbnr_i
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

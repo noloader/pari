@@ -2700,16 +2700,11 @@ subgroupcond(GEN bnr, GEN indexbound)
 }
 
 GEN
-subgrouplist0(GEN bnr, GEN indexbound, long all)
+subgrouplist0(GEN cyc, GEN indexbound, long all)
 {
-  if (typ(bnr)!=t_VEC) pari_err_TYPE("subgrouplist",bnr);
-  if (lg(bnr)!=1 && typ(gel(bnr,1))!=t_INT)
-  {
-    checkbnr(bnr);
-    if (!all) return subgroupcond(bnr,indexbound);
-    bnr = bnr_get_cyc(bnr);
-  }
-  return subgrouplist(bnr,indexbound);
+  if (!all && checkbnr_i(cyc)) return subgroupcond(cyc,indexbound);
+  if (typ(cyc) != t_VEC || !RgV_is_ZV(cyc)) cyc = member_cyc(cyc);
+  return subgrouplist(cyc,indexbound);
 }
 
 GEN

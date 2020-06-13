@@ -93,12 +93,18 @@ checknf(GEN x)
   return nf;
 }
 
+GEN
+checkbnr_i(GEN bnr)
+{
+  if (typ(bnr)!=t_VEC || lg(bnr)!=7 || !checkbnf_i(bnr_get_bnf(bnr)))
+    return NULL;
+  return bnr;
+}
 void
 checkbnr(GEN bnr)
 {
-  if (typ(bnr)!=t_VEC || lg(bnr)!=7)
+  if (!checkbnr_i(bnr))
     pari_err_TYPE("checkbnr [please apply bnrinit()]",bnr);
-  (void)checkbnf(bnr_get_bnf(bnr));
 }
 
 void

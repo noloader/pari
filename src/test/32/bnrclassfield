@@ -314,11 +314,11 @@ bad inputs
   *** bnrclassfield: invalid flag in bnrclassfield [must be 0,1 or 2].
   ***   at top-level: bnrclassfield(vector(6),Mat(2))
   ***                 ^-------------------------------
-  *** bnrclassfield: incorrect type in checkbnf [please apply bnfinit()] (t_INT).
+  *** bnrclassfield: incorrect type in checkbnr [please apply bnrinit()] (t_VEC).
   ***   at top-level: bnrclassfield(bnrinit(bnfinit(y,1),[7378697629
   ***                 ^----------------------------------------------
   *** bnrclassfield: overflow in bnrclassfield [too large degree].
   ***   at top-level: bnrclassfield(bnfinit(x))
   ***                 ^-------------------------
   *** bnrclassfield: incorrect priority in bnrclassfield: variable x = x
-Total time spent: 4765
+Total time spent: 5161
