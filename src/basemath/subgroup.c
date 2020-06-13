@@ -429,7 +429,7 @@ static void
 subgroup_engine(subgp_iter *T)
 {
   pari_sp av = avma;
-  GEN N, B, L, fa, primlist, p, listL, indexsubq = NULL, cyc = T->cyc;
+  GEN N, B, L, P, p, listL, indexsubq = NULL, cyc = T->cyc;
   long i,j,k,imax,lprim, n = lg(cyc);
 
   if (n == 1) {
@@ -442,12 +442,12 @@ subgroup_engine(subgp_iter *T)
   }
   N = cyc_get_expo(cyc);
   if (!signe(N)) pari_err_TYPE("forsubgroup [infinite group]", cyc);
-  fa = Z_factor(N); primlist = gel(fa,1);
-  listL = cgetg_copy(primlist, &lprim);
+  P = gel(Z_factor(N), 1);
+  listL = cgetg_copy(P, &lprim);
   imax = k = 0;
   for (i=1; i<lprim; i++)
   {
-    L = new_chunk(n); p = gel(primlist,i);
+    L = new_chunk(n); p = gel(P,i);
     for (j=1; j<n; j++)
     {
       L[j] = Z_pval(gel(cyc,j), p);
@@ -457,7 +457,7 @@ subgroup_engine(subgp_iter *T)
     if (j > k) { k = j; imax = i; }
     gel(listL,i) = L;
   }
-  L = gel(listL,imax); p = gel(primlist,imax);
+  L = gel(listL,imax); p = gel(P,imax);
   k = L[1];
   T->L = L;
   T->powlist = (GEN*)init_powlist(k, p);
