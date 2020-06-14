@@ -740,8 +740,8 @@ zetamultevec(GEN evec, long prec)
   prec2 = nbits2prec(log? bitprec + acros(evec) * N: bitprec);
   ibin = cgetg(N + 2, t_VEC);
   ibin1= cgetg(N + 2, t_VEC);
-  gel(ibin, 1) = real_1(prec); gel(ibin1, 1) = gen_0;
-  gel(ibin, 2) = gel(ibin1, 2) = real2n(-1,prec);
+  gel(ibin, 1) = gen_1; gel(ibin1, 1) = gen_0;
+  gel(ibin, 2) = gel(ibin1, 2) = real2n(-1,prec2);
   /* cf get_vbin: shifted by 1 :-( */
   for (n = 2; n <= N; n++)
   {
