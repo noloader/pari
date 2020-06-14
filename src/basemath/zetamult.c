@@ -480,35 +480,32 @@ acros(GEN evec)
 }
 
 static GEN
-mk(GEN p, GEN zer) { return (lg(p) > 2)? mkvec2(p, zer): mkvec(p); }
+mk(GEN p, GEN zer) { return (lg(p) > 2)? mkvec2(p, NULL): mkvec(p); }
 static GEN
 findabvgenrec(GEN evec, void(*find)(GEN,GEN*,GEN*,GEN*))
 {
-  pari_sp av = avma;
-  GEN zer = mkvecsmall(0), w;
   long j, wlen = 4096, lw = 1, fl = 1;
-
-  w = cgetg(wlen + 1, t_VEC);
-  gel(w, lw++) = mkvec2(evec, zer);
+  GEN w = cgetg(wlen + 1, t_VEC);
+  gel(w, lw++) = mkvec2(evec, NULL);
   while (fl)
   {
     fl = 0;
     for (j = 1; j < lw; j++)
     {
       GEN wj = gel(w, j);
-      if (lg(wj) == 3 && gel(wj,2)[1] == 0)
+      if (lg(wj) == 3 && !gel(wj,2))
       {
         GEN wmid, winit, wfin;
         find(gel(wj,1), &wmid, &winit, &wfin);
         gel(wj, 2) = mkvecsmall(lw);
         if (lw + 3 >= wlen) { wlen <<= 2; w = vec_lengthen(w, wlen); }
-        gel(w, lw++) = mk(wmid, zer);
-        gel(w, lw++) = mk(winit,zer);
-        gel(w, lw++) = mk(wfin, zer); fl = 1;
+        gel(w, lw++) = mk(wmid, NULL);
+        gel(w, lw++) = mk(winit,NULL);
+        gel(w, lw++) = mk(wfin, NULL); fl = 1;
       }
     }
   }
-  setlg(w, lw); return gerepilecopy(av, w);
+  setlg(w, lw); return w;
 }
 
 /* y != 0,1 */
