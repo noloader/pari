@@ -515,17 +515,13 @@ findabvgenrec(GEN evec, void(*find)(GEN,GEN*,GEN*,GEN*))
 static GEN
 filllg1(GEN ibin1, GEN r1, GEN y, long nlim, long prec)
 {
-  pari_sp av;
-  GEN y1, y2, y3, v;
-  long n, flag;
+  GEN v, y1 = gsubgs(gmulsg(2, y), 1), y3 = gmul(y, gsubsg(1, y));
+  long n;
 
-  y1 = gsubgs(gmulsg(2, y), 1);
-  y3 = gmul(y, gsubsg(1, y));
-  av = avma; flag = gcmpgs(gnorm(y3), 1) > 0; set_avma(av);
-  y2 = flag? gdiv(r1, y3): NULL;
   v = cgetg(nlim + 2, t_VEC); gel(v, nlim + 1) = gen_0;
-  if (flag)
+  if (gcmpgs(gnorm(y3),1) > 0)
   {
+    GEN y2 = gdiv(r1, y3);
     for (n = nlim; n >= 1; n--)
     {
       pari_sp av2 = avma;
@@ -599,7 +595,7 @@ filltabM(GEN ibin, GEN ibin1, GEN evecinit, long prec)
         b = k1 - 1;
         for (j2 = k1 - 2; j2 >= 1; j2--)
           if (!isintzero(gel(evec, j2 + 1))) { b = k1 - 1 - j2; break; }
-        tmp = cgetg(N+2, t_VEC); gel(tmp, N+1) = gen_0;
+        gel(e0,1) = tmp = cgetg(N+2, t_VEC); gel(tmp, N+1) = gen_0;
         for (n = N; n >= 1; n--)
         {
           pari_sp av = avma;
@@ -610,7 +606,6 @@ filltabM(GEN ibin, GEN ibin1, GEN evecinit, long prec)
           z = gmul(xy1, gadd(gel(tmp, n+1), gdiv(p3, nab)));
           gel(tmp, n) = gerepileupto(av, z);
         }
-        gel(e0,1) = tmp;
         for (j1 = j + 1; j1 < ltab; j1++)
         {
           GEN e = gel(tabevec, j1);
@@ -703,7 +698,7 @@ filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long prec)
         b = k1 - 1;
         for (j2 = k1 - 2; j2 >= 1; j2--)
           if (evec[j2 + 1]) { b = k1 - 1 - j2; break; }
-        tmp = cgetg(N + 2, t_VEC); gel(tmp, N+1) = gen_0;
+        gel(e0,1) = tmp = cgetg(N + 2, t_VEC); gel(tmp, N+1) = gen_0;
         for (n = N; n >= 1; n--)
         {
           GEN z = cgetr(prec);
@@ -715,7 +710,6 @@ filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long prec)
           p3 = gadd(gel(tmp, n+1), gdiv(gadd(p1, p2), nab));
           mpaff(p3, z); set_avma(av); gel(tmp,n) = z;
         }
-        gel(e0, 1) = tmp;
         for (j1 = j + 1; j1 < ltab; j1++)
         {
           GEN e = gel(tabevec, j1);
@@ -740,8 +734,8 @@ zetamultevec(GEN evec, long prec)
   prec2 = nbits2prec(log? bitprec + acros(evec) * N: bitprec);
   ibin = cgetg(N + 2, t_VEC);
   ibin1= cgetg(N + 2, t_VEC);
-  gel(ibin, 1) = gen_1; gel(ibin1, 1) = gen_0;
-  gel(ibin, 2) = gel(ibin1, 2) = real2n(-1,prec2);
+  gel(ibin,1) = gel(ibin1,1) = gen_0; /* unused */
+  gel(ibin,2) = gel(ibin1,2) = real2n(-1,prec2);
   /* cf get_vbin: shifted by 1 :-( */
   for (n = 2; n <= N; n++)
   {
