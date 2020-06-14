@@ -245,7 +245,7 @@ addevec(GEN LR, GEN v)
   return vec_append(LR,v);
 }
 
-/* N > 2 */
+/* N > 1, v[n] = 1 / binom(2n, n) as a t_REAL */
 static GEN
 get_vbin(long N, long prec)
 {
@@ -547,21 +547,13 @@ filllg1(GEN ibin1, GEN r1, GEN y, long nlim, long prec)
   return v;
 }
 
+/* k > 1 */
 static GEN
 filltabM(GEN ibin, GEN ibin1, GEN evecinit, long prec)
 {
-  long j, j1, k1, ltab, k = lg(evecinit), N = lg(ibin)-2;
-  GEN tabevec, r1 = real_1(prec);
+  GEN r1 = real_1(prec), tabevec = findabvgenrec(evecinit, &findabvgen);
+  long j, j1, k1, k = lg(evecinit)-1, N = lg(ibin)-2, ltab = lg(tabevec);
 
-  if (k == 0) return ibin;
-  if (k == 1)
-  {
-    GEN y = gel(evecinit, 1);
-    if (isintzero(y) || isint1(y)) return ibin1;
-    return filllg1(ibin1, r1, gel(evecinit, 1), N, prec);
-  }
-  tabevec = findabvgenrec(evecinit, &findabvgen);
-  ltab = lg(tabevec);
   for (j = 1; j < ltab; j++)
   {
     GEN e = gel(tabevec,j);
@@ -680,16 +672,13 @@ findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
   for (j = lw + 1; j < b + lw; j++) wfin[j] = 0;
   wfin[b + lw] = 1;
 }
+/* k > 1 */
 static GEN
 filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long prec)
 {
-  long j, k1, ltab, k = lg(evecinit)-1, N = lg(ibin)-2;
-  GEN tabevec;
+  GEN tabevec = findabvgenrec(evecinit,&findabvgens);
+  long j, k1, k = lg(evecinit)-1, N = lg(ibin)-2, ltab = lg(tabevec);
 
-  if (k == 0) return ibin;
-  if (k == 1) return ibin1;
-  tabevec = findabvgenrec(evecinit,&findabvgens);
-  ltab = lg(tabevec);
   for (j = 1; j < ltab; j++)
     if (lg(gel(tabevec, j)) == 2)
     {
@@ -741,11 +730,9 @@ filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long prec)
 static GEN
 zetamultevec(GEN evec, long prec)
 {
-  long n, bitprec, prec2, N, k, log;
+  long log, n, bitprec, prec2, N, k = lg(evec) - 1;
   GEN all, ibin, ibin1;
 
-  if (!evec) return gen_0;
-  k = lg(evec) - 1;
   if (k == 0) return gen_1;
   log = typ(evec) == t_VEC;
   bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
