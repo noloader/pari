@@ -3904,6 +3904,7 @@ GEN     smithclean(GEN z);
 GEN     Z_ECM(GEN N, long rounds, long seed, ulong B1);
 GEN     Z_factor(GEN n);
 GEN     Z_factor_limit(GEN n, ulong all);
+GEN     Z_factor_limit_strict(GEN n, ulong all, GEN *pU);
 GEN     Z_factor_until(GEN n, GEN limit);
 long    Z_issmooth(GEN m, ulong lim);
 GEN     Z_issmooth_fact(GEN m, ulong lim);

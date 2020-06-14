@@ -14,3 +14,6 @@ default(debug,0);
 subgrouplist(1)
 subgrouplist([2,2],[2]~)
 subgrouplist([2,2],-1)
+p=10^50+151;q=10^51+121; G=[2*3*p*q];
+subgrouplist(G,3)
+subgrouplist(G,[3])

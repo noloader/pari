@@ -647,16 +647,7 @@ idealHNF_factor_i(GEN nf, GEN x, GEN cx, GEN FA)
 static GEN
 idealHNF_factor(GEN nf, GEN x, ulong lim)
 {
-  GEN cx, F = NULL;
-  if (lim)
-  {
-    GEN P, E;
-    long l;
-    F = Z_factor_limit(gcoeff(x,1,1), lim);
-    P = gel(F,1); l = lg(P);
-    E = gel(F,2);
-    if (l > 1 && abscmpiu(gel(P,l-1), lim) >= 0) { setlg(P,l-1); setlg(E,l-1); }
-  }
+  GEN cx, F = lim? Z_factor_limit_strict(gcoeff(x,1,1), lim, NULL): NULL;
   x = Q_primitive_part(x, &cx);
   return idealHNF_factor_i(nf, x, cx, F);
 }

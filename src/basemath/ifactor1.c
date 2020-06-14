@@ -3749,6 +3749,19 @@ Z_factor_limit(GEN n, ulong all)
   return ifactor(n,all,decomp_default_hint);
 }
 GEN
+Z_factor_limit_strict(GEN n, ulong all, GEN *pU)
+{
+  GEN F = Z_factor_limit(n, all), P = gel(F,1), E = gel(F,2);
+  long l = lg(P);
+  if (pU) *pU = NULL;
+  if (l > 1 && abscmpiu(gel(P,l-1), all) >= 0)
+  {
+    setlg(P,l-1);
+    setlg(E,l-1); if (pU) *pU = gel(P,l-1);
+  }
+  return F;
+}
+GEN
 absZ_factor_limit(GEN n, ulong all)
 {
   if (!all) all = GP_DATA->primelimit + 1;

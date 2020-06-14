@@ -7979,6 +7979,13 @@ composite.
 If $\kbd{lim} = 0$, the effect is the same as setting $\kbd{lim} =
 \kbd{maxprime()} + 1$: use all precomputed primes.
 
+\fun{GEN}{Z_factor_limit_strict}{GEN n, ulong all, GEN *pU} as
+\tet{Z_factor_limit}, returning the factorization matrix of the smooth
+part of $n$, without the last possibly composite divisor.
+If \kbd{pU} is not \kbd{NULL}, set it to the cofactor, which is either
+\kbd{NULL} (no cofactor) or a divisor of $n$ whose prime divisors are greater
+that \kbd{all}.
+
 \fun{GEN}{absZ_factor_limit}{GEN n, ulong all} returns
 \kbd{Z\_factor\_limit(absi(n))}.
 

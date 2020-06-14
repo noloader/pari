@@ -429,8 +429,8 @@ static void
 subgroup_engine(subgp_iter *T)
 {
   pari_sp av = avma;
-  GEN N, B, L, P, p, listL, indexsubq = NULL, cyc = T->cyc;
-  long i,j,k,imax,lprim, n = lg(cyc);
+  GEN B, L, p, listL, P = NULL, indexsubq = NULL, cyc = T->cyc;
+  long i, j, k, imax, lprim, n = lg(cyc);
 
   if (n == 1) {
     switch(T->boundtype)
@@ -440,9 +440,7 @@ subgroup_engine(subgp_iter *T)
     }
     set_avma(av); return;
   }
-  N = cyc_get_expo(cyc);
-  if (!signe(N)) pari_err_TYPE("forsubgroup [infinite group]", cyc);
-  P = gel(Z_factor(N), 1);
+  P = gel(Z_factor(cyc_get_expo(cyc)), 1);
   listL = cgetg_copy(P, &lprim);
   imax = k = 0;
   for (i=1; i<lprim; i++)
@@ -548,7 +546,7 @@ forsubgroup(void *E, long call(void*, GEN), GEN cyc, GEN bound)
 
   T.fun = call;
   T.cyc = get_snf(cyc,&N);
-  if (!T.cyc) pari_err_TYPE("forsubgroup [not a group]",cyc);
+  if (!T.cyc) pari_err_TYPE("forsubgroup [not a finite group]",cyc);
   set_bound(&T, bound);
   T.fundata = E;
   T.stop = 0;
@@ -574,6 +572,35 @@ packtoi(long *pt, long L)
   return z;
 }
 
+/* in place, remove trailing 1s */
+static void
+snf_clean(GEN c)
+{
+  long n;
+  for (n = lg(c)-1; n > 0; n--)
+    if (!is_pm1(gel(c,n))) break;
+  setlg(c, n+1);
+}
+static GEN
+update_cyc(subgp_iter *T, GEN cyc)
+{
+  ulong k;
+  switch(T->boundtype)
+  {
+    case b_EXACT:
+      cyc = ZV_gcdmod(cyc, T->bound);
+      snf_clean(cyc); break;
+    case b_MAX:
+      if ((k = itos_or_0(T->bound)))
+      {
+        GEN fa = Z_factor_limit_strict(cyc_get_expo(cyc), k + 1, NULL);
+        cyc = T->cyc = ZV_gcdmod(cyc, factorback(fa));
+        snf_clean(cyc); break;
+      }
+  }
+  return cyc;
+}
+
 static GEN
 subgrouplist_i(GEN CYC, GEN bound, GEN expoI, GEN gen)
 {
@@ -585,10 +612,10 @@ subgrouplist_i(GEN CYC, GEN bound, GEN expoI, GEN gen)
   GEN z, H, cyc;
 
   cyc = get_snf(CYC, &N);
-  if (!cyc) pari_err_TYPE("subgrouplist [not a group]",CYC);
-  n = lg(cyc)-1; /* not necessarily = N */
-
+  if (!cyc) pari_err_TYPE("subgrouplist [not a finite group]",CYC);
   set_bound(&T, bound);
+  cyc = update_cyc(&T, cyc);
+  n = lg(cyc)-1; /* not necessarily = N */
   S.list = sublist = (slist*) pari_malloc(sizeof(slist));
   S.cyc = cyc;
   S.gen = gen;

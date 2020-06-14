@@ -443,8 +443,7 @@ is $\sum_{n_1>n_2>...>n_r>0}z_1^{n_1}...z_r^{n_r}/(n_1^a_1...n_r^{a_r})$. */
 evec = x{1}_{a-1}v{0}_{b-1}y with v empty or admissible.
 Input: vector w=evec
 Output: v=wmid, winit, wfin
-Differences with findabv: (1) the whole vector evec is given instead of
-evec[2..k-1], (2) winit, wfin, and wmid are computed here. */
+Difference with findabv: winit, wfin, and wmid are computed here. */
 static void
 findabvgen(GEN evec, GEN *wmid, GEN *winit, GEN *wfin)
 {

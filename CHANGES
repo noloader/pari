@@ -286,6 +286,7 @@ AP  90- [libpari] bnrisprincipalmod, ideallogmod
 HC  94- new GP function polylogmult
     95- new GP function zetamultdual
     96- [libpari] checkbnr_i
+    97- [libpari] Z_factor_limit_strict
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
