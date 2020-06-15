@@ -25,6 +25,9 @@ rnfconductor(Q,[T, [2,3,7,41]])
 rnfconductor(Q,galoissubcyclo(117,116))[1]
 K=bnfinit(quadpoly(1596,y),1); rnfbasis(K,rnfsteinitz(K,rnfpseudobasis(K,quadray(K,1))));
 
+\\ oo loop after bnrmod commit 2b72fbfbf
+rnfconductor(bnfinit(a^3-a^2-6*a+7),x^3-a*x^2+(5*a^2-35)*x+(8*a^2+6*a-35))[3]
+
 K = nfinit(x^2-x+2); M = [1, 0, x; 0, x, 0; 0,0,2+x]; N = [1, 1, 1];
 nfsnf(K, [M, N, N])
 rnfisabelian(y,x)
@@ -173,7 +176,7 @@ K=nfinit(y); L=rnfinit(K,x^3-2); rnfeltdown(L,Mod(Mod(1,K.pol),L.polabs))
 k1=bnfinit(y^3+y^2-2*y-1);
 u=x^3+y*x^2+(y-2)*x+(y^2-y-1);
 rnfconductor(k1,u)
-rnfconductor(k1,u / Mod(y,k1.pol))
+rnfconductor(k1,u / Mod(y,k1.pol))[^2] \\ wrong: not Abelian
 rnfconductor(k1, y*x^2+(y-2)*x+(y^2-y-1))[^2]
 
 K = nfinit(y^2+y+1);

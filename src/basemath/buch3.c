@@ -1727,9 +1727,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
   if (umodiu(bnr_get_no(bnr), degrel)) return NULL;
   /* degrel-th powers are in norm group */
   gdegrel = utoipos(degrel);
-  G = FpC_red(bnr_get_cyc(bnr), gdegrel);
-  for (i=1; i<lg(G); i++)
-    if (!signe(gel(G,i))) gel(G,i) = gdegrel;
+  G = ZV_gcdmod(bnr_get_cyc(bnr), gdegrel);
   detG = ZV_prod(G);
   k = abscmpiu(detG,degrel);
   if (k < 0) return NULL;
