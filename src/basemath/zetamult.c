@@ -1033,7 +1033,9 @@ zetamultall0(long k, long flag, long prec)
 GEN
 zetamultall(long k, long prec) { return zetamultall0(k, 6, prec); }
 
-/* Don Zagier and Danylo Radchenko's routines */
+/**************************************************************/
+/*              ZAGIER & RADCHENKO'S ALGORITHM                */
+/**************************************************************/
 /* accuracy 2^(-b); s << (b/log b)^2, l << b/sqrt(log b) */
 static void
 zparams(long *s, long *l, long prec)
@@ -1120,7 +1122,7 @@ zetamult_interpolate2_i(GEN avec, GEN t, long prec)
       }
     gcoeff(a, i+1, 1) = gel(b, 2); /* j = 1 */
     for (j = 2; j <= l; j++)
-    { /* b[j+1] - \sum_{0 <= u < j-1 binom(j,u) a[i+1,u+1]*/
+    { /* b[j+1] - sum_{0 <= u < j-1} binom(j,u) a[i+1,u+1]*/
       pari_sp av = avma;
       GEN S = gel(b, j + 1);
       S = gsub(S, gcoeff(a, i+1, 1)); /* u = 0 */
@@ -1130,8 +1132,9 @@ zetamult_interpolate2_i(GEN avec, GEN t, long prec)
         GEN C = utoipos(j*(j-1) / 2);
         long u, U = (j-1)/2;
         for (u = 2; u <= U; u++)
-        { /* C = binom(j,u) */
-          S = gsub(S, gmul(C, gadd(gcoeff(a, i+1, u+1), gcoeff(a, i+1, j-u+1))));
+        { /* C = binom(j, u) = binom(j, j-u) */
+          GEN A = gadd(gcoeff(a, i+1, u+1), gcoeff(a, i+1, j-u+1));
+          S = gsub(S, gmul(C, A));
           C = diviuexact(muliu(C, j-u), u+1);
         }
         if (!odd(j)) S = gsub(S, gmul(C, gcoeff(a,i+1, j/2+1)));
@@ -1143,9 +1146,12 @@ zetamult_interpolate2_i(GEN avec, GEN t, long prec)
   ze = cgetg(n+1, t_VEC);
   for (i = 1; i <= n; i++)
   {
-    GEN S = gdivgs(gcoeff(a, n+2-i, 1), s);
+    GEN S = gdivgs(gcoeff(a, n+2-i, 1), s), sj = utoipos(s);
     for (j = 2; j <= l; j++)
-      S = gadd(S, gdiv(gcoeff(a, n+2-i, j), powuu(s,j)));
+    {
+      sj = muliu(sj, s); /* = s^j */
+      S = gadd(S, gdiv(gcoeff(a, n+2-i, j), sj));
+    }
     gel(ze, i) = S;
   }
   for (i = s; i >= 1; i--)
