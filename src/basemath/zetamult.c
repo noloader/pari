@@ -510,16 +510,16 @@ findabvgenrec(GEN evec, void(*find)(GEN,GEN*,GEN*,GEN*))
 
 /* y != 0,1 */
 static GEN
-filllg1(GEN ibin1, GEN r1, GEN y, long nlim, long prec)
+filllg1(GEN ibin1, GEN r1, GEN y, long N, long prec)
 {
   GEN v, y1 = gsubgs(gmulsg(2, y), 1), y3 = gmul(y, gsubsg(1, y));
   long n;
 
-  v = cgetg(nlim + 2, t_VEC); gel(v, nlim + 1) = gen_0;
+  v = cgetg(N + 2, t_VEC); gel(v, N + 1) = gen_0;
   if (gcmpgs(gnorm(y3),1) > 0)
   {
     GEN y2 = gdiv(r1, y3);
-    for (n = nlim; n >= 1; n--)
+    for (n = N; n >= 1; n--)
     {
       pari_sp av2 = avma;
       GEN z = gmul(y2, gsub(gel(v, n+1), gmul(y1, gel(ibin1, n+1))));
@@ -530,7 +530,7 @@ filllg1(GEN ibin1, GEN r1, GEN y, long nlim, long prec)
   {
     pari_sp av0 = avma;
     gel(v, 1) = gerepileupto(av0, glog(gdiv(y, gsubgs(y, 1)), prec));
-    for (n = 1; n < nlim; n++)
+    for (n = 1; n < N; n++)
     {
       pari_sp av2 = avma;
       GEN z = gadd(gmul(y3, gel(v, n)), gmul(y1, gel(ibin1, n+1)));
