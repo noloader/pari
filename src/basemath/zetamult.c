@@ -480,7 +480,7 @@ acros(GEN evec)
 }
 
 static GEN
-mk(GEN p, GEN zer) { return (lg(p) > 2)? mkvec2(p, NULL): mkvec(p); }
+mk(GEN p) { return (lg(p) > 2)? mkvec2(p, NULL): mkvec(p); }
 static GEN
 findabvgenrec(GEN evec, void(*find)(GEN,GEN*,GEN*,GEN*))
 {
@@ -499,9 +499,9 @@ findabvgenrec(GEN evec, void(*find)(GEN,GEN*,GEN*,GEN*))
         find(gel(wj,1), &wmid, &winit, &wfin);
         gel(wj, 2) = mkvecsmall(lw);
         if (lw + 3 >= wlen) { wlen <<= 2; w = vec_lengthen(w, wlen); }
-        gel(w, lw++) = mk(wmid, NULL);
-        gel(w, lw++) = mk(winit,NULL);
-        gel(w, lw++) = mk(wfin, NULL); fl = 1;
+        gel(w, lw++) = mk(wmid);
+        gel(w, lw++) = mk(winit);
+        gel(w, lw++) = mk(wfin); fl = 1;
       }
     }
   }
