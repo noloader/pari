@@ -1955,6 +1955,11 @@ has conductor $f$. Returns 0 otherwise.
 generators \kbd{bnf.tu} and \kbd{bnf.tu} in the finite abelian group
 $(\Z_K/f)^*$ attached to \kbd{bid}.
 
+\fun{GEN}{ideallog_units0}{GEN bnf, GEN bid, GEN N} let
+$G = (\Z_K/f)^*$ be the finite abelian group attached to \kbd{bid}.
+Return the images of the units generators \kbd{bnf.tu} and \kbd{bnf.tu} in
+$G / G^N$. If $N$ is \kbd{NULL}, same as \tet{ideallog_units}.
+
 \fun{GEN}{bnrchar_primitive}{GEN bnr, GEN chi, GEN bnrc}
 Given a normalized character $\kbd{chi} = [d,c]$ on \kbd{bnr.clgp} (see
 \tet{char_normalize}) of conductor \kbd{bnrc.mod},  compute the primitive
