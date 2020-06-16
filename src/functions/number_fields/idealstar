@@ -58,7 +58,9 @@ Doc: outputs a \kbd{bid} structure,
  want \kbd{znstar(N,1)}).
 
 Variant: Instead the above hardcoded numerical flags, one should rather use
- \fun{GEN}{Idealstar}{GEN nf, GEN ideal, long flag}, where \kbd{flag} is
+ \fun{GEN}{Idealstarmod}{GEN nf, GEN ideal, long flag, GEN cycmod} or
+ \fun{GEN}{Idealstar}{GEN nf, GEN ideal, long flag} (\kbd{cycmod} is
+ \kbd{NULL}), where \kbd{flag} is
  an or-ed combination of \tet{nf_GEN} (include generators) and \tet{nf_INIT}
  (return a full \kbd{bid}, not a group), possibly $0$. This offers
  one more combination: gen, but no init.
