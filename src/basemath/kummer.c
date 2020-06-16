@@ -563,7 +563,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN *pfa, struct rnfkummer *kum)
        * to update conductor */
       bnrz = Buchraymod(bnfz, *pfa, nf_INIT, gell);
       cycz = bnr_get_cyc(bnrz);
-      Hz = diagonal_shallow(ZV_gcdmod(cycz, gell));
+      Hz = diagonal_shallow(ZV_snf_gcd(cycz, gell));
       if (H_is_good(Hz, gell))
       {
         *pfa = gel(bnrconductor_factored(bnrz, Hz), 2);
@@ -572,7 +572,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN *pfa, struct rnfkummer *kum)
     }
   }
   bad = lcmii(gcoeff(F,1,1), bad);
-  cyc = ZV_gcdmod(cyc, gell);
+  cyc = ZV_snf_gcd(cyc, gell);
   Hsofar = diagonal_shallow(cyc);
   if (H_is_good(Hsofar, gell))
   {

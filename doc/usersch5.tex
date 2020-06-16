@@ -3410,8 +3410,14 @@ $a \geq \ceil{\sqrt{\max(|x|,|y|)}} > b$.
 U]$, where $d$ is the GCD of the $A[i]$ and $U$ is a matrix
 in $\text{GL}_n(\Z)$ such that $AU = [0,\dots,0,D]$.
 
-\fun{GEN}{ZV_lcm}{GEN A} given a vector of $n$ integers $A$,
+\fun{GEN}{ZV_lcm}{GEN v} given a vector $v$ of integers
 returns the LCM of its entries.
+
+\fun{GEN}{ZV_snf_gcd}{GEN v, GEN N} given a vector $v$ of integers and a
+positive integer $N$, return the vector whose entries are the gcds
+$(v[i],N)$. Use case: if $v$ gives the cyclic components for some Abelian
+group $G$ of finite type, then this returns the structure of the finite
+groupe $G/G^N$.
 
 \subsec{Continued fractions and convergents}
 

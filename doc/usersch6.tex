@@ -2664,6 +2664,11 @@ set to $U_{\text{inv}}$. The function is not memory clean.
 \fun{GEN}{ZV_snf_group}{GEN d, GEN *newU, GEN *newUi}, here $d$ is a
 \kbd{ZV}; same as \tet{ZM_snf_group} applied to \kbd{diagonal(d)}, but faster.
 
+\fun{GEN}{ZV_snf_gcd}{GEN v, GEN N} given a vector $v$ of integers and a
+positive integer $N$, return the vector whose entries are the gcds
+$(v[i],N)$. Use case: if $v$ gives the cyclic components for some Abelian
+group $G$ of finite type, then this returns the structure of the finite
+groupe $G/G^N$.
 
 The following routines underly the various \tet{matrixqz} variants.
 In all case the $m\times n$ \typ{MAT} $x$ is assumed to have rational

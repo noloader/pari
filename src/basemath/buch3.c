@@ -433,8 +433,8 @@ Buchraymod_i(GEN bnf, GEN module, long flag, GEN MOD)
   cycbid = bid_get_cyc(bid);
   if (MOD)
   {
-    cyc = ZV_gcdmod(cyc, MOD);
-    cycbid = ZV_gcdmod(cycbid, MOD);
+    cyc = ZV_snf_gcd(cyc, MOD);
+    cycbid = ZV_snf_gcd(cycbid, MOD);
   }
   genbid = bid_get_gen(bid);
   Ri = lg(cycbid)-1;
@@ -598,7 +598,7 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
   cycray = bnr_get_cyc(bnr);
   if (MOD && flag) pari_err_FLAG("bnrisprincipalmod [MOD!=NULL and flag!=0]");
   if (lg(cycray) == 1 && !(flag & nf_GEN)) return cgetg(1,t_COL);
-  if (MOD) cycray = ZV_gcdmod(cycray, MOD);
+  if (MOD) cycray = ZV_snf_gcd(cycray, MOD);
 
   bnf = bnr_get_bnf(bnr); nf = bnf_get_nf(bnf);
   bid = bnr_get_bid(bnr);
@@ -1727,7 +1727,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
   if (umodiu(bnr_get_no(bnr), degrel)) return NULL;
   /* degrel-th powers are in norm group */
   gdegrel = utoipos(degrel);
-  G = ZV_gcdmod(bnr_get_cyc(bnr), gdegrel);
+  G = ZV_snf_gcd(bnr_get_cyc(bnr), gdegrel);
   detG = ZV_prod(G);
   k = abscmpiu(detG,degrel);
   if (k < 0) return NULL;

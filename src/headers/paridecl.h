@@ -2264,7 +2264,7 @@ long    ZC_nfval(GEN x, GEN P);
 long    ZC_nfvalrem(GEN x, GEN P, GEN *t);
 int     ZC_prdvd(GEN x, GEN P);
 GEN     ZM_ZX_mul(GEN A, GEN x);
-GEN     ZV_gcdmod(GEN x, GEN mod);
+GEN     ZV_snf_gcd(GEN x, GEN mod);
 GEN     algtobasis(GEN nf, GEN x);
 GEN     basistoalg(GEN nf, GEN x);
 GEN     ei_multable(GEN nf, long i);

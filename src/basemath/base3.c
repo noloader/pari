@@ -2710,7 +2710,7 @@ log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
   cyc = sprk_get_cyc(sprk);
   if (mod)
   {
-    cyc = ZV_gcdmod(cyc, mod);
+    cyc = ZV_snf_gcd(cyc, mod);
     if (signe(remii(mod,p))) return vecmodii(ZC_Z_mul(U1,e), cyc);
   }
   if (signe(e))
@@ -3180,7 +3180,7 @@ GEN
 vecmodii(GEN x, GEN y)
 { pari_APPLY_same(modii(gel(x,i), gel(y,i))) }
 GEN
-ZV_gcdmod(GEN x, GEN mod)
+ZV_snf_gcd(GEN x, GEN mod)
 { pari_APPLY_same(gcdii(gel(x,i), mod)); }
 
 GEN
@@ -3197,7 +3197,7 @@ ideallog_units0(GEN bnf, GEN bid, GEN MOD)
   init_zlog_mod(&S, bid, MOD);
   if (!S.hU) return zeromat(0,lU);
   cyc = bid_get_cyc(bid);
-  if (MOD) cyc = ZV_gcdmod(cyc, MOD);
+  if (MOD) cyc = ZV_snf_gcd(cyc, MOD);
   D = nfsign_fu(bnf, bid_get_archp(bid));
   y = cgetg(lU, t_MAT);
   if ((C = bnf_build_cheapfu(bnf)))
