@@ -26,9 +26,6 @@ typedef enum {Fseq,
               Fentry,Fcall,Ffunction,Flambda
 } Ffunc;
 
-#define Flastfunc  (Fdeffunc)
-#define FneedENTRY (Fconst)
-
 typedef struct node_s
 {
   Ffunc f;           /*node function   */
