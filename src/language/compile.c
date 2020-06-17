@@ -666,13 +666,9 @@ getentry(long n)
   return getfunc(n);
 }
 
-/* match Fentry that are not actually EpSTATIC functions called without parens*/
 static entree *
 getvar(long n)
-{
-  entree *ep = getentry(n);
-  return ep;
-}
+{ return getentry(n); }
 
 /* match Fentry that are not actually EpSTATIC functions called without parens*/
 static entree *
