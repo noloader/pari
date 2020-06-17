@@ -2152,6 +2152,14 @@ short for \kbd{Idealstar(nf,x,nf\_INIT)}
 \fun{GEN}{zidealstarinitgen}{GEN nf, GEN x}
 short for \kbd{Idealstar(nf,x,nf\_GEN|nf\_INIT)}
 
+\fun{GEN}{idealstar0}{GEN nf, GEN x,long flag} short
+for \kbd{idealstarmod(nf, ideal, flag, NULL)}. Use \kbd{Idealstarmod} or
+\kbd{Idealstar}.
+
+\fun{GEN}{bnrinit0}{GEN bnf,GEN ideal,long flag} short
+for \kbd{bnrinitmod(bnf,ideal,flag,NULL)}. Use \kbd{Buchray} or
+\kbd{Buchraymod}.
+
 \fun{GEN}{buchimag}{GEN D, GEN c1, GEN c2, GEN gCO} short for
 \bprog
   Buchquad(D,gtodouble(c1),gtodouble(c2), /*ignored*/0)
@@ -2195,7 +2203,7 @@ not \kbd{nf\_GENMAT}. Don't use them:
 
 \noindent Superseded by \tet{bnrdisclist0}:
 
-\fun{GEN}{discrayabslist}{GEN bnf,GEN listes}
+\fun{GEN}{discrayabslist}{GEN bnf,GEN L}
 
 \fun{GEN}{discrayabslistarch}{GEN bnf, GEN arch, long bound}
 
