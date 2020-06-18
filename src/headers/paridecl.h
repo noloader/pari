@@ -5310,8 +5310,7 @@ GEN     zetamult_interpolate2(GEN avec, GEN t, long prec);
 GEN     zetamult_zagier(GEN avec, long prec);
 GEN     zetamult0(GEN avec, GEN T, long prec);
 GEN     zetamult_interpolate(GEN avec, GEN t, GEN T, long prec);
-GEN     zetamultall(long k, long prec);
-GEN     zetamultall0(long k, long flstar, long prec);
+GEN     zetamultall(long k, long flag, long prec);
 GEN     zetamultconvert(GEN a, long fl);
 GEN     zetamultinit(long k, long prec);
 

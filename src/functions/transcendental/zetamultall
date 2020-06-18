@@ -1,6 +1,6 @@
 Function: zetamultall
 Section: transcendental
-C-Name: zetamultall0
+C-Name: zetamultall
 Prototype: LD0,L,p
 Help: zetamultall(k,{fl=0}): list of all multiple zeta values for weight k.
  if bit 0 of fl is set, zetastar values. If bit 1 is set, give both among duals

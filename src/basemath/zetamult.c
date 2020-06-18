@@ -995,7 +995,7 @@ zetamultstar_i(GEN L, GEN avec, long flag)
  * bit 2: only k/all <= k
  * bit 3: without/with avec index */
 GEN
-zetamultall0(long k, long flag, long prec)
+zetamultall(long k, long flag, long prec)
 {
   pari_sp av = avma;
   GEN Lind, L, res;
@@ -1030,8 +1030,6 @@ zetamultall0(long k, long flag, long prec)
   if (flag & 8L) res = mkvec2(res, gel(Lind, 2));
   return gerepilecopy(av, res);
 }
-GEN
-zetamultall(long k, long prec) { return zetamultall0(k, 6, prec); }
 
 /**************************************************************/
 /*              ZAGIER & RADCHENKO'S ALGORITHM                */
