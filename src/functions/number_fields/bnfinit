@@ -45,7 +45,7 @@ Doc: initializes a
 
  \smallskip
 
- The components of a \var{bnf} or \var{sbnf} are technical and never used by
+ The components of a \var{bnf} are technical and never used by
  the casual user. In fact: \emph{never access a component directly, always use
  a proper member function.} However, for the sake of completeness and internal
  documentation, their description is as follows. We use the notations
