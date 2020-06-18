@@ -91,7 +91,7 @@
 Mod(-1/2*x^4 + 3/2*x^3 - 5/2*x^2 - 2*x + 1, x^5 - 2*x^4 + 3*x^3 + 8*x^2 + 3*
 x + 2)
 ? nf3=nfinit(x^6+108);
-? setrand(1);bnf2=bnfinit(y^3-y-1);nf2=bnf2[7];
+? setrand(1);bnf2=bnfinit(y^3-y-1);nf2=bnf2.nf;
 ? setrand(1);bnf=bnfinit(x^2-x-57,,[0.2,0.2])
 [Mat(3), Mat([1, 1, 2]), [-2.7124653051843439746808795106061300699 + 3.14159
 26535897932384626433832795028842*I; 2.7124653051843439746808795106061300699]
@@ -567,7 +567,7 @@ Mod(-1/2*x^5 + 9*x^2, x^6 + 108)
 ? nfhnfmod(nf,[a,aid],da)
 [[1, 1, 4; 0, 1, 0; 0, 0, 1], [[15, 2, 10, 12, 4; 0, 1, 0, 0, 0; 0, 0, 1, 0,
  0; 0, 0, 0, 1, 0; 0, 0, 0, 0, 1], 1, 1]]
-? nfisideal(bnf[7],[5,1;0,1])
+? nfisideal(bnf.nf,[5,1;0,1])
 1
 ? nfisincl(x^2+1,x^4+1)
 [-x^2, x^2]
@@ -712,4 +712,4 @@ x^15 - 15*x^11 + 75*x^7 - x^5 - 125*x^3 + 5*x + 1
 0745514]
 ? if(getheap()!=HEAP,getheap())
 ? print("Total time spent: ",gettime);
-Total time spent: 56
+Total time spent: 40
