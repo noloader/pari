@@ -2240,7 +2240,7 @@ compilenode(long n, int mode, long flag)
   case Ffunction:
     {
       entree *ep=getfunc(n);
-      if (EpVALENCE(ep)==EpVAR || EpVALENCE(ep)==EpNEW)
+      if (getmvar(ep) || EpVALENCE(ep)==EpVAR || EpVALENCE(ep)==EpNEW)
       {
         if (tree[n].x<OPnboperator) /* should not happen */
           compile_err("operator unknown",tree[n].str);
