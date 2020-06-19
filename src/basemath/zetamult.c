@@ -543,7 +543,7 @@ static GEN
 filltabM(GEN ibin, GEN ibin1, GEN evecinit, long prec)
 {
   GEN r1 = real_1(prec), tabevec = findabvgenrec(evecinit, &findabvgen);
-  long j, j1, k1, k = lg(evecinit)-1, N = lg(ibin)-2, ltab = lg(tabevec);
+  long j, j1, s, k = lg(evecinit)-1, N = lg(ibin)-2, ltab = lg(tabevec);
 
   for (j = 1; j < ltab; j++)
   {
@@ -570,26 +570,26 @@ filltabM(GEN ibin, GEN ibin1, GEN evecinit, long prec)
       }
     }
   }
-  for (k1 = 2; k1 <= k; k1++)
+  for (s = 2; s <= k; s++)
     for (j = 1; j < ltab; j++)
     {
       GEN e0 = gel(tabevec, j);
-      if (lg(e0) == 3 && lg(gel(e0, 1)) == k1 + 1)
+      if (lg(e0) == 3 && lg(gel(e0, 1)) == s + 1)
       {
         GEN evec = gel(e0, 1), tmp, tabfin, tabini, tabmid;
-        GEN xy1, x = gel(evec, 1), y = gel(evec, k1);
-        long n, a, b, j2, s, ct = gel(e0,2)[1];
+        GEN xy1, x = gel(evec, 1), y = gel(evec, s);
+        long n, a, b, j2, x0, ct = gel(e0,2)[1];
         tabmid = gmael(tabevec, ct, 1);
         tabini = gmael(tabevec, ct + 1, 1);
         tabfin = gmael(tabevec, ct + 2, 1);
-        if (gequal0(x)) { s = -1; xy1 = gdiv(r1, y); }
-        else { s = 1; xy1 = gdiv(r1, gmul(gsubsg(1, x), y)); }
-        a = k1 - 1;
-        for (j2 = 1; j2 <= k1 - 2; j2++)
-          if (!isint1(gel(evec, j2 + 1))) { a = j2; break;}
-        b = k1 - 1;
-        for (j2 = k1 - 2; j2 >= 1; j2--)
-          if (!isintzero(gel(evec, j2 + 1))) { b = k1 - 1 - j2; break; }
+        if (gequal0(x)) { x0 = 1; xy1 = gdiv(r1, y); }
+        else { x0 = 0; xy1 = gdiv(r1, gmul(gsubsg(1, x), y)); }
+        a = s - 1;
+        for (j2 = 1; j2 <= s - 2; j2++)
+          if (!isint1(gel(evec, j2 + 1))) { a = j2; break; }
+        b = s - 1;
+        for (j2 = s - 2; j2 >= 1; j2--)
+          if (!isintzero(gel(evec, j2 + 1))) { b = s - 1 - j2; break; }
         gel(e0,1) = tmp = cgetg(N+2, t_VEC); gel(tmp, N+1) = gen_0;
         for (n = N; n >= 1; n--)
         {
@@ -597,7 +597,7 @@ filltabM(GEN ibin, GEN ibin1, GEN evecinit, long prec)
           GEN z,p1,p2,p3, na = powuu(n,a), nb = powuu(n,b), nab = mulii(na,nb);
           p1 = gmul(gel(tabini, n+1), na);
           p2 = gadd(gmul(gel(tabfin, n+1), nb), gel(tabmid, n+1));
-          p3 = s > 0 ? gsub(p1, p2) : gadd(p1, p2);
+          p3 = x0? gadd(p1, p2) : gsub(p1, p2);
           z = gmul(xy1, gadd(gel(tmp, n+1), gdiv(p3, nab)));
           gel(tmp, n) = gerepileupto(av, z);
         }
@@ -667,7 +667,7 @@ static GEN
 filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long prec)
 {
   GEN tabevec = findabvgenrec(evecinit,&findabvgens);
-  long j, k1, k = lg(evecinit)-1, N = lg(ibin)-2, ltab = lg(tabevec);
+  long j, s, k = lg(evecinit)-1, N = lg(ibin)-2, ltab = lg(tabevec);
 
   for (j = 1; j < ltab; j++)
     if (lg(gel(tabevec, j)) == 2)
@@ -676,23 +676,23 @@ filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long prec)
       if (lg(evec) == 1) gmael(tabevec, j, 1) = ibin;
       if (lg(evec) == 2) gmael(tabevec, j, 1) = ibin1;
     }
-  for (k1 = 2; k1 <= k; k1++)
+  for (s = 2; s <= k; s++)
     for (j = 1; j < ltab; j++)
     {
       GEN e0 = gel(tabevec, j);
-      if (lg(e0) == 3 && lg(gel(e0, 1)) == k1 + 1)
+      if (lg(e0) == 3 && lg(gel(e0, 1)) == s + 1)
       {
         GEN evec = gel(e0, 1), tmp, tabfin, tabini, tabmid;
         long n, a, b, j1, j2, ct = gel(e0,2)[1];
         tabmid = gmael(tabevec, ct, 1);
         tabini = gmael(tabevec, ct + 1, 1);
         tabfin = gmael(tabevec, ct + 2, 1);
-        a = k1 - 1;
-        for (j2 = 1; j2 <= k1 - 2; j2++)
+        a = s - 1;
+        for (j2 = 1; j2 <= s - 2; j2++)
           if (!evec[j2 + 1]) { a = j2; break;}
-        b = k1 - 1;
-        for (j2 = k1 - 2; j2 >= 1; j2--)
-          if (evec[j2 + 1]) { b = k1 - 1 - j2; break; }
+        b = s - 1;
+        for (j2 = s - 2; j2 >= 1; j2--)
+          if (evec[j2 + 1]) { b = s - 1 - j2; break; }
         gel(e0,1) = tmp = cgetg(N + 2, t_VEC); gel(tmp, N+1) = gen_0;
         for (n = N; n >= 1; n--)
         {
