@@ -537,14 +537,31 @@ filllg1(GEN ibin1, GEN r1, GEN y, long N, long prec)
   }
   return v;
 }
-
+static void
+get_ibin(GEN *pibin, GEN *pibin1, long N, long prec)
+{
+  GEN ibin, ibin1;
+  long n;
+  *pibin = ibin = cgetg(N + 2, t_VEC);
+  *pibin1= ibin1= cgetg(N + 2, t_VEC);
+  gel(ibin,1) = gel(ibin1,1) = gen_0; /* unused */
+  gel(ibin,2) = gel(ibin1,2) = real2n(-1,prec);
+  /* cf get_vbin: shifted by 1 :-( */
+  for (n = 2; n <= N; n++)
+  {
+    gel(ibin, n+1) = divru(mulru(gel(ibin, n), n), 4*n-2);
+    gel(ibin1, n+1) = divru(gel(ibin, n+1), n);
+  }
+}
 /* k > 1 */
 static GEN
-filltabM(GEN ibin, GEN ibin1, GEN evecinit, long prec)
+filltabM(GEN evecinit, long N, long prec)
 {
-  GEN r1 = real_1(prec), tabevec = findabvgenrec(evecinit, &findabvgen);
-  long j, j1, s, k = lg(evecinit)-1, N = lg(ibin)-2, ltab = lg(tabevec);
+  GEN ibin, ibin1, tabevec = findabvgenrec(evecinit, &findabvgen);
+  GEN r1 = real_1(prec);
+  long j, j1, s, k = lg(evecinit)-1, ltab = lg(tabevec);
 
+  get_ibin(&ibin, &ibin1, N, prec);
   for (j = 1; j < ltab; j++)
   {
     GEN e = gel(tabevec,j);
@@ -664,11 +681,12 @@ findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
 }
 /* k > 1 */
 static GEN
-filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long prec)
+filltabMs(GEN evecinit, long N, long prec)
 {
-  GEN tabevec = findabvgenrec(evecinit,&findabvgens);
-  long j, s, k = lg(evecinit)-1, N = lg(ibin)-2, ltab = lg(tabevec);
+  GEN tabevec = findabvgenrec(evecinit,&findabvgens), ibin, ibin1;
+  long j, s, k = lg(evecinit)-1, ltab = lg(tabevec);
 
+  get_ibin(&ibin, &ibin1, N, prec);
   for (j = 1; j < ltab; j++)
     if (lg(gel(tabevec, j)) == 2)
     {
@@ -719,26 +737,15 @@ filltabMs(GEN ibin, GEN ibin1, GEN evecinit, long prec)
 static GEN
 zetamultevec(GEN evec, long prec)
 {
-  long log, n, bitprec, prec2, N, k = lg(evec) - 1;
-  GEN all, ibin, ibin1;
+  long log, bitprec, prec2, N, k = lg(evec) - 1;
+  GEN all;
 
   if (k == 0) return gen_1;
   log = typ(evec) == t_VEC;
   bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
   N = 5 + bitprec/2;
   prec2 = nbits2prec(log? bitprec + acros(evec) * N: bitprec);
-  ibin = cgetg(N + 2, t_VEC);
-  ibin1= cgetg(N + 2, t_VEC);
-  gel(ibin,1) = gel(ibin1,1) = gen_0; /* unused */
-  gel(ibin,2) = gel(ibin1,2) = real2n(-1,prec2);
-  /* cf get_vbin: shifted by 1 :-( */
-  for (n = 2; n <= N; n++)
-  {
-    gel(ibin, n+1) = divru(mulru(gel(ibin, n), n), 4*n-2);
-    gel(ibin1, n+1) = divru(gel(ibin, n+1), n);
-  }
-  all = log? filltabM(ibin, ibin1, evec, prec2)
-           : filltabMs(ibin, ibin1, evec, prec2);
+  all = log? filltabM(evec, N, prec2): filltabMs(evec, N, prec2);
   return gprec_wtrunc(gel(all,1), prec);
 }
 
@@ -851,23 +858,14 @@ fillL(long k, long bitprec)
 {
   long N = 1 + bitprec/2, prec = nbits2prec(bitprec);
   long s, j, n, m, K = 1 << (k - 1), K2 = K/2;
-  GEN L, v, p1, p2, r1, pab, S;
+  GEN L, p1, p2, r1, pab, S;
 
   r1 = real_1(prec);
   pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
   for (n = 2; n <= N; n++) gel(pab, n) = powersr(divru(r1, n), k);
   /* 1/n^a = gmael(pab, n, a + 1) */
   L = cgetg(K + 2, t_VEC);
-  gel(L,1) = v = cgetg(N+1, t_VEC);
-  gel(v,1) = gen_0; /* unused */
-  gel(v,2) = real2n(-1,prec);
-  gel(v,3) = invr(utor(6,prec)); /* cf get_vbin: shifted by 1 :-( */
-  for (n = 3; n < N; n++) gel(v,n+1) = divru(mulru(gel(v,n), n), 4*n-2);
-
-  gel(L,2) = p1 = cgetg(N+1, t_VEC);
-  gel(p1,1) = gen_0; /* unused */
-  for (j = 2; j <= N; j++) gel(p1,j) = divru(gel(v,j), j-1);
-
+  get_ibin(&gel(L,1), &gel(L,2), N, prec);
   for (m = 1; m < K2; m++)
   {
     gel(L, m+2) = p1 = cgetg(N+1, t_VEC);
