@@ -37,14 +37,6 @@ fd1(GEN evec, long a, long b)
   for (i = a; i <= b; i++) s = evec[i] | (s << 1);
   return s;
 }
-static GEN
-vfd(GEN evec, long a, long b)
-{
-  GEN e = cgetg(b - a + 2, t_VECSMALL);
-  long i;
-  for (i = a; i <= b; i++) e[i - a + 1] = evec[i];
-  return e;
-}
 
 /* m > 0 */
 static GEN
@@ -447,23 +439,25 @@ Difference with findabv: winit, wfin, and wmid are computed here. */
 static void
 findabvgen(GEN evec, GEN *wmid, GEN *winit, GEN *wfin)
 {
-  long le = lg(evec) - 1, a, b, j;
-  GEN x = gel(evec, 1), y = gel(evec, le);
-  if (le <= 2)
+  long n = lg(evec) - 1, a, b, j;
+  GEN A, B, x = gel(evec, 1), y = gel(evec, n);
+  if (n <= 2)
   {
     *wmid = cgetg(1, t_VEC);
     *winit = mkvec(x);
     *wfin = mkvec(y); return;
   }
-  a = le - 1;
-  for (j = 1; j <= le - 2; j++)
+  a = n - 1;
+  for (j = 1; j <= n - 2; j++)
     if (!gequal1(gel(evec, j + 1))) { a = j; break; }
-  b = le - 1;
-  for (j = le - 2; j >= 1; j--)
-    if (!gequal0(gel(evec, j + 1))) { b = le - 1 - j; break; }
-  *wmid = a + b <= le - 1 ? vecslice(evec, a + 1, le - b) : cgetg(1, t_VEC);
-  *winit = shallowconcat(shallowconcat(x, const_vec(a-1, gen_1)), *wmid);
-  *wfin = shallowconcat(shallowconcat(*wmid, const_vec(b-1,gen_0)), y);
+  b = n - 1;
+  for (j = n - 2; j >= 1; j--)
+    if (!gequal0(gel(evec, j + 1))) { b = n - 1 - j; break; }
+  A = const_vec(a, gen_1); gel(A,1) = x;
+  B = const_vec(b, gen_0); gel(B,b) = y;
+  *wmid = a + b < n? vecslice(evec, a + 1, n - b): cgetg(1, t_VEC);
+  *winit = shallowconcat(A, *wmid);
+  *wfin = shallowconcat(*wmid, B);
 }
 
 static long
@@ -642,27 +636,27 @@ static void
 findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
 {
   GEN wmid, winit, wfin;
-  long le = lg(evec) - 1, a, b, j, lw;
-  if (le <= 2)
+  long n = lg(evec) - 1, a, b, j, m;
+  if (n <= 2)
   {
     *pwmid = cgetg(1, t_VECSMALL);
     *pwinit = mkvecsmall(0);
     *pwfin = mkvecsmall(1); return;
   }
-  a = le - 1;
-  for (j = 1; j <= le - 2; j++) if (!evec[j + 1]) { a = j; break; }
-  b = le - 1;
-  for (j = le - 2; j >= 1; j--) if (evec[j + 1]) { b = le - 1 - j; break; }
+  a = n - 1;
+  for (j = 1; j <= n - 2; j++) if (!evec[j + 1]) { a = j; break; }
+  b = n - 1;
+  for (j = n - 2; j >= 1; j--) if (evec[j + 1]) { b = n - 1 - j; break; }
 
-  *pwmid = wmid = a+b <= le-1? vfd(evec, a+1, le-b): cgetg(1, t_VECSMALL);
-  lw = lg(wmid) - 1;
-  *pwinit = winit = cgetg(a + lw + 1, t_VECSMALL);
+  *pwmid = wmid = a+b < n? vecslice(evec, a+1, n-b): cgetg(1, t_VECSMALL);
+  m = lg(wmid) - 1;
+  *pwinit = winit = cgetg(a + m + 1, t_VECSMALL);
   winit[1] = 0; for (j = 2; j <= a; j++) winit[j] = 1;
-  for (j = a + 1; j <= a + lw; j++) winit[j] = wmid[j - a];
-  *pwfin = wfin = cgetg(b + lw + 1, t_VECSMALL);
-  for (j = 1; j <= lw; j++) wfin[j] = wmid[j];
-  for (j = lw + 1; j < b + lw; j++) wfin[j] = 0;
-  wfin[b + lw] = 1;
+  for (j = a + 1; j <= a + m; j++) winit[j] = wmid[j - a];
+  *pwfin = wfin = cgetg(b + m + 1, t_VECSMALL);
+  for (j = 1; j <= m; j++) wfin[j] = wmid[j];
+  for (j = m + 1; j < b + m; j++) wfin[j] = 0;
+  wfin[b + m] = 1;
 }
 /* k > 1 */
 static GEN
