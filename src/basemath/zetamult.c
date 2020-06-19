@@ -846,7 +846,7 @@ static GEN
 fillL(long k, long bitprec)
 {
   long N = 1 + bitprec/2, prec = nbits2prec(bitprec);
-  long k1, j, n, m, mbar = 0, K = 1 << (k - 1), K2 = K/2;
+  long s, j, n, m, K = 1 << (k - 1), K2 = K/2;
   GEN L, v, p1, p2, r1, pab, S;
 
   r1 = real_1(prec);
@@ -871,24 +871,23 @@ fillL(long k, long bitprec)
     gel(p1, n) = gen_0;
   }
   for (m = K2; m < K; m++) gel(L, m+2) = utor(0, prec);
-  for (k1 = 2; k1 <= k; k1++)
-  { /* Assume length evec < k1 filled */
-    /* If evec = 0e_2...e_{k_1-1}1 then m = (1e_2...e_{k_1-1})_2 */
-    GEN w = cgetg(k1, t_VECSMALL);
-    long M = 1 << (k1 - 2);
+  for (s = 2; s <= k; s++)
+  { /* Assume length evec < s filled */
+    /* If evec = 0e_2...e_{s-1}1 then m = (1e_2...e_{s-1})_2 */
+    GEN w = cgetg(s, t_VECSMALL);
+    long M = 1 << (s - 2);
     pari_sp av = avma;
     for (m = M; m < 2*M; m++)
     {
       GEN pinit, pfin, pmid;
-      long comp, a, b, minit, mfin, mmid, mc = m, ii = 0;
+      long comp, a, b, mbar, minit, mfin, mmid, mc;
       p1 = gel(L, m + 2);
-      for (j = k1 - 1; j >= 2; j--)
+      for (j = s - 1, mc = m, mbar = 1; j >= 2; j--, mc >>= 1)
       {
         w[j] = mc & 1;
-        ii = (1 - w[j]) | (ii<<1);
-        mc >>= 1;
+        mbar = (1 - w[j]) | (mbar << 1);
       }
-      mbar = M + ii; /* m, mbar are dual; handle smallest, copy the other */
+      /* m, mbar are dual; handle smallest, copy the other */
       comp = mbar - m; if (comp < 0) continue; /* m > mbar */
       if (comp)
       {
@@ -906,18 +905,18 @@ fillL(long k, long bitprec)
         GEN t = mpmul(gel(pinit,n+1), gmael(pab, n, a+1));
         GEN u = mpmul(gel(pfin, n+1), gmael(pab, n, b+1));
         GEN v = mpmul(gel(pmid, n+1), gmael(pab, n, a+b+1));
-        S = mpadd(k1 < k ? gel(p1, n+1) : p1, mpadd(mpadd(t, u), v));
-        mpaff(S, k1 < k ? gel(p1, n) : p1);
-        if (p2 && k1 < k) mpaff(S, gel(p2, n));
+        S = mpadd(s < k ? gel(p1, n+1) : p1, mpadd(mpadd(t, u), v));
+        mpaff(S, s < k ? gel(p1, n) : p1);
+        if (p2 && s < k) mpaff(S, gel(p2, n));
       }
       { /* n = 1: same formula simplifies */
         GEN t = gel(pinit,2), u = gel(pfin,2), v = gel(pmid,2);
-        S = mpadd(k1 < k ? gel(p1,2) : p1, mpadd(mpadd(t, u), v));
-        mpaff(S, k1 < k ? gel(p1,1) : p1);
-        if (p2 && k1 < k) mpaff(S, gel(p2, 1));
+        S = mpadd(s < k ? gel(p1,2) : p1, mpadd(mpadd(t, u), v));
+        mpaff(S, s < k ? gel(p1,1) : p1);
+        if (p2 && s < k) mpaff(S, gel(p2, 1));
         set_avma(av);
       }
-      if (p2 && k1 == k) mpaff(p1, p2);
+      if (p2 && s == k) mpaff(p1, p2);
     }
   }
   return L;
