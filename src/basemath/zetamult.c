@@ -437,15 +437,15 @@ Input: vector w=evec
 Output: v=wmid, winit, wfin
 Difference with findabv: winit, wfin, and wmid are computed here. */
 static void
-findabvgen(GEN evec, GEN *wmid, GEN *winit, GEN *wfin)
+findabvgen(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
 {
-  long n = lg(evec) - 1, a, b, j;
-  GEN A, B, x = gel(evec, 1), y = gel(evec, n);
+  long n = lg(evec) - 1, m, a, b, j;
+  GEN wmid, winit, wfin, x = gel(evec, 1), y = gel(evec, n);
   if (n <= 2)
   {
-    *wmid = cgetg(1, t_VEC);
-    *winit = mkvec(x);
-    *wfin = mkvec(y); return;
+    *pwmid = cgetg(1, t_VEC);
+    *pwinit = mkvec(x);
+    *pwfin = mkvec(y); return;
   }
   a = n - 1;
   for (j = 1; j <= n - 2; j++)
@@ -453,11 +453,15 @@ findabvgen(GEN evec, GEN *wmid, GEN *winit, GEN *wfin)
   b = n - 1;
   for (j = n - 2; j >= 1; j--)
     if (!gequal0(gel(evec, j + 1))) { b = n - 1 - j; break; }
-  A = const_vec(a, gen_1); gel(A,1) = x;
-  B = const_vec(b, gen_0); gel(B,b) = y;
-  *wmid = a + b < n? vecslice(evec, a + 1, n - b): cgetg(1, t_VEC);
-  *winit = shallowconcat(A, *wmid);
-  *wfin = shallowconcat(*wmid, B);
+  *pwmid = wmid = a + b < n? vecslice(evec, a + 1, n - b): cgetg(1, t_VEC);
+  m = lg(wmid) - 1;
+  *pwinit = winit = cgetg(a + m + 1, t_VEC);
+  gel(winit,1) = x; for (j = 2; j <= a; j++) gel(winit, j) = gen_1;
+  for (; j <= a + m; j++) gel(winit,j) = gel(wmid,j-a);
+  *pwfin = wfin = cgetg(b + m + 1, t_VEC);
+  for (j = 1; j <= m; j++) gel(wfin,j) = gel(wmid,j);
+  for (; j < b + m; j++) gel(wfin,j) = gen_0;
+  gel(wfin,j) = y;
 }
 
 static long
@@ -652,11 +656,11 @@ findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
   m = lg(wmid) - 1;
   *pwinit = winit = cgetg(a + m + 1, t_VECSMALL);
   winit[1] = 0; for (j = 2; j <= a; j++) winit[j] = 1;
-  for (j = a + 1; j <= a + m; j++) winit[j] = wmid[j - a];
+  for (; j <= a + m; j++) winit[j] = wmid[j-a];
   *pwfin = wfin = cgetg(b + m + 1, t_VECSMALL);
   for (j = 1; j <= m; j++) wfin[j] = wmid[j];
-  for (j = m + 1; j < b + m; j++) wfin[j] = 0;
-  wfin[b + m] = 1;
+  for (; j < b + m; j++) wfin[j] = 0;
+  wfin[j] = 1;
 }
 /* k > 1 */
 static GEN
