@@ -894,10 +894,15 @@ fillL(long k, long bitprec)
         ii = (1 - w[j]) | (ii<<1);
         mc >>= 1;
       }
-      mbar = M + ii;
-      comp = mbar - m;
-      if (comp < 0) continue;
-      p2 = gel(L, mbar + 2);
+      mbar = M + ii; /* m, mbar are dual; handle smallest, copy the other */
+      comp = mbar - m; if (comp < 0) continue; /* m > mbar */
+      if (comp)
+      {
+        p2 = gel(L, mbar + 2);
+        setisclone(p2); /* flag as dual */
+      }
+      else
+        p2 = NULL; /* no copy needed if m = mbar */
       findabv(w, &a,&b,&minit,&mmid,&mfin);
       pinit= gel(L, minit);
       pfin = gel(L, mfin);
@@ -908,25 +913,23 @@ fillL(long k, long bitprec)
         GEN u = mpmul(gel(pfin, n+1), gmael(pab, n, b+1));
         GEN v = mpmul(gel(pmid, n+1), gmael(pab, n, a+b+1));
         S = mpadd(k1 < k ? gel(p1, n+1) : p1, mpadd(mpadd(t, u), v));
-        if (!signe(S)) S = gen_0;
         mpaff(S, k1 < k ? gel(p1, n) : p1);
-        if (comp > 0 && k1 < k) mpaff(S, gel(p2, n));
+        if (p2 && k1 < k) mpaff(S, gel(p2, n));
       }
       { /* n = 1: same formula simplifies */
         GEN t = gel(pinit,2), u = gel(pfin,2), v = gel(pmid,2);
         S = mpadd(k1 < k ? gel(p1,2) : p1, mpadd(mpadd(t, u), v));
-        if (!signe(S)) S = gen_0;
         mpaff(S, k1 < k ? gel(p1,1) : p1);
-        if (comp > 0 && k1 < k) mpaff(S, gel(p2, 1));
+        if (p2 && k1 < k) mpaff(S, gel(p2, 1));
         set_avma(av);
       }
-      if (comp > 0 && k1 == k) mpaff(p1, p2);
+      if (p2 && k1 == k) mpaff(p1, p2);
     }
   }
   return L;
 }
 
-/* bit 0 of flag set: full, otherwise only half
+/* bit 0 of flag set: full, otherwise up to duality (~ half)
  * bit 1 of flag set: all <= k, otherwise only k
  * half: 2^(k-3)+ delta_{k even} * 2^(k/2-2), sum = 2^(k-2)+2^(floor(k/2)-1)-1
  * full: 2^(k-2); sum = 2^(k-1)-1 */
@@ -948,8 +951,8 @@ zetamultall_i(long k, long flag, long prec)
     }
   }
   else
-  {
-    long nres, c = 0;
+  { /* up to duality */
+    long nres, c;
     if (k == 2) nres = 1;
     else if (flag & 1L)
       nres = (1 << (k - 2)) + (1 << ((k/2) - 1)) - 1;
@@ -957,12 +960,16 @@ zetamultall_i(long k, long flag, long prec)
       nres = (1 << (k - 1));
     res = cgetg(nres + 1, t_VEC);
     ind = cgetg(nres + 1, t_VECSMALL);
-    for (m = minit; m < n - 1; m++)
+    for (m = minit, c = 1; m < n - 1; m++)
     {
-      GEN z = m < K2 ? gmael(L, m + 2, 1) : gel(L, m + 2);
-      c++; gel(res, c) = z; ind[c] = m;
+      GEN z = gel(L,m+2);
+      if (isclone(z)) continue; /* dual */
+      if (m < K2) z = gel(z,1);
+      gel(res, c) = z;
+      ind[c] = m; c++;
     }
     setlg(res, c);
+    setlg(ind, c);
   }
   return mkvec2(res, ind);
 }

@@ -31,7 +31,7 @@ LD=[2,2,2,2];
 
 polylogmult([6,1,2,3,4],[-1,1,1,1,1])
 polylogmult([6,1,2,3,4],[-1,1,1,1,1],x)
-for(i=1,7, print(zetamultall(5, i)))
+for(i=1,15, print(zetamultall(5, i)))
 
 avec=[3,1,3,1];
 evec=[0,0,1,1,0,0,1,1];
