@@ -557,32 +557,34 @@ get_ibin(GEN *pibin, GEN *pibin1, long N, long prec)
 static GEN
 filltabM(GEN evecinit, long N, long prec)
 {
-  GEN ibin, ibin1, tabevec = findabvgenrec(evecinit, &findabvgen);
+  GEN Evec = findabvgenrec(evecinit, &findabvgen), ibin, ibin1, pab;
   GEN r1 = real_1(prec);
-  long j, j1, s, k = lg(evecinit)-1, ltab = lg(tabevec);
+  long j, j1, s, k = lg(evecinit)-1, ltab = lg(Evec);
 
+  pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
+  for (j = 2; j <= N; j++) gel(pab, j) = gpowers(utoipos(j), k);
+  /* n^a = pab[n][a+1] */
   get_ibin(&ibin, &ibin1, N, prec);
   for (j = 1; j < ltab; j++)
   {
-    GEN e = gel(tabevec,j);
+    GEN e = gel(Evec,j);
     if (lg(e) == 2)
     {
       GEN evec = gel(e,1);
       if (lg(evec) == 1) gel(e,1) = ibin;
-      if (lg(evec) == 2)
+      else if (lg(evec) == 2)
       {
         GEN y = gel(evec, 1);
         if (isintzero(y) || isint1(y)) gel(e,1) = ibin1;
         else
         {
-          GEN res = filllg1(ibin1, r1, y, N, prec);
-          gel(e,1) = res;
+          GEN r = filllg1(ibin1, r1, y, N, prec);
           for (j1 = j + 1; j1 < ltab; j1++)
           {
-            GEN ev = gel(tabevec, j1);
-            if (lg(ev) == 2 && lg(gel(ev,1)) == 2 && gequal(gmael(ev,1,1), y))
-              gel(ev,1) = res;
+            GEN ev = gel(Evec, j1);
+            if (gidentical(e, ev)) gel(ev,1) = r;
           }
+          gel(e,1) = r;
         }
       }
     }
@@ -590,15 +592,15 @@ filltabM(GEN evecinit, long N, long prec)
   for (s = 2; s <= k; s++)
     for (j = 1; j < ltab; j++)
     {
-      GEN e0 = gel(tabevec, j);
+      GEN e0 = gel(Evec, j);
       if (lg(e0) == 3 && lg(gel(e0, 1)) == s + 1)
       {
-        GEN evec = gel(e0, 1), tmp, tabfin, tabini, tabmid;
+        GEN evec = gel(e0, 1), r, fin, ini, mid;
         GEN xy1, x = gel(evec, 1), y = gel(evec, s);
         long n, a, b, j2, x0, ct = gel(e0,2)[1];
-        tabmid = gmael(tabevec, ct, 1);
-        tabini = gmael(tabevec, ct + 1, 1);
-        tabfin = gmael(tabevec, ct + 2, 1);
+        mid = gmael(Evec, ct, 1);
+        ini = gmael(Evec, ct + 1, 1);
+        fin = gmael(Evec, ct + 2, 1);
         if (gequal0(x)) { x0 = 1; xy1 = gdiv(r1, y); }
         else { x0 = 0; xy1 = gdiv(r1, gmul(gsubsg(1, x), y)); }
         a = s - 1;
@@ -607,25 +609,29 @@ filltabM(GEN evecinit, long N, long prec)
         b = s - 1;
         for (j2 = s - 2; j2 >= 1; j2--)
           if (!isintzero(gel(evec, j2 + 1))) { b = s - 1 - j2; break; }
-        gel(e0,1) = tmp = cgetg(N+2, t_VEC); gel(tmp, N+1) = gen_0;
-        for (n = N; n >= 1; n--)
+        gel(e0,1) = r = cgetg(N+2, t_VEC); gel(r, N+1) = gen_0;
+        for (n = N; n > 1; n--)
         {
           pari_sp av = avma;
-          GEN z,p1,p2,p3, na = powuu(n,a), nb = powuu(n,b), nab = mulii(na,nb);
-          p1 = gmul(gel(tabini, n+1), na);
-          p2 = gadd(gmul(gel(tabfin, n+1), nb), gel(tabmid, n+1));
-          p3 = x0? gadd(p1, p2) : gsub(p1, p2);
-          z = gmul(xy1, gadd(gel(tmp, n+1), gdiv(p3, nab)));
-          gel(tmp, n) = gerepileupto(av, z);
+          GEN t = gmul(gel(ini, n+1), gmael(pab, n, a+1));
+          GEN u = gadd(gmul(gel(fin, n+1), gmael(pab, n, b+1)), gel(mid, n+1));
+          GEN v = gdiv(x0? gadd(t, u): gsub(t, u), gmael(pab, n, a+b+1));
+          gel(r, n) = gerepileupto(av, gmul(xy1, gadd(gel(r, n+1), v)));
+        }
+        { /* n = 1 */
+          pari_sp av = avma;
+          GEN t = gel(ini, 2), u = gadd(gel(fin, 2), gel(mid, 2));
+          GEN v = x0? gadd(t, u): gsub(t, u);
+          gel(r,1) = gerepileupto(av, gmul(xy1, gadd(gel(r,2), v)));
         }
         for (j1 = j + 1; j1 < ltab; j1++)
         {
-          GEN e = gel(tabevec, j1);
-          if (lg(e) == 3 && gequal(gel(e,1), evec)) gel(e,1) = tmp;
+          GEN e = gel(Evec, j1);
+          if (lg(e) == 3 && gequal(gel(e,1), evec)) gel(e,1) = r;
         }
       }
     }
-  return gmael(tabevec, 1, 1);
+  return gmael(Evec, 1, 1);
 }
 
 static GEN
@@ -683,54 +689,63 @@ findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
 static GEN
 filltabMs(GEN evecinit, long N, long prec)
 {
-  GEN tabevec = findabvgenrec(evecinit,&findabvgens), ibin, ibin1;
-  long j, s, k = lg(evecinit)-1, ltab = lg(tabevec);
+  GEN Evec = findabvgenrec(evecinit,&findabvgens), ibin, ibin1, pab;
+  long j, s, k = lg(evecinit)-1, ltab = lg(Evec);
 
+  pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
+  for (j = 2; j <= N; j++) gel(pab, j) = gpowers(utoipos(j), k);
+  /* n^a = pab[n][a+1] */
   get_ibin(&ibin, &ibin1, N, prec);
   for (j = 1; j < ltab; j++)
-    if (lg(gel(tabevec, j)) == 2)
+  {
+    GEN e = gel(Evec,j);
+    if (lg(e) == 2) switch(lg(gel(e,1)))
     {
-      GEN evec = gmael(tabevec, j, 1);
-      if (lg(evec) == 1) gmael(tabevec, j, 1) = ibin;
-      if (lg(evec) == 2) gmael(tabevec, j, 1) = ibin1;
+      case 1: gel(e,1) = ibin; break;
+      case 2: gel(e,1) = ibin1; break;
     }
+  }
   for (s = 2; s <= k; s++)
     for (j = 1; j < ltab; j++)
     {
-      GEN e0 = gel(tabevec, j);
+      GEN e0 = gel(Evec, j);
       if (lg(e0) == 3 && lg(gel(e0, 1)) == s + 1)
       {
-        GEN evec = gel(e0, 1), tmp, tabfin, tabini, tabmid;
+        GEN evec = gel(e0, 1), r, fin, ini, mid;
         long n, a, b, j1, j2, ct = gel(e0,2)[1];
-        tabmid = gmael(tabevec, ct, 1);
-        tabini = gmael(tabevec, ct + 1, 1);
-        tabfin = gmael(tabevec, ct + 2, 1);
+        mid = gmael(Evec, ct, 1);
+        ini = gmael(Evec, ct + 1, 1);
+        fin = gmael(Evec, ct + 2, 1);
         a = s - 1;
         for (j2 = 1; j2 <= s - 2; j2++)
           if (!evec[j2 + 1]) { a = j2; break;}
         b = s - 1;
         for (j2 = s - 2; j2 >= 1; j2--)
           if (evec[j2 + 1]) { b = s - 1 - j2; break; }
-        gel(e0,1) = tmp = cgetg(N + 2, t_VEC); gel(tmp, N+1) = gen_0;
-        for (n = N; n >= 1; n--)
+        gel(e0,1) = r = cgetg(N + 2, t_VEC); gel(r, N+1) = gen_0;
+        for (n = N; n > 1; n--)
         {
           GEN z = cgetr(prec);
           pari_sp av = avma;
-          GEN na = powuu(n, a), nb = powuu(n, b), nab = mulii(na, nb);
-          GEN p1, p2, p3;
-          p1 = gmul(gel(tabini, n+1), na);
-          p2 = gadd(gmul(gel(tabfin, n+1), nb), gel(tabmid, n+1));
-          p3 = gadd(gel(tmp, n+1), gdiv(gadd(p1, p2), nab));
-          mpaff(p3, z); set_avma(av); gel(tmp,n) = z;
+          GEN t = gmul(gel(ini, n+1), gmael(pab, n, a+1));
+          GEN u = gadd(gmul(gel(fin, n+1), gmael(pab, n, b+1)), gel(mid,n+1));
+          GEN v = gdiv(gadd(t, u), gmael(pab, n, a+b+1));
+          mpaff(gadd(gel(r, n+1), v), z); set_avma(av); gel(r,n) = z;
+        }
+        { /* n = 1 */
+          GEN z = cgetr(prec);
+          pari_sp av = avma;
+          GEN t = gel(ini,2), u = gadd(gel(fin,2), gel(mid,2)), v = gadd(t, u);
+          mpaff(gadd(gel(r, 2), v), z); set_avma(av); gel(r,1) = z;
         }
         for (j1 = j + 1; j1 < ltab; j1++)
         {
-          GEN e = gel(tabevec, j1);
-          if (lg(e) == 3 && gequal(gel(e,1), evec)) gel(e,1) = tmp;
+          GEN e = gel(Evec, j1);
+          if (lg(e) == 3 && gequal(gel(e,1), evec)) gel(e,1) = r;
         }
       }
     }
-  return gmael(tabevec, 1, 1);
+  return gmael(Evec, 1, 1);
 }
 
 /* evec t_VECSMALL: mult. polylog with z = [1,...,1] => MZV; else t_VEC */
@@ -859,7 +874,7 @@ fillL(long k, long bitprec)
   r1 = real_1(prec);
   pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
   for (n = 2; n <= N; n++) gel(pab, n) = powersr(divru(r1, n), k);
-  /* 1/n^a = gmael(pab, n, a + 1) */
+  /* 1/n^a = pab[n][a+1] */
   L = cgetg(K + 2, t_VEC);
   get_ibin(&gel(L,1), &gel(L,2), N, prec);
   for (m = 1; m < K2; m++)
