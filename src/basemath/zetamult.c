@@ -749,22 +749,18 @@ zetamultevec(GEN evec, long prec)
   return gprec_wtrunc(gel(all,1), prec);
 }
 
-static GEN
-zetamultrec_i(GEN avec, long prec)
-{
-  pari_sp av = avma;
-  if (lg(avec) == 1) return gen_1;
-  if (lg(avec) == 2) return szeta(avec[1], prec);
-  return gerepilecopy(av, zetamultevec(atoe(avec), prec));
-}
-
 GEN
 polylogmult(GEN s, GEN zvec, long prec)
 {
   pari_sp av = avma;
   GEN avec = zetamultconvert_i(s, 1);
 
-  if (!zvec) return gerepileupto(av, zetamultrec_i(avec, prec));
+  if (!zvec)
+  {
+    if (lg(avec) == 1) return gc_const(av, gen_1);
+    if (lg(avec) == 2) return gerepileupto(av, szeta(avec[1], prec));
+    return gerepilecopy(av, zetamultevec(atoe(avec), prec));
+  }
   switch (typ(zvec))
   {
     case t_INT: case t_FRAC: case t_REAL: case t_COMPLEX:
