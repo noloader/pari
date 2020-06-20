@@ -5,7 +5,7 @@ Prototype: G
 Help: zetamultdual(s): s being either an evec, avec, or index m,
  return the dual sequence in avec format.
 Doc: $s$ being either an \kbd{evec}, \kbd{avec}, or index \kbd{m},
- return the dual sequence in \kbd{avec} format, which has the same weight.
+ return the dual sequence in \kbd{avec} format.
  The dual of a sequence of  length $r$ and weight $k$ has length $k-r$ and
  weight $k$. Duality is an involution and zeta values attached to
  dual sequences are the same:
