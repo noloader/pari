@@ -33,6 +33,7 @@ polylogmult([6,1,2,3,4],[-1,1,1,1,1])
 polylogmult([6,1,2,3,4],[-1,1,1,1,1],x)
 for(i=1,15, print(zetamultall(5, i)))
 
+default(realprecision,38);
 polylogmult([2,1], exp(2*I*Pi/7) * [1,1])
 polylogmult([2,1,1], exp(2*I*Pi/7) * [1,1,1])
 polylogmult([2,1,1,1], exp(2*I*Pi/7) * [1,1,1,1])
