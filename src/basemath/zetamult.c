@@ -464,17 +464,21 @@ findabvgen(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
   gel(wfin,j) = y;
 }
 
-static long
+static double
 acros(GEN evec)
 {
   pari_sp av = avma;
   long l = lg(evec);
   GEN u, v, wmid, winit, wfin;
+  double z;
   if (l <= 2) return 0;
   findabvgen(evec, &wmid, &winit, &wfin);
   u = gel(evec,1); v = gel(evec,l-1);
-  return gc_long(av, maxss(-gexpo(gmul(gsubsg(1, u), v)), 0)
-                     + maxss(acros(wmid), maxss(acros(winit), acros(wfin))));
+  z = -dbllog2(gmul(gsubsg(1, u), v)); if (z < 0) z = 0;
+  z = maxdd(z, acros(winit));
+  z = maxdd(z, acros(wmid));
+  z = maxdd(z, acros(wfin));
+  return gc_double(av, z);
 }
 
 static GEN
@@ -753,13 +757,22 @@ static GEN
 zetamultevec(GEN evec, long prec)
 {
   long log, bitprec, prec2, N, k = lg(evec) - 1;
+  double z;
   GEN all;
 
   if (k == 0) return gen_1;
   log = typ(evec) == t_VEC;
   bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
-  N = 5 + bitprec/2;
-  prec2 = nbits2prec(log? bitprec + acros(evec) * N: bitprec);
+  if (log)
+  {
+    z = acros(evec);
+    if (z >= 2) pari_err_IMPL("polylogmult in this range");
+    N = 5 + bitprec/ (2 - z);
+    bitprec += z * N;
+  }
+  else
+    N = 5 + bitprec/2;
+  prec2 = nbits2prec(bitprec);
   all = log? filltabM(evec, N, prec2): filltabMs(evec, N, prec2);
   return gprec_wtrunc(gel(all,1), prec);
 }

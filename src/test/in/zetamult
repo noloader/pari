@@ -33,6 +33,10 @@ polylogmult([6,1,2,3,4],[-1,1,1,1,1])
 polylogmult([6,1,2,3,4],[-1,1,1,1,1],x)
 for(i=1,15, print(zetamultall(5, i)))
 
+polylogmult([2,1], exp(2*I*Pi/7) * [1,1])
+polylogmult([2,1,1], exp(2*I*Pi/7) * [1,1,1])
+polylogmult([2,1,1,1], exp(2*I*Pi/7) * [1,1,1,1])
+
 avec=[3,1,3,1];
 evec=[0,0,1,1,0,0,1,1];
 a=89;

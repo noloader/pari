@@ -24,14 +24,14 @@ Doc: For $s$ a vector of positive integers and $z$ a vector of complex
  ? 8*polylogmult([2,1],[-1,1]) - zeta(3)
  %1 = 0.E-38
  @eprog\noindent
- \misctitle{Warning} The algorithm used is rigorous only when the $z_i$ are
+ \misctitle{Warning} The algorithm used converges when the $z_i$ are
  $\pm 1$. It may not converge as some $z_i \neq 1$ becomes too close to $1$,
  even at roots of $1$ of moderate order:
  \bprog
  ? polylogmult([2,1], (99+20*I)/101 * [1,1])
- %1 = -1969551.68[...] - 2035013.45[...]*I \\ junk
+  *** polylogmult: sorry, polylogmult in this range is not yet implemented.
  ? polylogmult([2,1], exp(I*Pi/50)* [1,1])
- %2 = -6.7 [...] E131 + 7.1 [...] E132*I   \\ junk
+  *** polylogmult: sorry, polylogmult in this range is not yet implemented.
  @eprog
 Variant: Also available is
   \fun{GEN}{polylogmult}{GEN s, GEN z, long prec} ($t$ is \kbd{NULL}).
