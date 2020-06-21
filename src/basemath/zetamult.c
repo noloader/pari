@@ -773,6 +773,7 @@ zetamultevec(GEN evec, long prec)
   else
     N = 5 + bitprec/2;
   prec2 = nbits2prec(bitprec);
+  evec = gprec_wensure(evec, prec2);
   all = log? filltabM(evec, N, prec2): filltabMs(evec, N, prec2);
   return gprec_wtrunc(gel(all,1), prec);
 }
