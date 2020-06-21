@@ -54,7 +54,8 @@ Variant: Instead of hardcoded  numerical flags,  one should rather use
  \bprog
    bnrisprincipal(bnr, x, nf_GEN)
  @eprog
- Also available is \fun{GEN}{bnrisprincipalmod}{GEN bnr, GEN x, GEN mod, long
- flag} that returns the discrete logarithm of~$x$ modulo the~\typ{INT}
+ Also available is
+ \fun{GEN}{bnrisprincipalmod}{GEN bnr, GEN x, GEN mod, long flag}
+ that returns the discrete logarithm of~$x$ modulo the~\typ{INT}
  \kbd{mod}; the value~$\kbd{mod = NULL}$ is treated as~$0$ (full discrete
  logarithm), and~$\kbd{flag}=1$ is not allowed if~\kbd{mod} is set.
