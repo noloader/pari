@@ -7,11 +7,11 @@ Description:
  (,gen,?gen,closure):void forqfvec1(${4 cookie}, ${4 wrapper}, $2, $3)
 Help:forqfvec(v,q,b,expr): q being a square and symmetric integral matrix
  representing an positive definite quadratic form, evaluate expr
- for all vectors v such that q(v)<=b.
+ for all pairs of non-zero vectors (-v, v) such that q(v)<=b.
 Doc: $q$ being a square and symmetric integral matrix representing a positive
- definite
- quadratic form, evaluate \kbd{expr} for all vector $v$ such that $q(v)\leq b$.
- The formal variable $v$ runs through all such vectors in turn.
+ definite quadratic form, evaluate \kbd{expr} for all pairs of non-zero
+ vectors $(-v,v)$ such that $q(v)\leq b$. The formal variable $v$ runs
+ through representatives of all such pairs in turn.
  \bprog
  ? forqfvec(v, [3,2;2,3], 3, print(v))
  [0, 1]~
