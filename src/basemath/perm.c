@@ -499,7 +499,7 @@ perm_to_Z_inplace(GEN v)
 {
   long l = lg(v), i, r;
   GEN x = gen_0;
-  if (!isperm(v)) pari_err_TYPE("permsign",v);
+  if (!isperm(v)) return NULL;
   for (i = 1; i < l; i++)
   {
     long vi = v[i];
