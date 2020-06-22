@@ -177,9 +177,7 @@ BA  45- closures: do not copy the full context, only the accessible part
     53- dvdxxx(x,y) allow y = 0 [and return 0 unless x = 0]
     54- [libpari] bnrsurjection now returns [matrix, cyc(F), cyc(f)]
     55- idealstar: optional argument to compute G/G^n, avoid tough discrete logs
-HC  56- zetamultall: add flag and change default behaviour; now returns all zeta
-        values "of weight k" instead of "to weight <= k" and only up to duality.
-        The old behaviour is flag = 6
+HC  56- zetamultall: add flag
     57- subgrouplist: allow any object affording a .cyc method
 
   Added
