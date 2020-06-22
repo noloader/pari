@@ -1230,7 +1230,8 @@ galoisanalysis(GEN T, struct galois_analysis *ga, long calcul_l, GEN bad)
   ga->p = plift;
   if (!plift || ((group&ga_non_wss) && order == Fp[np]))
   {
-    pari_warn(warner,"Galois group almost certainly not weakly super solvable");
+    if (DEBUGLEVEL)
+      pari_warn(warner,"Galois group probably not weakly super solvable");
     return 0;
   }
   linf = 2*n*usqrt(n);
@@ -1928,7 +1929,8 @@ galoisfindfrobenius(GEN T, GEN L, GEN den, GEN bad, struct galois_frobenius *gf,
     if (!gmask) return gc_NULL(ltop);
     if ((ga->group&ga_non_wss) && ++Try > ((3*n)>>1))
     {
-      pari_warn(warner,"Galois group probably not weakly super solvable");
+      if (DEBUGLEVEL)
+        pari_warn(warner,"Galois group probably not weakly super solvable");
       return NULL;
     }
   }
