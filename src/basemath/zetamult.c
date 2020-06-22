@@ -949,8 +949,8 @@ fillL(long k, long bitprec)
   return L;
 }
 
-/* bit 0 of flag set: full, otherwise up to duality (~ half)
- * bit 1 of flag set: all <= k, otherwise only k
+/* bit 1 of flag unset: full, otherwise up to duality (~ half)
+ * bit 2 of flag unset: all <= k, otherwise only k
  * half: 2^(k-3)+ delta_{k even} * 2^(k/2-2), sum = 2^(k-2)+2^(floor(k/2)-1)-1
  * full: 2^(k-2); sum = 2^(k-1)-1 */
 static GEN
@@ -959,8 +959,8 @@ zetamultall_i(long k, long flag, long prec)
   GEN res, ind, L = fillL(k, prec2nbits(prec) + 32);
   long m, minit, K2 = 1 << (k-2), n = lg(L) - 1;
 
-  minit = (flag & 2L) ? 1 : K2;
-  if (flag & 1L)
+  minit = (flag & 4L) ? K2 : 1;
+  if (!(flag & 2L))
   {
     res = cgetg(n - minit, t_VEC);
     ind = cgetg(n - minit, t_VECSMALL);
@@ -974,7 +974,7 @@ zetamultall_i(long k, long flag, long prec)
   { /* up to duality */
     long nres, c;
     if (k == 2) nres = 1;
-    else if (flag & 1L)
+    else if (!(flag & 2L))
       nres = (1 << (k - 2)) + (1 << ((k/2) - 1)) - 1;
     else
       nres = (1 << (k - 1));
@@ -1006,8 +1006,8 @@ atom(GEN avec)
 }
 static long
 atoind(GEN avec, long flag)
-{ return atom(avec) + (flag? (1 << (zv_sum(avec) - 2)): 1); }
-/* If flag is set, L has all k1 <= k, otherwise only k */
+{ return atom(avec) + (flag? 1: (1 << (zv_sum(avec) - 2))); }
+/* If flag is unset, L has all k1 <= k, otherwise only k */
 static GEN
 zetamultstar_i(GEN L, GEN avec, long flag)
 {
@@ -1018,31 +1018,32 @@ zetamultstar_i(GEN L, GEN avec, long flag)
 }
 
 /* bit 0: notstar/star
- * bit 1: half/full (ignored if notstar, always full)
- * bit 2: only k/all <= k
- * bit 3: without/with avec index */
+ * bit 1: full/half (ignored if star, always full)
+ * bit 2: all <= k / only k
+ * bit 3: without / with index */
 GEN
 zetamultall(long k, long flag, long prec)
 {
   pari_sp av = avma;
   GEN Lind, L, res;
-  long K, k1, ct, fl = flag >> 1;
+  long K, k1, ct, fl;
 
+  if (flag < 0 || flag > 15) pari_err_FLAG("zetamultall");
   if (k < 1) pari_err_DOMAIN("zetamultall", "k", "<", gen_1, stoi(k));
   if (k >= 64) pari_err_OVERFLOW("zetamultall");
   if (!(flag & 1L))
   { /* not star */
-    Lind = zetamultall_i(k, fl, prec);
+    Lind = zetamultall_i(k, flag, prec);
     res = (flag & 8L)? Lind : gel(Lind, 1);
     return gerepilecopy(av, res);
   }
   /* star */
-  fl = (flag >> 1) & 2L; /* 2 if all <= k, else k */
-  Lind = gerepilecopy(av, zetamultall_i(k, fl | 1L, prec)); /* full */
+  fl = flag & 4L; /* 4 if k, else 0 (all <= k) */
+  Lind = gerepilecopy(av, zetamultall_i(k, fl, prec)); /* full */
   L = gel(Lind, 1);
   K = 1 << (k - 2);
-  res = cgetg(fl? 2*K: K+1, t_VEC);
-  for (ct = 1, k1 = fl? 2: k; k1 <= k; k1++)
+  res = cgetg(fl? K+1: 2*K, t_VEC);
+  for (ct = 1, k1 = fl? k: 2; k1 <= k; k1++)
   {
     GEN w = cgetg(k1 + 1, t_VECSMALL);
     long M = 1 << (k1 - 1), m;
@@ -1051,7 +1052,7 @@ zetamultall(long k, long flag, long prec)
       pari_sp av = avma;
       long j, mc = m;
       for (j = k1; j >= 1; j--) { w[j] = mc & 1; mc >>= 1; }
-      gel(res, ct++) = gerepileupto(av, zetamultstar_i(L, etoa(w), fl >> 1));
+      gel(res, ct++) = gerepileupto(av, zetamultstar_i(L, etoa(w), fl));
     }
   }
   if (flag & 8L) res = mkvec2(res, gel(Lind, 2));
