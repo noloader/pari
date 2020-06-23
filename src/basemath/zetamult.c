@@ -957,17 +957,16 @@ static GEN
 zetamultall_i(long k, long flag, long prec)
 {
   GEN res, ind, L = fillL(k, prec2nbits(prec) + 32);
-  long m, minit, K2 = 1 << (k-2), n = lg(L) - 1;
+  long m, K2 = 1 << (k-2), n = lg(L) - 1, m0 = (flag & 4L) ? K2 : 1;
 
-  minit = (flag & 4L) ? K2 : 1;
   if (!(flag & 2L))
   {
-    res = cgetg(n - minit, t_VEC);
-    ind = cgetg(n - minit, t_VECSMALL);
-    for (m = minit; m < n - 1; m++)
+    res = cgetg(n - m0, t_VEC);
+    ind = cgetg(n - m0, t_VECSMALL);
+    for (m = m0; m < n - 1; m++)
     {
-      gel(res, m - minit + 1) = m < K2 ? gmael(L, m + 2, 1) : gel(L, m + 2);
-      ind[m - minit + 1] = m;
+      gel(res, m - m0 + 1) = m < K2 ? gmael(L, m + 2, 1) : gel(L, m + 2);
+      ind[m - m0 + 1] = m;
     }
   }
   else
@@ -980,7 +979,7 @@ zetamultall_i(long k, long flag, long prec)
       nres = (1 << (k - 1));
     res = cgetg(nres + 1, t_VEC);
     ind = cgetg(nres + 1, t_VECSMALL);
-    for (m = minit, c = 1; m < n - 1; m++)
+    for (m = m0, c = 1; m < n - 1; m++)
     {
       GEN z = gel(L,m+2);
       if (isclone(z)) continue; /* dual */
