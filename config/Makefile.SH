@@ -262,6 +262,7 @@ DOCDIR    = \$(DATADIR)/doc
 INSTALL = $cfg/install
 INSTALL_PROGRAM = \$(INSTALL)
 INSTALL_DATA = \$(INSTALL) -m 644
+TAR = tar
 
 # Readline
 RLINCLUDE = $RLINCLUDE
@@ -484,14 +485,12 @@ install-examples:
 	-\$(INSTALL_DATA) $ex/taylor.gp   \$(EXDIR)
 
 install-data:
-	-if test -d $data; then cd $data; \
-	   for d in \`ls\`; do \
-	     mkdir -p \$(DATADIR)/\$\$d && \
-	     for f in \`ls \$\$d\`; do \
-	       \$(INSTALL_DATA) \$\$d/\$\$f \$(DATADIR)/\$\$d; \
-	     done >/dev/null;\
-	   done; \
-	 fi
+	mkdir -p \$(DATADIR); \
+	if test -d $data; then cd $data; \
+	  for d in \`ls\`; do \
+            test -d "\$\$d" && (\$(TAR) c \$\$d | (cd \$(DATADIR) && \$(TAR) x )); \
+	  done; \
+	fi;
 
 link-data:
 	mkdir -p \$(DATADIR); \
