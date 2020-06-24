@@ -526,7 +526,7 @@ fillrec(hashtable *H, GEN evec, GEN pab, GEN ibin1, GEN r1, long N, long prec)
   if (s == 1)
   {
     r = filllg1(ibin1, r1, x, N, prec);
-    hash_insert(H, evec, r); return r;
+    hash_insert(H, (void*)evec, (void*)r); return r;
   }
   findabvgen(evec, &wmid, &wini, &wfin, &a, &b);
   y = gel(evec, s);
@@ -683,16 +683,16 @@ zetamultevec(GEN evec, long prec)
   get_ibin(&ibin, &ibin1, N, prec2);
   if (fl)
   {
-    hash_insert(H, cgetg(1, t_VEC), ibin);
-    hash_insert(H, mkvec(gen_0), ibin1);
-    hash_insert(H, mkvec(gen_1), ibin1);
+    hash_insert(H, (void*)cgetg(1, t_VEC), (void*)ibin);
+    hash_insert(H, (void*)mkvec(gen_0), (void*)ibin1);
+    hash_insert(H, (void*)mkvec(gen_1), (void*)ibin1);
     r = fillrec(H, evec, pab, ibin1, real_1(prec2), N, prec2);
   }
   else
   {
-    hash_insert(H, cgetg(1, t_VECSMALL), ibin);
-    hash_insert(H, mkvecsmall(0), ibin1);
-    hash_insert(H, mkvecsmall(1), ibin1);
+    hash_insert(H, (void*)cgetg(1, t_VECSMALL), (void*)ibin);
+    hash_insert(H, (void*)mkvecsmall(0), (void*)ibin1);
+    hash_insert(H, (void*)mkvecsmall(1), (void*)ibin1);
     r = fillrecs(H, evec, pab, N, prec2);
   }
   if (DEBUGLEVEL) err_printf("polylogmult: k = %ld, %ld nodes\n", k, H->nb);
