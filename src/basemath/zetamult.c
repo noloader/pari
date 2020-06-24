@@ -464,23 +464,6 @@ findabvgen(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
   gel(wfin,j) = y;
 }
 
-static double
-acros(GEN evec)
-{
-  pari_sp av = avma;
-  long l = lg(evec);
-  GEN u, v, wmid, winit, wfin;
-  double z;
-  if (l <= 2) return 0;
-  findabvgen(evec, &wmid, &winit, &wfin);
-  u = gel(evec,1); v = gel(evec,l-1);
-  z = -dbllog2(gmul(gsubsg(1, u), v)); if (z < 0) z = 0;
-  z = maxdd(z, acros(winit));
-  z = maxdd(z, acros(wmid));
-  z = maxdd(z, acros(wfin));
-  return gc_double(av, z);
-}
-
 /* y != 0,1 */
 static GEN
 filllg1(GEN ibin1, GEN r1, GEN y, long N, long prec)
@@ -676,7 +659,20 @@ zetamultevec(GEN evec, long prec)
   bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
   if (fl)
   {
-    z = acros(evec);
+    pari_sp av = avma;
+    double *x, *y;
+    long i;
+    x = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
+    y = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
+    for (j = 1; j <= k; j++)
+    {
+      GEN t = gel(evec,j);
+      x[j] = gequal1(t)? 0: -dbllog2(gsubsg(1, t));
+      y[j] = gequal0(t)? 0: -dbllog2(t);
+    }
+    for (i = 1; i < k; i++)
+      for (j = i+1; j <= k; j++) z = maxdd(z, x[i] + y[j]);
+    set_avma(av);
     if (z >= 2) pari_err_IMPL("polylogmult in this range");
     N = 5 + bitprec/ (2 - z);
     bitprec += z * N;
