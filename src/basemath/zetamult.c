@@ -437,23 +437,26 @@ Input: vector w=evec
 Output: v=wmid, winit, wfin
 Difference with findabv: winit, wfin, and wmid are computed here. */
 static void
-findabvgen(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
+findabvgen(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin, long *pa, long *pb)
 {
-  long n = lg(evec) - 1, m, a, b, j;
-  GEN wmid, winit, wfin, x = gel(evec, 1), y = gel(evec, n);
-  if (n <= 2)
+  long s = lg(evec) - 1, m, a, b, j;
+  GEN wmid, winit, wfin, x = gel(evec, 1), y = gel(evec, s);
+  if (s <= 2)
   {
     *pwmid = cgetg(1, t_VEC);
     *pwinit = mkvec(x);
-    *pwfin = mkvec(y); return;
+    *pwfin = mkvec(y);
+    *pa = *pb = s - 1; return;
   }
-  a = n - 1;
-  for (j = 1; j <= n - 2; j++)
+  a = s - 1;
+  for (j = 1; j <= s - 2; j++)
     if (!gequal1(gel(evec, j + 1))) { a = j; break; }
-  b = n - 1;
-  for (j = n - 2; j >= 1; j--)
-    if (!gequal0(gel(evec, j + 1))) { b = n - 1 - j; break; }
-  *pwmid = wmid = a + b < n? vecslice(evec, a + 1, n - b): cgetg(1, t_VEC);
+  *pa = a;
+  b = s - 1;
+  for (j = s - 2; j >= 1; j--)
+    if (!gequal0(gel(evec, j + 1))) { b = s - 1 - j; break; }
+  *pb = b;
+  *pwmid = wmid = a + b < s? vecslice(evec, a + 1, s - b): cgetg(1, t_VEC);
   m = lg(wmid) - 1;
   *pwinit = winit = cgetg(a + m + 1, t_VEC);
   gel(winit,1) = x; for (j = 2; j <= a; j++) gel(winit, j) = gen_1;
@@ -514,7 +517,7 @@ get_ibin(GEN *pibin, GEN *pibin1, long N, long prec)
 static GEN
 fillrec(hashtable *H, GEN evec, GEN pab, GEN ibin1, GEN r1, long N, long prec)
 {
-  long n, a, b, s, j, x0;
+  long n, a, b, s, x0;
   GEN xy1, x, y, r, wmid, wini, wfin, mid, ini, fin;
   hashentry *ep = hash_search(H, evec);
 
@@ -525,19 +528,13 @@ fillrec(hashtable *H, GEN evec, GEN pab, GEN ibin1, GEN r1, long N, long prec)
     r = filllg1(ibin1, r1, x, N, prec);
     hash_insert(H, evec, r); return r;
   }
-  findabvgen(evec, &wmid, &wini, &wfin);
+  findabvgen(evec, &wmid, &wini, &wfin, &a, &b);
   y = gel(evec, s);
   mid = fillrec(H, wmid, pab, ibin1, r1, N, prec);
   ini = fillrec(H, wini, pab, ibin1, r1, N, prec);
   fin = fillrec(H, wfin, pab, ibin1, r1, N, prec);
   if (gequal0(x)) { x0 = 1; xy1 = gdiv(r1, y); }
   else { x0 = 0; xy1 = gdiv(r1, gmul(gsubsg(1, x), y)); }
-  a = s - 1;
-  for (j = 1; j <= s - 2; j++)
-    if (!isint1(gel(evec, j + 1))) { a = j; break; }
-  b = s - 1;
-  for (j = s - 2; j >= 1; j--)
-    if (!isintzero(gel(evec, j + 1))) { b = s - 1 - j; break; }
   r = cgetg(N+2, t_VEC); gel(r, N+1) = gen_0;
   for (n = N; n > 1; n--)
   {
@@ -582,22 +579,25 @@ aztoe(GEN avec, GEN zvec, long prec)
 /* Special case of zvec = [1,1,...], i.e., zetamult.       */
 /***********************************************************/
 static void
-findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
+findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin, long *pa, long *pb)
 {
   GEN wmid, winit, wfin;
-  long n = lg(evec) - 1, a, b, j, m;
-  if (n <= 2)
+  long s = lg(evec) - 1, a, b, j, m;
+  if (s <= 2)
   {
     *pwmid = cgetg(1, t_VECSMALL);
     *pwinit = mkvecsmall(0);
-    *pwfin = mkvecsmall(1); return;
+    *pwfin = mkvecsmall(1);
+    *pa = *pb = s - 1; return;
   }
-  a = n - 1;
-  for (j = 1; j <= n - 2; j++) if (!evec[j + 1]) { a = j; break; }
-  b = n - 1;
-  for (j = n - 2; j >= 1; j--) if (evec[j + 1]) { b = n - 1 - j; break; }
+  a = s - 1;
+  for (j = 1; j <= s - 2; j++) if (!evec[j + 1]) { a = j; break; }
+  *pa = a;
+  b = s - 1;
+  for (j = s - 2; j >= 1; j--) if (evec[j + 1]) { b = s - 1 - j; break; }
+  *pb = b;
 
-  *pwmid = wmid = a+b < n? vecslice(evec, a+1, n-b): cgetg(1, t_VECSMALL);
+  *pwmid = wmid = a+b < s? vecslice(evec, a+1, s-b): cgetg(1, t_VECSMALL);
   m = lg(wmid) - 1;
   *pwinit = winit = cgetg(a + m + 1, t_VECSMALL);
   winit[1] = 0; for (j = 2; j <= a; j++) winit[j] = 1;
@@ -610,22 +610,16 @@ findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin)
 static GEN
 fillrecs(hashtable *H, GEN evec, GEN pab, long N, long prec)
 {
-  long n, a, b, s, j;
+  long n, a, b, s;
   GEN r, wmid, wini, wfin, mid, ini, fin;
   hashentry *ep = hash_search(H, evec);
 
   if (ep) return (GEN)ep->val;
-  findabvgens(evec, &wmid, &wini, &wfin);
+  findabvgens(evec, &wmid, &wini, &wfin, &a, &b);
   mid = fillrecs(H, wmid, pab, N, prec);
   ini = fillrecs(H, wini, pab, N, prec);
   fin = fillrecs(H, wfin, pab, N, prec);
   s = lg(evec)-1;
-  a = s - 1;
-  for (j = 1; j <= s - 2; j++)
-    if (!evec[j + 1]) { a = j; break;}
-  b = s - 1;
-  for (j = s - 2; j >= 1; j--)
-    if (evec[j + 1]) { b = s - 1 - j; break; }
   r = cgetg(N + 2, t_VEC); gel(r, N+1) = gen_0;
   for (n = N; n > 1; n--)
   {
