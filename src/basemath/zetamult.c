@@ -563,13 +563,16 @@ filltabM(GEN evecinit, long N, long prec)
 {
   GEN Evec = findabvgenrec(evecinit, &findabvgen), ibin, ibin1, pab;
   GEN r1 = real_1(prec);
-  long j, j1, s, k = lg(evecinit)-1, ltab = lg(Evec);
+  long j, j1, s, k = lg(evecinit)-1, nE = lg(Evec)-1;
 
+  if (DEBUGLEVEL)
+    err_printf("polylogmult: k = %ld, %ld nodes ~ %.2f^k\n", k, nE,
+               log((double)nE) / k);
   pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
   for (j = 2; j <= N; j++) gel(pab, j) = gpowers(utoipos(j), k);
   /* n^a = pab[n][a+1] */
   get_ibin(&ibin, &ibin1, N, prec);
-  for (j = 1; j < ltab; j++)
+  for (j = 1; j <= nE; j++)
   {
     GEN e = gel(Evec,j);
     if (lg(e) == 2)
@@ -583,7 +586,7 @@ filltabM(GEN evecinit, long N, long prec)
         else
         {
           GEN r = filllg1(ibin1, r1, y, N, prec);
-          for (j1 = j + 1; j1 < ltab; j1++)
+          for (j1 = j + 1; j1 <= nE; j1++)
           {
             GEN ev = gel(Evec, j1);
             if (gidentical(e, ev)) gel(ev,1) = r;
@@ -594,7 +597,7 @@ filltabM(GEN evecinit, long N, long prec)
     }
   }
   for (s = 2; s <= k; s++)
-    for (j = 1; j < ltab; j++)
+    for (j = 1; j <= nE; j++)
     {
       GEN e0 = gel(Evec, j);
       if (lg(e0) == 3 && lg(gel(e0, 1)) == s + 1)
@@ -628,7 +631,7 @@ filltabM(GEN evecinit, long N, long prec)
           GEN v = x0? gadd(t, u): gsub(t, u);
           gel(r,1) = gerepileupto(av, gmul(xy1, gadd(gel(r,2), v)));
         }
-        for (j1 = j + 1; j1 < ltab; j1++)
+        for (j1 = j + 1; j1 <= nE; j1++)
         {
           GEN e = gel(Evec, j1);
           if (lg(e) == 3 && gequal(gel(e,1), evec)) gel(e,1) = r;
@@ -694,13 +697,16 @@ static GEN
 filltabMs(GEN evecinit, long N, long prec)
 {
   GEN Evec = findabvgenrec(evecinit,&findabvgens), ibin, ibin1, pab;
-  long j, s, k = lg(evecinit)-1, ltab = lg(Evec);
+  long j, s, k = lg(evecinit)-1, nE = lg(Evec)-1;
 
+  if (DEBUGLEVEL)
+    err_printf("polylogmult: k = %ld, %ld nodes ~ %.2f^k\n", k, nE,
+               log((double)nE) / k);
   pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
   for (j = 2; j <= N; j++) gel(pab, j) = gpowers(utoipos(j), k);
   /* n^a = pab[n][a+1] */
   get_ibin(&ibin, &ibin1, N, prec);
-  for (j = 1; j < ltab; j++)
+  for (j = 1; j <= nE; j++)
   {
     GEN e = gel(Evec,j);
     if (lg(e) == 2) switch(lg(gel(e,1)))
@@ -710,7 +716,7 @@ filltabMs(GEN evecinit, long N, long prec)
     }
   }
   for (s = 2; s <= k; s++)
-    for (j = 1; j < ltab; j++)
+    for (j = 1; j <= nE; j++)
     {
       GEN e0 = gel(Evec, j);
       if (lg(e0) == 3 && lg(gel(e0, 1)) == s + 1)
@@ -742,7 +748,7 @@ filltabMs(GEN evecinit, long N, long prec)
           GEN t = gel(ini,2), u = gadd(gel(fin,2), gel(mid,2)), v = gadd(t, u);
           mpaff(gadd(gel(r, 2), v), z); set_avma(av); gel(r,1) = z;
         }
-        for (j1 = j + 1; j1 < ltab; j1++)
+        for (j1 = j + 1; j1 <= nE; j1++)
         {
           GEN e = gel(Evec, j1);
           if (lg(e) == 3 && gequal(gel(e,1), evec)) gel(e,1) = r;
@@ -1116,10 +1122,10 @@ zetamult_zagier_i(GEN avec, long prec)
 }
 
 GEN
-zetamult_zagier(GEN avec, long prec)
+zetamult_zagier(GEN s, long prec)
 {
   pari_sp av = avma;
-  GEN a = vecsmall_reverse(gtovecsmall(avec));
+  GEN a = vecsmall_reverse(zetamultconvert_i(s,1));
   return gerepilecopy(av, zetamult_zagier_i(a, prec));
 }
 
@@ -1198,9 +1204,9 @@ zetamult_interpolate2_i(GEN avec, GEN t, long prec)
 }
 
 GEN
-zetamult_interpolate2(GEN avec, GEN t, long prec)
+zetamult_interpolate2(GEN s, GEN t, long prec)
 {
   pari_sp av = avma;
-  GEN a = vecsmall_reverse(gtovecsmall(avec));
+  GEN a = vecsmall_reverse(zetamultconvert(s,1));
   return gerepilecopy(av, zetamult_interpolate2_i(a, t, prec));
 }
