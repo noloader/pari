@@ -610,7 +610,7 @@ findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin, long *pa, long *pb)
 static GEN
 fillrecs(hashtable *H, GEN evec, GEN pab, long N, long prec)
 {
-  long n, a, b, s;
+  long n, a, b;
   GEN r, wmid, wini, wfin, mid, ini, fin;
   hashentry *ep = hash_search(H, evec);
 
@@ -619,7 +619,6 @@ fillrecs(hashtable *H, GEN evec, GEN pab, long N, long prec)
   mid = fillrecs(H, wmid, pab, N, prec);
   ini = fillrecs(H, wini, pab, N, prec);
   fin = fillrecs(H, wfin, pab, N, prec);
-  s = lg(evec)-1;
   r = cgetg(N + 2, t_VEC); gel(r, N+1) = gen_0;
   for (n = N; n > 1; n--)
   {
@@ -645,7 +644,6 @@ zetamultevec(GEN evec, long prec)
 {
   long j, fl, bitprec, prec2, N, k = lg(evec) - 1;
   GEN r, pab, ibin, ibin1;
-  double z;
   hashtable *H;
 
   if (k == 0) return gen_1;
@@ -654,7 +652,7 @@ zetamultevec(GEN evec, long prec)
   if (fl)
   {
     pari_sp av = avma;
-    double *x, *y;
+    double *x, *y, z = 0;
     long i;
     x = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
     y = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
