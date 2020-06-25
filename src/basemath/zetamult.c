@@ -441,12 +441,12 @@ findabvgen(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin, long *pa, long *pb)
 {
   long s = lg(evec) - 1, m, a, b, j;
   GEN wmid, winit, wfin, x = gel(evec, 1), y = gel(evec, s);
-  if (s <= 2)
+  if (s == 2)
   {
     *pwmid = cgetg(1, t_VEC);
     *pwinit = mkvec(x);
     *pwfin = mkvec(y);
-    *pa = *pb = s - 1; return;
+    *pa = *pb = 1; return;
   }
   a = s - 1;
   for (j = 1; j <= s - 2; j++)
@@ -515,24 +515,19 @@ get_ibin(GEN *pibin, GEN *pibin1, long N, long prec)
   }
 }
 static GEN
-fillrec(hashtable *H, GEN evec, GEN pab, GEN ibin1, GEN r1, long N, long prec)
+fillrec(hashtable *H, GEN evec, GEN pab, GEN r1, long N, long prec)
 {
   long n, a, b, s, x0;
   GEN xy1, x, y, r, wmid, wini, wfin, mid, ini, fin;
   hashentry *ep = hash_search(H, evec);
 
   if (ep) return (GEN)ep->val;
-  x = gel(evec, 1); s = lg(evec)-1;
-  if (s == 1)
-  {
-    r = filllg1(ibin1, r1, x, N, prec);
-    hash_insert(H, (void*)evec, (void*)r); return r;
-  }
+  x = gel(evec, 1); s = lg(evec)-1; /* > 1 */
   findabvgen(evec, &wmid, &wini, &wfin, &a, &b);
   y = gel(evec, s);
-  mid = fillrec(H, wmid, pab, ibin1, r1, N, prec);
-  ini = fillrec(H, wini, pab, ibin1, r1, N, prec);
-  fin = fillrec(H, wfin, pab, ibin1, r1, N, prec);
+  mid = fillrec(H, wmid, pab, r1, N, prec);
+  ini = fillrec(H, wini, pab, r1, N, prec);
+  fin = fillrec(H, wfin, pab, r1, N, prec);
   if (gequal0(x)) { x0 = 1; xy1 = gdiv(r1, y); }
   else { x0 = 0; xy1 = gdiv(r1, gmul(gsubsg(1, x), y)); }
   r = cgetg(N+2, t_VEC); gel(r, N+1) = gen_0;
@@ -681,10 +676,18 @@ zetamultevec(GEN evec, long prec)
   get_ibin(&ibin, &ibin1, N, prec2);
   if (fl)
   {
+    GEN r1 = real_1(prec2);
+    long l = lg(evec);
     hash_insert(H, (void*)cgetg(1, t_VEC), (void*)ibin);
     hash_insert(H, (void*)mkvec(gen_0), (void*)ibin1);
     hash_insert(H, (void*)mkvec(gen_1), (void*)ibin1);
-    r = fillrec(H, evec, pab, ibin1, real_1(prec2), N, prec2);
+    for (j = 1; j < l; j++)
+    {
+      GEN x = gel(evec,j), v = mkvec(x);
+      if (!hash_search(H, v))
+        hash_insert(H, v, filllg1(ibin1, r1, x, N, prec2));
+    }
+    r = fillrec(H, evec, pab, r1, N, prec2);
   }
   else
   {
