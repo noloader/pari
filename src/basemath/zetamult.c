@@ -158,29 +158,30 @@ lamul(long la, GEN s)
   }
 }
 
-/* vpow[s][j] = j^-s as a t_INT or t_REAL; j < L
+/* vpow[s][j] = j^s as a t_INT; j < L
+ * vipow[s][j] = j^-s as a t_INT or t_REAL; j < L
  * return vphi s.t. vphi[i] = phi_j(a[i..r]) for 0 < j < L */
 static GEN
-get_vphi(GEN a, GEN vpow)
+get_vphi(GEN a, GEN T, long prec)
 {
   long i, r = lg(a) - 1;
-  GEN vphi = cgetg(r+1, t_VEC);
-  gel(vphi, r) = gel(vpow, a[r]);
+  GEN vphi = cgetg(r+1, t_VEC), vipow = gel(T,2), vpow = gel(T,3);
+  gel(vphi, r) = gel(vipow, a[r]);
   for (i = r-1; i >= 1; i--)
   {
     GEN t, u, phi = gel(vphi,i+1), pow = gel(vpow, a[i]);
-    long j, L = lg(pow), J = minss(L, r-i), prec = realprec(gel(pow,L-1));
+    long j, L = lg(pow), J = minss(L, r-i);
     pari_sp av;
     gel(vphi, i) = u = cgetg(L, t_VEC);
     for (j = 1; j <= J; j++) gel(u,j) = gen_0;
     t = gel(phi,j-1); /* 1 if j == 2 */
-    gel(u,j) = j == 2? gel(pow,2): mpmul(t, gel(pow,j));
+    gel(u,j) = j == 2? real2n(-a[i], prec): divri(t, gel(pow,j));
     for (j = J+2; j < L; j++) gel(u,j) = cgetr(prec);
     av = avma;
     for (j = J+2; j < L; j++)
     {
       t = mpadd(t, gel(phi,j-1));
-      affrr(mpmul(t, gel(pow,j)), gel(u,j)); /* t / j^a[i] */
+      affrr(divri(t, gel(pow,j)), gel(u,j)); /* t / j^a[i] */
       if (!(j & 0xff)) t = gerepileuptoleaf(av, t);
     }
     set_avma(av);
@@ -253,22 +254,32 @@ static GEN
 zetamultinit_i(long k, long m, long bitprec)
 {
   long i, N, prec;
-  GEN vpow = cgetg(m+1, t_VEC);
+  GEN vpow = cgetg(m+1, t_VEC), vipow = cgetg(m+1, t_VEC);
 
   bitprec += 64*(1+(k>>5));
   prec = nbits2prec(bitprec);
   N = 5 + bitprec/2;
-  gel(vpow,1) = vecpowug(N, gen_m1, prec);
+  gel(vipow,1) = vecpowug(N, gen_m1, prec);
   for (i = 2; i <= m; i++)
   {
-    GEN pow = cgetg(N+1, t_VEC), powm = gel(vpow,i-1);
+    GEN p = cgetg(N+1, t_VEC), pm = gel(vipow,i-1);
     long j;
-    gel(pow,1) = gen_1;
-    gel(pow,2) = real2n(-i, prec);
-    for (j = 3; j <= N; j++) gel(pow,j) = divru(gel(powm,j), j);
-    gel(vpow,i) = pow;
+    gel(p,1) = gen_1;
+    gel(p,2) = real2n(-i, prec);
+    for (j = 3; j <= N; j++) gel(p,j) = divru(gel(pm,j), j);
+    gel(vipow,i) = p;
   }
-  return mkvec2(vpow, get_vbin(N, prec));
+  gel(vpow,1) = vecpowuu(N, 1);
+  for (i = 2; i <= m; i++)
+  {
+    GEN p = cgetg(N+1, t_VEC), pm = gel(vpow,i-1);
+    long j;
+    gel(p,1) = gen_1;
+    gel(p,2) = int2n(i);
+    for (j = 3; j <= N; j++) gel(p,j) = muliu(gel(pm,j), j);
+    gel(vpow,i) = p;
+  }
+  return mkvec3(get_vbin(N, prec), vipow, vpow);
 }
 GEN
 zetamultinit(long n, long prec)
@@ -283,7 +294,8 @@ zetamult_i(GEN a, GEN T, long prec)
 {
   pari_sp av = avma;
   long k, m, n, i, j, l, L;
-  GEN vpow, vphi, vbin, LR, MA, MR, e, vLA, v1, v2, S = NULL;
+  GEN vphi, vbin, LR, MA, MR, e, vLA, v1, v2, S = NULL;
+  pari_timer ti;
 
   if (lg(a) == 1) return gen_1;
   if (lg(a) == 2) return szeta(a[1], prec);
@@ -291,6 +303,7 @@ zetamult_i(GEN a, GEN T, long prec)
   LR = cgetg(1, t_VEC);
   MA = cgetg(k, t_VEC);
   MR = cgetg(k, t_VEC);
+  if (DEBUGLEVEL) timer_start(&ti);
   for (i = 1; i < k; i++)
   {
     gel(MA,i) = etoa(revslice(e, i+1));
@@ -298,17 +311,20 @@ zetamult_i(GEN a, GEN T, long prec)
     LR = addevec(addevec(LR, gel(MA,i)), gel(MR,i));
   }
   m = vecvecsmall_max(LR);
+  if (DEBUGLEVEL) timer_printf(&ti,"zetamult combinatorics");
   if (!T) T = zetamultinit_i(k, m, prec2nbits(prec));
   else
   {
-    if (typ(T) != t_VEC || lg(T) != 3) pari_err_TYPE("zetamult", T);
-    n = lg(gel(T,1));
+    if (typ(T) != t_VEC || lg(T) != 4) pari_err_TYPE("zetamult", T);
+    n = lg(gel(T,2));
     if (n <= m) pari_err_DOMAIN("zetamult", "weight", ">", utoi(n), utoi(k));
   }
-  vpow = gel(T,1);
-  vbin = gel(T,2);
+  vbin = gel(T,1); L = lg(vbin);
+  prec = realprec(gmael3(T,2,1,L-1));
+  if (DEBUGLEVEL) timer_printf(&ti,"zetamult init");
   l = lg(LR); vphi = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) gel(vphi,j) = get_vphi(gel(LR,j), vpow);
+  for (j = 1; j < l; j++) gel(vphi,j) = get_vphi(gel(LR,j), T, prec);
+  if (DEBUGLEVEL) timer_printf(&ti,"zetamult vphi");
   vLA = cgetg(k, t_VECSMALL);
   v1 = cgetg(k, t_VEC);
   v2 = cgetg(k, t_VEC);
@@ -318,7 +334,7 @@ zetamult_i(GEN a, GEN T, long prec)
     gel(v1,i) = isinphi(LR, gel(MA,i), vphi);
     gel(v2,i) = isinphi(LR, gel(MR,i), vphi);
   }
-  L = lg(vbin); av = avma;
+  av = avma;
   for (n = 1; n < L; n++)
   {
     GEN s = lamul(vLA[1], mpmul(gmael(v1,1,n), gmael(v2,1,n)));
@@ -329,6 +345,7 @@ zetamult_i(GEN a, GEN T, long prec)
     else
       S = gerepileupto(av, gadd(S, mpmul(s, gel(vbin,n))));
   }
+  if (DEBUGLEVEL) timer_printf(&ti,"zetamult sum");
   return S;
 }
 GEN
@@ -1007,11 +1024,11 @@ zetamult_zagier_i(GEN avec, long prec)
   affur(1, gel(b,1)); av = avma;
   for (r = 1, h = -1; r <= t; r++)
   {
-    long m, j = avec[t + 1 - r];
+    long m, j = avec[r];
     GEN q;
 
     h += j - 1; z = gen_0;
-    q = invr(itor(powuu(s,h), prec2));
+    q = h? invr(itor(powuu(s,h), prec2)): real_1(prec2);
     for (m = 1; m <= l; m++)
     {
       pari_sp av2;
@@ -1041,7 +1058,7 @@ GEN
 zetamult_zagier(GEN s, long prec)
 {
   pari_sp av = avma;
-  GEN a = vecsmall_reverse(zetamultconvert_i(s,1));
+  GEN a = zetamultconvert_i(s,1);
   return gerepilecopy(av, zetamult_zagier_i(a, prec));
 }
 
