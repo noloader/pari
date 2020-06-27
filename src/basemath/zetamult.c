@@ -551,9 +551,9 @@ fillrec(hashtable *H, GEN evec, GEN pab, GEN r1, long N, long prec)
   for (n = N; n > 1; n--)
   {
     pari_sp av = avma;
-    GEN t = gmul(gel(ini, n+1), gmael(pab, n, a+1));
-    GEN u = gadd(gmul(gel(fin, n+1), gmael(pab, n, b+1)), gel(mid, n+1));
-    GEN v = gdiv(x0? gadd(t, u): gsub(t, u), gmael(pab, n, a+b+1));
+    GEN t = gmul(gel(ini, n+1), gmael(pab, n, a));
+    GEN u = gadd(gmul(gel(fin, n+1), gmael(pab, n, b)), gel(mid, n+1));
+    GEN v = gdiv(x0? gadd(t, u): gsub(t, u), gmael(pab, n, a+b));
     gel(r, n) = gerepileupto(av, gmul(xy1, gadd(gel(r, n+1), v)));
   }
   { /* n = 1 */
@@ -636,10 +636,10 @@ fillrecs(hashtable *H, GEN evec, GEN pab, long N, long prec)
   {
     GEN z = cgetr(prec);
     pari_sp av = avma;
-    GEN t = gmul(gel(ini, n+1), gmael(pab, n, a+1));
-    GEN u = gadd(gmul(gel(fin, n+1), gmael(pab, n, b+1)), gel(mid,n+1));
-    GEN v = gdiv(gadd(t, u), gmael(pab, n, a+b+1));
-    mpaff(gadd(gel(r, n+1), v), z); set_avma(av); gel(r,n) = z;
+    GEN t = mpmul(gel(ini, n+1), gmael(pab, n, a));
+    GEN u = mpadd(gmul(gel(fin, n+1), gmael(pab, n, b)), gel(mid,n+1));
+    GEN v = mpdiv(gadd(t, u), gmael(pab, n, a+b));
+    mpaff(mpadd(gel(r, n+1), v), z); set_avma(av); gel(r,n) = z;
   }
   { /* n = 1 */
     GEN z = cgetr(prec);
@@ -648,6 +648,16 @@ fillrecs(hashtable *H, GEN evec, GEN pab, long N, long prec)
     mpaff(gadd(gel(r, 2), v), z); set_avma(av); gel(r,1) = z;
   }
   hash_insert(H, (void*)evec, (void*)r); return r;
+}
+/* [n, ..., n^k] */
+static GEN
+powersu(ulong n, long k)
+{
+  GEN v, gn = utoipos(n);
+  long i, l = k+1;
+  v = cgetg(l, t_VEC); gel(v,1) = gn;
+  for (i = 2; i < l; i++) gel(v,i) = muliu(gel(v,i-1), n);
+  return v;
 }
 
 /* evec t_VECSMALL: mult. polylog with z = [1,...,1] => MZV; else t_VEC */
@@ -686,8 +696,8 @@ zetamultevec(GEN evec, long prec)
   prec2 = nbits2prec(bitprec);
   evec = gprec_wensure(evec, prec2);
   pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
-  for (j = 2; j <= N; j++) gel(pab, j) = gpowers(utoipos(j), k);
-  /* n^a = pab[n][a+1] */
+  for (j = 2; j <= N; j++) gel(pab, j) = powersu(j, k);
+  /* n^a = pab[n][a] */
   H = hash_create(4096, (ulong(*)(void*))&hash_GEN,
                         (int(*)(void*,void*))&gidentical, 1);
   get_ibin(&ibin, &ibin1, N, prec2);
