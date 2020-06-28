@@ -257,7 +257,8 @@ zetamultinit_i(long k, long m, long bitprec)
   long i, N, prec;
   GEN vpow = cgetg(m+1, t_VEC), vipow = cgetg(m+1, t_VEC);
 
-  prec = nbits2prec(bitprec) + EXTRAPRECWORD;
+  bitprec += 64*(1+(k>>5));
+  prec = nbits2prec(bitprec);
   N = 5 + bitprec/2;
   gel(vipow,1) = vecpowug(N, gen_m1, prec);
   for (i = 2; i <= m; i++)
@@ -669,7 +670,7 @@ zetamultevecs(GEN evec, long prec)
   hashtable *H;
 
   if (k == 0) return gen_1;
-  bitprec = prec2nbits(prec + EXTRAPRECWORD);
+  bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
   N = 5 + bitprec/2;
   prec2 = nbits2prec(bitprec);
   evec = gprec_wensure(evec, prec2);
@@ -697,7 +698,7 @@ zetamultevec(GEN evec, long prec)
   hashtable *H;
 
   if (k == 0) return gen_1;
-  bitprec = prec2nbits(prec + EXTRAPRECWORD);
+  bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
   x = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
   y = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
   for (j = 1; j <= k; j++)
