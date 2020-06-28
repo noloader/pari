@@ -3840,6 +3840,7 @@ hashentry *hash_remove(hashtable *h, void *k);
 hashentry *hash_remove_select(hashtable *h, void *k, void *E, int (*select)(void*,hashentry*));
 void    hash_destroy(hashtable *h);
 ulong   hash_GEN(GEN x);
+ulong   hash_zv(GEN x);
 
 /* hyperell.c */
 

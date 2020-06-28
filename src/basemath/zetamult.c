@@ -660,69 +660,77 @@ powersu(ulong n, long k)
   return v;
 }
 
-/* evec t_VECSMALL: mult. polylog with z = [1,...,1] => MZV; else t_VEC */
+/* evec t_VECSMALL */
 static GEN
-zetamultevec(GEN evec, long prec)
+zetamultevecs(GEN evec, long prec)
 {
-  long j, fl, bitprec, prec2, N, k = lg(evec) - 1;
+  long j, bitprec, prec2, N, k = lg(evec) - 1;
   GEN r, pab, ibin, ibin1;
   hashtable *H;
 
   if (k == 0) return gen_1;
-  fl = typ(evec) == t_VEC;
   bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
-  if (fl)
-  {
-    pari_sp av = avma;
-    double *x, *y, z = 0;
-    long i;
-    x = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
-    y = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
-    for (j = 1; j <= k; j++)
-    {
-      GEN t = gel(evec,j);
-      x[j] = gequal1(t)? 0: -dbllog2(gsubsg(1, t));
-      y[j] = gequal0(t)? 0: -dbllog2(t);
-    }
-    for (i = 1; i < k; i++)
-      for (j = i+1; j <= k; j++) z = maxdd(z, x[i] + y[j]);
-    set_avma(av);
-    if (z >= 2) pari_err_IMPL("polylogmult in this range");
-    N = 5 + bitprec/ (2 - z);
-    bitprec += z * N;
-  }
-  else
-    N = 5 + bitprec/2;
+  N = 5 + bitprec/2;
   prec2 = nbits2prec(bitprec);
   evec = gprec_wensure(evec, prec2);
   pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
   for (j = 2; j <= N; j++) gel(pab, j) = powersu(j, k);
   /* n^a = pab[n][a] */
+  get_ibin(&ibin, &ibin1, N, prec2);
+  H = hash_create(4096, (ulong(*)(void*))&hash_zv,
+                        (int(*)(void*,void*))&zv_equal, 1);
+  hash_insert(H, (void*)cgetg(1, t_VECSMALL), (void*)ibin);
+  hash_insert(H, (void*)mkvecsmall(0), (void*)ibin1);
+  hash_insert(H, (void*)mkvecsmall(1), (void*)ibin1);
+  r = fillrecs(H, evec, pab, N, prec2);
+  if (DEBUGLEVEL) err_printf("polylogmult: k = %ld, %ld nodes\n", k, H->nb);
+  return gprec_wtrunc(gel(r,1), prec);
+}
+/* evec t_VEC */
+static GEN
+zetamultevec(GEN evec, long prec)
+{
+  pari_sp av = avma;
+  double *x, *y, z = 0;
+  long i, j, bitprec, prec2, N, k = lg(evec) - 1;
+  GEN r1, r, pab, ibin, ibin1;
+  hashtable *H;
+
+  if (k == 0) return gen_1;
+  bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
+  x = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
+  y = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
+  for (j = 1; j <= k; j++)
+  {
+    GEN t = gel(evec,j);
+    x[j] = gequal1(t)? 0: -dbllog2(gsubsg(1, t));
+    y[j] = gequal0(t)? 0: -dbllog2(t);
+  }
+  for (i = 1; i < k; i++)
+    for (j = i+1; j <= k; j++) z = maxdd(z, x[i] + y[j]);
+  set_avma(av);
+  if (z >= 2) pari_err_IMPL("polylogmult in this range");
+  N = 5 + bitprec/ (2 - z);
+  bitprec += z * N;
+  prec2 = nbits2prec(bitprec);
+  evec = gprec_wensure(evec, prec2);
+  pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
+  for (j = 2; j <= N; j++) gel(pab, j) = powersu(j, k);
+  /* n^a = pab[n][a] */
+  get_ibin(&ibin, &ibin1, N, prec2);
+  r1 = real_1(prec2);
   H = hash_create(4096, (ulong(*)(void*))&hash_GEN,
                         (int(*)(void*,void*))&gidentical, 1);
-  get_ibin(&ibin, &ibin1, N, prec2);
-  if (fl)
+  hash_insert(H, (void*)cgetg(1, t_VEC), (void*)ibin);
+  hash_insert(H, (void*)mkvec(gen_0), (void*)ibin1);
+  hash_insert(H, (void*)mkvec(gen_1), (void*)ibin1);
+  for (j = 1; j <= k; j++)
   {
-    GEN r1 = real_1(prec2);
-    long l = lg(evec);
-    hash_insert(H, (void*)cgetg(1, t_VEC), (void*)ibin);
-    hash_insert(H, (void*)mkvec(gen_0), (void*)ibin1);
-    hash_insert(H, (void*)mkvec(gen_1), (void*)ibin1);
-    for (j = 1; j < l; j++)
-    {
-      GEN x = gel(evec,j), v = mkvec(x);
-      if (!hash_search(H, v))
-        hash_insert(H, v, filllg1(ibin1, r1, x, N, prec2));
-    }
-    r = fillrec(H, evec, pab, r1, N, prec2);
+    GEN x = gel(evec,j), v = mkvec(x);
+    if (!hash_search(H, v))
+      hash_insert(H, v, filllg1(ibin1, r1, x, N, prec2));
   }
-  else
-  {
-    hash_insert(H, (void*)cgetg(1, t_VECSMALL), (void*)ibin);
-    hash_insert(H, (void*)mkvecsmall(0), (void*)ibin1);
-    hash_insert(H, (void*)mkvecsmall(1), (void*)ibin1);
-    r = fillrecs(H, evec, pab, N, prec2);
-  }
+  r = fillrec(H, evec, pab, r1, N, prec2);
   if (DEBUGLEVEL) err_printf("polylogmult: k = %ld, %ld nodes\n", k, H->nb);
   return gprec_wtrunc(gel(r,1), prec);
 }
@@ -737,7 +745,7 @@ polylogmult(GEN s, GEN zvec, long prec)
   {
     if (lg(avec) == 1) return gc_const(av, gen_1);
     if (lg(avec) == 2) return gerepileupto(av, szeta(avec[1], prec));
-    return gerepilecopy(av, zetamultevec(atoe(avec), prec));
+    return gerepilecopy(av, zetamultevecs(atoe(avec), prec));
   }
   switch (typ(zvec))
   {

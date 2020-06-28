@@ -349,3 +349,13 @@ hash_GEN(GEN x)
       return h;
   }
 }
+ulong
+hash_zv(GEN x)
+{
+  long i, lx = lg(x);
+  ulong h;
+  if (lx == 1) return 0;
+  h = x[1];
+  for (i = 1; i < lx; i++) h = glue(h, uel(x,i));
+  return h;
+}
