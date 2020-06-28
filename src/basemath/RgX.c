@@ -912,6 +912,15 @@ RgX_mulXn(GEN x, long d)
 }
 
 long
+RgXV_maxdegree(GEN x)
+{
+  long d = -1, i, l = lg(x);
+  for (i = 1; i < l; i++)
+    d = maxss(d, degpol(gel(x,i)));
+  return d;
+}
+
+long
 RgX_val(GEN x)
 {
   long i, lx = lg(x);

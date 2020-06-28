@@ -3550,6 +3550,7 @@ long    Q_pvalrem(GEN x, GEN p, GEN *y);
 long    RgX_val(GEN x);
 long    RgX_valrem(GEN x, GEN *z);
 long    RgX_valrem_inexact(GEN x, GEN *Z);
+long    RgXV_maxdegree(GEN x);
 int     ZV_Z_dvd(GEN v, GEN p);
 long    ZV_pval(GEN x, GEN p);
 long    ZV_pvalrem(GEN x, GEN p, GEN *px);
