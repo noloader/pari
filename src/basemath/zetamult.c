@@ -170,8 +170,9 @@ get_vphi(GEN a, GEN T, long prec)
   for (i = r-1; i >= 1; i--)
   {
     GEN t, u, phi = gel(vphi,i+1), pow = gel(vpow, a[i]);
-    long j, L = lg(pow), J = minss(L, r-i);
+    long j, L = lg(pow), J = r-i;
     pari_sp av;
+    if (J >= L-1) { gel(vphi,i) = zerovec(L-1); continue; }
     gel(vphi, i) = u = cgetg(L, t_VEC);
     for (j = 1; j <= J; j++) gel(u,j) = gen_0;
     t = gel(phi,j-1); /* 1 if j == 2 */
@@ -256,8 +257,7 @@ zetamultinit_i(long k, long m, long bitprec)
   long i, N, prec;
   GEN vpow = cgetg(m+1, t_VEC), vipow = cgetg(m+1, t_VEC);
 
-  bitprec += 64*(1+(k>>5));
-  prec = nbits2prec(bitprec);
+  prec = nbits2prec(bitprec) + EXTRAPRECWORD;
   N = 5 + bitprec/2;
   gel(vipow,1) = vecpowug(N, gen_m1, prec);
   for (i = 2; i <= m; i++)
@@ -644,8 +644,8 @@ fillrecs(hashtable *H, GEN evec, GEN pab, long N, long prec)
   { /* n = 1 */
     GEN z = cgetr(prec);
     pari_sp av = avma;
-    GEN t = gel(ini,2), u = gadd(gel(fin,2), gel(mid,2)), v = gadd(t, u);
-    mpaff(gadd(gel(r, 2), v), z); set_avma(av); gel(r,1) = z;
+    GEN t = gel(ini,2), u = mpadd(gel(fin,2), gel(mid,2)), v = mpadd(t, u);
+    mpaff(mpadd(gel(r, 2), v), z); set_avma(av); gel(r,1) = z;
   }
   hash_insert(H, (void*)evec, (void*)r); return r;
 }
@@ -669,7 +669,7 @@ zetamultevecs(GEN evec, long prec)
   hashtable *H;
 
   if (k == 0) return gen_1;
-  bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
+  bitprec = prec2nbits(prec + EXTRAPRECWORD);
   N = 5 + bitprec/2;
   prec2 = nbits2prec(bitprec);
   evec = gprec_wensure(evec, prec2);
@@ -697,7 +697,7 @@ zetamultevec(GEN evec, long prec)
   hashtable *H;
 
   if (k == 0) return gen_1;
-  bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
+  bitprec = prec2nbits(prec + EXTRAPRECWORD);
   x = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
   y = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
   for (j = 1; j <= k; j++)
