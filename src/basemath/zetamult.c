@@ -637,8 +637,8 @@ fillrecs(hashtable *H, GEN evec, GEN pab, long N, long prec)
     GEN z = cgetr(prec);
     pari_sp av = avma;
     GEN t = mpmul(gel(ini, n+1), gmael(pab, n, a));
-    GEN u = mpadd(gmul(gel(fin, n+1), gmael(pab, n, b)), gel(mid,n+1));
-    GEN v = mpdiv(gadd(t, u), gmael(pab, n, a+b));
+    GEN u = mpadd(mpmul(gel(fin, n+1), gmael(pab, n, b)), gel(mid,n+1));
+    GEN v = mpdiv(mpadd(t, u), gmael(pab, n, a+b));
     mpaff(mpadd(gel(r, n+1), v), z); set_avma(av); gel(r,n) = z;
   }
   { /* n = 1 */
