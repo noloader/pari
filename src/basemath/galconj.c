@@ -1511,7 +1511,7 @@ static GEN
 aux(long a, long b, GEN T, GEN M, GEN p, GEN *pu)
 {
   *pu = FpX_mul(gel(T,b), gel(T,a),p);
-  return FpX_chinese_coprime(gmael(M,a,b), gmael(M,b,a),
+  return FpX_chinese_coprime(gcoeff(M,a,b), gcoeff(M,b,a),
                              gel(T,b), gel(T,a), *pu, p);
 }
 
@@ -1536,6 +1536,24 @@ lincomb(GEN A, GEN B, GEN pauto, long j)
   if (j == k) return ZX_mul(ZX_add(A,B), gel(pauto, j+1));
   return ZX_add(ZX_mul(A, gel(pauto, j+1)), ZX_mul(B, gel(pauto, k+1)));
 }
+
+static GEN
+FpXV_ffisom(GEN V, GEN p)
+{
+  pari_sp av = avma;
+  long i, j, l = lg(V);
+  GEN S = cgetg(l, t_VEC), Si = cgetg(l, t_VEC), M;
+  for (i = 1; i < l; i++)
+  {
+    gel(S,i) = FpX_ffisom(gel(V,1), gel(V,i), p);
+    gel(Si,i) = FpXQ_ffisom_inv(gel(S,i), gel(V,i), p);
+  }
+  M = cgetg(l, t_MAT);
+  for (j = 1; j < l; j++)
+    gel(M,j) = FpXC_FpXQ_eval(Si, gel(S,j), gel(V,j), p);
+  return gerepileupto(av, M);
+}
+
 /* FIXME: could use the intheadlong technique */
 static GEN
 s4galoisgen(struct galois_lift *gl)
@@ -1545,7 +1563,7 @@ s4galoisgen(struct galois_lift *gl)
   pari_sp av, ltop2, ltop = avma;
   long i, j;
   GEN sigma, tau, phi, res, r1,r2,r3,r4, pj, p = gl->p, Q = gl->Q, TQ = gl->TQ;
-  GEN sg, Tp, Tmod, isom, isominv, misom, Bcoeff, pauto, liftpow, aut;
+  GEN sg, Tp, Tmod, misom, Bcoeff, pauto, liftpow, aut;
 
   res = cgetg(3, t_VEC);
   r1 = cgetg(n+1, t_VECSMALL);
@@ -1562,26 +1580,11 @@ s4galoisgen(struct galois_lift *gl)
   phi = cgetg(n+1, t_VECSMALL);
   Tp = FpX_red(gl->T,p);
   Tmod = gel(FpX_factor(Tp,p), 1);
-  isom    = cgetg(lg(Tmod), t_VEC);
-  isominv = cgetg(lg(Tmod), t_VEC);
-  misom   = cgetg(lg(Tmod), t_MAT);
+  misom = FpXV_ffisom(Tmod, p);
   aut = galoisdolift(gl);
   inittestlift(aut, Tmod, gl, &gt);
   Bcoeff = gt.bezoutcoeff;
   pauto = gt.pauto;
-  for (i = 1; i < lg(isom); i++)
-  {
-    gel(misom,i) = cgetg(lg(Tmod), t_COL);
-    gel(isom,i) = FpX_ffisom(gel(Tmod,1), gel(Tmod,i), p);
-    if (DEBUGLEVEL >= 6)
-      err_printf("S4GaloisConj: Computing isomorphisms %d:%Ps\n", i,
-                 gel(isom,i));
-    gel(isominv,i) = FpXQ_ffisom_inv(gel(isom,i), gel(Tmod,i),p);
-  }
-  for (i = 1; i < lg(isom); i++)
-    for (j = 1; j < lg(isom); j++)
-      gmael(misom,i,j) = FpX_FpXQ_eval(gel(isominv,i),gel(isom,j),
-                                         gel(Tmod,j),p);
   liftpow = cgetg(24, t_VEC);
   av = avma;
   for (i = 0; i < 3; i++, set_avma(av))
