@@ -3122,17 +3122,11 @@ ZV_sqr(GEN z)
 }
 
 static GEN
-ZT_sqr(GEN z)
+ZT_sqr(GEN x)
 {
-  if (typ(z) == t_INT)
-    return sqri(z);
-  else
-  {
-    long i,l = lg(z);
-    GEN x = cgetg(l, t_VEC);
-    for (i=1; i<l; i++) gel(x,i) = ZT_sqr(gel(z,i));
-    return x;
-  }
+  if (typ(x) == t_INT)
+    return sqri(x);
+  pari_APPLY_type(t_VEC, ZT_sqr(gel(x,i)))
 }
 
 static GEN
