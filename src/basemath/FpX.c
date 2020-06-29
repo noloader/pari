@@ -1494,8 +1494,8 @@ FpX_FpV_multieval_tree(GEN P, GEN xa, GEN T, GEN p)
   }
   {
     GEN R = cgetg(lg(xa), t_VEC);
-    GEN u = gel(T, i+1);
-    GEN v = gel(Tp, i+1);
+    GEN u = gel(T, 1);
+    GEN v = gel(Tp, 1);
     long n = lg(u)-1;
     for (j=1, k=1; j<=n; j++)
     {
