@@ -1845,13 +1845,11 @@ FpX_FpXQ_eval(GEN Q, GEN x, GEN T, GEN p)
 
 GEN
 FpXC_FpXQV_eval(GEN x, GEN v, GEN T, GEN p)
-{ pari_APPLY_type(t_COL, FpX_FpXQV_eval(gel(x,i), v, T, p))
-}
+{ pari_APPLY_type(t_COL, FpX_FpXQV_eval(gel(x,i), v, T, p)) }
 
 GEN
 FpXM_FpXQV_eval(GEN x, GEN v, GEN T, GEN p)
-{ pari_APPLY_same(FpXC_FpXQV_eval(gel(x,i), v, T, p))
-}
+{ pari_APPLY_same(FpXC_FpXQV_eval(gel(x,i), v, T, p)) }
 
 GEN
 FpXC_FpXQ_eval(GEN x, GEN F, GEN T, GEN p)
