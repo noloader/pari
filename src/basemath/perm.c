@@ -1029,7 +1029,7 @@ liftsubgroup(GEN C, GEN H, GEN S)
   return gerepilecopy(ltop,V);
 }
 
-/* 1:A4 2:S4 0: other */
+/* 1:A4, 2:S4, 3:F36, 0: other */
 long
 group_isA4S4(GEN G)
 {
@@ -1037,6 +1037,14 @@ group_isA4S4(GEN G)
   GEN ord = grp_get_ord(G);
   long n = lg(ord);
   if (n != 4 && n != 5) return 0;
+  if (n==4 && ord[1]==3 && ord[2]==3 && ord[3]==4)
+  {
+    long i;
+    GEN p = gel(elt,1), q = gel(elt,2), r = gel(elt,3);
+    for(i=1; i<=36; i++)
+      if (p[r[i]]!=r[q[i]]) return 0;
+    return 3;
+  }
   if (ord[1]!=2 || ord[2]!=2 || ord[3]!=3) return 0;
   if (perm_commute(gel(elt,1),gel(elt,3))) return 0;
   if (n==4) return 1;
@@ -1053,8 +1061,22 @@ group_subgroups(GEN G)
   GEN gen = grp_get_gen(G);
   GEN ord = grp_get_ord(G);
   long lM, i, j, n = lg(gen);
+  long t;
   if (n == 1) return trivialsubgroups();
-  if (group_isA4S4(G))
+  t = group_isA4S4(G);
+  if (t == 3)
+  {
+    GEN H = mkvec2(mkvec3(gel(gen,1), gel(gen,2), perm_pow(gel(gen,3),2)),
+                   mkvecsmall3(3, 3, 2));
+    GEN S = group_subgroups(H);
+    GEN V = cgetg(11,t_VEC);
+    gel(V,1) = cyclicgroup(gel(gen,3),4);
+    for (i=2; i<10; i++)
+      gel(V,i) = cyclicgroup(perm_mul(gmael3(V,i-1,1,1),gel(gen,i%3==1 ? 2:1)),4);
+    gel(V,10) = G;
+    return gerepilecopy(ltop,shallowconcat(S,V));
+  }
+  else if (t)
   {
     GEN s = gel(gen,1);       /*s = (1,2)(3,4) */
     GEN t = gel(gen,2);       /*t = (1,3)(2,4) */
@@ -1499,6 +1521,12 @@ groupelts_to_group(GEN G)
     GEN t22 = perm_pow(gel(cyc,16),2);
     return gerepilecopy(av,
       mkvec2(mkvec4(t21,t22, gel(cyc,11), gel(cyc,15)), mkvecsmall4(2,2,3,2)));
+  }
+  if (n==36 && l==24 && ord[11]==3 && ord[15]==4)
+  {
+    GEN t1 = gel(cyc,11), t3 = gel(cyc,15);
+    return gerepilecopy(av,
+      mkvec2(mkvec3(t1, perm_conj(t3, t1), t3), mkvecsmall3(3,3,4)));
   }
   return gc_NULL(av);
 }

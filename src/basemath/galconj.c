@@ -1114,7 +1114,7 @@ notgalois(long p, struct galois_analysis *ga)
 static long
 init_group(long n, long np, GEN Fp, GEN Fe, long *porder)
 {
-  const long prim_nonwss_orders[] = { 36,48,56,60,75,80,196,200 };
+  const long prim_nonwss_orders[] = { 48,56,60,72,75,80,196,200,216 };
   long i, phi_order = 1, order = 1, group = 0;
   ulong p;
 
@@ -1174,7 +1174,7 @@ galoisanalysis(GEN T, struct galois_analysis *ga, long calcul_l, GEN bad)
   u_forprime_init(&S, n*maxss(expu(n)-3, 2), ULONG_MAX);
   av = avma;
   while (!plift || (nbtest < nbmax && (nbtest <=8 || order < (n>>1)))
-                || (n == 24 && O[6] == 0 && O[4] == 0)
+                || ((n == 24 || n==36) && O[6] == 0 && O[4] == 0)
                 || ((group&ga_non_wss) && order == Fp[np]))
   {
     long d, o, norm_o = 1;
@@ -1470,9 +1470,7 @@ a4galoisgen(struct galois_test *td)
 /* S4 */
 static GEN
 s4makelift(GEN u, struct galois_lift *gl)
-{
-  return FpXQ_powers(automorphismlift(u, gl), 23, gl->TQ, gl->Q);
-}
+{ return FpXQ_powers(u, degpol(gl->T)-1, gl->TQ, gl->Q); }
 
 static long
 s4test(GEN u, GEN liftpow, struct galois_lift *gl, GEN phi)
@@ -1505,26 +1503,15 @@ s4test(GEN u, GEN liftpow, struct galois_lift *gl, GEN phi)
 }
 
 static GEN
-aux(long a, long b, GEN T, GEN M, GEN p, GEN *pu)
+s4releveauto(GEN M, GEN B, GEN T, GEN p,long a1,long a2,long a3,long a4,long a5,long a6)
 {
-  *pu = FpX_mul(gel(T,b), gel(T,a),p);
-  return FpX_chinese_coprime(gcoeff(M,a,b), gcoeff(M,b,a),
-                             gel(T,b), gel(T,a), *pu, p);
-}
-
-static GEN
-s4releveauto(GEN misom,GEN Tmod,GEN Tp,GEN p,long a1,long a2,long a3,long a4,long a5,long a6)
-{
-  pari_sp av = avma;
-  GEN u4,u5;
-  GEN pu1, pu2, pu3, pu4;
-  GEN u1 = aux(a1, a2, Tmod, misom, p, &pu1);
-  GEN u2 = aux(a3, a4, Tmod, misom, p, &pu2);
-  GEN u3 = aux(a5, a6, Tmod, misom, p, &pu3);
-  pu4 = FpX_mul(pu1,pu2,p);
-  u4 = FpX_chinese_coprime(u1,u2,pu1,pu2,pu4,p);
-  u5 = FpX_chinese_coprime(u4,u3,pu4,pu3,Tp,p);
-  return gerepileupto(av, u5);
+  GEN       F = ZX_mul(gel(M,a1),gel(B,a2));
+  F = ZX_add(F, ZX_mul(gel(M,a2),gel(B,a1)));
+  F = ZX_add(F, ZX_mul(gel(M,a3),gel(B,a4)));
+  F = ZX_add(F, ZX_mul(gel(M,a4),gel(B,a3)));
+  F = ZX_add(F, ZX_mul(gel(M,a5),gel(B,a6)));
+  F = ZX_add(F, ZX_mul(gel(M,a6),gel(B,a5)));
+  return FpXQ_red(F, T, p);
 }
 
 static GEN
@@ -1551,6 +1538,13 @@ FpXV_ffisom(GEN V, GEN p)
   return gerepileupto(av, M);
 }
 
+static GEN
+mkliftpow(GEN x, GEN T, GEN p, struct galois_lift *gl)
+{ pari_APPLY_same(automorphismlift(FpXV_chinese(gel(x,i), T, p, NULL), gl)) }
+
+#define rot3(x,y,z) {long _t=x; x=y; y=z; z=_t;}
+#define rot4(x,y,z,t) {long _u=x; x=y; y=z; z=t; t=_u;}
+
 /* FIXME: could use the intheadlong technique */
 static GEN
 s4galoisgen(struct galois_lift *gl)
@@ -1559,8 +1553,8 @@ s4galoisgen(struct galois_lift *gl)
   struct galois_testlift gt;
   pari_sp av, ltop2, ltop = avma;
   long i, j;
-  GEN sigma, tau, phi, res, r1,r2,r3,r4, pj, p = gl->p, Q = gl->Q;
-  GEN sg, Tp, Tmod, misom, B, liftpow, aut;
+  GEN sigma, tau, phi, res, r1,r2,r3,r4, pj, p = gl->p, Q = gl->Q, TQ = gl->TQ;
+  GEN sg, Tp, Tmod, misom, B, Bcoeff, liftpow, liftp, aut;
 
   res = cgetg(3, t_VEC);
   r1 = cgetg(n+1, t_VECSMALL);
@@ -1581,6 +1575,8 @@ s4galoisgen(struct galois_lift *gl)
   aut = galoisdolift(gl);
   inittestlift(aut, Tmod, gl, &gt);
   B = FqC_FqV_mul(gt.pauto, gt.bezoutcoeff, gl->TQ, Q);
+  Bcoeff = gt.bezoutcoeff;
+  liftp = mkliftpow(shallowtrans(misom), Tmod, p, gl);
   av = avma;
   for (i = 0; i < 3; i++, set_avma(av))
   {
@@ -1592,7 +1588,7 @@ s4galoisgen(struct galois_lift *gl)
       if (i == 1) { lswap(sg[2],sg[3]); }
       else        { lswap(sg[1],sg[3]); }
     }
-    u = s4releveauto(misom,Tmod,Tp,p,sg[1],sg[2],sg[3],sg[4],sg[5],sg[6]);
+    u = s4releveauto(liftp,Bcoeff,TQ,Q,sg[1],sg[2],sg[3],sg[4],sg[5],sg[6]);
     liftpow = s4makelift(u, gl);
     av1 = avma;
     for (j1 = 0; j1 < 4; j1++, set_avma(av1))
@@ -1629,13 +1625,13 @@ suites4:
   {
     pari_sp av2, av3;
     GEN u;
-    long w, l, z;
-    z = sg[1]; sg[1] = sg[3]; sg[3] = sg[5]; sg[5] = z;
-    z = sg[2]; sg[2] = sg[4]; sg[4] = sg[6]; sg[6] = z;
-    z = pj[1]; pj[1] = pj[2]; pj[2] = pj[3]; pj[3] = z;
+    long w, l;
+    rot3(sg[1], sg[3], sg[5])
+    rot3(sg[2], sg[4], sg[6])
+    rot3(pj[1], pj[2], pj[3])
     for (l = 0; l < 2; l++, set_avma(av))
     {
-      u = s4releveauto(misom,Tmod,Tp,p,sg[1],sg[3],sg[2],sg[4],sg[5],sg[6]);
+      u = s4releveauto(liftp,Bcoeff,TQ,Q,sg[1],sg[3],sg[2],sg[4],sg[5],sg[6]);
       liftpow = s4makelift(u, gl);
       av2 = avma;
       for (w = 0; w < 4; w += 2, set_avma(av2))
@@ -1671,7 +1667,7 @@ suites4_2:
     long abcdef = ((abc + pj[4] + pj[5] - pj[6]) & 3) >> 1;
     GEN u;
     pari_sp av2;
-    u = s4releveauto(misom,Tmod,Tp,p,sg[1],sg[4],sg[2],sg[5],sg[3],sg[6]);
+    u = s4releveauto(liftp,Bcoeff,TQ,Q,sg[1],sg[4],sg[2],sg[5],sg[3],sg[6]);
     liftpow = s4makelift(u, gl);
     av2 = avma;
     for (j = 0; j < 8; j++)
@@ -1695,6 +1691,216 @@ suites4_2:
     r2[i] = phi[sigma[tau[phi[i]]]];
     r3[i] = phi[sigma[i]];
     r4[i] = sigma[i];
+  }
+  set_avma(ltop2); return res;
+}
+
+static GEN
+f36releveauto2(GEN Bl, GEN T, GEN p,GEN a)
+{
+  GEN      F = gmael(Bl,a[1],a[1]);
+  F = ZX_add(F,gmael(Bl,a[2],a[3]));
+  F = ZX_add(F,gmael(Bl,a[3],a[2]));
+  F = ZX_add(F,gmael(Bl,a[4],a[5]));
+  F = ZX_add(F,gmael(Bl,a[5],a[4]));
+  F = ZX_add(F,gmael(Bl,a[6],a[7]));
+  F = ZX_add(F,gmael(Bl,a[7],a[6]));
+  F = ZX_add(F,gmael(Bl,a[8],a[9]));
+  F = ZX_add(F,gmael(Bl,a[9],a[8]));
+  return FpXQ_red(F, T, p);
+}
+
+static GEN
+f36releveauto4(GEN Bl, GEN T, GEN p,GEN a)
+{
+  GEN      F = gmael(Bl,a[1],a[1]);
+  F = ZX_add(F,gmael(Bl,a[2],a[3]));
+  F = ZX_add(F,gmael(Bl,a[3],a[4]));
+  F = ZX_add(F,gmael(Bl,a[4],a[5]));
+  F = ZX_add(F,gmael(Bl,a[5],a[2]));
+  F = ZX_add(F,gmael(Bl,a[6],a[7]));
+  F = ZX_add(F,gmael(Bl,a[7],a[8]));
+  F = ZX_add(F,gmael(Bl,a[8],a[9]));
+  F = ZX_add(F,gmael(Bl,a[9],a[6]));
+  return FpXQ_red(F, T, p);
+}
+
+static GEN
+f36galoisgen(struct galois_lift *gl)
+{
+  const long n = 36;
+  struct galois_testlift gt;
+  pari_sp av, ltop2, ltop = avma;
+  long i;
+  GEN sigma, tau, rho, res, r1,r2,r3, pj, pk, p = gl->p, Q = gl->Q, TQ = gl->TQ;
+  GEN sg, s4, sp,  Tp, Tmod, misom, Bcoeff, liftpow, aut, liftp, B, Bl, tam;
+  res = cgetg(3, t_VEC);
+  r1 = cgetg(n+1, t_VECSMALL);
+  r2 = cgetg(n+1, t_VECSMALL);
+  r3 = cgetg(n+1, t_VECSMALL);
+  gel(res,1)= mkvec3(r1,r2,r3);
+  gel(res,2) = mkvecsmall3(3,3,4);
+  ltop2 = avma;
+  sg = identity_perm(9);
+  s4 = identity_perm(9);
+  sp = identity_perm(9);
+  pj = zero_zv(4);
+  pk = zero_zv(2);
+  sigma = cgetg(n+1, t_VECSMALL);
+  tau = r3;
+  rho = cgetg(n+1, t_VECSMALL);
+  Tp = FpX_red(gl->T,p);
+  Tmod = gel(FpX_factor(Tp,p), 1);
+  misom = FpXV_ffisom(Tmod, p);
+  aut = galoisdolift(gl);
+  inittestlift(aut, Tmod, gl, &gt);
+  Bcoeff = gt.bezoutcoeff;
+  B = FqC_FqV_mul(gt.pauto, Bcoeff, gl->TQ, gl->Q);
+  liftp = mkliftpow(shallowtrans(misom), Tmod, p, gl);
+  Bl = FqC_FqV_mul(liftp,Bcoeff, gl->TQ, gl->Q);
+  av = avma;
+  for (i = 0; i < 105; i++, set_avma(av))
+  {
+    pari_sp av0, av1, av2, av3;
+    GEN u0, u1, u2, u3;
+    long j0, j1, j2, j3, s;
+    if (i)
+    {
+      rot3(sg[7],sg[8],sg[9])
+      if (i%3==0)
+      {
+        s=sg[5]; sg[5]=sg[6]; sg[6]=sg[7]; sg[7]=sg[8]; sg[8]=sg[9]; sg[9]=s;
+        if (i%15==0)
+        {
+          s=sg[3]; sg[3]=sg[4]; sg[4]=sg[5];
+          sg[5]=sg[6]; sg[6]=sg[7]; sg[7]=sg[8]; sg[8]=sg[9]; sg[9]=s;
+        }
+      }
+    }
+    liftpow = s4makelift(f36releveauto2(Bl, TQ, Q, sg), gl);
+    av0 = avma;
+    for (j0 = 0; j0 < 4; j0++, set_avma(av0))
+    {
+      u0 = lincomb(B,sg[8],sg[9],j0);
+      u0 = FpX_add(u0, gmael(B,sg[1],3), Q); av1 = avma;
+      for (j1 = 0; j1 < 4; j1++, set_avma(av1))
+      {
+        u1 = lincomb(B,sg[6],sg[7],j1);
+        u1 = FpX_add(u0, u1, Q); av2 = avma;
+        for (j2 = 0; j2 < 4; j2++, set_avma(av2))
+        {
+          u2 = lincomb(B,sg[4],sg[5],j2);
+          u2 = FpX_add(u1, u2, Q); av3 = avma;
+          for (j3 = 0; j3 < 4; j3++, set_avma(av3))
+          {
+            u3 = lincomb(B,sg[2],sg[3],j3);
+            u3 = FpX_add(u2, u3, Q);
+            if (s4test(u3, liftpow, gl, sigma))
+            {
+              pj[1] = j3;
+              pj[2] = j2;
+              pj[3] = j1;
+              pj[4] = j0; goto suitef36;
+            }
+          }
+        }
+      }
+    }
+  }
+  return gc_NULL(ltop);
+suitef36:
+  s4[1]=sg[1]; s4[2]=sg[2]; s4[4]=sg[3];
+  s4[3]=sg[4]; s4[5]=sg[5]; s4[6]=sg[6];
+  s4[8]=sg[7]; s4[7]=sg[8]; s4[9]=sg[9];
+  for (i = 0; i < 12; i++, set_avma(av))
+  {
+    pari_sp av0, av1;
+    GEN u0, u1;
+    long j0, j1;
+    if (i)
+    {
+      lswap(s4[3],s4[5]); pj[2] = (-pj[2])&3;
+      if (odd(i)) { lswap(s4[7],s4[9]); pj[4]=(-pj[4])&3; }
+      if (i%4==0)
+      {
+        rot3(s4[3],s4[6],s4[7]);
+        rot3(s4[5],s4[8],s4[9]);
+        rot3(pj[2],pj[3],pj[4]);
+      }
+    }
+    liftpow = s4makelift(f36releveauto4(Bl, TQ, Q, s4), gl);
+    av0 = avma;
+    for (j0 = 0; j0 < 4; j0++, set_avma(av0))
+    {
+      u0 = FpX_add(gmael(B,s4[1],2), gmael(B,s4[2],1+j0),Q);
+      u0 = FpX_add(u0, gmael(B,s4[3],1+smodss(pj[2]-j0,4)),Q);
+      u0 = FpX_add(u0, gmael(B,s4[4],1+smodss(j0-pj[1]-pj[2],4)),Q);
+      u0 = FpX_add(u0, gmael(B,s4[5],1+smodss(pj[1]-j0,4)),Q);
+      av1 = avma;
+      for (j1 = 0; j1 < 4; j1++, set_avma(av1))
+      {
+        u1 = FpX_add(u0, gmael(B,s4[6],1+j1),Q);
+        u1 = FpX_add(u1, gmael(B,s4[7],1+smodss(pj[4]-j1,4)),Q);
+        u1 = FpX_add(u1, gmael(B,s4[8],1+smodss(j1-pj[3]-pj[4],4)),Q);
+        u1 = FpX_add(u1, gmael(B,s4[9],1+smodss(pj[3]-j1,4)),Q);
+        if (s4test(u1, liftpow, gl, tau))
+        {
+          pk[1] = j0;
+          pk[2] = j1; goto suitef36_2;
+        }
+      }
+    }
+  }
+  return gc_NULL(ltop);
+suitef36_2:
+  sp[1]=s4[9]; sp[2]=s4[1]; sp[3]=s4[2];
+  sp[4]=s4[7]; sp[5]=s4[3]; sp[6]=s4[8];
+  sp[8]=s4[4]; sp[7]=s4[5]; sp[9]=s4[6];
+  for (i = 0; i < 4; i++, set_avma(av))
+  {
+    const int w[4][6]={{0,0,1,3,0,2},{1,0,2,1,1,2},{3,3,2,0,3,1},{0,1,3,0,0,3}};
+    pari_sp av0, av1, av2;
+    GEN u0, u1, u2;
+    long j0, j1,j2,j3,j4,j5;
+    if (i)
+    {
+      rot4(sp[3],sp[5],sp[8],sp[7])
+      pk[1]=(-pk[1])&3;
+    }
+    liftpow = s4makelift(f36releveauto4(Bl,TQ,Q,sp), gl);
+    av0 = avma;
+    for (j0 = 0; j0 < 4; j0++, set_avma(av0))
+    {
+      u0 = FpX_add(gmael(B,sp[1],2), gmael(B,sp[2],1+j0),Q);
+      av1 = avma;
+      for (j1 = 0; j1 < 4; j1++, set_avma(av1))
+      {
+        u1 = FpX_add(u0, gmael(B,sp[3],1+j1),Q);
+        j3 = (-pk[1]-pj[3]+j0+j1-w[i][0]*pj[1]-w[i][3]*pj[2])&3;
+        u1 = FpX_add(u1, gmael(B,sp[6],1+j3),Q);
+        j5 = (-pk[1]+2*j0+2*j1-w[i][2]*pj[1]-w[i][5]*pj[2])&3;
+        u1 = FpX_add(u1, gmael(B,sp[8],1+j5),Q);
+        av2 = avma;
+        for (j2 = 0; j2 < 4; j2++, set_avma(av2))
+        {
+          u2 = FpX_add(u1, gmael(B,sp[4],1+j2),Q);
+          u2 = FpX_add(u2, gmael(B,sp[5],1+smodss(-j0-j1-j2,4)),Q);
+          j4 = (-pk[1]-pk[2]+pj[3]+pj[4]-j2-w[i][1]*pj[1]-w[i][4]*pj[2])&3;
+          u2 = FpX_add(u2, gmael(B,sp[7],1+j4),Q);
+          u2 = FpX_add(u2, gmael(B,sp[9],1+smodss(-j3-j4-j5,4)),Q);
+          if (s4test(u2, liftpow, gl, rho))
+            goto suitef36_3;
+        }
+      }
+    }
+  }
+  return gc_NULL(ltop);
+suitef36_3:
+  tam = perm_inv(tau);
+  for (i = 1; i <= n; i++)
+  {
+    r1[tau[i]] = rho[i];
+    r2[i] = tam[rho[i]];
   }
   set_avma(ltop2); return res;
 }
@@ -2621,13 +2827,23 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne *gb,
     if (PG) return gerepileupto(ltop, PG);
     set_avma(av);
   }
-  if (n == 24 && ga->ord==3)
+  if (n == 24 && ga->ord==3 && ga->p4)
   { /* S4 is very probable: test it first */
     pari_sp av = avma;
     struct galois_lift gl;
     if (DEBUGLEVEL >= 4) err_printf("GaloisConj: Testing S4 first\n");
     initlift(T, den, ga->p4, L, makeLden(L,den,gb), gb, &gl);
     PG = s4galoisgen(&gl);
+    if (PG) return gerepileupto(ltop, PG);
+    set_avma(av);
+  }
+  if (n == 36 && ga->ord==3 && ga->p4)
+  { /* F36 is very probable: test it first */
+    pari_sp av = avma;
+    struct galois_lift gl;
+    if (DEBUGLEVEL >= 4) err_printf("GaloisConj: Testing 3x3:4 first (p=%ld)\n",ga->p4);
+    initlift(T, den, ga->p4, L, makeLden(L,den,gb), gb, &gl);
+    PG = f36galoisgen(&gl);
     if (PG) return gerepileupto(ltop, PG);
     set_avma(av);
   }
