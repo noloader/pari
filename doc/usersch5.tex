@@ -4898,6 +4898,18 @@ modulo \kbd{p}.
 faster) to applying \kbd{FpV\_polint(x,$\ldots$)} to all the elements of the
 vector $V$ (thus, returns a \kbd{FpXV}).
 
+\fun{GEN}{FpX_FpXV_multirem}{GEN A, GEN P, GEN p}
+given a \kbd{FpX} $A$ and a vector $P$ of pairwise coprime \kbd{FpX} of length
+$n\ge 1$, return a vector $B$ of the same length such that $B[i] =
+A\pmod{P[i]}$ and $B[i]$ of minimal degree for all $1\leq i\leq n$.
+
+\fun{GEN}{FpXV_chinese}{GEN A, GEN P, GEN p, GEN *pM}
+let $P$ be a vector of pairwise coprime \kbd{FpX}, let $A$ be a vector of
+\kbd{FpX} of the same length $n\ge 1$ and let $M$ be the product of the
+elements of $P$. Returns a \kbd{FpX} of minimal degree congruent to $A[i]$ mod
+$P[i]$ for all $1\leq i\leq n$.
+If \kbd{pM} is not \kbd{NULL}, set \kbd{*pM} to $M$.
+
 \fun{GEN}{FpV_invVandermonde}{GEN L, GEN d, GEN p} $L$ being a \kbd{FpV}
 of length $n$, return the inverse $M$ of the Vandermonde matrix attached to
 the elements of $L$, eventually multiplied by \kbd{d} if it is not
