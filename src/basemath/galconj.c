@@ -1468,15 +1468,12 @@ a4galoisgen(struct galois_test *td)
 }
 
 /* S4 */
-static void
-s4makelift(GEN u, struct galois_lift *gl, GEN liftpow)
+static GEN
+s4makelift(GEN u, struct galois_lift *gl)
 {
-  GEN s = automorphismlift(u, gl);
-  long i;
-  gel(liftpow,1) = s;
-  for (i = 2; i < lg(liftpow); i++)
-    gel(liftpow,i) = FpXQ_mul(gel(liftpow,i-1), s, gl->TQ, gl->Q);
+  return FpXQ_powers(automorphismlift(u, gl), 23, gl->TQ, gl->Q);
 }
+
 static long
 s4test(GEN u, GEN liftpow, struct galois_lift *gl, GEN phi)
 {
@@ -1488,17 +1485,17 @@ s4test(GEN u, GEN liftpow, struct galois_lift *gl, GEN phi)
   if (!d) return 0;
   Q = gl->Q; Q2 = shifti(Q,-1);
   res = gel(u,2);
-  for (i = 1; i < d; i++)
+  for (i = 2; i <= d; i++)
     if (lg(gel(liftpow,i))>2)
-      res = addii(res, mulii(gmael(liftpow,i,2), gel(u,i+2)));
+      res = addii(res, mulii(gmael(liftpow,i,2), gel(u,i+1)));
   res = remii(res,Q);
   if (gl->den != gen_1) res = mulii(res, gl->den);
   res = centermodii(res, Q,Q2);
   if (abscmpii(res, gl->gb->bornesol) > 0) return gc_long(av,0);
   res = scalar_ZX_shallow(gel(u,2),varn(u));
-  for (i = 1; i < d ; i++)
+  for (i = 2; i <= d ; i++)
     if (lg(gel(liftpow,i))>2)
-      res = ZX_add(res, ZX_Z_mul(gel(liftpow,i), gel(u,i+2)));
+      res = ZX_add(res, ZX_Z_mul(gel(liftpow,i), gel(u,i+1)));
   res = FpX_red(res, Q);
   if (gl->den != gen_1) res = FpX_Fp_mul(res, gl->den, Q);
   res = FpX_center_i(res, Q, shifti(Q,-1));
@@ -1585,7 +1582,6 @@ s4galoisgen(struct galois_lift *gl)
   inittestlift(aut, Tmod, gl, &gt);
   Bcoeff = gt.bezoutcoeff;
   pauto = gt.pauto;
-  liftpow = cgetg(24, t_VEC);
   av = avma;
   for (i = 0; i < 3; i++, set_avma(av))
   {
@@ -1598,7 +1594,7 @@ s4galoisgen(struct galois_lift *gl)
       else        { lswap(sg[1],sg[3]); }
     }
     u = s4releveauto(misom,Tmod,Tp,p,sg[1],sg[2],sg[3],sg[4],sg[5],sg[6]);
-    s4makelift(u, gl, liftpow);
+    liftpow = s4makelift(u, gl);
     av1 = avma;
     for (j1 = 0; j1 < 4; j1++, set_avma(av1))
     {
@@ -1641,7 +1637,7 @@ suites4:
     for (l = 0; l < 2; l++, set_avma(av))
     {
       u = s4releveauto(misom,Tmod,Tp,p,sg[1],sg[3],sg[2],sg[4],sg[5],sg[6]);
-      s4makelift(u, gl, liftpow);
+      liftpow = s4makelift(u, gl);
       av2 = avma;
       for (w = 0; w < 4; w += 2, set_avma(av2))
       {
@@ -1677,7 +1673,7 @@ suites4_2:
     GEN u;
     pari_sp av2;
     u = s4releveauto(misom,Tmod,Tp,p,sg[1],sg[4],sg[2],sg[5],sg[3],sg[6]);
-    s4makelift(u, gl, liftpow);
+    liftpow = s4makelift(u, gl);
     av2 = avma;
     for (j = 0; j < 8; j++)
     {
