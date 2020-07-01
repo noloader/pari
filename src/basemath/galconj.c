@@ -1526,12 +1526,12 @@ s4releveauto(GEN misom,GEN Tmod,GEN Tp,GEN p,long a1,long a2,long a3,long a4,lon
   u5 = FpX_chinese_coprime(u4,u3,pu4,pu3,Tp,p);
   return gerepileupto(av, u5);
 }
+
 static GEN
-lincomb(GEN A, GEN B, GEN pauto, long j)
+lincomb(GEN B, long a, long b, long j)
 {
   long k = (-j) & 3;
-  if (j == k) return ZX_mul(ZX_add(A,B), gel(pauto, j+1));
-  return ZX_add(ZX_mul(A, gel(pauto, j+1)), ZX_mul(B, gel(pauto, k+1)));
+  return ZX_add(gmael(B,a,j+1), gmael(B,b,k+1));
 }
 
 static GEN
@@ -1559,8 +1559,8 @@ s4galoisgen(struct galois_lift *gl)
   struct galois_testlift gt;
   pari_sp av, ltop2, ltop = avma;
   long i, j;
-  GEN sigma, tau, phi, res, r1,r2,r3,r4, pj, p = gl->p, Q = gl->Q, TQ = gl->TQ;
-  GEN sg, Tp, Tmod, misom, Bcoeff, pauto, liftpow, aut;
+  GEN sigma, tau, phi, res, r1,r2,r3,r4, pj, p = gl->p, Q = gl->Q;
+  GEN sg, Tp, Tmod, misom, B, liftpow, aut;
 
   res = cgetg(3, t_VEC);
   r1 = cgetg(n+1, t_VECSMALL);
@@ -1580,8 +1580,7 @@ s4galoisgen(struct galois_lift *gl)
   misom = FpXV_ffisom(Tmod, p);
   aut = galoisdolift(gl);
   inittestlift(aut, Tmod, gl, &gt);
-  Bcoeff = gt.bezoutcoeff;
-  pauto = gt.pauto;
+  B = FqC_FqV_mul(gt.pauto, gt.bezoutcoeff, gl->TQ, Q);
   av = avma;
   for (i = 0; i < 3; i++, set_avma(av))
   {
@@ -1598,16 +1597,16 @@ s4galoisgen(struct galois_lift *gl)
     av1 = avma;
     for (j1 = 0; j1 < 4; j1++, set_avma(av1))
     {
-      u1 = lincomb(gel(Bcoeff,sg[5]),gel(Bcoeff,sg[6]), pauto,j1);
-      u1 = FpX_rem(u1, TQ, Q); av2 = avma;
+      u1 = lincomb(B,sg[5],sg[6],j1);
+      av2 = avma;
       for (j2 = 0; j2 < 4; j2++, set_avma(av2))
       {
-        u2 = lincomb(gel(Bcoeff,sg[3]),gel(Bcoeff,sg[4]), pauto,j2);
-        u2 = FpX_rem(FpX_add(u1, u2, Q), TQ,Q); av3 = avma;
+        u2 = lincomb(B,sg[3],sg[4],j2);
+        u2 = FpX_add(u1, u2, Q); av3 = avma;
         for (j3 = 0; j3 < 4; j3++, set_avma(av3))
         {
-          u3 = lincomb(gel(Bcoeff,sg[1]),gel(Bcoeff,sg[2]), pauto,j3);
-          u3 = FpX_rem(FpX_add(u2, u3, Q), TQ,Q);
+          u3 = lincomb(B,sg[1],sg[2],j3);
+          u3 = FpX_add(u2, u3, Q);
           if (DEBUGLEVEL >= 4)
             err_printf("S4GaloisConj: Testing %d/3:%d/4:%d/4:%d/4:%Ps\n",
                        i,j1,j2,j3, sg);
@@ -1643,8 +1642,8 @@ suites4:
       {
         GEN uu;
         pj[6] = (w + pj[3]) & 3;
-        uu = lincomb(gel(Bcoeff,sg[5]),gel(Bcoeff,sg[6]), pauto, pj[6]);
-        uu = FpX_rem(FpX_red(uu,Q), TQ, Q);
+        uu = lincomb(B, sg[5], sg[6], pj[6]);
+        uu = FpX_red(uu, Q);
         av3 = avma;
         for (i = 0; i < 4; i++, set_avma(av3))
         {
@@ -1654,9 +1653,9 @@ suites4:
           if (DEBUGLEVEL >= 4)
             err_printf("S4GaloisConj: Testing %d/3:%d/2:%d/2:%d/4:%Ps:%Ps\n",
                        j-1, w >> 1, l, i, sg, pj);
-          u = ZX_add(lincomb(gel(Bcoeff,sg[1]),gel(Bcoeff,sg[3]), pauto,pj[4]),
-                     lincomb(gel(Bcoeff,sg[2]),gel(Bcoeff,sg[4]), pauto,pj[5]));
-          u = FpX_rem(FpX_add(uu,u,Q), TQ, Q);
+          u = ZX_add(lincomb(B,sg[1],sg[3],pj[4]),
+                     lincomb(B,sg[2],sg[4],pj[5]));
+          u = FpX_add(uu,u,Q);
           if (s4test(u, liftpow, gl, tau)) goto suites4_2;
         }
       }
@@ -1681,10 +1680,8 @@ suites4_2:
       h = j & 3;
       g = (abcdef + ((j & 4) >> 1)) & 3;
       i = (h + abc - g) & 3;
-      u = ZX_add(   lincomb(gel(Bcoeff,sg[1]), gel(Bcoeff,sg[4]), pauto, g),
-                    lincomb(gel(Bcoeff,sg[2]), gel(Bcoeff,sg[5]), pauto, h));
-      u = FpX_add(u, lincomb(gel(Bcoeff,sg[3]), gel(Bcoeff,sg[6]), pauto, i),Q);
-      u = FpX_rem(u, TQ, Q);
+      u = ZX_add(lincomb(B,sg[1],sg[4], g), lincomb(B,sg[2],sg[5], h));
+      u = FpX_add(u, lincomb(B,sg[3],sg[6], i),Q);
       if (DEBUGLEVEL >= 4)
         err_printf("S4GaloisConj: Testing %d/8 %d:%d:%d\n", j,g,h,i);
       if (s4test(u, liftpow, gl, phi)) break;
