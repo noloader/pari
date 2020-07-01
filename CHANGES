@@ -179,6 +179,7 @@ BA  45- closures: do not copy the full context, only the accessible part
     55- idealstar: optional argument to compute G/G^n, avoid tough discrete logs
 HC  56- zetamultall: add flag
     57- subgrouplist: allow any object affording a .cyc method
+    58- remove zetamultinit and corresponding optional argument in zetamult
 
   Added
      1- new GP function rootsof1

@@ -14,10 +14,8 @@ zetamult(s,1)
 zetamult(s,x)
 
 default(realprecision,57);
-T=zetamultinit(40);
 V=vector(10, k, vector(2*k, j, 1+2*(j%2)));
 for(k=1,#V, print(Pi^(4*k) / zetamult(V[k])));
-for(k=1,#V, print(Pi^(4*k) / zetamult(V[k],, T)));
 
 v = [zeta(9),Pi^2*zeta(7),Pi^4*zeta(5),Pi^6*zeta(3)];
 LD=[2,2,2,2];
