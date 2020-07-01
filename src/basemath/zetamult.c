@@ -146,10 +146,10 @@ zetamultdual(GEN s)
 /**                      AKHILESH ALGORITHM                        **/
 /********************************************************************/
 /* a t_VECSMALL, upper bound for -log2(zeta(a)) */
-static GEN zetamult_zagier_bit(GEN, long, long);
+static GEN zetamult_Zagier(GEN, long, long);
 static long
 log2zeta_bound(GEN a)
-{ return ceil(-dbllog2(zetamult_zagier_bit(a, 32, LOWDEFAULTPREC))); }
+{ return ceil(-dbllog2(zetamult_Zagier(a, 32, LOWDEFAULTPREC))); }
 /* ibin[n+1] = 1 / binom(2n, n) as a t_REAL */
 static void
 get_ibin(GEN *pibin, GEN *pibin1, long N, long prec)
@@ -166,25 +166,22 @@ get_ibin(GEN *pibin, GEN *pibin1, long N, long prec)
     gel(ibin1, n+1) = divru(gel(ibin, n+1), n);
   }
 }
-static GEN zetamult2_i(GEN e, long bit, long prec);
+static GEN zetamult_Akhilesh(GEN e, long bit, long prec);
 /* a t_VECSMALL */
 static GEN
 zetamult_i(GEN a, long prec)
 {
   long r = lg(a)-1, k, bit;
-  GEN e;
-
   if (r == 0) return gen_1;
   if (r == 1) return szeta(a[1], prec);
   bit = prec2nbits(prec);
   if (bit <= 128)
-    return zetamult_zagier_bit(a, bit, prec + EXTRAPRECWORD);
+    return zetamult_Zagier(a, bit, prec + EXTRAPRECWORD);
   k = zv_sum(a);
   if (((double)r) / (k*k) * bit / log((double)10*bit) < 0.5)
-    return zetamult_zagier_bit(a, bit, prec + EXTRAPRECWORD);
+    return zetamult_Zagier(a, bit, prec + EXTRAPRECWORD);
   bit += maxss(log2zeta_bound(a), 64);
-  e = atoe(a);
-  return zetamult2_i(e, bit, prec);
+  return zetamult_Akhilesh(atoe(a), bit, prec);
 }
 GEN
 zetamult(GEN s, long prec)
@@ -482,7 +479,7 @@ powersu(ulong n, long k)
 /* Akhilesh recursive algorithm, #a > 1;
  * e t_VECSMALL, prec final precision, bit required bitprecision */
 static GEN
-zetamult2_i(GEN e, long bit, long prec)
+zetamult_Akhilesh(GEN e, long bit, long prec)
 {
   long j, k = lg(e) - 1, N = 5 + bit/2, prec2 = nbits2prec(bit);
   GEN r, pab, ibin, ibin1;
@@ -839,7 +836,7 @@ zparams(long *s, long *l, long b)
 }
 
 static GEN
-zetamult_zagier_bit(GEN avec, long bit, long prec)
+zetamult_Zagier(GEN avec, long bit, long prec)
 {
   pari_sp av;
   GEN ze, z = NULL, b;
