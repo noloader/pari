@@ -145,6 +145,7 @@ zetamultdual(GEN s)
 /********************************************************************/
 /**                      AKHILESH ALGORITHM                        **/
 /********************************************************************/
+#if 0
 static long
 la(long e, long f) { return (e == f)? 2: (e? 1: 3); }
 static GEN
@@ -238,6 +239,7 @@ addevec(GEN LR, GEN v)
   }
   return vec_append(LR,v);
 }
+#endif
 
 /* N > 1, v[n] = 1 / binom(2n, n) as a t_REAL */
 static GEN
@@ -309,22 +311,18 @@ zetamultinit(long n, long prec)
   bit = prec2nbits(prec) + log2zeta_bound_worst(n);
   return gerepilecopy(av, zetamultinit_i(n-1, bit));
 }
-/* a a t_VECSMALL */
+#if 0
+/* Akhilesh (derecursified) summation, #a > 1 */
 static GEN
-zetamult_i(GEN a, GEN T, long prec)
+zetamult1_i(GEN e, GEN T, long bit, long prec)
 {
   pari_sp av = avma;
-  long k, m, n, i, j, l, L;
-  GEN vphi, vbin, LR, MA, MR, e, vLA, v1, v2, S = NULL;
-  pari_timer ti;
+  long m, n, i, j, l, L, k = lg(e)-1; /* weight */
+  GEN vphi, vbin, LR, MA, MR, vLA, v1, v2, S = NULL;
 
-  if (lg(a) == 1) return gen_1;
-  if (lg(a) == 2) return szeta(a[1], prec);
-  e = atoe(a); k = lg(e)-1; /* weight */
   LR = cgetg(1, t_VEC);
   MA = cgetg(k, t_VEC);
   MR = cgetg(k, t_VEC);
-  if (DEBUGLEVEL) timer_start(&ti);
   for (i = 1; i < k; i++)
   {
     gel(MA,i) = etoa(revslice(e, i+1));
@@ -332,9 +330,7 @@ zetamult_i(GEN a, GEN T, long prec)
     LR = addevec(addevec(LR, gel(MA,i)), gel(MR,i));
   }
   m = vecvecsmall_max(LR);
-  if (DEBUGLEVEL) timer_printf(&ti,"zetamult combinatorics");
-  if (!T)
-    T = zetamultinit_i(m, prec2nbits(prec) + maxss(log2zeta_bound(a), 64));
+  if (!T) T = zetamultinit_i(m, bit);
   else
   {
     if (typ(T) != t_VEC || lg(T) != 4) pari_err_TYPE("zetamult", T);
@@ -343,10 +339,8 @@ zetamult_i(GEN a, GEN T, long prec)
   }
   vbin = gel(T,1); L = lg(vbin);
   prec = realprec(gmael3(T,2,1,L-1));
-  if (DEBUGLEVEL) timer_printf(&ti,"zetamult init");
   l = lg(LR); vphi = cgetg(l, t_VEC);
   for (j = 1; j < l; j++) gel(vphi,j) = get_vphi(gel(LR,j), T, prec);
-  if (DEBUGLEVEL) timer_printf(&ti,"zetamult vphi");
   vLA = cgetg(k, t_VECSMALL);
   v1 = cgetg(k, t_VEC);
   v2 = cgetg(k, t_VEC);
@@ -367,8 +361,28 @@ zetamult_i(GEN a, GEN T, long prec)
     else
       S = gerepileupto(av, gadd(S, mpmul(s, gel(vbin,n))));
   }
-  if (DEBUGLEVEL) timer_printf(&ti,"zetamult sum");
   return S;
+}
+#endif
+static GEN zetamult2_i(GEN e, long bit, long prec);
+/* a t_VECSMALL */
+static GEN
+zetamult_i(GEN a, GEN T, long prec)
+{
+  long r = lg(a)-1, k, bit;
+  GEN e;
+
+  if (r == 0) return gen_1;
+  if (r == 1) return szeta(a[1], prec);
+  bit = prec2nbits(prec);
+  if (bit <= 128)
+    return zetamult_zagier_bit(a, bit, prec + EXTRAPRECWORD);
+  k = zv_sum(a);
+  if (((double)r) / (k*k) * bit / log((double)10*bit) < 0.5)
+    return zetamult_zagier_bit(a, bit, prec + EXTRAPRECWORD);
+  bit += maxss(log2zeta_bound(a), 64);
+  e = atoe(a);
+  return zetamult2_i(e, bit, prec);
 }
 GEN
 zetamult0(GEN s, GEN T, long prec)
@@ -686,19 +700,17 @@ powersu(ulong n, long k)
   return v;
 }
 
-/* evec t_VECSMALL */
+/* Akhilesh recursive algorithm, #a > 1;
+ * e t_VECSMALL, prec final precision, bit required bitprecision */
 static GEN
-zetamultevecs(GEN evec, long prec)
+zetamult2_i(GEN e, long bit, long prec)
 {
-  long j, bitprec, prec2, N, k = lg(evec) - 1;
+  long j, prec2, N, k = lg(e) - 1;
   GEN r, pab, ibin, ibin1;
   hashtable *H;
 
-  if (k == 0) return gen_1;
-  bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
-  N = 5 + bitprec/2;
-  prec2 = nbits2prec(bitprec);
-  evec = gprec_wensure(evec, prec2);
+  N = 5 + bit/2;
+  prec2 = nbits2prec(bit);
   pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
   for (j = 2; j <= N; j++) gel(pab, j) = powersu(j, k);
   /* n^a = pab[n][a] */
@@ -708,7 +720,7 @@ zetamultevecs(GEN evec, long prec)
   hash_insert(H, (void*)cgetg(1, t_VECSMALL), (void*)ibin);
   hash_insert(H, (void*)mkvecsmall(0), (void*)ibin1);
   hash_insert(H, (void*)mkvecsmall(1), (void*)ibin1);
-  r = fillrecs(H, evec, pab, N, prec2);
+  r = fillrecs(H, e, pab, N, prec2);
   if (DEBUGLEVEL) err_printf("polylogmult: k = %ld, %ld nodes\n", k, H->nb);
   return gprec_wtrunc(gel(r,1), prec);
 }
@@ -764,15 +776,11 @@ zetamultevec(GEN evec, long prec)
 GEN
 polylogmult(GEN s, GEN zvec, long prec)
 {
-  pari_sp av = avma;
-  GEN avec = zetamultconvert_i(s, 1);
+  pari_sp av;
+  GEN avec;
 
-  if (!zvec)
-  {
-    if (lg(avec) == 1) return gc_const(av, gen_1);
-    if (lg(avec) == 2) return gerepileupto(av, szeta(avec[1], prec));
-    return gerepilecopy(av, zetamultevecs(atoe(avec), prec));
-  }
+  if (!zvec) return zetamult0(s, NULL, prec);
+  av = avma; avec = zetamultconvert_i(s, 1);
   switch (typ(zvec))
   {
     case t_INT: case t_FRAC: case t_REAL: case t_COMPLEX:
