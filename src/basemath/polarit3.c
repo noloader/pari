@@ -869,6 +869,22 @@ FqC_Fq_mul(GEN x, GEN y, GEN T, GEN p)
 }
 
 GEN
+FqC_FqV_mul(GEN x, GEN y, GEN T, GEN p)
+{
+  long i,j, lx=lg(x), ly=lg(y);
+  GEN z;
+  if (ly==1) return cgetg(1,t_MAT);
+  z = cgetg(ly,t_MAT);
+  for (j=1; j < ly; j++)
+  {
+    GEN zj = cgetg(lx,t_COL);
+    for (i=1; i<lx; i++) gel(zj,i) = Fq_mul(gel(x,i),gel(y,j), T, p);
+    gel(z, j) = zj;
+  }
+  return z;
+}
+
+GEN
 FqV_to_FlxV(GEN x, GEN T, GEN pp)
 {
   long vT = evalvarn(get_FpX_var(T));

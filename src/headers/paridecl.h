@@ -4829,6 +4829,7 @@ GEN     Fq_sqrt(GEN x, GEN T, GEN p);
 GEN     Fq_sqrtn(GEN x, GEN n, GEN T, GEN p, GEN *zeta);
 GEN     Fq_sub(GEN x, GEN y, GEN T/*unused*/, GEN p);
 GEN     FqC_Fq_mul(GEN x, GEN y, GEN T, GEN p);
+GEN     FqC_FqV_mul(GEN x, GEN y, GEN T, GEN p);
 GEN     FqC_add(GEN x, GEN y, GEN T, GEN p);
 GEN     FqC_sub(GEN x, GEN y, GEN T, GEN p);
 GEN     FqC_to_FlxC(GEN v, GEN T, GEN pp);
