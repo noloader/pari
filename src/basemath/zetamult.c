@@ -569,7 +569,7 @@ get_pab(long N, long k)
 static GEN
 zetamult_Akhilesh(GEN e, long bit, long prec)
 {
-  long k = lg(e) - 1, N = 5 + bit/2, prec2 = nbits2prec(bit);
+  long k = lg(e) - 1, N = 1 + bit/2, prec2 = nbits2prec(bit);
   GEN r, pab, ibin, ibin1;
   hashtable *H;
 
@@ -608,7 +608,7 @@ zetamultevec(GEN evec, long prec)
     for (j = i+1; j <= k; j++) z = maxdd(z, x[i] + y[j]);
   set_avma(av);
   if (z >= 2) pari_err_IMPL("polylogmult in this range");
-  N = 5 + bitprec/ (2 - z);
+  N = 1 + bitprec/ (2 - z);
   bitprec += z * N;
   prec2 = nbits2prec(bitprec);
   evec = gprec_wensure(evec, prec2);
