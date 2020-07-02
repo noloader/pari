@@ -789,10 +789,8 @@ fillL(long k, long bitprec)
 {
   long N = 1 + bitprec/2, prec = nbits2prec(bitprec);
   long s, j, n, m, K = 1 << (k - 1), K2 = K/2;
-  GEN L, p1, p2, pab, S;
+  GEN p1, p2, pab = get_pab(N, k), L = cgetg(K + 2, t_VEC);
 
-  pab = get_pab(N, k);
-  L = cgetg(K + 2, t_VEC);
   get_ibin(&gel(L,1), &gel(L,2), N, prec);
   for (m = 1; m < K2; m++)
   {
@@ -832,16 +830,17 @@ fillL(long k, long bitprec)
       pmid = gel(L, mmid);
       for (n = N-1; n > 1; n--, set_avma(av))
       {
-        GEN t = mpdiv(gel(pinit,n+1), gmael(pab, n, a));
-        GEN u = mpdiv(gel(pfin, n+1), gmael(pab, n, b));
-        GEN v = mpdiv(gel(pmid, n+1), gmael(pab, n, a+b));
-        S = mpadd(s < k ? gel(p1, n+1) : p1, mpadd(mpadd(t, u), v));
+        GEN t = mpmul(gel(pinit,n+1), gmael(pab, n, b));
+        GEN u = mpmul(gel(pfin, n+1), gmael(pab, n, a));
+        GEN v = gel(pmid, n+1), S = s < k ? gel(p1, n+1): p1;
+        S = mpadd(S, mpdiv(mpadd(mpadd(t, u), v), gmael(pab, n, a+b)));
         mpaff(S, s < k ? gel(p1, n) : p1);
         if (p2 && s < k) mpaff(S, gel(p2, n));
       }
       { /* n = 1: same formula simplifies */
         GEN t = gel(pinit,2), u = gel(pfin,2), v = gel(pmid,2);
-        S = mpadd(s < k ? gel(p1,2) : p1, mpadd(mpadd(t, u), v));
+        GEN S = s < k ? gel(p1,2): p1;
+        S = mpadd(S, mpadd(mpadd(t, u), v));
         mpaff(S, s < k ? gel(p1,1) : p1);
         if (p2 && s < k) mpaff(S, gel(p2, 1));
         set_avma(av);
