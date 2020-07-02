@@ -760,7 +760,7 @@ sumdivmultexpr(void *D, GEN (*fun)(void*, GEN), GEN num)
   long i, l = lg(P);
   GEN (*mul)(GEN,GEN);
 
-  if (l == 1) { set_avma(av); return gen_1; }
+  if (l == 1) return gc_const(av, gen_1);
   mul = isint? mulii: gmul;
   for (i=1; i<l; i++)
   {
@@ -885,7 +885,7 @@ prodeuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
   forprime_t T;
 
   av = avma;
-  if (!forprime_init(&T, a,b)) { set_avma(av); return x; }
+  if (!forprime_init(&T, a,b)) return gc_const(av, x);
 
   av = avma;
   while ( (prime = forprime_next(&T)) )

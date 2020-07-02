@@ -243,7 +243,7 @@ Legendreroot(long N, double dz, long bit)
     z2 = sqrr(z);
     z = subrr(z, Legendreeval(N, z, z2, 0));
   }
-  affrr(z, Z); set_avma(av); return Z;
+  affrr(z, Z); return gc_const(av, Z);
 }
 GEN
 intnumgaussinit(long N, long prec)

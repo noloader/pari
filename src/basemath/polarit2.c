@@ -1278,7 +1278,7 @@ FqV_factorback(GEN L, GEN e, GEN Tp, GEN p)
     Hi = Fq_inv(Hi, Tp, p);
     H = H? Fq_mul(H,Hi,Tp,p): Hi;
   }
-  else if (!H) { set_avma(av); return gen_1; }
+  else if (!H) return gc_const(av, gen_1);
   return gerepileupto(av, H);
 }
 
@@ -1943,7 +1943,7 @@ content(GEN x)
       c = content(gel(x,1));
       for (j=2; j<lx; j++)
         for (i=1; i<hx; i++) c = ggcd(c,gcoeff(x,i,j));
-      if (typ(c) == t_INTMOD || isinexact(c)) { set_avma(av); return gen_1; }
+      if (typ(c) == t_INTMOD || isinexact(c)) return gc_const(av, gen_1);
       return gerepileupto(av,c);
     }
 
@@ -1966,7 +1966,7 @@ content(GEN x)
     while (lx-- > lontyp[tx])
     {
       c = gcdii(c, gel(x,lx));
-      if (equali1(c)) { set_avma(av); return gen_1; }
+      if (equali1(c)) return gc_const(av, gen_1);
     }
   }
   else
@@ -1978,7 +1978,7 @@ content(GEN x)
       t = typ(d); if (is_matvec_t(t)) d = content(d);
       c = ggcd(c, d);
     }
-    if (isinexact(c)) { set_avma(av); return gen_1; }
+    if (isinexact(c)) return gc_const(av, gen_1);
   }
   switch(typ(c))
   {
@@ -2585,7 +2585,7 @@ subresext_i(GEN x, GEN y, GEN *U, GEN *V)
     }
   }
   /* uze an RgX */
-  if (!u) { *U = *V = gen_0; set_avma(av); return gen_0; }
+  if (!u) { *U = *V = gen_0; return gc_const(av, gen_0); }
   z = gel(v,2); du = degpol(u);
   if (du > 1)
   { /* z = gdivexact(gpowgs(z,du), gpowgs(h,du-1)); */

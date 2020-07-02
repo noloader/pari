@@ -8833,12 +8833,12 @@ static GEN
 sigchi2(long k, GEN CHI1, GEN CHI2, long n, long ord)
 {
   pari_sp av = avma;
-  GEN S = gen_0, D;
+  GEN S, D;
   long i, l, n1, n2, vt, N1 = mfcharmodulus(CHI1), N2 = mfcharmodulus(CHI2);
-  D = sigchi2_dec(n, N1, N2, &n1, &n2); if (!D) { set_avma(av); return S; }
+  D = sigchi2_dec(n, N1, N2, &n1, &n2); if (!D) return gc_const(av, gen_0);
   D = divisorsu_fact(D); l = lg(D);
   vt = varn(mfcharpol(CHI1));
-  for (i = 1; i < l; i++)
+  for (i = 1, S = gen_0; i < l; i++)
   { /* S += d^(k-1)*chi1(d)*chi2(n/d) */
     long a, d = n2*D[i], nd = n1*D[l-i]; /* (d,N1)=1; (n/d,N2) = 1 */
     a = mfcharevalord(CHI1, d, ord) + mfcharevalord(CHI2, nd, ord);
@@ -9417,9 +9417,7 @@ mffrometaquo(GEN eta, long flag)
   GEN NK, N, k, BR, P;
   long v, cusp = 0;
   if (!etaquotype(&eta, &N,&k,&P, &v, NULL, flag? NULL: &cusp) || cusp < 0)
-  {
-    set_avma(av); return gen_0;
-  }
+    return gc_const(av, gen_0);
   if (lg(gel(eta,1)) == 1) { set_avma(av); return mf1(); }
   BR = mkvec2(ZV_to_zv(gel(eta,1)), ZV_to_zv(gel(eta,2)));
   if (v < 0) v = 0;
@@ -9485,8 +9483,7 @@ mfisetaquo(GEN F, long flag)
 {
   pari_sp av = avma;
   GEN M = mfisetaquo_i(F, flag);
-  if (!M) { set_avma(av); return gen_0; }
-  return gerepilecopy(av, M);
+  return M? gerepilecopy(av, M): gc_const(av, gen_0);
 }
 
 #if 0
@@ -10336,7 +10333,7 @@ mfisCM(GEN F)
       for (i = 1; i < lD; i++)
         if (kross(D[i], p) == -1) { D = vecsplice(D, i); lD--; }
   }
-  if (lD == 1) { set_avma(av); return gen_0; }
+  if (lD == 1) return gc_const(av, gen_0);
   if (lD == 2) { set_avma(av); return stoi(D[1]); }
   if (k > 1) pari_err_BUG("mfisCM");
   return gerepileupto(av, zv_to_ZV(D));
@@ -12195,7 +12192,7 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
     return gerepileupto(av, normalizeapprox(z, bitprec-20));
   }
   if (F) pari_err_TYPE("mfsymboleval", fs);
-  D = a*d-b*c; if (!D) { set_avma(av); return gen_0; }
+  D = a*d-b*c; if (!D) return gc_const(av, gen_0);
   mfpols = fs_get_pols(fs);
   cosets = fs_get_cosets(fs);
   CHI = MF_get_CHI(mf); N = MF_get_N(mf);
@@ -12497,7 +12494,7 @@ mfpetersson_i(GEN FS, GEN GS)
   ESG = fs_get_vES(GS);
   if (!gequal0(gel(ESF,1)) && !gequal0(gel(ESG,1)))
     return mfpeterssonnoncusp(FS, GS);
-  if (gequal0(gel(ESF,2)) || gequal0(gel(ESG,2))) { set_avma(av); return gen_0; }
+  if (gequal0(gel(ESF,2)) || gequal0(gel(ESG,2))) return gc_const(av, gen_0);
   N = MF_get_N(mf);
   k = MF_get_k(mf);
   CHI = MF_get_CHI(mf);

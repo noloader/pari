@@ -1219,7 +1219,7 @@ galoissubfieldcm(GEN G)
       if (!F2v_coeff(Hset,ind))
       {
         nH++;
-        if (ind==c[1] || 2*nH>n) { set_avma(av); return gen_0; }
+        if (ind==c[1] || 2*nH>n) return gc_const(av, gen_0);
         H[nH] = ind;
         F2v_set(Hset,ind);
       }
@@ -1311,7 +1311,7 @@ nfsubfieldscm(GEN nf)
 
   subfields_cleanup(&nf, &pol, &n, &fa);
   ro = cmsubfield_get_roots(pol, nf, n, &r2, &prec);
-  if (!ro) { set_avma(av); return gen_0; }
+  if (!ro) return gc_const(av, gen_0);
   /* now r2 == 2*n */
 
   if (n==2) return gerepilecopy(av, quadsubfieldcm(pol));
@@ -1358,7 +1358,7 @@ nfsubfieldscm(GEN nf)
   }
 
   V = twoembequation(pol, fa, lambda);
-  if (lg(V)==1) { set_avma(av); delete_var(); return gen_0; }
+  if (lg(V)==1) { delete_var(); return gc_const(av, gen_0); }
   res = subfield_generator(pol, V, 2*(lg(V)-1), ero);
   delete_var();
   return gerepilecopy(av, res);
