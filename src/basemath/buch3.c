@@ -156,9 +156,9 @@ idealmoddivisor_aux(GEN nf, GEN x, GEN f, GEN sarch)
     GEN D = idealaddtoone_i(nf, idealdiv(nf,G,x), f);
     A = nfdiv(nf,D,G);
   }
-  if (too_big(nf,A) > 0) { set_avma(av); return x; }
+  if (too_big(nf,A) > 0) return gc_const(av, x);
   a = set_sign_mod_divisor(nf, NULL, A, sarch);
-  if (a != A && too_big(nf,A) > 0) { set_avma(av); return x; }
+  if (a != A && too_big(nf,A) > 0) return gc_const(av, x);
   return idealmul(nf, a, x);
 }
 
@@ -1918,7 +1918,7 @@ rnfconductor0(GEN bnf, GEN T, long flag)
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
   MOD = flag? utoipos(degpol(T)): NULL;
   bnr = Buchraymod_i(bnf, module, nf_INIT|nf_GEN, MOD);
-  H = rnfnormgroup_i(bnr,T); if (!H) { set_avma(av); return gen_0; }
+  H = rnfnormgroup_i(bnr,T); if (!H) return gc_const(av,gen_0);
   return gerepilecopy(av, bnrconductormod(bnr, H, MOD));
 }
 GEN
@@ -1997,8 +1997,7 @@ bnrdisc(GEN bnr, GEN H, long flag)
 {
   pari_sp av = avma;
   GEN D = bnrdisc_i(bnr, H, flag);
-  if (!D) { set_avma(av); return gen_0; }
-  return gerepilecopy(av, D);
+  return D? gerepilecopy(av, D): gc_const(av, gen_0);
 }
 GEN
 bnrdisc0(GEN A, GEN B, GEN C, long flag)
