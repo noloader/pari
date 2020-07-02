@@ -1733,6 +1733,8 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
   pari_timer ti_pr;
 
   if (DEBUGLEVEL>3) timer_start(&ti_pr);
+  /* if field degree is large, try hard to find an inert prime */
+  if (nfdeg > 30) ct = maxss(ct, 2*nfdeg);
   *lt  = leading_coeff(pol); /* t_INT */
   if (gequal1(*lt)) *lt = NULL;
   *pp = 0;

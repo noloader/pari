@@ -766,6 +766,7 @@ y - 1473852319020386314)]~
 
 2
 [1, 1, 4, 4, 5, 5]~
+1
 
 [y - t^5 2]
 
@@ -774,4 +775,4 @@ y - 1473852319020386314)]~
   ***   at top-level: polhensellift(x^2+x+1,[x+a,x+a+1],2,10)
   ***                 ^---------------------------------------
   *** polhensellift: incorrect type in polhensellift [not in Z[X]] (t_POL).
-Total time spent: 7273
+Total time spent: 11774
