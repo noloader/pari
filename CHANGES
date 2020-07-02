@@ -292,6 +292,7 @@ BA  99- [libpari] FqC_FqV_mul
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
+     2- obsolete function checkbnrgen: use bnr_get_gen
 
 Done for version 2.12.0 (released 01/06/2019):
   Fixed

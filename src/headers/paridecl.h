@@ -2113,7 +2113,6 @@ GEN     checkbnf(GEN bnf);
 GEN     checkbnf_i(GEN bnf);
 void    checkbnr(GEN bnr);
 GEN     checkbnr_i(GEN bnr);
-void    checkbnrgen(GEN bnr);
 void    checkabgrp(GEN v);
 void    checksqmat(GEN x, long N);
 GEN     checknf(GEN nf);

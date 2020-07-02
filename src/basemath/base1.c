@@ -108,14 +108,6 @@ checkbnr(GEN bnr)
 }
 
 void
-checkbnrgen(GEN bnr)
-{
-  checkbnr(bnr);
-  if (lg(bnr_get_clgp(bnr))<=3)
-    pari_err_TYPE("checkbnrgen [apply bnrinit(,,1), not bnrinit()]",bnr);
-}
-
-void
 checksqmat(GEN x, long N)
 {
   if (typ(x)!=t_MAT) pari_err_TYPE("checksqmat",x);

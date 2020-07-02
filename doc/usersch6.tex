@@ -59,16 +59,6 @@ is not a \var{bnr} structure.
 \fun{GEN}{checknf_i}{GEN nf} same as \kbd{checknf} but return \kbd{NULL}
 instead of raising an exception.
 
-\fun{void}{checkbnrgen}{GEN bnr} Raise an exception if the argument is not a
-\var{bnr} structure, complete with explicit generators for the ray class group.
-This is normally useless and \tet{checkbnr} should be instead, unless
-you are absolutely certain that the generators will be needed at a later
-point, and you are about to embark in a costly intermediate computation.
-PARI functions do check that generators are present in \var{bnr} before
-accessing them: they will raise an error themselves; many functions
-that may require them, e.g. \kbd{bnrconductor}, often
-do not actually need them.
-
 \fun{void}{checkrnf}{GEN rnf} Raise an exception if the argument is not an
 \var{rnf} structure.
 
