@@ -5309,7 +5309,6 @@ GEN     polylogmult(GEN avec, GEN zvec, long prec);
 GEN     polylogmult_interpolate(GEN avec, GEN zvec, GEN t, long prec);
 GEN     zetamult(GEN avec, long prec);
 GEN     zetamultdual(GEN s);
-GEN     zetamult_interpolate2(GEN avec, GEN t, long prec);
 GEN     zetamult_interpolate(GEN avec, GEN t, long prec);
 GEN     zetamultall(long k, long flag, long prec);
 GEN     zetamultconvert(GEN a, long fl);
