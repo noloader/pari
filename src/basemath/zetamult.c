@@ -555,20 +555,26 @@ powersu(ulong n, long k)
   for (i = 2; i < l; i++) gel(v,i) = muliu(gel(v,i-1), n);
   return v;
 }
-
+/* n^a = pab[n][a] */
+static GEN
+get_pab(long N, long k)
+{
+  GEN v = cgetg(N+1, t_VEC); gel(v, 1) = gen_0; /* not needed */
+  long j;
+  for (j = 2; j <= N; j++) gel(v, j) = powersu(j, k);
+  return v;
+}
 /* Akhilesh recursive algorithm, #a > 1;
  * e t_VECSMALL, prec final precision, bit required bitprecision */
 static GEN
 zetamult_Akhilesh(GEN e, long bit, long prec)
 {
-  long j, k = lg(e) - 1, N = 5 + bit/2, prec2 = nbits2prec(bit);
+  long k = lg(e) - 1, N = 5 + bit/2, prec2 = nbits2prec(bit);
   GEN r, pab, ibin, ibin1;
   hashtable *H;
 
   get_ibin(&ibin, &ibin1, N, prec2);
-  pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
-  for (j = 2; j <= N; j++) gel(pab, j) = powersu(j, k);
-  /* n^a = pab[n][a] */
+  pab = get_pab(N, k);
   H = hash_create(4096, (ulong(*)(void*))&hash_zv,
                         (int(*)(void*,void*))&zv_equal, 1);
   hash_insert(H, (void*)cgetg(1, t_VECSMALL), (void*)ibin);
@@ -606,9 +612,7 @@ zetamultevec(GEN evec, long prec)
   bitprec += z * N;
   prec2 = nbits2prec(bitprec);
   evec = gprec_wensure(evec, prec2);
-  pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
-  for (j = 2; j <= N; j++) gel(pab, j) = powersu(j, k);
-  /* n^a = pab[n][a] */
+  pab = get_pab(N, k);
   get_ibin(&ibin, &ibin1, N, prec2);
   r1 = real_1(prec2);
   H = hash_create(4096, (ulong(*)(void*))&hash_GEN,
@@ -785,12 +789,9 @@ fillL(long k, long bitprec)
 {
   long N = 1 + bitprec/2, prec = nbits2prec(bitprec);
   long s, j, n, m, K = 1 << (k - 1), K2 = K/2;
-  GEN L, p1, p2, r1, pab, S;
+  GEN L, p1, p2, pab, S;
 
-  r1 = real_1(prec);
-  pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
-  for (n = 2; n <= N; n++) gel(pab, n) = powersr(divru(r1, n), k);
-  /* 1/n^a = pab[n][a+1] */
+  pab = get_pab(N, k);
   L = cgetg(K + 2, t_VEC);
   get_ibin(&gel(L,1), &gel(L,2), N, prec);
   for (m = 1; m < K2; m++)
@@ -831,9 +832,9 @@ fillL(long k, long bitprec)
       pmid = gel(L, mmid);
       for (n = N-1; n > 1; n--, set_avma(av))
       {
-        GEN t = mpmul(gel(pinit,n+1), gmael(pab, n, a+1));
-        GEN u = mpmul(gel(pfin, n+1), gmael(pab, n, b+1));
-        GEN v = mpmul(gel(pmid, n+1), gmael(pab, n, a+b+1));
+        GEN t = mpdiv(gel(pinit,n+1), gmael(pab, n, a));
+        GEN u = mpdiv(gel(pfin, n+1), gmael(pab, n, b));
+        GEN v = mpdiv(gel(pmid, n+1), gmael(pab, n, a+b));
         S = mpadd(s < k ? gel(p1, n+1) : p1, mpadd(mpadd(t, u), v));
         mpaff(S, s < k ? gel(p1, n) : p1);
         if (p2 && s < k) mpaff(S, gel(p2, n));
