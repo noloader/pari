@@ -20,7 +20,8 @@ Doc: For $s$ a vector of positive integers such that $s[1] \geq 2$,
  ? zetamult([2,1], 'x)
  %3 = 1.20205[...]*x + 1.20205[...]
  @eprog\noindent
- If the bit precision is $B$, this function runs in time $\tilde{O}(k(B+k)^2)$.
+ If the bit precision is $B$, this function runs in time $\tilde{O}(k(B+k)^2)$
+ if $t = 0$, and $\tilde{O}(kB^3)$ otherwise.
 
  In addition to the above format (\kbd{avec}), the function
  also accepts a binary word format \kbd{evec} (each $s_i$ is replaced
