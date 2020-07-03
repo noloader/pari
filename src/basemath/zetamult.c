@@ -363,17 +363,16 @@ is $\sum_{n_1>n_2>...>n_r>0}z_1^{n_1}...z_r^{n_r}/(n_1^a_1...n_r^{a_r})$. */
 /* Given admissible evec = xe_2....e_{k-1}y, (k>=2), compute a,b,v such that
 evec = x{1}_{a-1}v{0}_{b-1}y with v empty or admissible.
 Input: vector w=evec
-Output: v=wmid, winit, wfin
-Difference with findabv: winit, wfin, and wmid are computed here. */
+Output: v=wmid, wini, wfin */
 static void
-findabvgen(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin, long *pa, long *pb)
+findabvgen(GEN evec, GEN *pwmid, GEN *pwini, GEN *pwfin, long *pa, long *pb)
 {
   long s = lg(evec) - 1, m, a, b, j;
-  GEN wmid, winit, wfin, x = gel(evec, 1), y = gel(evec, s);
+  GEN wmid, wini, wfin, x = gel(evec, 1), y = gel(evec, s);
   if (s == 2)
   {
     *pwmid = cgetg(1, t_VEC);
-    *pwinit = mkvec(x);
+    *pwini = mkvec(x);
     *pwfin = mkvec(y);
     *pa = *pb = 1; return;
   }
@@ -387,9 +386,9 @@ findabvgen(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin, long *pa, long *pb)
   *pb = b;
   *pwmid = wmid = a + b < s? vecslice(evec, a + 1, s - b): cgetg(1, t_VEC);
   m = lg(wmid) - 1;
-  *pwinit = winit = cgetg(a + m + 1, t_VEC);
-  gel(winit,1) = x; for (j = 2; j <= a; j++) gel(winit, j) = gen_1;
-  for (; j <= a + m; j++) gel(winit,j) = gel(wmid,j-a);
+  *pwini = wini = cgetg(a + m + 1, t_VEC);
+  gel(wini,1) = x; for (j = 2; j <= a; j++) gel(wini, j) = gen_1;
+  for (; j <= a + m; j++) gel(wini,j) = gel(wmid,j-a);
   *pwfin = wfin = cgetg(b + m + 1, t_VEC);
   for (j = 1; j <= m; j++) gel(wfin,j) = gel(wmid,j);
   for (; j < b + m; j++) gel(wfin,j) = gen_0;
@@ -435,8 +434,8 @@ fillrec(hashtable *H, GEN evec, GEN pab, GEN r1, long N, long prec)
   hashentry *ep = hash_search(H, evec);
 
   if (ep) return (GEN)ep->val;
-  x = gel(evec, 1); s = lg(evec)-1; /* > 1 */
   findabvgen(evec, &wmid, &wini, &wfin, &a, &b);
+  x = gel(evec, 1); s = lg(evec)-1; /* > 1 */
   y = gel(evec, s);
   mid = fillrec(H, wmid, pab, r1, N, prec);
   ini = fillrec(H, wini, pab, r1, N, prec);
@@ -487,14 +486,14 @@ aztoe(GEN avec, GEN zvec, long prec)
 /* Special case of zvec = [1,1,...], i.e., zetamult.       */
 /***********************************************************/
 static void
-findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin, long *pa, long *pb)
+findabvgens(GEN evec, GEN *pwmid, GEN *pwini, GEN *pwfin, long *pa, long *pb)
 {
-  GEN wmid, winit, wfin;
+  GEN wmid, wini, wfin;
   long s = lg(evec) - 1, a, b, j, m;
   if (s <= 2)
   {
     *pwmid = cgetg(1, t_VECSMALL);
-    *pwinit = mkvecsmall(0);
+    *pwini = mkvecsmall(0);
     *pwfin = mkvecsmall(1);
     *pa = *pb = s - 1; return;
   }
@@ -507,9 +506,9 @@ findabvgens(GEN evec, GEN *pwmid, GEN *pwinit, GEN *pwfin, long *pa, long *pb)
 
   *pwmid = wmid = a+b < s? vecslice(evec, a+1, s-b): cgetg(1, t_VECSMALL);
   m = lg(wmid) - 1;
-  *pwinit = winit = cgetg(a + m + 1, t_VECSMALL);
-  winit[1] = 0; for (j = 2; j <= a; j++) winit[j] = 1;
-  for (; j <= a + m; j++) winit[j] = wmid[j-a];
+  *pwini = wini = cgetg(a + m + 1, t_VECSMALL);
+  wini[1] = 0; for (j = 2; j <= a; j++) wini[j] = 1;
+  for (; j <= a + m; j++) wini[j] = wmid[j-a];
   *pwfin = wfin = cgetg(b + m + 1, t_VECSMALL);
   for (j = 1; j <= m; j++) wfin[j] = wmid[j];
   for (; j < b + m; j++) wfin[j] = 0;
@@ -596,8 +595,8 @@ zetamultevec(GEN evec, long prec)
 
   if (k == 0) return gen_1;
   bitprec = prec2nbits(prec) + 64*(1 + (k >> 5));
-  x = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
-  y = (double*) stack_malloc_align((k+1) * sizeof(double), sizeof(double));
+  x = (double*)stack_malloc_align((k+1) * sizeof(double), sizeof(double));
+  y = (double*)stack_malloc_align((k+1) * sizeof(double), sizeof(double));
   for (j = 1; j <= k; j++)
   {
     GEN t = gel(evec,j);
