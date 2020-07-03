@@ -145,6 +145,8 @@ ecpp_param_get_primelist(GEN param) { return gmael(param, 1, 2); }
 INLINE GEN
 ecpp_param_get_disclist(GEN param) { return gmael(param, 1, 3); }
 INLINE GEN
+ecpp_param_get_primeord(GEN param) { return gmael(param, 1, 4); }
+INLINE GEN
 ecpp_param_get_primorial_vec(GEN param) { return gel(param, 2); }
 INLINE GEN
 ecpp_param_get_tune(GEN param) { return gel(param, 3); }
@@ -399,6 +401,25 @@ ecpp_disclist_init(ulong maxdisc, GEN primelist)
   return gerepilecopy(av, merge);
 }
 
+static GEN
+ecpp_primeord_init(GEN primelist, GEN disclist)
+{
+  long i, k=1, lgdisclist = lg(disclist), lprimelist = lg(primelist);
+  GEN primeord = zero_Flv(lprimelist-1);
+  for (i=1;i < lgdisclist; i++)
+  {
+    GEN Dinfo = gel(disclist, i), Dfac = Dinfo_get_Dfac(Dinfo);
+    long j, l = lg(Dfac);
+    for (j = 1; j < l; j++)
+    {
+      long ip = Dfac[j];
+      if (primeord[ip]==0)
+        primeord[ip]=k++;
+    }
+  }
+  return perm_inv(primeord);
+}
+
 /*  Input: a vector tune whose components are [maxsqrt,maxpcdg,tdivexp,expiN]
  * Output: vector param of precomputations
  *   let x =  be a component of tune then
@@ -416,8 +437,9 @@ ecpp_param_set(GEN tune, GEN x)
   GEN T = mkvecsmall3(maxsqrt, maxdisc, maxpcdg);
   GEN Plist = ecpp_primelist_init(maxsqrt);
   GEN Dlist = ecpp_disclist_init(maxdisc, Plist);
+  GEN Olist = ecpp_primeord_init(Plist, Dlist);
   GEN primorial = primorial_vec(tdivexp);
-  return gerepilecopy(av, mkvec3(mkvec3(T,Plist,Dlist), primorial, tune));
+  return gerepilecopy(av, mkvec3(mkvec4(T,Plist,Dlist,Olist), primorial, tune));
 }
 
 /* cert contains [N, t, s, a4, [x, y]] as documented in ??ecpp; the following
@@ -734,27 +756,60 @@ ecpp_step2(GEN step1, GEN *X0, GEN primelist)
 }
 /* end of functions for step 2 */
 
+GEN
+ecpp_sqrt_worker(GEN p, GEN g, GEN N)
+{
+  GEN r = Fp_sqrt_i(p, g, N);
+  return r ? r: gen_0;
+}
+
+static void
+ecpp_parsqrt(GEN N, GEN param, GEN kroP, GEN sqrtlist, GEN g, long nb, long *nbsqrt)
+{
+  GEN primelist = ecpp_param_get_primelist(param);
+  GEN ordinv = ecpp_param_get_primeord(param);
+  long i, k, l = lg(ordinv), n = *nbsqrt+1;
+  GEN worker = snm_closure(is_entry("_ecpp_sqrt_worker"), mkvec2(g, N));
+  GEN W = cgetg(nb+1,t_VEC), V;
+  for (i=n, k=1; k<=nb && i<l; i++)
+  {
+    long pi = ordinv[i];
+    long s = kroP[pi];
+    if (s > 1) kroP[pi] = s = krosi(primelist[pi], N); /* update cache */
+    if (kroP[pi] > 0)
+      gel(W,k++) = stoi(primelist[pi]);
+  }
+  *nbsqrt=i-1;
+  setlg(W,k);
+  V = gen_parapply(worker, W);
+  for (i=n, k=1; k<=nb && i<l; i++)
+  {
+    long pi = ordinv[i];
+    if (kroP[pi] > 0)
+    {
+      dbg_mode() err_printf(ANSI_MAGENTA "S" ANSI_RESET);
+      if (!signe(gel(V,k)))
+        pari_err_BUG("D_find_discsqrt"); /* possible if N composite */
+      gel(sqrtlist,pi) = gel(V,k++);
+    }
+  }
+}
+
 /* start of functions for step 1 */
 
 /* This finds the square root of D modulo N [given by Dfac]: find the square
  * root modulo N of each prime p dividing D and multiply them out */
 static GEN
-D_find_discsqrt(GEN N, GEN primelist, GEN Dfac, GEN sqrtlist, GEN g)
+D_find_discsqrt(GEN N, GEN param, GEN Dfac, GEN kroP, GEN sqrtlist, GEN g, long *nbsqrt)
 {
-  GEN s = NULL;
+  GEN s = NULL, sj;
   long i, l = lg(Dfac);
   for (i = 1; i < l; i++)
   {
     long j = Dfac[i];
-    GEN sj = gel(sqrtlist,j);
-    if (!signe(sj))
-    {
-      GEN p = stoi(primelist[j]);
-      dbg_mode() err_printf(ANSI_MAGENTA "S" ANSI_RESET);
-      /* A4: Get the square root of a prime factor of D. */
-      sj = gel(sqrtlist, j) = Fp_sqrt_i(p, g, N);
-      if (!sj) pari_err_BUG("D_find_discsqrt"); ; /* possible if N composite */
-    }
+    while(!signe(gel(sqrtlist,j)))
+      ecpp_parsqrt(N, param, kroP, sqrtlist, g, mt_nbthreads(), nbsqrt);
+    sj = gel(sqrtlist,j);
     s = s? Fp_mul(s, sj, N): sj;
   }
   return s;/* != NULL */
@@ -795,7 +850,7 @@ NUV_find_m(GEN Dinfo, GEN N, GEN U, GEN V, long wD)
    Finally, sqrtlist and g help compute the square root modulo N of D.
 */
 static long
-D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dmbatch, GEN kroP)
+D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dmbatch, GEN kroP, long *nbsqrt)
 {
   long i, l, corn_succ, wD, D = Dinfo_get_D(Dinfo);
   GEN U, V, sqrtofDmodN, Dfac = Dinfo_get_Dfac(Dinfo);
@@ -813,7 +868,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   }
   /* A3: Get square root of D mod N */
   dbg_mode() timer_start(&ti);
-  sqrtofDmodN = D_find_discsqrt(N, primelist, Dfac, sqrtlist, g);
+  sqrtofDmodN = D_find_discsqrt(N, param, Dfac, kroP, sqrtlist, g, nbsqrt);
   dbg_mode() timer_record(X0, "A3", &ti);
   /* A5: Use square root with Cornacchia to solve U^2 + |D|V^2 = 4N */
   dbg_mode() timer_start(&ti);
@@ -947,7 +1002,7 @@ static GEN
 N_downrun(GEN N, GEN param, GEN worker, GEN *X0, long *depth, long persevere)
 {
   pari_timer T, ti;
-  long lgdisclist, lprimelist, t, i, j, expiN = expi(N);
+  long lgdisclist, lprimelist, nbsqrt = 0, t, i, j, expiN = expi(N);
   long persevere_next = 0, FAIL = 0;
   ulong maxpcdg;
   GEN primelist, disclist, sqrtlist, g, Dmbatch, kroP;
@@ -978,6 +1033,8 @@ N_downrun(GEN N, GEN param, GEN worker, GEN *X0, long *depth, long persevere)
     case 5: kroP[1] = -1; kroP[2] = 1; kroP[3] =-1; break;
     case 7: kroP[1] =  1; kroP[2] =-1; kroP[3] =-1; break;
   }
+  for(i=4; i<lprimelist; i++)
+    kroP[i]= krosi(primelist[i],N);
   dbg_mode() timer_record(X0, "A2", &ti);
 
   /* Print the start of this iteration. */
@@ -1010,7 +1067,7 @@ N_downrun(GEN N, GEN param, GEN worker, GEN *X0, long *depth, long persevere)
       GEN Dinfo = gel(disclist, i);
       long n;
       if (!persevere && Dinfo_get_pd(Dinfo) > maxpcdg) { FAIL = 1; break; }
-      n = D_collectcards(N,param, X0, Dinfo, sqrtlist, g, Dmbatch, kroP);
+      n = D_collectcards(N,param, X0, Dinfo, sqrtlist, g, Dmbatch, kroP, &nbsqrt);
       if (n < 0) return gen_0;
       last_i = i++;
       numcard += n; if (numcard >= t) break;

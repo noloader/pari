@@ -196,6 +196,7 @@ GEN  ZM_mul_worker(GEN P, GEN A, GEN B);
 GEN  ZabM_inv_worker(GEN P, GEN A, GEN Q);
 GEN  aprcl_step4_worker(ulong q, GEN pC, GEN N, GEN v);
 GEN  aprcl_step6_worker(GEN r, long t, GEN N, GEN N1, GEN et);
+GEN  ecpp_sqrt_worker(GEN g, GEN N, GEN p);
 GEN  ecpp_ispsp_worker(GEN N);
 GEN  ecpp_step2_worker(GEN S, GEN HD, GEN primelist);
 GEN  primecertisvalid_ecpp_worker(GEN certi);

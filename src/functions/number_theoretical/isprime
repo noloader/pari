@@ -56,11 +56,17 @@ C-Name: aprcl_step6_worker
 Prototype: GLGGG
 Help: worker for isprime (APRCL step 6)
 
+Function: _ecpp_sqrt_worker
+Section: programming/internals
+C-Name: ecpp_sqrt_worker
+Prototype: GGG
+Help: worker for isprime (ECPP sqrt step)
+
 Function: _ecpp_ispsp_worker
 Section: programming/internals
 C-Name: ecpp_ispsp_worker
 Prototype: G
-Help: worker for isprime (ispseudoprime step)
+Help: worker for isprime (ECPP ispseudoprime step)
 
 Function: _ecpp_step2_worker
 Section: programming/internals
