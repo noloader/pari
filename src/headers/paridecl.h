@@ -2623,6 +2623,7 @@ long    gen_search(GEN x, GEN y, long flag, void *data, int (*cmp)(void*,GEN,GEN
 GEN     gen_setminus(GEN set1, GEN set2, int (*cmp)(GEN,GEN));
 GEN     gen_sort(GEN x, void *E, int (*cmp)(void*,GEN,GEN));
 void    gen_sort_inplace(GEN x, void *E, int (*cmp)(void*,GEN,GEN), GEN *perm);
+GEN     gen_sort_shallow(GEN x, void *E, int (*cmp)(void*,GEN,GEN));
 GEN     gen_sort_uniq(GEN x, void *E, int (*cmp)(void*,GEN,GEN));
 long    getstack(void);
 long    gettime(void);

@@ -1190,7 +1190,7 @@ galoissubfieldcm(GEN G)
    * maximal CM subfield is the field fixed by those elements, if c does not
    * belong to the group they generate */
   checkgroup(G, &elts);
-  elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
+  elts = gen_sort_shallow(elts,(void*)vecsmall_lexcmp,cmp_nodata);
   H = vecsmall_ei(n,1); /* indices of elements of H */
   Hset = zero_F2v(n);
   F2v_set(Hset,1);

@@ -1612,6 +1612,20 @@ gen_sort_inplace(GEN x, void *E, int (*cmp)(void*,GEN,GEN), GEN *perm)
     set_avma(av);
   }
 }
+GEN
+gen_sort_shallow(GEN x, void *E, int (*cmp)(void*,GEN,GEN))
+{
+  long tx, lx, i;
+  pari_sp av;
+  GEN y, z;
+
+  init_sort(&x, &tx, &lx);
+  if (lx<=2) return x;
+  z = cgetg(lx, tx); av = avma;
+  y = gen_sortspec(x,lx-1, E, cmp);
+  for (i=1; i<lx; i++) gel(z,i) = gel(x,y[i]);
+  return gc_const(av, z);
+}
 
 static int
 closurecmp(void *data, GEN x, GEN y)

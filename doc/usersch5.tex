@@ -11873,6 +11873,9 @@ there in case your \kbd{cmp} requires additional context.
 \fun{GEN}{gen_sort}{GEN x, void *data, int (*cmp)(void *,GEN,GEN)}, as
 \kbd{sort}, with an explicit comparison routine.
 
+\fun{GEN}{gen_sort_shallow}{GEN x, void *data, int (*cmp)(void *,GEN,GEN)},
+shallow variant of \kbd{gen\_sort}.
+
 \fun{GEN}{gen_sort_uniq}{GEN x, void *data, int (*cmp)(void *,GEN,GEN)}, as
 \kbd{gen\_sort}, removing duplicate entries.
 

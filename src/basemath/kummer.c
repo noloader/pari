@@ -1484,7 +1484,7 @@ bnrclassfield_H(struct rnfkummer **vkum, GEN bnr, GEN bad, GEN H0, GEN fa, long 
     gel(res,i) = bnrclassfield_primepower(vkum[sp], bnr, H, p, bad, absolute, prec);
   }
   res = liftpol_shallow(shallowconcat1(res));
-  res = gen_sort(res, (void*)cmp_RgX, gen_cmp_RgX);
+  res = gen_sort_shallow(res, (void*)cmp_RgX, gen_cmp_RgX);
   if (flag)
   {
     GEN nf = bnr_get_nf(bnr);

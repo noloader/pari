@@ -3392,7 +3392,7 @@ cc_chartable(GEN cc)
       }
     }
   }
-  ct = gen_sort(ct,(void*)cmp_universal,cmp_nodata);
+  ct = gen_sort_shallow(ct,(void*)cmp_universal,cmp_nodata);
   i = 1; while (!vec_isconst(gel(ct,i))) i++;
   if (i > 1) swap(gel(ct,1), gel(ct,i));
   return mkvec2(ct, utoipos(f));

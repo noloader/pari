@@ -2767,7 +2767,7 @@ bnftestprimes(GEN bnf, GEN BOUND)
   pari_sp av0 = avma, av;
   ulong count = 0;
   GEN auts, p, nf = bnf_get_nf(bnf), Vbase = bnf_get_vbase(bnf);
-  GEN fb = gen_sort(Vbase, (void*)&cmp_prime_ideal, cmp_nodata); /*tablesearch*/
+  GEN fb = gen_sort_shallow(Vbase, (void*)&cmp_prime_ideal, cmp_nodata);
   ulong pmax = pr_get_smallp(gel(fb, lg(fb)-1)); /*largest p in factorbase*/
   forprime_t S;
   FACT *fact;

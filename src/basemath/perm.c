@@ -1317,7 +1317,7 @@ group_to_cc(GEN G)
   else
   {
     long i, l = lg(elts);
-    elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata); /* general case */
+    elts = gen_sort_shallow(elts,(void*)vecsmall_lexcmp,cmp_nodata);
     for (i = 1; i < l; i++)
       if (gel(elts,i)[1] != i) { flag = 0; break; }
   }
