@@ -559,8 +559,9 @@ powersu(ulong n, long k)
 static GEN
 get_pab(long N, long k)
 {
-  GEN v = cgetg(N+1, t_VEC); gel(v, 1) = gen_0; /* not needed */
+  GEN v = cgetg(N+1, t_VEC);
   long j;
+  gel(v, 1) = gen_0; /* not needed */
   for (j = 2; j <= N; j++) gel(v, j) = powersu(j, k);
   return v;
 }
