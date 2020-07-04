@@ -674,8 +674,7 @@ zetamult(GEN s, long prec)
   z = zetamult_i(avec, prec); affrr(z, r); return gc_const(av, r);
 }
 
-/* If star = NULL: MZV, otherwise Yamamoto interpolation (MZSV for t=1).
- * The latter has complexity O~(2^|s|). */
+/* If star = NULL: MZV, otherwise Yamamoto interpolation (MZSV for t=1) */
 GEN
 zetamult_interpolate(GEN s, GEN t, long prec)
 {
