@@ -2711,8 +2711,8 @@ aut_to_groupelts(GEN aut, GEN L, ulong p)
   GEN q = perm_inv(vecsmall_indexsort(P));
   GEN G = cgetg(d+1, t_VEC);
   for (i=1; i<=d; i++)
-    gel(G,i) = perm_mul(vecsmall_indexsort(gel(N,i)),q);
-  return gerepilecopy(av, vecvecsmall_sort(G));
+    gel(G,i) = perm_mul(vecsmall_indexsort(gel(N,i)), q);
+  return gerepilecopy(av, vecvecsmall_sort_shallow(G));
 }
 
 static GEN

@@ -1762,13 +1762,13 @@ qfisom(GEN F, GEN FF, GEN flags, GEN G)
   init_qfauto(FF, NULL, max, &qff, norm, NULL);
   detf = ZM_det(zm_to_ZM(gel(qf.F,1)));
   detff = ZM_det(zm_to_ZM(gel(qff.F,1)));
-  if (lg(qf.W)!=lg(qff.W) || cmpii(detf,detff)
-      || !zvV_equal(vecvecsmall_sort(qf.W), vecvecsmall_sort(qff.W)))
-    { set_avma(av); return gen_0; }
+  if (lg(qf.W)!=lg(qff.W) || !equalii(detf, detff)
+      || !zvV_equal(vecvecsmall_sort_shallow(qf.W),
+                    vecvecsmall_sort_shallow(qff.W))) return gc_const(av,gen_0);
   if (!G) G = mkvec(scalar_Flm(-1, qff.dim));
   res = isometry(&qf, &qff, &fp, G, &cand);
-  if (!res) { set_avma(av); return gen_0; }
-  return gerepilecopy(av, zm_to_ZM(qf.U? zm_mul(res,gel(qf.U, 2)):res));
+  if (!res) return gc_const(av, gen_0);
+  return gerepilecopy(av, zm_to_ZM(qf.U? zm_mul(res,gel(qf.U, 2)): res));
 }
 
 static GEN

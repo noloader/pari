@@ -261,33 +261,26 @@ vecsmall_is1to1(GEN V)
 
 GEN
 vecvecsmall_sort(GEN x)
-{
-  return gen_sort(x, (void*)&vecsmall_lexcmp, cmp_nodata);
-}
+{ return gen_sort(x, (void*)&vecsmall_lexcmp, cmp_nodata); }
+GEN
+vecvecsmall_sort_shallow(GEN x)
+{ return gen_sort_shallow(x, (void*)&vecsmall_lexcmp, cmp_nodata); }
 
 void
 vecvecsmall_sort_inplace(GEN x, GEN *perm)
-{
-  gen_sort_inplace(x, (void*)&vecsmall_lexcmp, cmp_nodata, perm);
-}
+{ gen_sort_inplace(x, (void*)&vecsmall_lexcmp, cmp_nodata, perm); }
 
 GEN
 vecvecsmall_sort_uniq(GEN x)
-{
-  return gen_sort_uniq(x, (void*)&vecsmall_lexcmp, cmp_nodata);
-}
+{ return gen_sort_uniq(x, (void*)&vecsmall_lexcmp, cmp_nodata); }
 
 GEN
 vecvecsmall_indexsort(GEN x)
-{
-  return gen_indexsort(x, (void*)&vecsmall_lexcmp, cmp_nodata);
-}
+{ return gen_indexsort(x, (void*)&vecsmall_lexcmp, cmp_nodata); }
 
 long
 vecvecsmall_search(GEN x, GEN y, long flag)
-{
-  return gen_search(x,y,flag,(void*)vecsmall_prefixcmp, cmp_nodata);
-}
+{ return gen_search(x,y,flag,(void*)vecsmall_prefixcmp, cmp_nodata); }
 
 /* assume x non empty */
 long
@@ -964,8 +957,8 @@ long
 group_perm_normalize(GEN N, GEN g)
 {
   pari_sp ltop = avma;
-  long r = gequal(vecvecsmall_sort(group_leftcoset(N, g)),
-                  vecvecsmall_sort(group_rightcoset(N, g)));
+  long r = gequal(vecvecsmall_sort_shallow(group_leftcoset(N, g)),
+                  vecvecsmall_sort_shallow(group_rightcoset(N, g)));
   return gc_long(ltop, r);
 }
 
@@ -1211,7 +1204,7 @@ static long
 groupelts_subgroup_isnormal(GEN G, GEN H)
 {
   long i, n = lg(G);
-  for(i=1; i<n; i++)
+  for(i = 1; i < n; i++)
     if (!group_perm_normalize(H, gel(G,i))) return 0;
   return 1;
 }
@@ -1221,13 +1214,10 @@ long
 group_subgroup_isnormal(GEN G, GEN H)
 {
   GEN g = grp_get_gen(G);
-  long i, n = lg(g);
   if (lg(grp_get_gen(H)) > 1 && group_domain(G) != group_domain(H))
     pari_err_DOMAIN("group_subgroup_isnormal","domain(H)","!=",
                     strtoGENstr("domain(G)"), H);
-  for(i=1; i<n; i++)
-    if (!group_perm_normalize(H, gel(g,i))) return 0;
-  return 1;
+  return groupelts_subgroup_isnormal(H, g);
 }
 
 long
