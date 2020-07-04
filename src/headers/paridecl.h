@@ -1778,6 +1778,8 @@ void    parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
 void    parforprime_init(parforprime_t *T, GEN a, GEN b, GEN code);
 GEN     parforprime_next(parforprime_t *T);
 void    parforprime_stop(parforprime_t *T);
+void    parforprimestep(GEN a, GEN b, GEN q, GEN code, void *E, long call(void*, GEN, GEN));
+void    parforprimestep_init(parforprime_t *T, GEN a, GEN b, GEN q, GEN code);
 void    parforvec(GEN x, GEN code, long flag, void *E, long call(void*, GEN, GEN));
 void    parforvec_init(parforvec_t *T, GEN x, GEN code, long flag);
 GEN     parforvec_next(parforvec_t *T);

@@ -2,8 +2,8 @@
 /*
 GP; init_programming()
 */
-global(GRAPH=0,W);
 foo()=1;
+global(GRAPH=0,W);
 default(realprecision,38);
 plot(x=0,10,sin(Pi*cos(x)))
 if(GRAPH,print("ploth: ",ploth(x=0,20,besselj(1,x))));
@@ -39,6 +39,7 @@ print1("forvec:"); forvec(v=[[1,3],[1,2]],print1(" ",v)); print();
 print("iferr: ",iferr(zeta(1),E,E))
 print1("parfor: ");W=vector(10);parfor(i=1,10,binomial(2*i,i),E,W[i]=E);print(W)
 print1("parforprime: ");W=vector(20);parforprime(i=1,20,binomial(2*i,i),E,W[i]=E);print(W)
+print1("parforprimestep: ");W=vector(20);parforprimestep(i=1,20,Mod(1,3),binomial(2*i,i),E,W[i]=E);print(W)
 print1("parforvec: ");W=vector(9);parforvec(v=[[0,2],[0,2]],fromdigits(v,3),E,W[E+1]=v);print(W);
 print1("parforvec: ");W=vector(9);parforvec(v=[[0,2],[0,2]],fromdigits(v,3),E,W[E+1]=v,1);print(W);
 print1("parforvec: ");W=vector(9);parforvec(v=[[0,2],[0,2]],fromdigits(v,3),E,W[E+1]=v,2);print(W);

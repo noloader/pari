@@ -291,6 +291,7 @@ HC  94- new GP function polylogmult
     98- [libpari] Idealstarmod, ZV_snf_gcd, ideallog_units0
 BA  99- [libpari] FqC_FqV_mul
    100- [libpari] gen_sort_shallow, vecvecsmall_sort_shallow
+BA 101- new GP function parforprimestep
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

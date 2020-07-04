@@ -1944,12 +1944,16 @@ parfor0(GEN a, GEN b, GEN code, GEN code2)
 }
 
 void
-parforprime_init(parforprime_t *T, GEN a, GEN b, GEN code)
+parforprimestep_init(parforprime_t *T, GEN a, GEN b, GEN q, GEN code)
 {
-  forprime_init(&T->forprime, a, b);
+  forprimestep_init(&T->forprime, a, b, q);
   T->v = mkvec(gen_0);
   parforiter_init(&T->iter, code);
 }
+
+void
+parforprime_init(parforprime_t *T, GEN a, GEN b, GEN code)
+{ parforprimestep_init(T, a, b, NULL, code); }
 
 GEN
 parforprime_next(parforprime_t *T)
@@ -1970,7 +1974,7 @@ void
 parforprime_stop(parforprime_t *T) { parforiter_stop(&T->iter); }
 
 void
-parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
+parforprimestep(GEN a, GEN b, GEN q, GEN code, void *E, long call(void*, GEN, GEN))
 {
   pari_sp av = avma, av2;
   long running, pending = 0;
@@ -1980,7 +1984,7 @@ parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
   struct pari_mt pt;
   forprime_t T;
 
-  if (!forprime_init(&T, a,b)) { set_avma(av); return; }
+  if (!forprimestep_init(&T, a,b,q)) { set_avma(av); return; }
   mt_queue_start(&pt, worker);
   v = mkvec(gen_0);
   av2 = avma;
@@ -2005,9 +2009,21 @@ parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
 }
 
 void
+parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
+{
+  parforprimestep(a, b, NULL, code, E, call);
+}
+
+void
 parforprime0(GEN a, GEN b, GEN code, GEN code2)
 {
   parforprime(a, b, code, (void*)code2, code2? gp_evalvoid2: NULL);
+}
+
+void
+parforprimestep0(GEN a, GEN b, GEN q, GEN code, GEN code2)
+{
+  parforprimestep(a, b, q, code, (void*)code2, code2? gp_evalvoid2: NULL);
 }
 
 void
