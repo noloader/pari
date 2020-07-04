@@ -1213,11 +1213,10 @@ groupelts_subgroup_isnormal(GEN G, GEN H)
 long
 group_subgroup_isnormal(GEN G, GEN H)
 {
-  GEN g = grp_get_gen(G);
   if (lg(grp_get_gen(H)) > 1 && group_domain(G) != group_domain(H))
     pari_err_DOMAIN("group_subgroup_isnormal","domain(H)","!=",
                     strtoGENstr("domain(G)"), H);
-  return groupelts_subgroup_isnormal(H, g);
+  return groupelts_subgroup_isnormal(grp_get_gen(G), H);
 }
 
 long
