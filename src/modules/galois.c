@@ -34,11 +34,10 @@ typedef struct {
 
 static long isin_G_H(buildroot *BR, long n1, long n2);
 
-static long *par_vec;
 /* k-1 entries filled so far
  * m = maximal allowed value, n = sum to reach with remaining elements */
 static void
-do_par(GEN T, long k, long n, long m)
+do_par(GEN T, long k, long n, long m, long *par_vec)
 {
   long i;
   if (n <= 0)
@@ -48,7 +47,7 @@ do_par(GEN T, long k, long n, long m)
     gel(T, ++T[0]) = t; return;
   }
   if (n < m) m = n;
-  for (i=1; i<=m; i++) { par_vec[k] = i; do_par(T, k+1, n-i, i); }
+  for (i=1; i<=m; i++) { par_vec[k] = i; do_par(T, k+1, n-i, i, par_vec); }
 }
 
 /* compute the partitions of n, as decreasing t_VECSMALLs */
@@ -57,7 +56,7 @@ partitions_galois(long n)
 {
   pari_sp av;
   long i, p;
-  GEN T;
+  GEN T, par_vec;
 
   switch(n) /* optimized for galoismoduloX ... */
   {
@@ -70,7 +69,7 @@ partitions_galois(long n)
   }
   T = new_chunk(p + 1); T[0] = 0;
   par_vec = cgetg(n+1, t_VECSMALL); /* not Garbage Collected later */
-  do_par(T,1,n,n);
+  do_par(T,1,n,n,par_vec);
   if (DEBUGLEVEL > 7)
   {
     err_printf("Partitions of %ld (%ld)\n",n, p);
@@ -118,10 +117,9 @@ _typ(long l,...)
 static PERM
 _cr(long N, long a,...)
 {
-  static long x[NMAX+1];
   va_list args;
   long i;
-
+  GEN x = new_chunk(NMAX+1);
   va_start(args, a); x[0] = N; x[1] = a;
   for (i=2; i<=N; i++) x[i] = va_arg(args,int);
   va_end(args); return x;
@@ -842,7 +840,7 @@ check_isin(buildroot *BR, resolv *R, GROUP tau, GROUP ss)
   long nogr, nocos, init, i, j, k, l, d;
   pari_sp av1 = avma, av2;
   long nbgr,nbcos,nbracint,nbrac,lastnbri,lastnbrm;
-  static long numi[M],numj[M],lastnum[M],multi[M],norac[M],lastnor[M];
+  long numi[M],numj[M],lastnum[M],multi[M],norac[M],lastnor[M];
   GEN  racint[M], roint;
 
   if (getpreci(BR) != BR->pr) fixprec(BR);
