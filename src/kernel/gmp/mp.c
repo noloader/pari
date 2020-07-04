@@ -381,7 +381,7 @@ shiftispec(GEN x, long nx, long n)
       mpn_rshift((mp_limb_t *) yd, (mp_limb_t *) (x + d), nx - d, m);
       if (yd[ny - 1] == 0)
       {
-        if (ny == 1) { set_avma((pari_sp)(yd + 1)); return gen_0; }
+        if (ny == 1) return gc_const((pari_sp)(yd + 1), gen_0);
         ny--;
       }
     }
@@ -429,7 +429,7 @@ mantissa2nr(GEN x, long n)
       shift_right(y,x, 2,ly, 0,m);
       if (y[2] == 0)
       {
-        if (ly==3) { set_avma((pari_sp)(y+3)); return gen_0; }
+        if (ly==3) return gc_const((pari_sp)(y+3), gen_0);
         ly--; set_avma((pari_sp)(++y));
       }
     } else {
@@ -550,7 +550,7 @@ addumului(ulong a, ulong b, GEN y)
   hi=mpn_addmul_1(LIMBS(z), LIMBS(y), NLIMBS(y), b);
   if (hi) z[lz-1]=hi; else lz--;
   z[1] = evalsigne(1) | evallgefint(lz);
-  set_avma((pari_sp)z); return z;
+  return gc_const((pari_sp)z, z);
 }
 
 /***********************************************************************/
@@ -666,7 +666,7 @@ divrr_with_gmp(GEN x, GEN y)
   else { w[2] = HIGHBIT; e++; }
   if (sy < 0) sx = -sx;
   w[1] = evalsigne(sx) | evalexpo(e);
-  set_avma((pari_sp)w); return w;
+  return gc_const((pari_sp)w, w);
 }
 
 /* We keep llx bits of x and lly bits of y*/
@@ -703,7 +703,7 @@ divri_with_gmp(GEN x, GEN y)
   else { w[2] = HIGHBIT; e++; }
   if (sy < 0) sx = -sx;
   w[1] = evalsigne(sx) | evalexpo(e);
-  set_avma((pari_sp)w); return w;
+  return gc_const((pari_sp)w, w);
 }
 
 GEN
@@ -890,8 +890,8 @@ DIVIDE: /* quotient is non-zero */
     if (q[lq - 1] == 0) lq--;
     if (z == ONLY_REM)
     {
-      set_avma(av); if (!si) return gen_0;
-      r=cgeti(3);
+      if (!si) return gc_const(av, gen_0);
+      set_avma(av); r = cgeti(3);
       r[1] = evalsigne(sx) | evallgefint(3);
       r[2] = si; return r;
     }
@@ -912,10 +912,10 @@ DIVIDE: /* quotient is non-zero */
     if (!r[lr - 1])
     {
       while(lr>2 && !r[lr - 1]) lr--;
-      if (lr == 2) {set_avma(av); return gen_0;} /* exact division */
+      if (lr == 2) return gc_const(av, gen_0); /* exact division */
     }
     r[1] = evalsigne(sx) | evallgefint(lr);
-    set_avma((pari_sp)r); return r;
+    return gc_const((pari_sp)r, r);
   }
   else
   {
@@ -926,14 +926,14 @@ DIVIDE: /* quotient is non-zero */
     mpn_tdiv_qr(LIMBS(q), LIMBS(r),0, LIMBS(x), NLIMBS(x), LIMBS(y), NLIMBS(y));
     if (q[lq - 1] == 0) lq--;
     q[1] = evalsigne(sy) | evallgefint(lq);
-    if (!z) { set_avma((pari_sp)q); return q; }
+    if (!z) return gc_const((pari_sp)q, q);
     if (!r[lr - 1])
     {
       while(lr>2 && !r[lr - 1]) lr--;
-      if (lr == 2) { set_avma((pari_sp)q); *z=gen_0; return q; } /* exact division */
+      if (lr == 2) { *z = gen_0; return gc_const((pari_sp)q, q); } /* exact */
     }
     r[1] = evalsigne(sx) | evallgefint(lr);
-    set_avma((pari_sp)r); *z = r; return q;
+    *z = gc_const((pari_sp)r, r); return q;
   }
 }
 
@@ -1018,7 +1018,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
   /* copy result */
   Td = (GEN)av - 1; /* *Td = high word of final result */
   while (*Td == 0 && Te < Td) Td--; /* strip leading 0s */
-  k = Td - Te; if (!k) { set_avma(av); return gen_0; }
+  k = Td - Te; if (!k) return gc_const(av, gen_0);
   Td = (GEN)av - k; /* will write mantissa there */
   (void)memmove(Td, Te+1, k*sizeof(long));
   Td -= 2;
@@ -1034,7 +1034,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
     || cmpii(Td, addii(shifti(T, -s), N)) >= 0) pari_err_BUG("red_montgomery");
 }
 #endif
-  set_avma((pari_sp)Td); return Td;
+  return gc_const((pari_sp)Td, Td);
 }
 
 /* EXACT INTEGER DIVISION */
@@ -1353,7 +1353,7 @@ sqrtr_abs(GEN a)
       mpn_add_1(c,c,l,1);
   }
   xmpn_mirrorcopy(RLIMBS(res),c,l);
-  set_avma((pari_sp)res); return res;
+  return gc_const((pari_sp)res, res);
 }
 
 /* Normalize a non-negative integer */
