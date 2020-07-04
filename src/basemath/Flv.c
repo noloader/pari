@@ -823,26 +823,24 @@ Flm_gauss_pivot(GEN x, ulong p, long *rr)
       for (i=k; i<=n; i++) ucoeff(x,j,i) = 0; /* dummy */
     }
   }
-  *rr = r; set_avma((pari_sp)d); return d;
+  *rr = r; return gc_const((pari_sp)d, d);
 }
 
 static GEN
-Flm_pivots_CUP(GEN x, ulong p, long *rr) {
-  pari_sp av;
+Flm_pivots_CUP(GEN x, ulong p, long *rr)
+{
   long i, n = lg(x) - 1, r;
   GEN R, C, U, P, d = zero_zv(n);
   ulong pi = get_Fl_red(p);
-  av = avma;
   r = Flm_CUP_pre(x, &R, &C, &U, &P, p, pi);
   for(i = 1; i <= r; i++)
     d[P[i]] = R[i];
-  set_avma(av);
-  *rr = n - r;
-  return d;
+  *rr = n - r; return gc_const((pari_sp)d, d);
 }
 
 GEN
-Flm_pivots(GEN x, ulong p, long *rr, long inplace) {
+Flm_pivots(GEN x, ulong p, long *rr, long inplace)
+{
   if (lg(x) - 1 >= Flm_CUP_LIMIT && nbrows(x) >= Flm_CUP_LIMIT)
     return Flm_pivots_CUP(x, p, rr);
   return Flm_gauss_pivot(inplace? x: Flm_copy(x), p, rr);

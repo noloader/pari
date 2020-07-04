@@ -237,7 +237,7 @@ gen_Gauss_pivot(GEN x, long *rr, void *E, const struct bb_field *ff)
       for (i=k; i<=n; i++) gcoeff(x,j,i) = g0; /* dummy */
     }
   }
-  *rr = r; set_avma((pari_sp)d); return d;
+  *rr = r; return gc_const((pari_sp)d, d);
 }
 
 GEN
@@ -2694,7 +2694,7 @@ RgM_solve(GEN a, GEN b)
   GEN u;
   if (!b) return RgM_inv(a);
   u = typ(b)==t_MAT ? RgM_solve_fast(a, b): RgM_RgC_solve_fast(a, b);
-  if (!u) { set_avma(av); return u; }
+  if (!u) return gc_NULL(av);
   if (u != gen_0) return u;
   return RgM_solve_basecase(a, b);
 }
@@ -2912,7 +2912,7 @@ QM_gauss_i(GEN M, GEN B, long flag)
     if (lg(z2) == l) z2 = NULL; else { v = vecpermute(v, z2); l = lg(v); }
   }
   B = Q_primitive_part(B, &cB);
-  K = ZM_gauss(N, B); if (!K) { set_avma(av); return NULL; }
+  K = ZM_gauss(N, B); if (!K) return gc_NULL(av);
   for (i = 1; i < l; i++)
   {
     GEN c, k = gel(K,i), d = gel(v,i);
@@ -3457,7 +3457,7 @@ ZM_detmult(GEN A)
       gerepileall(av1, 2, &piv,&B); v = zerovec(m);
     }
   }
-  set_avma(av); return gen_0;
+  return gc_const(av, gen_0);
 }
 
 /* Reduce x modulo (invertible) y */
@@ -3744,7 +3744,7 @@ RgM_pivots(GEN x0, GEN data, long *rr, pivot_fun pivot)
       for (i=k; i<=n; i++) gcoeff(x,j,i) = gen_0; /* dummy */
     }
   }
-  *rr = r; set_avma((pari_sp)d); return d;
+  *rr = r; return gc_const((pari_sp)d, d);
 }
 
 static long
@@ -4305,7 +4305,7 @@ perm_complete(GEN d, long n)
   for (i = 1; i < l; i++) T[d[i]] = 1;
   for (i = 1; i <= n; i++)
     if (T[i]) y[j++] = i; else y[k--] = i;
-  set_avma(av); return y;
+  return gc_const(av, y);
 }
 
 /* n = dim x, r = dim Ker(x), d from gauss_pivot */

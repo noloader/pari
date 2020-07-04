@@ -182,7 +182,7 @@ Flj_mulu_pre_naf(GEN P, ulong n, ulong a4, ulong p, ulong pi, const naf_t *x)
     else if (m & nbits)
       Flj_add_pre_inplace(R, Pi, a4, p, pi);
   }
-  set_avma((pari_sp)R); return R;
+  return gc_const((pari_sp)R, R);
 }
 
 GEN

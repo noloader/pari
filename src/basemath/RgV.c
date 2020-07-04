@@ -76,8 +76,7 @@ RgMrow_zc_mul_i(GEN x, GEN y, long c, long i)
       default: s = gadd(s, gmulgs(gcoeff(x,i,j), t)); break;
     }
   }
-  if (!s) { set_avma(av); return gen_0; }
-  return gerepileupto(av, s);
+  return s? gerepileupto(av, s): gc_const(av, gen_0);
 }
 GEN
 RgMrow_zc_mul(GEN x, GEN y, long i) { return RgMrow_zc_mul_i(x,y,lg(y),i); }

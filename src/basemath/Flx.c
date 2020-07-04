@@ -582,7 +582,7 @@ Flx_shiftip(pari_sp av, GEN x, long v)
   for (i = 2; i<lx; i++) *--y = *--x;
   for (i = 0; i< v; i++) *--y = 0;
   y -= 2; y[0] = evaltyp(t_VECSMALL) | evallg(ly);
-  set_avma((pari_sp)y); return y;
+  return gc_const((pari_sp)y, y);
 }
 
 static long
@@ -1381,8 +1381,7 @@ Flx_rem_basecase(GEN x, GEN y, ulong p)
     }
   }
   i = dy-1; while (i>=0 && !c[i]) i--;
-  set_avma(av);
-  return Flx_renormalize(c-2, i+3);
+  set_avma(av); return Flx_renormalize(c-2, i+3);
 }
 
 /* as FpX_divrem but working only on ulong types.
@@ -2424,14 +2423,12 @@ Flx_Flv_multieval_tree(GEN P, GEN xa, GEN T, ulong p)
 {
   long i,j,k;
   long m = lg(T)-1;
-  GEN t;
   GEN R = cgetg(lg(xa), t_VECSMALL);
-  GEN Tp = cgetg(m+1, t_VEC);
+  GEN Tp = cgetg(m+1, t_VEC), t;
   gel(Tp, m) = mkvec(P);
   for (i=m-1; i>=1; i--)
   {
-    GEN u = gel(T, i);
-    GEN v = gel(Tp, i+1);
+    GEN u = gel(T, i), v = gel(Tp, i+1);
     long n = lg(u)-1;
     t = cgetg(n+1, t_VEC);
     for (j=1, k=1; k<n; j++, k+=2)
@@ -2442,16 +2439,14 @@ Flx_Flv_multieval_tree(GEN P, GEN xa, GEN T, ulong p)
     gel(Tp, i) = t;
   }
   {
-    GEN u = gel(T, i+1);
-    GEN v = gel(Tp, i+1);
+    GEN u = gel(T, i+1), v = gel(Tp, i+1);
     long n = lg(u)-1;
     for (j=1, k=1; j<=n; j++)
     {
       long c, d = degpol(gel(u,j));
-      for (c=1; c<=d; c++, k++)
-        R[k] = Flx_eval(gel(v, j), xa[k], p);
+      for (c=1; c<=d; c++, k++) R[k] = Flx_eval(gel(v, j), xa[k], p);
     }
-    set_avma((pari_sp)R); return R;
+    return gc_const((pari_sp)R, R);
   }
 }
 

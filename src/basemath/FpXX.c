@@ -529,7 +529,7 @@ FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
   {
     guncloneNULL(lead);
     if (sx) return gc_NULL(av0);
-    set_avma((pari_sp)rem); return z-2;
+    return gc_const((pari_sp)rem, z-2);
   }
   lr=i+3; rem -= lr;
   rem[0] = evaltyp(t_POL) | evallg(lr);
@@ -696,7 +696,7 @@ FpXQX_gcd_basecase(GEN a, GEN b, GEN T, GEN p)
     }
     av = avma; c = FpXQX_rem(a, b, T, p); a=b; b=c;
   }
-  set_avma(av); return a;
+  return gc_const(av, a);
 }
 
 GEN

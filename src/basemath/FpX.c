@@ -475,7 +475,7 @@ FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
   {
     guncloneNULL(lead);
     if (sx) return gc_NULL(av0);
-    set_avma((pari_sp)rem); return z-2;
+    return gc_const((pari_sp)rem, z-2);
   }
   lr=i+3; rem -= lr;
   rem[0] = evaltyp(t_POL) | evallg(lr);
@@ -715,7 +715,7 @@ FpX_gcd_basecase(GEN a, GEN b, GEN p)
     }
     av = avma; c = FpX_rem(a,b,p); a=b; b=c;
   }
-  set_avma(av); return a;
+  return gc_const(av, a);
 }
 
 GEN
@@ -1039,8 +1039,7 @@ FpX_eval(GEN x,GEN y,GEN p)
     if ((i & 7) == 0) { affii(p1, res); p1 = res; set_avma(av); }
   }
  fppoleval:
-  modiiz(p1,p,res);
-  set_avma(av); return res;
+  modiiz(p1,p,res); return gc_const(av, res);
 }
 
 /* Tz=Tx*Ty where Tx and Ty coprime
@@ -1094,7 +1093,7 @@ FpX_resultant(GEN a, GEN b, GEN p)
     lb = gel(b,db+2);
     c = FpX_rem(a,b, p);
     a = b; b = c; dc = degpol(c);
-    if (dc < 0) { set_avma(av); return gen_0; }
+    if (dc < 0) return gc_const(av, gen_0);
 
     if (both_odd(da,db)) res = subii(p, res);
     if (!equali1(lb)) res = Fp_mul(res, Fp_powu(lb, da - dc, p), p);
@@ -2298,7 +2297,7 @@ FpXQ_trace(GEN x, GEN TB, GEN p)
   GEN dT = FpX_deriv(T,p);
   long n = degpol(dT);
   GEN z = FpXQ_mul(x, dT, TB, p);
-  if (degpol(z)<n) { set_avma(av); return gen_0; }
+  if (degpol(z)<n) return gc_const(av, gen_0);
   return gerepileuptoint(av, Fp_div(gel(z,2+n), gel(T,3+n),p));
 }
 

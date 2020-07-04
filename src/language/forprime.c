@@ -977,7 +977,7 @@ forprime_next(forprime_t *T)
     p = addiu(p, T->q);
     if (T->bb && abscmpii(p, T->bb) > 0) return gc_NULL(av);
   } while (!BPSW_psp(p));
-  affii(p, T->pp); set_avma(av); return T->pp;
+  affii(p, T->pp); return gc_const(av, T->pp);
 }
 
 void

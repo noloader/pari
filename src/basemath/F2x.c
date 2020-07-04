@@ -423,7 +423,7 @@ F2x_shiftip(pari_sp av, GEN x, long v)
   for (i = 2; i<lx; i++) *--y = *--x;
   for (i = 0; i< v; i++) *--y = 0;
   y -= 2; y[0] = evaltyp(t_VECSMALL) | evallg(ly);
-  set_avma((pari_sp)y); return y;
+  return gc_const((pari_sp)y, y);
 }
 
 static GEN
@@ -857,7 +857,7 @@ F2x_divrem(GEN x, GEN y, GEN *pr)
   x = F2x_renormalize(x, lx);
   if (pr == ONLY_DIVIDES) {
     if (lg(x) == 2) { cgiv(x); return z; }
-    set_avma((pari_sp)(z + lg(z))); return NULL;
+    return gc_NULL((pari_sp)(z + lg(z)));
   }
   *pr = x; return z;
 }
@@ -2237,7 +2237,7 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
   {
     guncloneNULL(lead);
     if (sx) return gc_NULL(av0);
-    set_avma((pari_sp)rem); return z-2;
+    return gc_const((pari_sp)rem, z-2);
   }
   lr=i+3; rem -= lr;
   rem[0] = evaltyp(t_POL) | evallg(lr);
@@ -2645,7 +2645,7 @@ F2xqX_gcd_basecase(GEN a, GEN b, GEN T)
     }
     av = avma; c = F2xqX_rem(a, b, T); a=b; b=c;
   }
-  set_avma(av); return a;
+  return gc_const(av, a);
 }
 
 GEN

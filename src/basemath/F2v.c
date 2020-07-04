@@ -492,7 +492,7 @@ F2m_gauss_pivot(GEN x, long *rr)
     }
   }
 
-  *rr = r; set_avma((pari_sp)d); return d;
+  *rr = r; return gc_const((pari_sp)d, d);
 }
 
 long

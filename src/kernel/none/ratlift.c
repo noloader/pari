@@ -139,7 +139,7 @@ Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b)
      * to a crude lower approximation of bmax/(v+v1), or to 1, which will
      * allow the inner loop to do one step */
     r = addii(v,v1);
-    if (cmpii(r,bmax) > 0) { set_avma(av); return 0; } /* done, not found */
+    if (cmpii(r,bmax) > 0) return gc_long(av, 0); /* done, not found */
     vmax = get_vmax(r, lb, lbb);
     /* do a Lehmer-Jebelean round */
     lhmres = lgcdii((ulong *)d, (ulong *)d1, &xu, &xu1, &xv, &xv1, vmax);
@@ -195,7 +195,7 @@ Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b)
       s = -s;
       /* check whether we are done now.  Since we weren't before the div, it
        * suffices to examine v1 and d1 -- the new d (former d1) cannot cut it */
-      if (cmpii(v1,bmax) > 0) { set_avma(av); return 0; } /* done, not found */
+      if (cmpii(v1,bmax) > 0) return gc_long(av, 0); /* done, not found */
       if (cmpii(d1,amax) <= 0) /* done, found */
       {
         set_avma(av);
@@ -223,7 +223,7 @@ Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b)
      * Moreover, we aren't done already, or we would have returned by now.
      * Recompute vmax */
     r = addii(v,v1);
-    if (cmpii(r,bmax) > 0) { set_avma(av); return 0; } /* done, not found */
+    if (cmpii(r,bmax) > 0) return gc_long(av, 0); /* done, not found */
     vmax = get_vmax(r, lb, lbb);
     /* single-word "Lehmer", discarding the gcd or whatever it returns */
     (void)rgcduu((ulong)*int_MSW(d), (ulong)*int_MSW(d1), vmax, &xu, &xu1, &xv, &xv1, &s0);
