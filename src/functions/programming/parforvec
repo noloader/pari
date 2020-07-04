@@ -2,7 +2,7 @@ Function: _parforvec_init
 Class: gp2c_internal
 Help: Initializes parameters for parforvec.
 Description:
- (parforvec,vec,closure,?void,?small):void    parforvec_init(&$1, $2, $3, $5)
+ (parforvec,vec,closure,?small):void    parforvec_init(&$1, $2, $3, $4)
 
 Function: _parforvec_next
 Class: gp2c_internal
