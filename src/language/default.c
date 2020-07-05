@@ -83,11 +83,11 @@ get_int(const char *s, long dflt)
   int minus = 0;
 
   if (*p == '-') { minus = 1; p++; }
-  if (!isdigit((int)*p)) { set_avma(av); return dflt; }
+  if (!isdigit((int)*p)) gc_long(av, dflt);
 
   n = (long)my_int(p);
   if (n < 0) pari_err(e_SYNTAX,"integer too large",s,s);
-  set_avma(av); return minus? -n: n;
+  return gc_long(av, minus? -n: n);
 }
 
 ulong
@@ -95,9 +95,8 @@ get_uint(const char *s)
 {
   pari_sp av = avma;
   char *p = get_sep(s);
-  ulong u;
   if (*p == '-') pari_err(e_SYNTAX,"arguments must be positive integers",s,s);
-  u = my_int(p); set_avma(av); return u;
+  return gc_ulong(av, my_int(p));
 }
 
 #if defined(__EMX__) || defined(_WIN32) || defined(__CYGWIN32__)
@@ -285,7 +284,7 @@ parse_intarray(const char *v, const char *s)
   long i, l;
   GEN w;
   if (*t != '[') err_intarray(t, t, s);
-  if (t[1] == ']') { set_avma(av); return cgetalloc(t_VECSMALL, 1); }
+  if (t[1] == ']') return gc_const(av, cgetalloc(t_VECSMALL, 1));
   for (p = t+1, l=2; *p; p++)
     if (*p == ',') l++;
     else if (*p < '0' || *p > '9') break;
@@ -297,7 +296,7 @@ parse_intarray(const char *v, const char *s)
     while (*p >= '0' && *p <= '9') n = 10*n + (*p++ -'0');
     w[++i] = n;
   }
-  set_avma(av); return w;
+  return gc_const(av, w);
 }
 GEN
 sd_intarray(const char *v, long flag, GEN *pz, const char *s)
