@@ -154,7 +154,7 @@ adduispec(ulong s, GEN x, long nx)
   while (xd > x) *--zd = *--xd;
   *--zd = evalsigne(1) | evallgefint(lz);
   *--zd = evaltyp(t_INT) | evallg(lz);
-  set_avma((pari_sp)zd); return zd;
+  return gc_const((pari_sp)zd, zd);
 }
 
 GEN
@@ -198,7 +198,7 @@ addiispec(GEN x, GEN y, long nx, long ny)
   zd += i+1;
   *--zd = evalsigne(1) | evallgefint(lz);
   *--zd = evaltyp(t_INT) | evallg(lz);
-  set_avma((pari_sp)zd); return zd;
+  return gc_const((pari_sp)zd, zd);
 }
 
 /* assume x >= s */
@@ -226,7 +226,7 @@ subiuspec(GEN x, ulong s, long nx)
     do  *--zd = *--xd; while (xd > x);
   *--zd = evalsigne(1) | evallgefint(lz);
   *--zd = evaltyp(t_INT) | evallg(lz);
-  set_avma((pari_sp)zd); return zd;
+  return gc_const((pari_sp)zd, zd);
 }
 
 /* assume x > y */
@@ -261,7 +261,7 @@ subiispec(GEN x, GEN y, long nx, long ny)
   zd += i+1;
   *--zd = evalsigne(1) | evallgefint(lz);
   *--zd = evaltyp(t_INT) | evallg(lz);
-  set_avma((pari_sp)zd); return zd;
+  return gc_const((pari_sp)zd, zd);
 }
 
 static void
@@ -346,7 +346,7 @@ shiftispec(GEN x, long nx, long n)
       shift_right(yd,x, 0,ny, 0,m);
       if (yd[0] == 0)
       {
-        if (ny==1) { set_avma((pari_sp)(y+3)); return gen_0; }
+        if (ny==1) return gc_const((pari_sp)(y+3), gen_0);
         ny--; set_avma((pari_sp)(++y));
       }
     } else {
@@ -461,7 +461,7 @@ muluispec(ulong x, GEN y, long ny)
   if (hiremainder) *--z = hiremainder; else lz--;
   *--z = evalsigne(1) | evallgefint(lz);
   *--z = evaltyp(t_INT) | evallg(lz);
-  set_avma((pari_sp)z); return z;
+  return gc_const((pari_sp)z, z);
 }
 
 /* a + b*|Y| */
@@ -486,7 +486,7 @@ addumului(ulong a, ulong b, GEN Y)
   if (hiremainder) *--z = hiremainder; else lz--;
   *--z = evalsigne(1) | evallgefint(lz);
   *--z = evaltyp(t_INT) | evallg(lz);
-  set_avma((pari_sp)z); return z;
+  return gc_const((pari_sp)z, z);
 }
 
 /***********************************************************************/
@@ -759,7 +759,7 @@ divri(GEN x, GEN y)
   }
   lx = lg(x); z = cgetr(lx); av = avma;
   affrr(divrr(x, itor(y, lx+1)), z);
-  set_avma(av); return z;
+  return gc_const(av, z);
 }
 
 /* Integer division x / y: such that sign(r) = sign(x)
@@ -886,14 +886,14 @@ DIVIDE: /* quotient is non-zero */
     while (lz--) *--qd = *--xd;
     *--qd = evalsigne(sy) | evallgefint(lq);
     *--qd = evaltyp(t_INT) | evallg(lq);
-    set_avma((pari_sp)qd); return (GEN)qd;
+    return gc_const((pari_sp)qd, (GEN)qd);
   }
 
   j=lq; while (j<lx && !x[j]) j++;
   lz = lx-j;
   if (z == ONLY_REM)
   {
-    if (lz==0) { set_avma(av); return gen_0; }
+    if (lz==0) return gc_const(av, gen_0);
     rd = (ulong*)av; lr = lz+2;
     xd = (ulong*)(x + lx);
     if (!sh) while (lz--) *--rd = *--xd;
@@ -912,7 +912,7 @@ DIVIDE: /* quotient is non-zero */
     }
     *--rd = evalsigne(sx) | evallgefint(lr);
     *--rd = evaltyp(t_INT) | evallg(lr);
-    set_avma((pari_sp)rd); return (GEN)rd;
+    return gc_const((pari_sp)rd, (GEN)rd);
   }
 
   lr = lz+2;
@@ -956,7 +956,7 @@ DIVIDE: /* quotient is non-zero */
     while (lr--) *--qd = *--rd;
     *z = (GEN)qd;
   }
-  set_avma((pari_sp)qd); return q;
+  return gc_const((pari_sp)qd, q);
 }
 
 /* Montgomery reduction.
@@ -1040,7 +1040,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
   Td = (GEN)av;
   while (*scratch == 0 && Te > scratch) scratch++; /* strip leading 0s */
   while (Te > scratch) *--Td = *--Te;
-  k = (GEN)av - Td; if (!k) { set_avma(av); return gen_0; }
+  k = (GEN)av - Td; if (!k) return gc_const(av, gen_0);
   k += 2;
   *--Td = evalsigne(1) | evallgefint(k);
   *--Td = evaltyp(t_INT) | evallg(k);
@@ -1054,7 +1054,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
     || cmpii(Td, addii(shifti(T, -s), N)) >= 0) pari_err_BUG("red_montgomery");
 }
 #endif
-  set_avma((pari_sp)Td); return Td;
+  return gc_const((pari_sp)Td, Td);
 }
 
 /* EXACT INTEGER DIVISION */
@@ -1107,7 +1107,7 @@ diviuexact_i(GEN x, ulong y)
   z[0] = evaltyp(t_INT)|evallg(lz);
   z[1] = evalsigne(1)|evallg(lz);
   if (lz == 2) pari_err_OP("exact division", x, utoi(y));
-  set_avma((pari_sp)z); return z;
+  return gc_const((pari_sp)z, z);
 }
 
 /* assume y != 0 and the division is exact */
@@ -1219,7 +1219,7 @@ diviiexact(GEN x, GEN y)
   z[0] = evaltyp(t_INT)|evallg(lz);
   z[1] = evalsigne((sx+sy)? 1: -1) | evallg(lz);
   if (lz == 2) pari_err_OP("exact division", x, y);
-  set_avma((pari_sp)z); return z;
+  return gc_const((pari_sp)z, z);
 }
 
 /* assume yz != and yz | x */
@@ -1280,7 +1280,7 @@ muliispec_basecase(GEN x, GEN y, long nx, long ny)
   if (*zd == 0) { zd++; lz--; } /* normalize */
   *--zd = evalsigne(1) | evallgefint(lz);
   *--zd = evaltyp(t_INT) | evallg(lz);
-  set_avma((pari_sp)zd); return zd;
+  return gc_const((pari_sp)zd, zd);
 }
 
 INLINE GEN
@@ -1343,7 +1343,7 @@ END:
   if (*zd == 0) { zd++; lz--; } /* normalize */
   *--zd = evalsigne(1) | evallgefint(lz);
   *--zd = evaltyp(t_INT) | evallg(lz);
-  set_avma((pari_sp)zd); return zd;
+  return gc_const((pari_sp)zd, zd);
 }
 
 /********************************************************************/
@@ -2084,7 +2084,7 @@ sqrtr_abs(GEN x)
     if ( u&HIGHBIT || (u == ~HIGHBIT && cmpii(c,b) > 0))
       roundr_up_ip(res, l+2);
   }
-  set_avma((pari_sp)res); return res;
+  return gc_const((pari_sp)res, res);
 }
 
 #else /* use t_REAL: currently much slower (quadratic division) */
@@ -2150,7 +2150,7 @@ sqrtr_abs(GEN x)
     set_avma(av);
   }
   affrr(t,y); shiftr_inplace(y, (ex>>1));
-  set_avma(av0); return y;
+  return gc_const(av0, y);
 }
 
 #endif
