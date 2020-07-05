@@ -165,6 +165,7 @@ GEN  pareval_worker(GEN code);
 GEN  parselect_worker(GEN d, GEN code);
 void parfor0(GEN a, GEN b, GEN code, GEN code2);
 GEN  parfor_worker(GEN i, GEN C);
+void parforeach0(GEN x, GEN code, GEN code2, long flag);
 void parforprime0(GEN a, GEN b, GEN code, GEN code2);
 void parforprimestep0(GEN a, GEN b, GEN q, GEN code, GEN code2);
 void parforvec0(GEN a, GEN code, GEN code2, long flag);

@@ -254,6 +254,13 @@ typedef struct
 
 typedef struct
 {
+  GEN x, W;
+  long i, l;
+  struct parfor_iter iter;
+} parforeach_t;
+
+typedef struct
+{
   GEN v;
   forprime_t forprime;
   struct parfor_iter iter;

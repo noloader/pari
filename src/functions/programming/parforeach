@@ -1,0 +1,37 @@
+Function: _parforeach_init
+Class: gp2c_internal
+Help: Initializes parameters for parforeach.
+Description:
+ (parforeach,gen,gen):void    parforeach_init(&$1, $2, $3)
+
+Function: _parforeach_next
+Class: gp2c_internal
+Help: Next value for parforeach.
+Description:
+ (parforeach):gen    parforeach_next(&$1)
+
+Function: _parforeach_stop
+Class: gp2c_internal
+Help: Stop function for parforeach.
+Description:
+ (parforeach):void    parforeach_stop(&$1)
+
+Function: parforeach
+Section: programming/parallel
+C-Name: parforeach0
+Prototype: vGVJDVDI
+Iterator:
+ (gen,gen,closure,?notype) (parforeach, _parforeach_init, _parforeach_next, _parforeach_stop)
+Help: parforeach(V,X,expr1,r,expr2):
+ evaluates the expression expr1 in parallel for all components X of V
+ resulting in as many values; if the formal variables r and expr2 are present, evaluate
+ sequentially expr2, in which r has been replaced by the different results
+ obtained for expr1 and X with the corresponding components.
+Doc: evaluates in parallel the expression \kbd{expr1} in the formal
+ argument $X$ taking the components of $X$ as value.
+ If $r$ and \kbd{expr2} are present, the expression \kbd{expr2} in the
+ formal variables $r$ and $X$ is evaluated with $r$ running through all
+ the different results obtained for \kbd{expr1} and $X$ takes the
+ corresponding argument.
+
+ %\syn{NO}

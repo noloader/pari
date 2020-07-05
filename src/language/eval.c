@@ -2095,6 +2095,96 @@ parforvec0(GEN x, GEN code, GEN code2, long flag)
 }
 
 void
+parforeach_init(parforeach_t *T, GEN x, GEN code)
+{
+  switch(typ(x))
+  {
+    case t_LIST:
+      x = list_data(x); /* FALL THROUGH */
+      if (!x) return;
+    case t_MAT: case t_VEC: case t_COL:
+      break;
+    default:
+      pari_err_TYPE("foreach",x);
+      return; /*LCOV_EXCL_LINE*/
+  }
+  T->x = x; T->i = 1; T->l = lg(x);
+  T->W = mkvec(gen_0);
+  T->iter.pending = 0;
+  T->iter.worker = snm_closure(is_entry("_parvector_worker"), mkvec(code));
+  mt_queue_start(&T->iter.pt, T->iter.worker);
+}
+
+GEN
+parforeach_next(parforeach_t *T)
+{
+  while (T->i < T->l || T->iter.pending)
+  {
+    GEN done;
+    long workid;
+    if (T->i < T->l) gel(T->W,1) = gel(T->x, T->i);
+    mt_queue_submit(&T->iter.pt, T->i, T->i < T->l ? T->W: NULL);
+    T->i = minss(T->i+1, T->l);
+    done = mt_queue_get(&T->iter.pt, &workid, &T->iter.pending);
+    if (done) return mkvec2(gel(T->x,workid),done);
+  }
+  mt_queue_end(&T->iter.pt);
+  return NULL;
+}
+
+void
+parforeach_stop(parforeach_t *T) { parforiter_stop(&T->iter); }
+
+void
+parforeach(GEN x, GEN code, void *E, long call(void*, GEN, GEN))
+{
+  pari_sp av = avma, av2;
+  long pending = 0, n, i, stop = 0;
+  long status = br_NONE, workid;
+  GEN worker = snm_closure(is_entry("_parvector_worker"), mkvec(code));
+  GEN done, W;
+  struct pari_mt pt;
+  switch(typ(x))
+  {
+    case t_LIST:
+      x = list_data(x); /* FALL THROUGH */
+      if (!x) return;
+    case t_MAT: case t_VEC: case t_COL:
+      break;
+    default:
+      pari_err_TYPE("foreach",x);
+      return; /*LCOV_EXCL_LINE*/
+  }
+  clone_lock(x); n = lg(x)-1;
+  mt_queue_start_lim(&pt, worker, n);
+  W = cgetg(2, t_VEC);
+  av2 = avma;
+  for (i=1; i<=n || pending; i++)
+  {
+    if (!stop && i <= n) gel(W,1) = gel(x,i);
+    mt_queue_submit(&pt, i, !stop && i<=n? W: NULL);
+    done = mt_queue_get(&pt, &workid, &pending);
+    if (call && done && (!stop || workid < stop))
+      if (call(E, gel(x, workid), done))
+      {
+        status = br_status;
+        br_status = br_NONE;
+        stop = workid;
+      }
+  }
+  set_avma(av2);
+  mt_queue_end(&pt);
+  br_status = status;
+  set_avma(av);
+}
+
+void
+parforeach0(GEN x, GEN code, GEN code2, long flag)
+{
+  parforeach(x, code, (void*)code2, code2? gp_evalvoid2: NULL);
+}
+
+void
 closure_callvoid1(GEN C, GEN x)
 {
   long i, ar = closure_arity(C);

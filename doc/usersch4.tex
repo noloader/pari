@@ -2221,6 +2221,22 @@ parfirst(GEN fun, GEN N)
 }
 @eprog
 
+\item \tet{parforeach}. To initialize the analog of
+\kbd{parforeach(V, X, ...)}, call
+
+\fun{void}{parforeach_init}{parforeach_t *T, GEN V, GEN code}
+initialize an iterator over the evaluation of \kbd{code} on the components
+of $V$.
+
+\fun{GEN}{parforeach_next}{parforeach_t *T} returns a \typ{VEC}
+\kbd{[V[i],code(V[i])]} where $V[i]$ is one of the components of $V$ and \kbd{code(V[i])} is
+the evaluation, \kbd{NULL} when all data have been exhausted. Once it happens,
+\kbd{parforprime\_next}
+must not be called anymore with the same initialization.
+
+\fun{void}{parforeach_stop}{parforeach_t *T} needs to be called when leaving
+the iterator before \kbd{parforeach\_next} returned \kbd{NULL}.
+
 \item \tet{parforprime}. To initialize the analog of
 \kbd{parforprime(p = a, b, ...)}, call
 
