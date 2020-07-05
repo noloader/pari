@@ -2228,6 +2228,13 @@ parfirst(GEN fun, GEN N)
 initialize an iterator over the evaluation of \kbd{code} on the prime numbers
 between $a$ and $b$.
 
+\item \tet{parforprimestep}. To initialize the analog of
+\kbd{parforprimestep(p = a, b, q, ...)}, call
+
+\fun{void}{parforprimestep_init}{parforprime_t *T, GEN a, GEN b, GEN q, GEN code}
+initialize an iterator over the evaluation of \kbd{code} on the prime numbers
+between $a$ and $b$ in the congruence class defined by $q$.
+
 \fun{GEN}{parforprime_next}{parforprime_t *T} returns a \typ{VEC}
 \kbd{[p,code(p)]} where $p$ is one of the prime numbers and \kbd{code(p)} is
 the evaluation, \kbd{NULL} when all data have been exhausted. Once it happens,
