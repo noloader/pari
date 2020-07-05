@@ -1486,10 +1486,8 @@ galoismodulo8(long EVEN, GEN pol, GEN dpol)
   GR[46]= _gr( 10, 1,3,5,6,8,9,12,13,15,22);
   GR[47]= _gr( 16, 1,2,3,4,5,6,7,8,9,11,12,13,14,15,20,22);
   GR[48]= _gr( -8, 1,3,5,9,12,15,20,21);
-
   gr[0]=51; res = galmodp(EVEN,pol,dpol,TYP,gr,GR);
-  set_avma(av); if (!res) return 0;
-  return EVEN? 49: 50;
+  return gc_long(av, res? (EVEN? 49: 50): 0);
 }
 
 /* DEGREE 9 */
@@ -2160,10 +2158,8 @@ galoismodulo10(long EVEN, GEN pol, GEN dpol)
   GR[42]= _gr(-17, 1,3,5,7,9,11,13,16,18,20,22,24,26,27,30,35,40);
   GR[43]= _gr( 32, 1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,18,19,20,22,23,24,25,26,27,28,29,30,33,35,40,42);
   GR[44]= _gr(-22, 1,3,5,7,9,11,13,14,16,18,20,22,24,26,27,30,32,35,36,38,40,41);
-
   gr[0]=46; res = galmodp(EVEN,pol,dpol,TYP,gr,GR);
-  set_avma(av); if (!res) return 0;
-  return EVEN? 44: 45;
+  return gc_long(av, res? (EVEN? 44:45): 0);
 }
 
 /* DEGREE 11 */
@@ -2237,8 +2233,7 @@ galoismodulo11(long EVEN, GEN pol, GEN dpol)
     gel(TYP,5) = _typ(11, 1,1,1,1,1,1,1,1,1,1,1);
   }
   res = galmodp(EVEN,pol,dpol,TYP,gr,NULL);
-  set_avma(av); if (!res) return 0;
-  return EVEN? 7: 8;
+  return gc_long(av, res? (EVEN? 7: 8): 0);
 }
 
 static void
