@@ -1238,7 +1238,6 @@ galoissubfieldcm(GEN G)
   if (!(ZX_deflate_order(pol)%2) && sturm(RgX_deflate(pol,2))==d/2)
   {
     setvarn(pol,v);
-    delete_var();
     return mkvec2(pol,emb);
   }
 
@@ -1263,7 +1262,7 @@ galoissubfieldcm(GEN G)
   for (i=1; i<d; i++)
   {
     a = try_imag(pol_xn(i,v),c,pol,v,p,emb,galpol);
-    if (a) { delete_var(); return a; }
+    if (a) return a;
     p = unextprime(p+1);
   }
   B = stoi(10);
@@ -1272,7 +1271,7 @@ galoissubfieldcm(GEN G)
   {
     for (i=2; i<lg(b); i++) gel(b,i) = randomi(B);
     a = try_imag(b,c,pol,v,p,emb,galpol);
-    if (a) { delete_var(); return a; }
+    if (a) return a;
     p = unextprime(p+1);
   }
   return NULL;/*LCOV_EXCL_LINE*/
