@@ -1179,7 +1179,7 @@ galoissubfieldcm(GEN G)
 {
   pari_sp av = avma;
   GEN c, H, elts, g, Hset, c2, gene, sub, pol, M, emb, a, galpol, B, b;
-  long n, i, j, nH, ind, v, d, vsub;
+  long n, i, j, nH, ind, v, d;
   ulong p = 1009;
 
   galpol = gal_get_pol(G);
@@ -1229,8 +1229,7 @@ galoissubfieldcm(GEN G)
   H = cgetg(lg(gene), t_VEC);
   for (i=1; i<lg(H); i++)
     gel(H,i) = gel(elts,gene[i]);
-  vsub = fetch_var();
-  sub = galoisfixedfield(G, H, 2, vsub);
+  sub = galoisfixedfield(G, H, 0, -1);
 
   /* compute a totally imaginary generator */
   pol = gel(sub,1);
@@ -1257,19 +1256,18 @@ galoissubfieldcm(GEN G)
       gel(M,i) = RgX_to_RgC(a,n);
     }
     c = RgM_RgC_invimage(M, c);
-    c = RgV_to_RgX(c, vsub);
+    c = RgV_to_RgX(c, v);
   }
-  else setvarn(c,vsub);
 
   /* search for a generator of the form c(b)-b */
   for (i=1; i<d; i++)
   {
-    a = try_imag(pol_xn(i,vsub),c,pol,v,p,emb,galpol);
+    a = try_imag(pol_xn(i,v),c,pol,v,p,emb,galpol);
     if (a) { delete_var(); return a; }
     p = unextprime(p+1);
   }
   B = stoi(10);
-  b = pol_xn(d-1,vsub);
+  b = pol_xn(d-1,v);
   while(1)
   {
     for (i=2; i<lg(b); i++) gel(b,i) = randomi(B);
