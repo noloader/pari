@@ -5037,8 +5037,9 @@ GEN     polsubcyclo(long n, long d, long v);
 /* subfield.c */
 
 GEN     nfsubfields(GEN nf, long d);
-GEN     nfsubfieldscm(GEN nf);
-GEN     nfsubfieldsmax(GEN nf);
+GEN     nfsubfields0(GEN nf, long d, long flag);
+GEN     nfsubfieldscm(GEN nf, long flag);
+GEN     nfsubfieldsmax(GEN nf, long flag);
 
 /* subgroup.c */
 
