@@ -24,6 +24,9 @@ qfminim(L~*L,10^16,,2)[2]
 forqfvec(v, [3,2;2,3], 3, print(v))
 forqfvec(v, [3,2;2,3],, print(v))
 forqfvec(v,[;],3,)
+forqfvec(v,matid(2),-6, print(".") ) \\ #2237
+qfminim(matid(2),-6)
+qfminim(matid(2),-6,,2)
 x=[1,2,3]~; y=[-1,0,1]~; qfeval(,x)
 q=[1,2,3;2,2,-1;3,-1,0]; qfeval(q,x)
 qfeval(,x,y)

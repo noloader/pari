@@ -1120,6 +1120,7 @@ forqfvec_i(void *E, long (*fun)(void *, GEN, GEN, double), struct qfvec *qv, GEN
   {
     BORNE = gfloor(BORNE);
     if (typ(BORNE) != t_INT) pari_err_TYPE("minim0",BORNE);
+    if (signe(BORNE) <= 0) return;
   }
   if (n == 1) return;
   minim_alloc(n, &q, &x, &y, &z, &v);
@@ -1247,6 +1248,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
     if (typ(BORNE) != t_INT) pari_err_TYPE("minim0",BORNE);
     if (is_bigint(BORNE)) pari_err_PREC( "qfminim");
     sBORNE = itos(BORNE); set_avma(av);
+    if (sBORNE < 0) sBORNE = 0;
   }
   if (!STOCKMAX)
   {
@@ -1684,10 +1686,10 @@ smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
   if (BORNE)
   {
     borne1 = BORNE;
+    if (gsigne(borne1) <= 0) retmkvec3(gen_0, gen_0, cgetg(1,t_MAT));
     if (typ(borne1) != t_REAL)
     {
       long prec;
-      if (gequal0(borne1)) retmkvec3(gen_0, gen_0, cgetg(1,t_MAT));
       prec = nbits2prec(gexpo(borne1) + 10);
       borne1 = gtofp(borne1, maxss(prec, DEFAULTPREC));
     }
