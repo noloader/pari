@@ -14,7 +14,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-#define dbg_mode() if (DEBUGLEVEL >= 2)
+#define dbg_mode()  if (DEBUGLEVEL >= 2)
+#define dbg_mode1() if (DEBUGLEVEL >= 3)
 
 #define ANSI_RED     "\x1b[31m"
 #define ANSI_GREEN   "\x1b[32m"
@@ -875,7 +876,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   corn_succ = cornacchia2_sqrt( utoi(labs(D)), N, sqrtofDmodN, &U, &V);
   dbg_mode() timer_record(X0, "A5", &ti);
   if (!corn_succ) {
-    dbg_mode() err_printf(ANSI_YELLOW "c" ANSI_RESET);
+    dbg_mode1() err_printf(ANSI_YELLOW "c" ANSI_RESET);
     return 0;
   }
   /* A6: Collect the w(D) cardinalities of E/(F_N) with CM by D */
