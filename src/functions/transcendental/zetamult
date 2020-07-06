@@ -15,7 +15,7 @@ Doc: For $s$ a vector of positive integers such that $s[1] \geq 2$,
  \bprog
  ? zetamult([2,1]) - zeta(3) \\ Euler's identity
  %1 = 0.E-38
- ? zetamult([2,1])   \\ star value
+ ? zetamult([2,1], 1)   \\ star value
  %2 = 2.4041138063191885707994763230228999815
  ? zetamult([2,1], 'x)
  %3 = 1.20205[...]*x + 1.20205[...]
