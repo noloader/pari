@@ -1278,3 +1278,28 @@ QX_ZX_rem(GEN x, GEN y)
   if (d) r = ZX_Q_mul(r, d);
   return gerepileupto(av, r);
 }
+
+GEN
+QXQX_mul(GEN x, GEN y, GEN T)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN dy, ny = Q_primitive_part(y, &dy);
+  GEN z = ZXQX_mul(nx, ny, T);
+  if (dx || dy)
+  {
+    GEN d = dx ? dy ? gmul(dx, dy): dx : dy;
+    return ZXX_Q_mul(z, d);
+  } else
+    return z;
+}
+
+GEN
+QXQX_sqr(GEN x, GEN T)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN z = ZXQX_sqr(nx, T);
+  if (dx)
+    return ZXX_Q_mul(z, gsqr(dx));
+  else
+    return z;
+}
