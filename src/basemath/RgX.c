@@ -2622,6 +2622,15 @@ static GEN
 _ZXQsqr(void *data, GEN x) { return ZXQ_sqr(x, (GEN)data); }
 static GEN
 _ZXQmul(void *data, GEN x, GEN y) { return ZXQ_mul(x,y, (GEN)data); }
+
+/* generates the list of powers of x of degree 0,1,2,...,l*/
+GEN
+ZXQ_powers(GEN x, long l, GEN T)
+{
+  int use_sqr = 2*degpol(x) >= degpol(T);
+  return gen_powers(x, l, use_sqr, (void *)T,_ZXQsqr,_ZXQmul,_one);
+}
+
 /* x,T in Z[X], n in N, compute lift(x^n mod T)) */
 GEN
 ZXQ_powu(GEN x, ulong n, GEN T)

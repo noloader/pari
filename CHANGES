@@ -293,6 +293,7 @@ HC  94- new GP function polylogmult
 BA  99- [libpari] FqC_FqV_mul
    100- [libpari] gen_sort_shallow, vecvecsmall_sort_shallow
 BA 101- new GP functions parforprimestep, parforeach
+BA 102- [libpari] ZXQ_powers
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
