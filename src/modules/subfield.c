@@ -1054,18 +1054,17 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
   setlg(lambda, j);
   setlg(fa, j); lfa = j;
 
-  vpolx = const_vec(lfa-1,pol_1(vx));
+  vpolx = ZXQ_powers(x,dx-1,pol);
   vpoly = const_vec(lfa-1,pol_1(vy));
 
-  m = cgetg(degpol(pol)+1,t_MAT);
-  for (j=1; j<lg(m); j++)
+  m = cgetg(dx+1,t_MAT);
+  for (j=1; j <= dx; j++)
   {
     C = zerovec(lfa-1);
     for(i=1; i<lfa; i++)
     {
       long dy = degpol(gel(fa,i));
-      gel(C,i) = RgXY_to_RgC(gadd(gel(vpolx,i),gmul(gel(lambda,i),gel(vpoly,i))), dx, dy);
-      gel(vpolx,i) = ZXQ_mul(gel(vpolx,i),x,pol);
+      gel(C,i) = RgXY_to_RgC(gadd(gel(vpolx,j),gmul(gel(lambda,i),gel(vpoly,i))), dx, dy);
       gel(vpoly,i) = RgXQX_rem(RgXQX_mul(gel(vpoly,i),y,pol),gel(fa,i),pol);
     }
     gel(m,j) = shallowconcat1(C);
