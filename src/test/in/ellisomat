@@ -1,4 +1,5 @@
 default(parisize,"48M");
+X;Y;
 eq(E) = Y^2+E.a1*X*Y+E.a3*Y - (X^3 + E.a2*X^2 + E.a4*X + E.a6);
 checkiso(E1,E2,iso)=
 {
@@ -38,7 +39,6 @@ chk(ellinit([phi+1,1,phi+1,6*phi-1,13*phi+2],nf))
 nf=nfinit(a^2-2);
 chk(ellinit([a,-1,0,18,46],nf))
 
-default(realprecision,38);
 E=ellinit([1,0,1,4,-6]);
 ellisotree(E)
 ellisotree(ellisomat(E,2,1))
@@ -46,5 +46,5 @@ ellisotree(ellisomat(E,2))
 ellisotree(ellisomat(E,3,1))
 ellisotree(ellisomat(E,,1))
 
-\\ ERROS
+\\ ERRORS
 ellisomat(ellinit([1,0],nfinit(y^2+1)))

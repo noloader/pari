@@ -51,19 +51,13 @@ static GEN
 ellcompisog(GEN F, GEN G)
 {
   pari_sp av = avma;
-  GEN Fv, Gh, Gh2, Gh3, f, g, h, h2, h3, den, num;
+  GEN Gh, Gh2, Gh3, f, g, h, h2, h3, den, num;
   GEN K, K2, K3, F0, F1, g0, g1, Gp;
-  long v, vx, vy, d;
+  long vx, vy, d;
   checkellisog(F);
   checkellisog(G);
   get_isog_vars(F, &vx, &vy);
-  v = fetch_var_higher();
-  Fv = shallowcopy(gel(F,3)); setvarn(Fv, v);
   Gh = gel(G,3); Gh2 = gsqr(Gh); Gh3 = gmul(Gh, Gh2);
-  K = gmul(polresultant0(Fv, deg1pol(gneg(Gh2),gel(G,1), v), v, 0), Gh);
-  delete_var();
-  K = RgX_normalize(RgX_div(K, RgX_gcd(K,deriv(K,0))));
-  K2 = gsqr(K); K3 = gmul(K, K2);
   F0 = polcoef(gel(F,2), 0, vy); F1 = polcoef(gel(F,2), 1, vy);
   d = maxss(maxss(degpol(gel(F,1)),_degree(gel(F,3))),
             maxss(_degree(F0),_degree(F1)));
@@ -72,6 +66,9 @@ ellcompisog(GEN F, GEN G)
   g0 = RgX_homogenous_evalpow(F0, gel(G,1), Gp);
   g1 = RgX_homogenous_evalpow(F1, gel(G,1), Gp);
   h =  RgX_homogenous_evalpow(gel(F,3), gel(G,1), Gp);
+  K = gmul(gel(h,1), Gh);
+  K = RgX_normalize(RgX_div(K, RgX_gcd(K,RgX_deriv(K))));
+  K2 = gsqr(K); K3 = gmul(K, K2);
   h2 = mkvec2(gsqr(gel(h,1)), gsqr(gel(h,2)));
   h3 = mkvec2(gmul(gel(h,1),gel(h2,1)), gmul(gel(h,2),gel(h2,2)));
   f  = gdiv(gmul(gmul(K2, gel(f,1)),gel(h2,2)), gmul(gel(f,2), gel(h2,1)));
@@ -106,30 +103,20 @@ static GEN
 ellnfcompisog(GEN nf, GEN F, GEN G)
 {
   pari_sp av = avma;
-  GEN Fv, Gh, Gh2, Gh3, f, g, gd, h, h21, h22, h31, h32, den;
+  GEN Gh, Gh2, Gh3, f, g, gd, h, h21, h22, h31, h32, den;
   GEN K, K2, K3, F0, F1, G0, G1, g0, g1, Gp;
   GEN num0, num1, gn0, gn1;
   GEN g0d, g01, k3h32;
-  GEN T, res;
+  GEN T;
   pari_timer ti;
-  long v, vx, vy, d;
+  long vx, vy, d;
   if (!nf) return ellcompisog(F, G);
   T = nf_get_pol(nf);
   timer_start(&ti);
   checkellisog(F);
   checkellisog(G);
   get_isog_vars(F, &vx, &vy);
-  v = fetch_var_higher();
-  Fv = shallowcopy(gel(F,3)); setvarn(Fv, v);
   Gh = lift(gel(G,3)); Gh2 = RgXQX_sqr(Gh, T); Gh3 = RgXQX_mul(Gh, Gh2, T);
-  res = to_RgX(polresultant0(Fv, deg1pol(gmul(gneg(Gh2),gmodulo(gen_1,T)),gel(G,1), v), v, 0),vx);
-  delete_var();
-  K = Q_remove_denom(RgXQX_mul(res, Gh, T), NULL);
-  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: resultant");
-  K = RgXQX_div(K, nfgcd(K, deriv(K,0), T, NULL), T);
-  K = RgX_normalize(K);
-  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: nfgcd");
-  K2 = RgXQX_sqr(K, T); K3 = RgXQX_mul(K, K2, T);
   F0 = to_RgX(polcoef(gel(F,2), 0, vy), vx);
   F1 = to_RgX(polcoef(gel(F,2), 1, vy), vx);
   G0 = to_RgX(polcoef(gel(G,2), 0, vy), vx);
@@ -140,6 +127,11 @@ ellnfcompisog(GEN nf, GEN F, GEN G)
   g0 = RgXQX_homogenous_evalpow(F0, to_RgX(gel(G,1),vx), Gp, T);
   g1 = RgXQX_homogenous_evalpow(F1, to_RgX(gel(G,1),vx), Gp, T);
   h  = RgXQX_homogenous_evalpow(to_RgX(gel(F,3),vx), gel(G,1), Gp, T);
+  K = Q_remove_denom(RgXQX_mul(liftpol(gel(h,1)), Gh, T), NULL);
+  K = RgXQX_div(K, nfgcd(K, RgX_deriv(K), T, NULL), T);
+  K = RgX_normalize(K);
+  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: nfgcd");
+  K2 = RgXQX_sqr(K, T); K3 = RgXQX_mul(K, K2, T);
   if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: evalpow");
   h21 = RgXQX_sqr(gel(h,1),T);
   h22 = RgXQX_sqr(gel(h,2),T);
