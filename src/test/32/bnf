@@ -19,6 +19,7 @@
 
 [0 1]
 
+[960, 24, 2]
   *** bnfisprincipal: Warning: precision too low for generators, not given.
 [[]~, [-16275043782306513717209797591668600538906793729160424387141562023303
 069241961, -3992515767463859376807521115314587378342597458337773390379448027
@@ -99,4 +100,4 @@ Mat([0, 0, 0, -2, 0]), 2]]], [[0]~, Mat(1)]]], [[2], Vecsmall([1]), Mat(1/2)
   *** bnfisprincipal: Warning: precision too low for generators, not given.
 18
 [120, 4, 4, 2]
-Total time spent: 29138
+Total time spent: 30317

@@ -28,6 +28,9 @@ setrand(1);bnfinit(x^2+1635847).no
 K = bnfinit(x^2+23); L = bnrdisclist(K, 10); s = L[2];
 bnfdecodemodule(K, s[1][1])
 
+\\ rare wrong result
+setrand(3805);bnfinit(y^8-44466*y^6+1977225156*y^4-87919293786696*y^2+3909419317519224336).cyc
+
 default(realprecision,19);
 K=bnfinit(x^5-x^4+x^3+100*x+20,1);
 A=idealpow(K,idealprimedec(K,5)[2],150);
