@@ -1280,23 +1280,19 @@ galoissubfieldcm(GEN G)
 static GEN
 quadsubfieldcm(GEN pol)
 {
-  GEN a = polcoef_i(pol,1,-1), b = polcoef_i(pol,0,-1), res;
-  long i;
+  GEN a = gel(pol,3), b = gel(pol,2), P;
+  long vp = varn(pol);
   if (smodis(a,2))
-    res = mkvec2(
-          mkpoln(3,gen_1,gen_0,subii(mulsi(4,b),sqri(a))),
-          mkpoln(2,gen_2,a)
-          );
+  {
+    P = deg2pol_shallow(gen_1,gen_0,subii(mulsi(4,b),sqri(a)),vp);
+    return mkvec2(P, deg1pol_shallow(gen_2,a,vp));
+  }
   else
   {
     a = divis(a,2);
-    res = mkvec2(
-          mkpoln(3,gen_1,gen_0,subii(b,sqri(a))),
-          mkpoln(2,gen_1,a)
-          );
+    P = deg2pol_shallow(gen_1,gen_0,subii(b,sqri(a)),vp);
+    return mkvec2(P, deg1pol_shallow(gen_1,a,vp));
   }
-  for (i=1; i<=2; i++) setvarn(gel(res,i),varn(pol));
-  return res;
 }
 
 GEN
