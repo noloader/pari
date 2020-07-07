@@ -2179,7 +2179,7 @@ parforeach(GEN x, GEN code, void *E, long call(void*, GEN, GEN))
 }
 
 void
-parforeach0(GEN x, GEN code, GEN code2, long flag)
+parforeach0(GEN x, GEN code, GEN code2)
 {
   parforeach(x, code, (void*)code2, code2? gp_evalvoid2: NULL);
 }
