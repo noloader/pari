@@ -947,7 +947,7 @@ try_subfield_generator(GEN pol, GEN v, long e, long p, long ero)
   P = Flxq_charpoly(ZX_to_Flx(a,p), ZX_to_Flx(pol,p), p);
   Flx_ispower(P, e, p, &Q);
   if (!Flx_is_squarefree(Q,p)) return NULL;
-  d = degree(pol)/e;
+  d = degpol(pol)/e;
   B = 0;
   for (i=1; i<lg(v); i++)
   {
@@ -982,7 +982,7 @@ subfield_generator(GEN pol, GEN V, long d, long ero)
   GEN a = NULL, v = cgetg(lg(V),t_COL), B;
 
   if (d==1) return mkvec2(pol_x(varn(pol)), gen_0);
-  e = degree(pol)/d;
+  e = degpol(pol)/d;
   p = 1009;
   for (i=1; i<lg(V); i++)
   {
@@ -1030,7 +1030,7 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
   long i,j, dx, dy;
 
   x = pol_x(varn(pol));
-  dx = degree(pol);
+  dx = degpol(pol);
   y = pol_x(varn(gel(fa,1)));
   modpol = mkpolmod(gen_1,pol);
 
@@ -1052,13 +1052,13 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
     gel(vpolx,i) = gmul(modpol,mkpolmod(gen_1,gel(fa,i)));
   vpoly = gcopy(vpolx);
 
-  m = cgetg(degree(pol)+1,t_MAT);
+  m = cgetg(degpol(pol)+1,t_MAT);
   for (j=1; j<lg(m); j++)
   {
     C = zerovec(lg(fa)-1);
     for(i=1; i<lg(fa); i++)
     {
-      dy = degree(gel(fa,i));
+      dy = degpol(gel(fa,i));
       gel(C,i) = polmod_to_col(gadd(gel(vpolx,i),gmul(gel(lambda,i),gel(vpoly,i))), dx, dy);
       gel(vpolx,i) = gmul(gel(vpolx,i),x);
       gel(vpoly,i) = gmul(gel(vpoly,i),y);
@@ -1085,14 +1085,14 @@ subfields_cleanup(GEN* nf, GEN* pol, long* n, GEN* fa)
     *pol = *nf;
     *nf = NULL;
     if (!gequal1(leading_coeff(*pol))) pari_err_TYPE("subfields_cleanup [not monic]", *pol);
-    *n = degree(*pol);
+    *n = degpol(*pol);
     if (*n<=0) pari_err_TYPE("subfields_cleanup [constant polynomial]", *pol);
   }
   else
   {
     *nf = checknf(*nf);
     *pol = nf_get_pol(*nf);
-    *n = degree(*pol);
+    *n = degpol(*pol);
   }
 }
 
@@ -1183,7 +1183,7 @@ galoissubfieldcm(GEN G)
   ulong p = 1009;
 
   galpol = gal_get_pol(G);
-  n = degree(galpol);
+  n = degpol(galpol);
   v = varn(galpol);
   c = galois_get_conj(G);
   /* compute the list of c*g*c*g^(-1) : product of all pairs of conjugations
@@ -1234,7 +1234,7 @@ galoissubfieldcm(GEN G)
   /* compute a totally imaginary generator */
   pol = gel(sub,1);
   emb = liftpol(gel(sub,2));
-  d = degree(pol);
+  d = degpol(pol);
   if (!(ZX_deflate_order(pol)%2) && sturm(RgX_deflate(pol,2))==d/2)
   {
     setvarn(pol,v);
