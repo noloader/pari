@@ -1002,23 +1002,30 @@ subfield_generator(GEN pol, GEN V, long d, long ero)
 }
 
 static GEN
-polmod_to_col(GEN P, long dx, long dy)
+RgXY_to_RgC(GEN P, long dx, long dy)
 {
   GEN res, c;
-  long i, j, k;
-
-  P = liftpol(P);
-  res = zerocol((dx+1)*(dy+1));
+  long i, j, k, d = degpol(P);
+  res = cgetg((dx+1)*(dy+1)+1, t_COL);
   k = 1;
-  for(i=0; i<=dy; i++)
+  for (i=0; i<=d; i++)
   {
-    c = polcoef_i(P,i,-1);
-    for (j=0; j<=dx; j++)
+    c = gel(P,i+2);
+    if (typ(c)==t_POL)
     {
-      gel(res,k) = polcoef_i(c,j,-1);
-      k++;
+      long dc = degpol(c);
+      for (j=0; j<=dc; j++)
+        gel(res,k++) = gel(c,j+2);
+    } else
+    {
+      gel(res,k++) = c; j=1;
     }
+    for (  ; j<=dx; j++)
+      gel(res,k++) = gen_0;
   }
+  for(  ; i<=dy; i++)
+    for (j=0; j<=dx; j++)
+      gel(res,k++) = gen_0;
   return res;
 }
 
@@ -1026,14 +1033,13 @@ polmod_to_col(GEN P, long dx, long dy)
 static GEN
 twoembequation(GEN pol, GEN fa, GEN lambda)
 {
-  GEN m, vpolx, vpoly, x, y, C, modpol;
-  long i,j, dx, dy, lfa = lg(fa);
+  GEN m, vpolx, vpoly, x, y, C;
+  long i,j, dx, lfa = lg(fa);
   long vx = varn(pol), vy = varn(gel(fa,1)); /* vx < vy ! */
 
   x = pol_x(vx);
   dx = degpol(pol);
   y = pol_x(vy);
-  modpol = mkpolmod(gen_1,pol);
 
   lambda = shallowcopy(lambda);
   fa = shallowcopy(fa);
@@ -1042,27 +1048,25 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
     if (signe(gel(lambda,i)))
     {
       gel(lambda,j) = negi(gel(lambda,i));
-      gel(fa,j) = gmul(gel(fa,i),modpol);
+      gel(fa,j) = gel(fa,i);
       j++;
     }
   setlg(lambda, j);
   setlg(fa, j); lfa = j;
 
-  vpolx = cgetg(lfa,t_VEC);
-  for (i=1; i<lfa; i++)
-    gel(vpolx,i) = gmul(modpol,mkpolmod(gen_1,gel(fa,i)));
-  vpoly = shallowcopy(vpolx);
+  vpolx = const_vec(lfa-1,pol_1(vx));
+  vpoly = const_vec(lfa-1,pol_1(vy));
 
   m = cgetg(degpol(pol)+1,t_MAT);
   for (j=1; j<lg(m); j++)
   {
-    C = cgetg(lfa, t_VEC);
+    C = zerovec(lfa-1);
     for(i=1; i<lfa; i++)
     {
-      dy = degpol(gel(fa,i));
-      gel(C,i) = polmod_to_col(gadd(gel(vpolx,i),gmul(gel(lambda,i),gel(vpoly,i))), dx, dy);
-      gel(vpolx,i) = gmul(gel(vpolx,i),x);
-      gel(vpoly,i) = gmul(gel(vpoly,i),y);
+      long dy = degpol(gel(fa,i));
+      gel(C,i) = RgXY_to_RgC(gadd(gel(vpolx,i),gmul(gel(lambda,i),gel(vpoly,i))), dx, dy);
+      gel(vpolx,i) = ZXQ_mul(gel(vpolx,i),x,pol);
+      gel(vpoly,i) = RgXQX_rem(RgXQX_mul(gel(vpoly,i),y,pol),gel(fa,i),pol);
     }
     gel(m,j) = shallowconcat1(C);
   }
