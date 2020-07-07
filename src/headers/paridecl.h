@@ -2184,6 +2184,7 @@ GEN     ZX_Q_normalize(GEN pol, GEN *ptlc);
 GEN     ZX_Z_normalize(GEN pol, GEN *ptk);
 GEN     ZX_to_monic(GEN pol, GEN *lead);
 GEN     ZX_primitive_to_monic(GEN pol, GEN *lead);
+GEN     ZXX_Q_mul(GEN A, GEN z);
 
 /* base2.c */
 

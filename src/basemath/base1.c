@@ -486,6 +486,22 @@ ZX_to_monic(GEN pol, GEN *L)
   return ZX_primitive_to_monic(Q_primpart(pol), L);
 }
 
+GEN
+ZXX_Q_mul(GEN A, GEN z)
+{
+  long i, l;
+  GEN B;
+  if (typ(z)==t_INT) return ZXX_Z_mul(A,z);
+  B = cgetg_copy(A, &l);
+  B[1] = A[1];
+  for (i=2; i<l; i++)
+  {
+    GEN Ai = gel(A,i);
+    gel(B,i) = typ(Ai)==t_POL ? ZX_Q_mul(Ai, z): gmul(Ai, z);
+  }
+  return B;
+}
+
 /* Evaluate pol in s using nfelt arithmetic and Horner rule */
 GEN
 nfpoleval(GEN nf, GEN pol, GEN s)
