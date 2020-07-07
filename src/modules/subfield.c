@@ -1027,17 +1027,18 @@ static GEN
 twoembequation(GEN pol, GEN fa, GEN lambda)
 {
   GEN m, vpolx, vpoly, x, y, C, modpol;
-  long i,j, dx, dy;
+  long i,j, dx, dy, lfa = lg(fa);
+  long vx = varn(pol), vy = varn(gel(fa,1)); /* vx < vy ! */
 
-  x = pol_x(varn(pol));
+  x = pol_x(vx);
   dx = degpol(pol);
-  y = pol_x(varn(gel(fa,1)));
+  y = pol_x(vy);
   modpol = mkpolmod(gen_1,pol);
 
   lambda = shallowcopy(lambda);
   fa = shallowcopy(fa);
   j = 1;
-  for (i=1; i<lg(fa); i++)
+  for (i=1; i<lfa; i++)
     if (signe(gel(lambda,i)))
     {
       gel(lambda,j) = negi(gel(lambda,i));
@@ -1045,18 +1046,18 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
       j++;
     }
   setlg(lambda, j);
-  setlg(fa, j);
+  setlg(fa, j); lfa = j;
 
-  vpolx = cgetg(lg(fa),t_VEC);
-  for (i=1; i<lg(fa); i++)
+  vpolx = cgetg(lfa,t_VEC);
+  for (i=1; i<lfa; i++)
     gel(vpolx,i) = gmul(modpol,mkpolmod(gen_1,gel(fa,i)));
-  vpoly = gcopy(vpolx);
+  vpoly = shallowcopy(vpolx);
 
   m = cgetg(degpol(pol)+1,t_MAT);
   for (j=1; j<lg(m); j++)
   {
-    C = zerovec(lg(fa)-1);
-    for(i=1; i<lg(fa); i++)
+    C = cgetg(lfa, t_VEC);
+    for(i=1; i<lfa; i++)
     {
       dy = degpol(gel(fa,i));
       gel(C,i) = polmod_to_col(gadd(gel(vpolx,i),gmul(gel(lambda,i),gel(vpoly,i))), dx, dy);
