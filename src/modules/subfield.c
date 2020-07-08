@@ -1033,7 +1033,7 @@ RgXY_to_RgC(GEN P, long dx, long dy)
 static GEN
 twoembequation(GEN pol, GEN fa, GEN lambda)
 {
-  GEN m, vpolx, vpoly, x, y, C;
+  GEN m, vpolx, poly, x, y;
   long i,j, dx, lfa = lg(fa);
   long vx = varn(pol), vy = varn(gel(fa,1)); /* vx < vy ! */
 
@@ -1055,20 +1055,26 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
   setlg(fa, j); lfa = j;
 
   vpolx = ZXQ_powers(x,dx-1,pol);
-  vpoly = const_vec(lfa-1,pol_1(vy));
 
-  m = cgetg(dx+1,t_MAT);
-  for (j=1; j <= dx; j++)
+  m = zeromatcopy(lfa-1,dx);
+  for(i=1; i<lfa; i++)
   {
-    C = zerovec(lfa-1);
-    for(i=1; i<lfa; i++)
+    long dy = degpol(gel(fa,i));
+    poly = pol_1(vy);
+    for (j=1; j <= dx; j++)
     {
-      long dy = degpol(gel(fa,i));
-      gel(C,i) = RgXY_to_RgC(gadd(gel(vpolx,j),gmul(gel(lambda,i),gel(vpoly,i))), dx, dy);
-      gel(vpoly,i) = RgXQX_rem(RgXQX_mul(gel(vpoly,i),y,pol),gel(fa,i),pol);
+      gcoeff(m,i,j) = RgXY_to_RgC(gadd(gel(vpolx,j),gmul(gel(lambda,i),poly)), dx, dy);
+      poly = RgXQX_rem(RgXQX_mul(poly,y,pol), gel(fa,i), pol);
     }
-    gel(m,j) = shallowconcat1(C);
   }
+
+  for(j=1; j<=dx; j++)
+  {
+    settyp(gel(m,j),t_VEC);
+    gel(m,j) = shallowconcat1(gel(m,j));
+    settyp(gel(m,j),t_COL);
+  }
+
   return QM_ker(m);
 }
 
