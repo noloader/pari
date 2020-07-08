@@ -9710,6 +9710,14 @@ the coefficients of genuine polynomials into blocks. Shallow function.
 from its Kronecker form $P(X,X^{2\*n-1})$, $v$ is the variable number
 corresponding to $Y$. Shallow function.
 
+\fun{GEN}{Kronecker_to_ZXQX}{GEN z, GEN T}. Let $n = \deg T$ and let
+$P(X,Y)\in \Z[X,Y]$ lift a polynomial in $K[Y]$, where $K := \Z[X]/(T)$ and
+$\deg_X P < 2n-1$ --- such as would result from multiplying minimal degree
+lifts of two polynomials in $K[Y]$. Let $z = P(t,t^{2*n-1})$ be a Kronecker
+form of $P$, this function returns $Q\in \Z[X,t]$ such that $Q$ is congruent to
+$P(X,t)$ mod $(T(X))$, $\deg_X Q < n$.
+Not stack-clean. Note that $t$ need not be the same variable as $Y$!
+
 \fun{GEN}{ZXX_mul_Kronecker}{GEN P, GEN Q, long n} return \tet{ZX_mul}
 applied to the Kronecker forms $P(X,X^{2\*n-1})$ and $Q(X,X^{2\*n-1})$
 of $P$ and $Q$. Not memory clean.

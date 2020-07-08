@@ -1201,6 +1201,28 @@ GEN
 ZXX_sqr_Kronecker(GEN x, long n)
 { return ZX_sqr(ZXX_to_Kronecker(x,n)); }
 
+/* shallow, n = deg(T) */
+GEN
+Kronecker_to_ZXQX(GEN z, GEN T)
+{
+  long i,j,lx,l, N = (degpol(T)<<1)+1;
+  GEN x, t;
+  l = lg(z); lx = (l-2) / (N-2);
+  x = cgetg(lx+3,t_POL);
+  x[1] = z[1];
+  for (i=2; i<lx+2; i++)
+  {
+    t = cgetg(N,t_POL); t[1] = T[1];
+    for (j=2; j<N; j++) gel(t,j) = gel(z,j);
+    z += (N-2);
+    gel(x,i) = ZX_rem(ZX_renormalize(t,N), T);
+  }
+  N = (l-2) % (N-2) + 2;
+  t = cgetg(N,t_POL); t[1] = T[1];
+  for (j=2; j<N; j++) gel(t,j) = gel(z,j);
+  gel(x,i) = ZX_rem(ZX_renormalize(t,N), T);
+  return ZXX_renormalize(x, i+1);
+}
 
 GEN
 ZXQX_sqr(GEN x, GEN T)
@@ -1208,8 +1230,8 @@ ZXQX_sqr(GEN x, GEN T)
   pari_sp av = avma;
   long n = degpol(T);
   GEN z = ZXX_sqr_Kronecker(x, n);
-  z = Kronecker_to_ZXX(z, n, varn(T));
-  return gerepileupto(av, z);
+  z = Kronecker_to_ZXQX(z, T);
+  return gerepilecopy(av, z);
 }
 
 GEN
@@ -1218,8 +1240,8 @@ ZXQX_mul(GEN x, GEN y, GEN T)
   pari_sp av = avma;
   long n = degpol(T);
   GEN z = ZXX_mul_Kronecker(x, y, n);
-  z = Kronecker_to_ZXX(z, n, varn(T));
-  return gerepileupto(av, z);
+  z = Kronecker_to_ZXQX(z, T);
+  return gerepilecopy(av, z);
 }
 
 GEN

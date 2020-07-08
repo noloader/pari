@@ -1401,6 +1401,7 @@ int     zvV_equal(GEN V, GEN W);
 
 /* ZX.c */
 
+GEN     Kronecker_to_ZXQX(GEN z, GEN T);
 GEN     Kronecker_to_ZXX(GEN z, long N, long v);
 GEN     QX_ZX_rem(GEN x, GEN y);
 GEN     QX_mul(GEN x, GEN y);
