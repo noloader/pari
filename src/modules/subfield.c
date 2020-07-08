@@ -1063,7 +1063,7 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
     poly = pol_1(vy);
     for (j=1; j <= dx; j++)
     {
-      gcoeff(m,i,j) = RgXY_to_RgC(gadd(gel(vpolx,j),gmul(gel(lambda,i),poly)), dx, dy);
+      gcoeff(m,i,j) = RgXY_to_RgC(gadd(ZX_Z_mul(gel(vpolx,j),gel(lambda,i)),poly), dx, dy);
       poly = RgXQX_rem(RgXQX_mul(poly,y,pol), gel(fa,i), pol);
     }
   }
