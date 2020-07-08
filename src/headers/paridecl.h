@@ -913,9 +913,6 @@ GEN     FpXYQQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p);
 GEN     FqXC_to_mod(GEN z, GEN T, GEN p);
 GEN     FqXM_to_mod(GEN z, GEN T, GEN p);
 GEN     Kronecker_to_FpXQX(GEN z, GEN pol, GEN p);
-GEN     Kronecker_to_ZXX(GEN z, long N, long v);
-GEN     ZXX_mul_Kronecker(GEN x, GEN y, long n);
-GEN     ZXX_sqr_Kronecker(GEN x, long n);
 const struct bb_algebra * get_FpXQX_algebra(void **E, GEN T, GEN p, long v);
 const struct bb_algebra * get_FpXQXQ_algebra(void **E, GEN S, GEN T, GEN p);
 GEN     random_FpXQX(long d1, long v, GEN T, GEN p);
@@ -1404,6 +1401,7 @@ int     zvV_equal(GEN V, GEN W);
 
 /* ZX.c */
 
+GEN     Kronecker_to_ZXX(GEN z, long N, long v);
 GEN     QX_ZX_rem(GEN x, GEN y);
 GEN     QX_mul(GEN x, GEN y);
 GEN     QX_sqr(GEN x);
@@ -1456,7 +1454,9 @@ GEN     ZXX_Z_mul(GEN y, GEN x);
 GEN     ZXX_Z_add_shallow(GEN x, GEN y);
 GEN     ZXX_evalx0(GEN y);
 long    ZXX_max_lg(GEN x);
+GEN     ZXX_mul_Kronecker(GEN x, GEN y, long n);
 GEN     ZXX_renormalize(GEN x, long lx);
+GEN     ZXX_sqr_Kronecker(GEN x, long n);
 GEN     ZXX_to_Kronecker(GEN P, long n);
 GEN     ZXX_to_Kronecker_spec(GEN P, long lP, long n);
 GEN     ZXn_mul(GEN x, GEN y, long n);

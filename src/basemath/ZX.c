@@ -1164,12 +1164,43 @@ ZXX_to_Kronecker_spec(GEN P, long lP, long n)
   y-=2; setlg(y, k+2); y[1] = evalsigne(1); return y;
 }
 
+/* shallow, n = deg(T) */
+GEN
+Kronecker_to_ZXX(GEN z, long n, long v)
+{
+  long i,j,lx,l, N = (n<<1)+1;
+  GEN x, t;
+  l = lg(z); lx = (l-2) / (N-2);
+  x = cgetg(lx+3,t_POL);
+  x[1] = z[1];
+  for (i=2; i<lx+2; i++)
+  {
+    t = cgetg(N,t_POL); t[1] = evalvarn(v);
+    for (j=2; j<N; j++) gel(t,j) = gel(z,j);
+    z += (N-2);
+    gel(x,i) = ZX_renormalize(t,N);
+  }
+  N = (l-2) % (N-2) + 2;
+  t = cgetg(N,t_POL); t[1] = evalvarn(v);
+  for (j=2; j<N; j++) gel(t,j) = gel(z,j);
+  gel(x,i) = ZX_renormalize(t,N);
+  return ZXX_renormalize(x, i+1);
+}
+
 GEN
 ZXX_to_Kronecker(GEN P, long n)
 {
   GEN z = ZXX_to_Kronecker_spec(P+2, lgpol(P), n);
   setvarn(z,varn(P)); return z;
 }
+GEN
+ZXX_mul_Kronecker(GEN x, GEN y, long n)
+{ return ZX_mul(ZXX_to_Kronecker(x,n), ZXX_to_Kronecker(y,n)); }
+
+GEN
+ZXX_sqr_Kronecker(GEN x, long n)
+{ return ZX_sqr(ZXX_to_Kronecker(x,n)); }
+
 
 GEN
 ZXQX_sqr(GEN x, GEN T)
