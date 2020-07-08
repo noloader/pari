@@ -1139,16 +1139,13 @@ cmsubfield_get_roots(GEN pol, GEN nf, long n, long* r2, long *prec)
 static GEN
 subfields_get_fa(GEN pol, GEN nf, GEN fa)
 {
-  GEN poly;
-  long var = fetch_var_higher();
   if (!fa)
   {
-    poly = shallowcopy(pol);
-    setvarn(poly,var);
-    if (nf) fa = nffactor(nf, poly);
-    else    fa = nffactor(pol, poly);
+    GEN poly = shallowcopy(pol);
+    setvarn(poly, fetch_var_higher());
+    fa = nffactor(nf? nf: pol, poly);
   }
-  return liftpol(gel(fa,1));
+  return liftpol_shallow(gel(fa,1));
 }
 
 static long
