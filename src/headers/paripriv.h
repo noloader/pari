@@ -900,7 +900,7 @@ char**  pari_completion_matches(pari_rl_interface *pari_rl, const char *s, long 
 /* RgX.c */
 
 GEN     RgX_homogenous_evalpow(GEN P, GEN A, GEN B);
-GEN     RgXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T);
+GEN     QXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T);
 
 /* subcyclo.c */
 

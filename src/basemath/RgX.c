@@ -177,7 +177,7 @@ RgX_homogenous_evalpow(GEN P, GEN A, GEN B)
 }
 
 GEN
-RgXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T)
+QXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T)
 {
   pari_sp av = avma;
   long i, d = degpol(P), v = varn(A);
@@ -186,10 +186,11 @@ RgXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T)
   s = scalarpol_shallow(gel(P, d+2), v);
   for (i = d-1; i >= 0; i--)
   {
-    s = RgX_add(RgXQX_mul(s, A, T), RgXQX_RgXQ_mul(gel(B,d+1-i), gel(P,i+2), T));
+    GEN c = gel(P,i+2), b = gel(B,d+1-i);
+    s = RgX_add(QXQX_mul(s, A, T), typ(c)==t_POL ? QXQX_QXQ_mul(b, c, T): gmul(b, c));
     if (gc_needed(av,1))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_homogenous_eval(%ld)",i);
+      if(DEBUGMEM>1) pari_warn(warnmem,"QXQX_homogenous_eval(%ld)",i);
       s = gerepileupto(av, s);
     }
   }

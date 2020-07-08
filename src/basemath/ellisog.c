@@ -124,10 +124,10 @@ ellnfcompisog(GEN nf, GEN F, GEN G)
   G1 = to_RgX(polcoef(gel(G,2), 1, vy), vx);
   d = maxss(maxss(degpol(gel(F,1)),degpol(gel(F,3))),maxss(degpol(F0),degpol(F1)));
   Gp = QXQX_powers(Gh2, d, T);
-  f  = RgXQX_homogenous_evalpow(to_RgX(gel(F,1),vx), gel(G,1), Gp, T);
-  g0 = RgXQX_homogenous_evalpow(F0, to_RgX(gel(G,1),vx), Gp, T);
-  g1 = RgXQX_homogenous_evalpow(F1, to_RgX(gel(G,1),vx), Gp, T);
-  h  = RgXQX_homogenous_evalpow(to_RgX(gel(F,3),vx), gel(G,1), Gp, T);
+  f  = QXQX_homogenous_evalpow(to_RgX(gel(F,1),vx), gel(G,1), Gp, T);
+  g0 = QXQX_homogenous_evalpow(F0, to_RgX(gel(G,1),vx), Gp, T);
+  g1 = QXQX_homogenous_evalpow(F1, to_RgX(gel(G,1),vx), Gp, T);
+  h  = QXQX_homogenous_evalpow(to_RgX(gel(F,3),vx), gel(G,1), Gp, T);
   K = Q_remove_denom(QXQX_mul(to_RgX(gel(h,1),vx), Gh, T), NULL);
   K = RgXQX_div(K, nfgcd(K, RgX_deriv(K), T, NULL), T);
   K = RgX_normalize(K);
