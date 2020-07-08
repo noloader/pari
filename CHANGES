@@ -294,6 +294,7 @@ BA  99- [libpari] FqC_FqV_mul
    100- [libpari] gen_sort_shallow, vecvecsmall_sort_shallow
 BA 101- new GP functions parforprimestep, parforeach
 BA 102- [libpari] ZXQ_powers, ZXX_Q_mul, QXQX_mul, QXQX_sqr, QXQX_powers
+BA 103- [libpari] Kronecker_to_ZXQX, QXQX_QXQ_mul
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

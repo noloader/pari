@@ -1315,3 +1315,15 @@ QXQX_powers(GEN P, long n, GEN T)
   for (i = 2; i <= n; i++) gel(v,i+1) = QXQX_mul(P, gel(v,i), T);
   return v;
 }
+
+GEN
+QXQX_QXQ_mul(GEN P, GEN U, GEN T)
+{
+  long i, lP;
+  GEN res;
+  res = cgetg_copy(P, &lP); res[1] = P[1];
+  for(i=2; i<lP; i++)
+    gel(res,i) = typ(gel(P,i))==t_POL? QXQ_mul(U, gel(P,i), T)
+                                     : gmul(U, gel(P,i));
+  return ZXX_renormalize(res,lP);
+}

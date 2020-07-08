@@ -1409,6 +1409,7 @@ GEN     QX_mul(GEN x, GEN y);
 GEN     QX_sqr(GEN x);
 GEN     QXQM_mul(GEN x, GEN y, GEN T);
 GEN     QXQM_sqr(GEN x, GEN T);
+GEN     QXQX_QXQ_mul(GEN P, GEN U, GEN T);
 GEN     QXQX_mul(GEN x, GEN y, GEN T);
 GEN     QXQX_powers(GEN P, long n, GEN T);
 GEN     QXQX_sqr(GEN x, GEN T);
