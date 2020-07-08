@@ -1056,7 +1056,9 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
 
   vpolx = ZXQ_powers(x,dx-1,pol);
 
-  m = zeromatcopy(lfa-1,dx);
+  m = cgetg(dx+1, t_MAT);
+  for (j=1; j <= dx; j++)
+    gel(m,j) = cgetg(lfa, t_COL);
   for(i=1; i<lfa; i++)
   {
     long dy = degpol(gel(fa,i));
@@ -1064,7 +1066,7 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
     for (j=1; j <= dx; j++)
     {
       gcoeff(m,i,j) = RgXY_to_RgC(gadd(ZX_Z_mul(gel(vpolx,j),gel(lambda,i)),poly), dx, dy);
-      poly = RgXQX_rem(RgXQX_mul(poly,y,pol), gel(fa,i), pol);
+      poly = RgXQX_rem(RgX_shift(poly,1), gel(fa,i), pol);
     }
   }
 
