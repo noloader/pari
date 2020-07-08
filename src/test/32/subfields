@@ -242,6 +242,9 @@ x^6 - 48*x^5 + 37*x^4 - 23*x^3 + 12*x^2 - 4*x + 1, x]]
   ***   at top-level: nfsubfieldscm(1)
   ***                 ^----------------
   *** nfsubfieldscm: incorrect type in subfields_cleanup (t_INT).
+  ***   at top-level: nfsubfieldscm(x^2+1/2)
+  ***                 ^----------------------
+  *** nfsubfieldscm: incorrect type in subfields_cleanup [not integral] (t_POL).
   ***   at top-level: nfsubfieldscm([1,matrix(0,2)])
   ***                 ^------------------------------
   *** nfsubfieldscm: incorrect type in checknf [please apply nfinit()] (t_INT).
@@ -263,4 +266,4 @@ x^6 - 48*x^5 + 37*x^4 - 23*x^3 + 12*x^2 - 4*x + 1, x]]
   ***   at top-level: nfsubfieldscm(x^0)
   ***                 ^------------------
   *** nfsubfieldscm: incorrect type in subfields_cleanup [constant polynomial] (t_POL).
-Total time spent: 11260
+Total time spent: 17849

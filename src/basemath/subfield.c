@@ -1091,7 +1091,8 @@ subfields_cleanup(GEN* nf, GEN* pol, long* n, GEN* fa)
   {
     *pol = *nf;
     *nf = NULL;
-    if (!gequal1(leading_coeff(*pol))) pari_err_TYPE("subfields_cleanup [not monic]", *pol);
+    if (!RgX_is_ZX(*pol)) pari_err_TYPE("subfields_cleanup [not integral]", *pol);
+    if (!equali1(leading_coeff(*pol))) pari_err_TYPE("subfields_cleanup [not monic]", *pol);
     *n = degpol(*pol);
     if (*n<=0) pari_err_TYPE("subfields_cleanup [constant polynomial]", *pol);
   }
@@ -1284,19 +1285,14 @@ galoissubfieldcm(GEN G)
 static GEN
 quadsubfieldcm(GEN pol)
 {
-  GEN a = gel(pol,3), b = gel(pol,2), P;
-  long vp = varn(pol);
-  if (smodis(a,2))
-  {
-    P = deg2pol_shallow(gen_1,gen_0,subii(mulsi(4,b),sqri(a)),vp);
-    return mkvec2(P, deg1pol_shallow(gen_2,a,vp));
-  }
+  GEN a = gel(pol,3), b = gel(pol,2), d;
+  long v = varn(pol);
+  if (mpodd(a))
+  { b = mului(4, b);  d = gen_2; }
   else
-  {
-    a = divis(a,2);
-    P = deg2pol_shallow(gen_1,gen_0,subii(b,sqri(a)),vp);
-    return mkvec2(P, deg1pol_shallow(gen_1,a,vp));
-  }
+  { a = shifti(a,-1); d = gen_1; }
+  return mkvec2(deg2pol_shallow(gen_1, gen_0, subii(b, sqri(a)), v),
+                deg1pol_shallow(d, a, v));
 }
 
 GEN

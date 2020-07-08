@@ -188,6 +188,7 @@ nfsubfields_fa(x^12-5*x^11+13*x^10-25*x^9+39*x^8-50*x^7+53*x^6-48*x^5+37*x^4-23*
 
 \\bad inputs
 nfsubfieldscm(1)
+nfsubfieldscm(x^2+1/2)
 nfsubfieldscm([1,matrix(0,2)])
 nfsubfieldscm([[],matrix(0,2)])
 nfsubfieldscm([]);
