@@ -1033,13 +1033,9 @@ RgXY_to_RgC(GEN P, long dx, long dy)
 static GEN
 twoembequation(GEN pol, GEN fa, GEN lambda)
 {
-  GEN m, vpolx, poly, x, y;
-  long i,j, dx, lfa = lg(fa);
+  GEN m, vpolx, poly;
+  long i,j, lfa = lg(fa), dx = degpol(pol);
   long vx = varn(pol), vy = varn(gel(fa,1)); /* vx < vy ! */
-
-  x = pol_x(vx);
-  dx = degpol(pol);
-  y = pol_x(vy);
 
   lambda = shallowcopy(lambda);
   fa = shallowcopy(fa);
@@ -1054,8 +1050,7 @@ twoembequation(GEN pol, GEN fa, GEN lambda)
   setlg(lambda, j);
   setlg(fa, j); lfa = j;
 
-  vpolx = ZXQ_powers(x,dx-1,pol);
-
+  vpolx = ZXQ_powers(pol_x(vx),dx-1,pol);
   m = cgetg(dx+1, t_MAT);
   for (j=1; j <= dx; j++)
     gel(m,j) = cgetg(lfa, t_COL);
