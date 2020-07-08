@@ -1295,19 +1295,14 @@ galoissubfieldcm(GEN G, long fl)
 static GEN
 quadsubfieldcm(GEN pol, long fl)
 {
-  GEN a = gel(pol,3), b = gel(pol,2), P;
-  long vp = varn(pol);
-  if (smodis(a,2))
-  {
-    P = deg2pol_shallow(gen_1,gen_0,subii(mulsi(4,b),sqri(a)),vp);
-    return fl==1 ? P: mkvec2(P, deg1pol_shallow(gen_2,a,vp));
-  }
+  GEN a = gel(pol,3), b = gel(pol,2), d, P;
+  long v = varn(pol);
+  if (mpodd(a))
+  { b = mului(4, b); d = gen_2; }
   else
-  {
-    a = divis(a,2);
-    P = deg2pol_shallow(gen_1,gen_0,subii(b,sqri(a)),vp);
-    return fl==1 ? P: mkvec2(P, deg1pol_shallow(gen_1,a,vp));
-  }
+  { a = divis(a,2);  d = gen_1; }
+  P = deg2pol_shallow(gen_1, gen_0, subii(b, sqri(a)), v);
+  return fl==1 ? P: mkvec2(P, deg1pol_shallow(d,a,v));
 }
 
 GEN
