@@ -1560,6 +1560,15 @@ make_G(nffp_t *F)
   F->G = G;
 }
 
+static long
+prec_fix(long prec)
+{
+#ifndef LONG_IS_64BIT
+  /* make sure that default accuracy is the same on 32/64bit */
+  if (odd(prec)) prec += EXTRAPRECWORD;
+#endif
+  return prec;
+}
 static void
 make_M_G(nffp_t *F, int trunc)
 {
@@ -1574,11 +1583,7 @@ make_M_G(nffp_t *F, int trunc)
     if (er < 0) er = 0;
     F->extraprec = nbits2extraprec(n*er + eBD + log2(n));
   }
-  prec = F->prec + F->extraprec;
-#ifndef LONG_IS_64BIT
-  /* make sure that default accuracy is the same on 32/64bit */
-  if (odd(prec)) prec += EXTRAPRECWORD;
-#endif
+  prec = prec_fix(F->prec + F->extraprec);
   if (!F->ro || gprecision(gel(F->ro,1)) < prec)
     F->ro = get_roots(F->T, F->r1, prec);
 
@@ -2249,7 +2254,7 @@ chk_gen(void *data, GEN x)
 
 static long
 chk_gen_prec(long N, long bit)
-{ return nbits2prec(10 + (long)log2((double)N) + bit); }
+{ return prec_fix(nbits2prec(10 + (long)log2((double)N) + bit)); }
 
 /* v = [P,A] two vectors (of ZX and ZV resp.) of same length; remove duplicate
  * polynomials in P, updating A, in place. Among elements having the same

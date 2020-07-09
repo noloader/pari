@@ -30,8 +30,8 @@ d(-385*y - 251, y^2 - y - 7)*x^5 + Mod(695*y + 2955, y^2 - y - 7)*x^4 + Mod(
 x^3 + Mod(y^2 - 2, y^3 - y - 1)*x^2 + Mod(-y + 1, y^3 - y - 1)*x + Mod(y - 1
 , y^3 - y - 1)
 x^9 - 4*x^8 + 8*x^7 - 9*x^6 + 7*x^5 - 3*x^4 - x^3 + 4*x^2 - 3*x + 1
-Mod(0, x^3 + Mod(y^2 - y - 2, y^3 - y - 1)*x^2 + Mod(-y^2 + y + 1, y^3 - y -
- 1)*x + Mod(y^2, y^3 - y - 1))
+Mod(0, x^3 + Mod(y^2 + y - 2, y^3 - y - 1)*x^2 + Mod(-y^2 + 3, y^3 - y - 1)*
+x + Mod(y^2 - 1, y^3 - y - 1))
 Mod(0, x^9 - 4*x^8 + 8*x^7 - 9*x^6 + 7*x^5 - 3*x^4 - x^3 + 4*x^2 - 3*x + 1)
 Mod(0, x^9 - 4*x^8 + 8*x^7 - 9*x^6 + 7*x^5 - 3*x^4 - x^3 + 4*x^2 - 3*x + 1)
   *** nfinit: Warning: nonmonic polynomial. Result of the form [nf,c].
@@ -83,11 +83,9 @@ x^4 + Mod(-1/24*z^3 - 1/8*z^2 - 59/24*z - 27/8, z^4 + 50*z^2 + 45)*x^3 + Mod
 x^4 + Mod(-1/24*z^3 - 1/8*z^2 - 59/24*z - 27/8, z^4 + 50*z^2 + 45)*x^3 + Mod
 (1/12*z^3 + 41/12*z + 5/2, z^4 + 50*z^2 + 45)*x^2 + Mod(-1/24*z^3 - 1/8*z^2 
 - 59/24*z - 27/8, z^4 + 50*z^2 + 45)*x + 1
-[y^2 + Mod(t^3, t^4 + t^3 + t^2 + t + 1)*y + Mod(8*t^2 - 46*t + 8, t^4 + t^3
- + t^2 + t + 1), Mod(Mod(-t, t^4 + t^3 + t^2 + t + 1)*y + Mod(-t^2 - t, t^4 
-+ t^3 + t^2 + t + 1), y^2 + Mod(t^3, t^4 + t^3 + t^2 + t + 1)*y + Mod(8*t^2 
-- 46*t + 8, t^4 + t^3 + t^2 + t + 1))]
+y^2 + Mod(t^3, t^4 + t^3 + t^2 + t + 1)*y + Mod(8*t^2 - 46*t + 8, t^4 + t^3 
++ t^2 + t + 1)
   ***   at top-level: polredbest(x^6+30*x^5+133*x^4-2340*x^3-12284*x
   ***                 ^----------------------------------------------
   *** polredbest: not an irreducible polynomial in set_LLL_basis: x^6 + 30*x^5 + 133*x^4 - 2340*x^3 - 12284*x^2 + 29519*x - 3856.
-Total time spent: 6504
+Total time spent: 6080

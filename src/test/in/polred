@@ -74,9 +74,9 @@ K=nfinit(z^4 + 50*z^2 + 45);
 u=rnfpolredabs(K,x^4 - 6*x^2 - 5*x - 1)
 rnfpolredabs(K,u)
 
-\\ #2054
+\\ #2035
 K=nfinit(polcyclo(5,t));
-rnfpolredabs(K, y^2+(t^3+3*t^2+3*t+1)*y+(-53*t^3-10*t-10), 1)
+rnfpolredabs(K, y^2+(t^3+3*t^2+3*t+1)*y+(-53*t^3-10*t-10), 1)[1]
 
 \\ ERRORS, keep at end of file
 

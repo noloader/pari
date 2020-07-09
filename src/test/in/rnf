@@ -43,7 +43,8 @@ pol = y^3+y^2-2*y-1;
 bnf = bnfinit(pol);
 T=rnfisnorminit(bnf, x^3-y);
 do(T,u,flag=0)=liftpol(rnfisnorm(T,u,flag));
-do(T,y)
+v=do(T,y); if(v[1]==x,v[1]=(9*y^2 + 6*y - 12)*x^2 + 10*x + (6*y^2 + 6*y - 6));
+v
 [a,b]=rnfisnorm(T,2,100);
 liftpol(norm(a)*b)
 [a,b]=rnfisnorm(T,2,-2*3*5*7);

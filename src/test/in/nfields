@@ -1,10 +1,7 @@
-HEAP=[164, if(sizebyte(0)==16,94190,95582)];
+HEAP=[168, if(sizebyte(0)==16,97898,99570)];
 default(realprecision,154); Pi; default(realprecision,38);
-dobnf(T,flag=0,tech=[])= setrand(1); my(K = bnfinit(T,flag,tech)); [K.cyc,K.fu];
 \e
-\\ Initialisations diverses
-p2=Pol([1,3021,-786303,-6826636057,-546603588746,3853890514072057]);
-fa=[11699,6;2392997,2;4987333019653,2];
+\\
 setrand(1);N=10^8;a=matrix(3,5,j,k,vectorv(5,l,random\N));
 nfpol=x^5-5*x^3+5*x+25; nf=nfinit(nfpol)
 nfinit(nfpol,2)
@@ -12,13 +9,16 @@ nfinit(nfpol,3)[2]
 nf3=nfinit(x^6+108);
 setrand(1);bnf2=bnfinit(y^3-y-1);nf2=bnf2.nf;
 setrand(1);bnf=bnfinit(x^2-x-57,,[0.2,0.2])
-dobnf(x^2-x-100000,1)
+setrand(1); my(K=bnfinit(x^2-x-100000,1)); [K.cyc,K.fu]
 bnr=bnrinit(bnf,[[5,3;0,1],[1,0]],1); bnr.cyc
 bnr2=bnrinit(bnf,[[25,13;0,1],[1,1]]); bnr2.bid
 rnfinit(nf2,x^5-x-2)
 \\
 bnfcertify(bnf)
-dobnf(x^4+24*x^2+585*x+1791,,[0.1,0.1])
+setrand(1); K=bnfinit(x^4+24*x^2+585*x+1791,,[0.1,0.1]);
+u=nfalgtobasis(K,73/1029*x^3-319/1029*x^2+1033/343*x+9829/343);
+U=concat(K.fu,K.tu[2]);
+[K.cyc, nffactorback(K,U,bnfisunit(K,u)) == u]
 bnrconductor(bnf,[[25,13;0,1],[1,1]])
 bnrconductorofchar(bnr,[2])
 bnfisprincipal(bnf,[5,1;0,1],0)
@@ -113,6 +113,8 @@ polred(x^5-2*x^4-4*x^3-96*x^2-352*x-568)
 polred(x^4-28*x^3-458*x^2+9156*x-25321,3)
 polred(x^4+576,1)
 polred(x^4+576,3)
+p2=Pol([1,3021,-786303,-6826636057,-546603588746,3853890514072057]);
+fa=[11699,6;2392997,2;4987333019653,2];
 polred(p2,0,fa)
 polred(p2,1,fa)
 polredabs(x^5-2*x^4-4*x^3-96*x^2-352*x-568)

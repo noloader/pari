@@ -5,7 +5,7 @@ gets4(N,CHI,id=1)=
   my(F = mfeigenbasis(mf), T = mfgaloistype(mf));
   my(S4B = [i | i <- [1,#T], T[i] < 0], i = S4B[id]);
   my(L = mfgaloisprojrep(mf,F[i]));
-  polredbest(L);
+  my(G = galoisinit(L)); [galoisidentify(G), factor(nfdisc(L))];
 }
 S=[[12,124,Mod(87,124)],[12,133,Mod(83,133)],[24,148,Mod(105,148)],[12,171,Mod(94,171)],[12,201,Mod(104,201)],[12,209,Mod(197,209)],[12,224,Mod(95,224)],[24,229,Mod(122,229)],[24,261,Mod(244,261)]];
 for(i=1,#S,my([d,N,chi]=S[i]);print(S[i],":",gets4(N,chi)))
