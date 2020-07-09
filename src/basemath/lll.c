@@ -371,7 +371,6 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
   long kappa, kappa2, d, n, i, j, zeros, kappamax, maxG, bab;
   GEN G, mu, r, s, tmp, SPtmp, alpha;
   GEN delta = dbltor(DELTA), eta = dbltor(ETA), halfplus1 = dbltor(1.5);
-  const long triangular = 0;
   pari_timer T;
   GEN B = *ptrB, U;
   long cnt = 0;
@@ -442,7 +441,7 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
     }
     /* Step3: Call to the Babai algorithm, mu,r,s updated in place */
     bab = Babai(av, kappa, &G,&B,&U, mu,r,s, alpha[kappa], zeros, maxG,
-      gram? 0 : ((triangular && kappamax <= n) ? kappamax: n),
+      gram? 0 : n,
       eta, halfplus1, prec);
     if (bab) {*ptrB=(gram?G:B); *ptrU=U; return NULL; }
 
