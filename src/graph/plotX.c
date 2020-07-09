@@ -51,7 +51,7 @@ exiterr(const char *str)
 {
   term_color(c_ERR);
   err_printf("\n  *** X fatal error: %s\n",str);
-  term_color(c_NONE); exit(1);
+  term_color(c_NONE); _exit(1);
 }
 
 static long
@@ -249,7 +249,7 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
 EXIT:
         XUnloadFont(display,font_info->fid);
         XFreeGC(display,gc);
-        XCloseDisplay(display); exit(0);
+        XCloseDisplay(display); _exit(0);
 
       case KeyRelease:
         /* Mod4 == Super on "std" Linux */
