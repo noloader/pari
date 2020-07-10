@@ -488,7 +488,7 @@ install-data:
 	mkdir -p \$(DATADIR); \
 	if test -d $data; then cd $data; \
 	  for d in \`ls\`; do \
-            test -d "\$\$d" && (\$(TAR) c \$\$d | (cd \$(DATADIR) && \$(TAR) x )); \
+            test -d "\$\$d" && (\$(TAR) c \$\$d | (cd \$(DATADIR) && \$(TAR) xo )); \
 	  done; \
 	fi;
 
