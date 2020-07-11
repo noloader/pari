@@ -67,7 +67,8 @@ bnr=bnrinit(bnfinit(y^3+y-1,1),mod); lift(rnfkummer(bnr,[2,1,1;0,1,0;0,0,1]))
 rnfkummer(bnrinit(bnfinit(y^6-2*y^5+8*y^4-18*y^3+24*y^2-18*y+6),168),matdiagonal([2,1,1,1,1,1,1,1]))
 
 \\ #2154
-setrand(1); bnr=bnrinit(bnfinit(y^4 - 561*y^2 - 1334*y + 104607,1),matdiagonal([2,1,1,2]));
+setrand(1); k=bnfinit(y^4 - 561*y^2 - 1334*y + 104607,1);
+bnr=bnrinit(k,idealprimedec(k,2)[1]);
 \\ no need to print result [depends on arch], was "bug in rnfkummer"
 rnfkummer(bnr,subgrouplist(bnr,[3],0)[1]);
 
