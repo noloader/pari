@@ -349,7 +349,7 @@ matlogall(GEN nf, GEN v, long lW, long mgi, long ell, GEN vsprk)
   return M;
 }
 
-/* compute the u_j (see remark 5.2.15.) */
+/* u[i] cyc[i] = 1 (mod ell), i > rc */
 static GEN
 get_u(GEN cyc, long rc, ulong ell)
 {
@@ -360,7 +360,9 @@ get_u(GEN cyc, long rc, ulong ell)
   return u;
 }
 
-/* alg. 5.2.15. with remark */
+/* id = (b) prod_i bnfz.gen[i]^v[i] (mod K^*)^ell,
+ * gen[i]^cyc[i] = (cycgen[i]); ell | cyc[i] iff i <= rc;
+ * u[i] cyc[i] = 1 (mod ell), i > rc */
 static void
 isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, ulong ell, long rc,
                GEN *pv, GEN *pb)
