@@ -28,7 +28,7 @@ LD=[2,2,2,2];
 }
 
 polylogmult([6,1,2,3,4],[-1,1,1,1,1])
-polylogmult([6,1,2,3,4],[-1,1,1,1,1],x)
+polylogmult(Vecsmall([6,1,2,3,4]),[-1,1,1,1,1],x)
 for(i=1,15, print(zetamultall(5, i)))
 
 default(realprecision,38);
