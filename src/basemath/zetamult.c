@@ -703,24 +703,30 @@ zetamult_interpolate(GEN s, GEN t, long prec)
 
 
 GEN
-polylogmult(GEN s, GEN zvec, long prec)
+polylogmult(GEN s, GEN z, long prec)
 {
   pari_sp av;
-  GEN avec;
-
-  if (!zvec) return zetamult(s, prec);
-  av = avma; avec = zetamultconvert_i(s, 1);
-  switch (typ(zvec))
+  GEN a;
+  if (!z) return zetamult(s, prec);
+  av = avma;
+  switch(typ(s))
+  {
+    case t_VEC:
+    case t_COL: a = gtovecsmall(s); break;
+    case t_VECSMALL: break;
+    default: pari_err_TYPE("polylogmult", s);
+  }
+  switch (typ(z))
   {
     case t_INT: case t_FRAC: case t_REAL: case t_COMPLEX:
-      zvec = mkvec(zvec); break;
+      z = mkvec(z); break;
     case t_VEC: case t_COL: break;
-    case t_VECSMALL: zvec = zv_to_ZV(zvec); break;
-    default: pari_err_TYPE("polylogmult [zvec]", zvec);
+    case t_VECSMALL: z = zv_to_ZV(z); break;
+    default: pari_err_TYPE("polylogmult [z]", z);
   }
-  if (lg(zvec) != lg(avec))
-    pari_err_TYPE("polylogmult [#avec != #zvec]", mkvec2(avec,zvec));
-  return gerepilecopy(av, zetamultevec(aztoe(avec,zvec,prec), prec));
+  if (lg(z) != lg(a))
+    pari_err_TYPE("polylogmult [#s != #z]", mkvec2(s,z));
+  return gerepilecopy(av, zetamultevec(aztoe(a,z,prec), prec));
 }
 
 GEN
