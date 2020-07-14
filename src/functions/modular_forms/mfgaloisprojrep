@@ -17,7 +17,7 @@ Doc: \var{mf} being an \kbd{mf} output by \kbd{mfinit} in weight $1$,
  ? mfgaloistype(mf,F)
  %3 = -12
  ? pol = mfgaloisprojrep(mf,F)
- %4 = x^12 + 196*x^10 + ... + 984064
+ %4 = x^12 + 68*x^10 + 4808*x^8 + ... + 4096
  ? G = galoisinit(pol); galoisidentify(G)
  %5 = [12,3] \\A4
  ? pol4 = polredbest(galoisfixedfield(G,G.gen[3], 1))
@@ -36,7 +36,7 @@ Doc: \var{mf} being an \kbd{mf} output by \kbd{mfinit} in weight $1$,
  ? mfgaloistype(mf,F)
  %11 = -24
  ? pol = mfgaloisprojrep(mf,F)
- %12 = x^24 + 66*x^22 + 849*x^20 + ... + 357375600481
+ %12 = x^24 + 24*x^22 + 256*x^20 + ... + 255488256
  ? G = galoisinit(pol); galoisidentify(G)
  %13 = [24, 12] \\S4
  ? pol4 = polredbest(galoisfixedfield(G,G.gen[3..4], 1))
