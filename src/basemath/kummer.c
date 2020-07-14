@@ -983,30 +983,28 @@ static void
 _rnfkummer_step4(struct rnfkummer *kum, long d, long m)
 {
   long i, j, rc = kum->rc;
-  GEN Q, vecC, vecB = cgetg(rc+1,t_VEC), Tc = cgetg(rc+1,t_MAT);
+  GEN Tj, Bj, Q, vecC, vecB = cgetg(rc+1,t_VEC), T = cgetg(rc+1,t_MAT);
   GEN gen = bnf_get_gen(kum->bnfz), cycgenmod = kum->cycgenmod;
   ulong ell = kum->ell;
-  for (j=1; j<=rc; j++)
-  {
-    GEN p1 = tauofideal(gel(gen,j), &kum->tau);
-    isprincipalell(kum->bnfz, p1, cycgenmod,ell,rc, &gel(Tc,j), &gel(vecB,j));
-  }
 
-  kum->vecC = vecC = const_vec(rc, trivial_fact());
-  if (rc)
+  for (j = 1; j <= rc; j++)
   {
-    GEN p1 = Flm_powers(Tc, m-2, ell), p2 = vecB;
-    for (j = 1; j < m; j++)
-    {
-      GEN z = Flm_Fl_mul(gel(p1,m-j), Fl_mul(j,d,ell), ell);
-      p2 = tauofvec(p2, &kum->tau);
-      for (i = 1; i <= rc; i++)
-        gel(vecC,i) = famat_mul_shallow(gel(vecC,i),
-                                        famatV_zv_factorback(p2, gel(z,i)));
-    }
-    for (i = 1; i <= rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
+    GEN t = tauofideal(gel(gen,j), &kum->tau);
+    isprincipalell(kum->bnfz, t, cycgenmod,ell,rc, &gel(T,j), &gel(vecB,j));
   }
-  Q = Flm_ker(Flm_Fl_sub(Flm_transpose(Tc), kum->g, ell), ell);
+  kum->vecC = vecC = const_vec(rc, trivial_fact());
+  /* T = rc x rc matrix */
+  Tj = Flm_powers(T, m-2, ell); Bj = vecB;
+  for (j = 1; j < m; j++)
+  {
+    GEN z = Flm_Fl_mul(gel(Tj,m-j), Fl_mul(j,d,ell), ell);
+    Bj = tauofvec(Bj, &kum->tau);
+    for (i = 1; i <= rc; i++)
+      gel(vecC,i) = famat_mul_shallow(gel(vecC,i),
+                                      famatV_zv_factorback(Bj, gel(z,i)));
+  }
+  for (i = 1; i <= rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
+  Q = Flm_ker(Flm_Fl_sub(Flm_transpose(T), kum->g, ell), ell);
   kum->tQ = lg(Q) == 1? NULL: Flm_transpose(Q);
 }
 
@@ -1058,7 +1056,10 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   vselmer = get_Selmer(bnfz, kum->cycgenmod, kum->rc);
   get_tau(kum);
   if (DEBUGLEVEL>2) err_printf("Step 4\n");
-  _rnfkummer_step4(kum, d, m);
+  if (kum->rc)
+    _rnfkummer_step4(kum, d, m);
+  else
+  { kum->vecC = cgetg(1, t_VEC); kum->tQ = NULL; }
   if (DEBUGLEVEL>2) err_printf("Step 5\n");
   kum->vecW = _rnfkummer_step5(kum, vselmer);
   if (DEBUGLEVEL>2) err_printf("Step 8\n");
