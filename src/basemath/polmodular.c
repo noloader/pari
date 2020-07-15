@@ -747,14 +747,6 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
   pari_err_BUG("modfn_root"); return ULONG_MAX;/*LCOV_EXCL_LINE*/
 }
 
-INLINE ulong
-modinv_j_from_f(ulong x, ulong n, ulong p, ulong pi)
-{ /* If x satisfies (X^24 - 16)^3 - X^24 * j = 0
-   * then j = (x^24 - 16)^3 / x^24 */
-  ulong x24 = Fl_powu_pre(x, 24 / n, p, pi);
-  return Fl_div(Fl_powu_pre(Fl_sub(x24, 16 % p, p), 3, p, pi), x24, p);
-}
-
 /* F = double_eta_raw(inv) */
 long
 modinv_j_from_2double_eta(
@@ -774,6 +766,14 @@ modinv_j_from_2double_eta(
   return 1;
 }
 
+/* x root of (X^24 - 16)^3 - X^24 * j = 0 => j = (x^24 - 16)^3 / x^24 */
+INLINE ulong
+modinv_j_from_f(ulong x, ulong n, ulong p, ulong pi)
+{
+  ulong x24 = Fl_powu_pre(x, 24 / n, p, pi);
+  return Fl_div(Fl_powu_pre(Fl_sub(x24, 16 % p, p), 3, p, pi), x24, p);
+}
+/* should never be called if modinv_double_eta(inv) is true */
 INLINE ulong
 modfn_preimage(ulong x, norm_eqn_t ne, long inv)
 {
@@ -789,8 +789,6 @@ modfn_preimage(ulong x, norm_eqn_t ne, long inv)
     case INV_F4: return modinv_j_from_f(x, 4, p, pi);
     case INV_F8: return modinv_j_from_f(x, 8, p, pi);
   }
-  /* NB: This function should never be called if modinv_double_eta(inv) is
-   * true */
   pari_err_BUG("modfn_preimage"); return ULONG_MAX;/*LCOV_EXCL_LINE*/
 }
 
