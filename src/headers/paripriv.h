@@ -681,7 +681,7 @@ GEN     log_prk(GEN nf, GEN a, GEN sprk, GEN mod);
 GEN     log_prk_units(GEN nf, GEN D, GEN sprk);
 GEN     log_prk_units_init(GEN bnf);
 GEN     veclog_prk(GEN nf, GEN v, GEN sprk);
-GEN     log_prk_init(GEN nf, GEN pr, long k);
+GEN     log_prk_init(GEN nf, GEN pr, long k, GEN mod);
 
 /* base4.c */
 

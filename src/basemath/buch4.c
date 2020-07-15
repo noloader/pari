@@ -352,7 +352,7 @@ locally_soluble(GEN nf,GEN T,GEN pr)
   checkprid(pr); nf = checknf(nf);
   if (absequaliu(pr_get_p(pr), 2))
   { /* tough case */
-    zinit = log_prk_init(nf, pr, 1+2*pr_get_e(pr));
+    zinit = log_prk_init(nf, pr, 1+2*pr_get_e(pr), NULL);
     if (psquare2nf(nf,constant_coeff(T),pr,zinit)) return 1;
     if (psquare2nf(nf, leading_coeff(T),pr,zinit)) return 1;
   }

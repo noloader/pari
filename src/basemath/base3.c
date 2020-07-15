@@ -2729,8 +2729,8 @@ log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
   return vecmodii(y, cyc);
 }
 GEN
-log_prk_init(GEN nf, GEN pr, long k)
-{ return sprkinit(checknf(nf),pr,k,NULL,NULL);}
+log_prk_init(GEN nf, GEN pr, long k, GEN MOD)
+{ return sprkinit(checknf(nf),pr,k,NULL,MOD);}
 GEN
 veclog_prk(GEN nf, GEN v, GEN sprk)
 {

@@ -249,7 +249,8 @@ get_z(GEN pr, long ell) { return ell * (pr_get_e(pr) / (ell-1)); }
 static void
 list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, long ell, tau_s *tau)
 {
-  GEN P = gel(fa,1), E = gel(fa,2), faell, Sl, S, Sl1, Sl2, Vl, Vl2;
+  GEN P = gel(fa,1), E = gel(fa,2), gell = utoipos(ell);
+  GEN faell, Sl, S, Sl1, Sl2, Vl, Vl2;
   long i, l = lg(P);
 
   S  = vectrunc_init(l);
@@ -262,18 +263,15 @@ list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, long ell, tau_s *tau)
     long v = itou(gel(E,i));
     if (!equaliu(pr_get_p(pr), ell)) /* => v != 1 */
     { if (!prconj_in_list(S,pr,tau)) vectrunc_append(S,pr); }
-    else
+    else if (pr_get_e(pr) * ell == (v-1) * (ell-1))
+    { if (!prconj_in_list(Sl1,pr,tau)) vectrunc_append(Sl1, pr); }
+    else if (!prconj_in_list(Sl2,pr,tau)) /* => v > 1 */
     {
-      if (pr_get_e(pr) * ell == (v-1) * (ell-1))
-      { if (!prconj_in_list(Sl1,pr,tau)) vectrunc_append(Sl1, pr); }
-      else if (!prconj_in_list(Sl2,pr,tau)) /* => v > 1 */
-      {
-        vectrunc_append(Sl2, pr);
-        vectrunc_append(Vl2, log_prk_init(nfz, pr, get_z(pr,ell) + 1 - v));
-      }
+      vectrunc_append(Sl2, pr);
+      vectrunc_append(Vl2, log_prk_init(nfz, pr, get_z(pr,ell)+1-v, gell));
     }
   }
-  faell = idealprimedec(nfz, utoipos(ell)); l = lg(faell);
+  faell = idealprimedec(nfz, gell); l = lg(faell);
   Vl = vectrunc_init(l);
   Sl = vectrunc_init(l);
   for (i = 1; i < l; i++)
@@ -282,7 +280,7 @@ list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, long ell, tau_s *tau)
     if (!tablesearch(P, pr, cmp_prime_ideal) && !prconj_in_list(Sl, pr, tau))
     {
       vectrunc_append(Sl, pr);
-      vectrunc_append(Vl, log_prk_init(nfz, pr, get_z(pr,ell)));
+      vectrunc_append(Vl, log_prk_init(nfz, pr, get_z(pr,ell), gell));
     }
   }
   *pvsprk = shallowconcat(Vl2, Vl);
@@ -297,7 +295,7 @@ logall(GEN nf, GEN v, long lW, long mgi, long ell, GEN sprk)
   GEN M = cgetg(l,t_MAT);
   for (i = 1; i < l; i++)
   {
-    GEN c = log_prk(nf, gel(v,i), sprk, utoi(ell));
+    GEN c = log_prk(nf, gel(v,i), sprk, utoipos(ell));
     setlg(c, rk+1);
     c = ZV_to_Flv(c, ell);
     if (i < lW) c = Flv_Fl_mul(c, mgi, ell);

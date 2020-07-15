@@ -2504,7 +2504,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
       for (l = 1;; l++) /* Q <= bound */
       {
         ulong iQ;
-        GEN sprk = log_prk_init(nf, pr, l);
+        GEN sprk = log_prk_init(nf, pr, l, NULL);
         GEN U_pr = log_prk_units(nf, U, sprk);
         for (iQ = Q, i = 1; iQ <= bound; iQ += Q, i++)
         {
