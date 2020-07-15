@@ -296,6 +296,7 @@ vector of subgroups
 18302893824673129647132647510)*x + (1052680241636673355391233998978565393695
 03281757012600780036924*y^2 + 5270097658218804042682590829013266890671009556
 5789465369159639)]
+[x^3 + (-3/10*y^3 - 1/2*y^2 + 1/2*y + 19/5)]
 bad inputs
   ***   at top-level: bnrclassfield(y^2+6,Mat(2))
   ***                 ^---------------------------
@@ -330,4 +331,4 @@ bad inputs
   ***   at top-level: bnrclassfield(bnfinit(x))
   ***                 ^-------------------------
   *** bnrclassfield: incorrect priority in bnrclassfield: variable x = x
-Total time spent: 8532
+Total time spent: 9494
