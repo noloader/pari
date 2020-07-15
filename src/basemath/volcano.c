@@ -607,8 +607,7 @@ surface_parallel_path(
 
 GEN
 enum_roots(ulong J0, norm_eqn_t ne, GEN fdb, classgp_pcp_t G)
-{
-  /* MAX_HEIGHT >= max_{p,n} val_p(n) where p and n are ulongs */
+{ /* MAX_HEIGHT >= max_{p,n} val_p(n) where p and n are ulongs */
   enum { MAX_HEIGHT = BITS_IN_LONG };
   pari_sp av, ltop = avma;
   long s = !!G->L0;
@@ -645,14 +644,12 @@ enum_roots(ulong J0, norm_eqn_t ne, GEN fdb, classgp_pcp_t G)
     gel(Phi, i) = polmodular_db_getp(fdb, L[i], p);
   }
 
+  t = surface_path(roots, n[0], gel(Phi, 0), L[0], h[0], J0, NULL, p, pi);
+  if (t < n[0]) return gc_NULL(ltop); /* J0 has bad endo ring */
+  if (k == 1) { setlg(roots_, t + 1); return gc_const(av,roots_); }
+
   M = new_chunk(k);
   for (M[0] = 1, i = 1; i < k; ++i) M[i] = M[i-1] * n[i-1];
-
-  t = surface_path(roots, n[0], gel(Phi, 0), L[0], h[0], J0, NULL, p, pi);
-  /* Error: J0 has bad endo ring */
-  if (t < n[0]) return gc_NULL(ltop);
-  if (k == 1) { set_avma(av); setlg(roots_, t + 1); return roots_; }
-
   i = 1;
   while (i < k) {
     long j, t0;
@@ -662,18 +659,18 @@ enum_roots(ulong J0, norm_eqn_t ne, GEN fdb, classgp_pcp_t G)
         if (! common_nbr_pred(
               &roots[t], roots[off[i]], gel(Phi,i), L[i],
               roots[t - M[j]], gel(Phi, j), L[j], roots[poff[i]], p, pi)) {
-          break; /* Error: J0 has bad endo ring */
+          break; /* J0 has bad endo ring */
         }
       } else if ( ! common_nbr_corner(
             &roots[t], roots[off[i]], gel(Phi,i), L[i], h[i],
             roots[t - M[j]], gel(Phi, j), L[j], roots[poff[j]], p, pi)) {
-        break; /* Error: J0 has bad endo ring */
+        break; /* J0 has bad endo ring */
       }
     } else if ( ! next_surface_nbr(
           &roots[t], gel(Phi,i), L[i], h[i],
           roots[off[i]], e[i] ? &roots[poff[i]] : NULL, p, pi))
-      break; /* Error: J0 has bad endo ring */
-    if (roots[t] == roots[0]) break; /* Error: J0 has bad endo ring */
+      break; /* J0 has bad endo ring */
+    if (roots[t] == roots[0]) break; /* J0 has bad endo ring */
 
     poff[i] = off[i];
     off[i] = t;
@@ -682,14 +679,13 @@ enum_roots(ulong J0, norm_eqn_t ne, GEN fdb, classgp_pcp_t G)
 
     t0 = surface_parallel_path(&roots[t], &roots[poff[i]], n[0],
         gel(Phi, 0), L[0], gel(Phi, i), L[i], p, pi, n[0] == o[0]);
-    if (t0 < n[0]) break; /* Error: J0 has bad endo ring */
+    if (t0 < n[0]) break; /* J0 has bad endo ring */
 
     /* TODO: Do I need to check if any of the new roots is a repeat in
      * the case where J0 has bad endo ring? */
     t += n[0];
     for (i = 1; i < k && e[i] == n[i]-1; i++);
   }
-  /* Check if J0 had wrong endo ring */
-  if (t != N) return gc_NULL(ltop);
-  set_avma(av); setlg(roots_, t + 1); return roots_;
+  if (t != N) return gc_NULL(ltop); /* J0 has wrong endo ring */
+  setlg(roots_, t + 1); return gc_const(av,roots_);
 }
