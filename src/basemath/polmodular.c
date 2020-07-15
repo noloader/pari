@@ -750,7 +750,7 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
 /* F = double_eta_raw(inv) */
 long
 modinv_j_from_2double_eta(
-  GEN F, long inv, ulong *j, ulong x0, ulong x1, ulong p, ulong pi)
+  GEN F, long inv, ulong x0, ulong x1, ulong p, ulong pi)
 {
   GEN f, g, d;
 
@@ -759,11 +759,8 @@ modinv_j_from_2double_eta(
   F = double_eta_raw_to_Fl(F, p);
   f = Flx_double_eta_jpoly(F, x0, p, pi);
   g = Flx_double_eta_jpoly(F, x1, p, pi);
-  d = Flx_gcd(f, g, p);
-  if (degpol(d) > 1) pari_err_BUG("modinv_j_from_2double_eta");
-  if (degpol(d) < 1) return 0;
-  if (j) *j = Flx_deg1_root(d, p);
-  return 1;
+  d = Flx_gcd(f, g, p); /* >= 1 */
+  return degpol(d) == 1;
 }
 
 /* x root of (X^24 - 16)^3 - X^24 * j = 0 => j = (x^24 - 16)^3 / x^24 */

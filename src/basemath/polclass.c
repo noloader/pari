@@ -1853,7 +1853,7 @@ adjust_orientation(GEN F, long inv, GEN v, long e, ulong p, ulong pi)
 {
   ulong j0 = uel(v, 1), je = uel(v, e);
 
-  if (!modinv_j_from_2double_eta(F, inv, NULL, j0, je, p, pi)) {
+  if (!modinv_j_from_2double_eta(F, inv, j0, je, p, pi)) {
     if (modinv_inverted_involution(inv)) Flv_inv_pre_inplace(v, p, pi);
     if (modinv_negated_involution(inv)) Flv_neg_inplace(v, p);
   }
