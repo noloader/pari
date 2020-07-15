@@ -1,5 +1,5 @@
 default(realprecision,38);
-default(parisize,20000000);
+default(parisize,40000000);
 count = 0;
 do(nf,f = 1, H = 0, flag = 0) =
 { my(K = bnfinit(nf));
@@ -132,6 +132,9 @@ filter(bnrclassfield(bnr, L, 1))
 filter(bnrclassfield(bnr, L, 2))
 bnrclassfield(bnr,[])
 bnrclassfield(bnfinit(y^2+31),[Mat(3)])
+
+\\ bnf.Ge contains t_FRAC
+setrand(1);bnf=bnfinit(y^4+394*y^2+197);bnr=bnrinit(bnf,1,,5);bnrclassfield(bnr)
 
 print("bad inputs");
 bnrclassfield(y^2+6,Mat(2))
