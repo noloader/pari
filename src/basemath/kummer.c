@@ -112,15 +112,6 @@ reducebeta(GEN bnfz, GEN b, GEN gell)
   return b;
 }
 
-/* FIXME: remove */
-static GEN
-tauofalg(GEN x, tau_s *tau) {
-  long tx = typ(x);
-  if (tx == t_POLMOD) { x = gel(x,2); tx = typ(x); }
-  if (tx == t_POL) x = RgX_RgXQ_eval(x, tau->x, tau->R);
-  return mkpolmod(x, tau->R);
-}
-
 struct rnfkummer
 {
   GEN bnfz, cycgenmod, u, vecC, tQ, vecW;
@@ -148,9 +139,11 @@ tauofelt(GEN x, tau_s *tau)
 {
   switch(typ(x))
   {
+    case t_INT: return x;
     case t_COL: return RgM_RgC_mul(tau->zk, x);
     case t_MAT: return mkmat2(tauofvec(gel(x,1), tau), gel(x,2));
-    default: return tauofalg(x, tau);
+    default: pari_err_TYPE("tauofelt",x);
+             return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 static GEN
