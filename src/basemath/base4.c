@@ -1360,7 +1360,7 @@ famat_reduce(GEN fa)
   GEN E, G, L, g, e;
   long i, k, l;
 
-  if (lgcols(fa) == 1) return fa;
+  if (typ(fa) != t_MAT || lgcols(fa) == 1) return fa;
   g = gel(fa,1); l = lg(g);
   e = gel(fa,2);
   L = gen_indexsort(g, (void*)&cmp_universal, &cmp_nodata);
@@ -1452,8 +1452,10 @@ GEN
 famatV_factorback(GEN v, GEN e)
 {
   long i, l = lg(e);
-  GEN V = trivial_fact();
-  for (i=1; i<l; i++) V = famat_mulpow_shallow(V, gel(v,i), gel(e,i));
+  GEN V;
+  if (l == 1) return trivial_fact();
+  V = signe(gel(e,1))? famat_pow_shallow(gel(v,1), gel(e,1)): trivial_fact();
+  for (i = 2; i < l; i++) V = famat_mulpow_shallow(V, gel(v,i), gel(e,i));
   return V;
 }
 
@@ -1461,8 +1463,10 @@ GEN
 famatV_zv_factorback(GEN v, GEN e)
 {
   long i, l = lg(e);
-  GEN V = trivial_fact();
-  for (i=1; i<l; i++) V = famat_mulpows_shallow(V, gel(v,i), uel(e,i));
+  GEN V;
+  if (l == 1) return trivial_fact();
+  V = uel(e,1)? famat_pows_shallow(gel(v,1), uel(e,1)): trivial_fact();
+  for (i = 2; i < l; i++) V = famat_mulpows_shallow(V, gel(v,i), uel(e,i));
   return V;
 }
 

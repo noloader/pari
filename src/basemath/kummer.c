@@ -340,10 +340,12 @@ isprincipalell(GEN bnfz, GEN id, GEN cycgenmod, ulong ell, long rc,
 static GEN
 compute_beta(GEN X, GEN vecWB, GEN ell, GEN bnfz)
 {
-  GEN BE, be;
-  BE = famat_reduce(famatV_zv_factorback(vecWB, X));
-  gel(BE,2) = centermod(gel(BE,2), ell);
-  be = nffactorback(bnfz, BE, NULL);
+  GEN be = famat_reduce(famatV_zv_factorback(vecWB, X));
+  if (typ(be) == t_MAT)
+  {
+    gel(be,2) = centermod(gel(be,2), ell);
+    be = nffactorback(bnfz, be, NULL);
+  }
   be = reducebeta(bnfz, be, ell);
   if (DEBUGLEVEL>1) err_printf("beta reduced = %Ps\n",be);
   return be;
