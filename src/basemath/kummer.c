@@ -247,11 +247,11 @@ get_gell(GEN bnr, GEN subgp)
 static long
 get_z(GEN pr, long ell) { return ell * (pr_get_e(pr) / (ell-1)); }
 static void
-list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, long ell, tau_s *tau)
+list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, GEN gell, tau_s *tau)
 {
-  GEN P = gel(fa,1), E = gel(fa,2), gell = utoipos(ell);
+  GEN P = gel(fa,1), E = gel(fa,2);
   GEN faell, Sl, S, Sl1, Sl2, Vl, Vl2;
-  long i, l = lg(P);
+  long i, l = lg(P), ell = gell[2];
 
   S  = vectrunc_init(l);
   Sl1= vectrunc_init(l);
@@ -289,13 +289,15 @@ list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, long ell, tau_s *tau)
 
 /* Return a Flm */
 static GEN
-logall(GEN nf, GEN v, long lW, long mgi, long ell, GEN sprk)
+logall(GEN nf, GEN v, long lW, long mgi, GEN gell, GEN sprk)
 {
-  long i, l = lg(v), rk = prank(gel(sprk,1), ell);
-  GEN M = cgetg(l,t_MAT);
+  long i, ell = gell[2], l = lg(v), rk = prank(gel(sprk,1), ell);
+  GEN M;
+  if (!rk) return NULL;
+  M = cgetg(l,t_MAT);
   for (i = 1; i < l; i++)
   {
-    GEN c = log_prk(nf, gel(v,i), sprk, utoipos(ell));
+    GEN c = log_prk(nf, gel(v,i), sprk, gell);
     setlg(c, rk+1);
     c = ZV_to_Flv(c, ell);
     if (i < lW) c = Flv_Fl_mul(c, mgi, ell);
@@ -304,12 +306,12 @@ logall(GEN nf, GEN v, long lW, long mgi, long ell, GEN sprk)
   return M;
 }
 static GEN
-matlogall(GEN nf, GEN v, long lW, long mgi, long ell, GEN vsprk)
+matlogall(GEN nf, GEN v, long lW, long mgi, GEN gell, GEN vsprk)
 {
   GEN M = NULL;
   long i, l = lg(vsprk);
   for (i = 1; i < l; i++)
-    M = vconcat(M, logall(nf, v, lW, mgi, ell, gel(vsprk,i)));
+    M = vconcat(M, logall(nf, v, lW, mgi, gell, gel(vsprk,i)));
   return M;
 }
 
@@ -473,14 +475,14 @@ bid_primes(GEN bid)
  * If ell | F and Kz != K, set compute the congruence group Hz over Kz
  * and set *pfa to the conductor factorization. */
 static GEN
-get_prlist(GEN bnr, GEN H, ulong ell, GEN *pfa, struct rnfkummer *kum)
+get_prlist(GEN bnr, GEN H, GEN gell, GEN *pfa, struct rnfkummer *kum)
 {
   pari_sp av0 = avma;
-  GEN gell = utoipos(ell), Hz = NULL, bnrz = NULL, cycz = NULL, nfz = NULL;
+  GEN Hz = NULL, bnrz = NULL, cycz = NULL, nfz = NULL;
   GEN cyc = bnr_get_cyc(bnr), nf = bnr_get_nf(bnr), F = gel(bnr_get_mod(bnr),1);
   GEN bad, Hsofar, L = cgetg(1, t_VEC);
   forprime_t T;
-  ulong p;
+  ulong p, ell = gell[2];
   int Ldone = 0;
 
   bad = get_badbnf(bnr_get_bnf(bnr));
@@ -568,10 +570,10 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN *pfa, struct rnfkummer *kum)
  * matsmall M such that \prod WA[j]^x[j] ell-th power mod pr[i] iff
  * \sum M[i,j] x[j] = 0 (mod ell) */
 static GEN
-subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
+subgroup_info(GEN bnfz, GEN Lprz, GEN gell, GEN vecWA)
 {
-  GEN nfz = bnf_get_nf(bnfz), M, gell = utoipos(ell), Lell = mkvec(gell);
-  long i, j, l = lg(vecWA), lz = lg(Lprz);
+  GEN M, nfz = bnf_get_nf(bnfz), Lell = mkvec(gell);
+  long i, j, ell = gell[2], l = lg(vecWA), lz = lg(Lprz);
   M = cgetg(l, t_MAT);
   for (j=1; j<l; j++) gel(M,j) = cgetg(lz, t_VECSMALL);
   for (i=1; i < lz; i++)
@@ -642,14 +644,14 @@ rnfkummersimple(GEN bnr, GEN H, long ell)
 {
   long j, lSp, rc;
   GEN bnf, nf,bid, cycgenmod, Sp, vsprk, matP;
-  GEN be, gell, M, K, vecW, vecWB, vecBp;
+  GEN be, M, K, vecW, vecWB, vecBp, gell = utoipos(ell);
   /* primes landing in H must be totally split */
-  GEN Lpr = get_prlist(bnr, H, ell, NULL, NULL);
+  GEN Lpr = get_prlist(bnr, H, gell, NULL, NULL);
 
   bnf = bnr_get_bnf(bnr); if (!bnf_get_sunits(bnf)) bnf_build_units(bnf);
   nf  = bnf_get_nf(bnf);
   bid = bnr_get_bid(bnr);
-  list_Hecke(&Sp, &vsprk, nf, bid_get_fact2(bid), ell, NULL);
+  list_Hecke(&Sp, &vsprk, nf, bid_get_fact2(bid), gell, NULL);
 
   cycgenmod = bnf_cycgenmod(bnf, ell, &vecW, &rc);
   lSp = lg(Sp);
@@ -659,9 +661,9 @@ rnfkummersimple(GEN bnr, GEN H, long ell)
     isprincipalell(bnf,gel(Sp,j), cycgenmod,ell,rc, &gel(matP,j),&gel(vecBp,j));
   vecWB = shallowconcat(vecW, vecBp);
 
-  M = matlogall(nf, vecWB, 0, 0, ell, vsprk);
+  M = matlogall(nf, vecWB, 0, 0, gell, vsprk);
   M = vconcat(M, shallowconcat(zero_Flm(rc,lg(vecW)-1), matP));
-  M = vconcat(M, subgroup_info(bnf, Lpr, ell, vecWB));
+  M = vconcat(M, subgroup_info(bnf, Lpr, gell, vecWB));
   K = Flm_ker(M, ell);
   if (ell == 2)
   {
@@ -674,7 +676,6 @@ rnfkummersimple(GEN bnr, GEN H, long ell)
   }
   else
     K = gel(K,1);
-  gell = utoipos(ell);
   be = compute_beta(K, vecWB, gell, bnf);
   be = nf_to_scalar_or_alg(nf, be);
   if (typ(be) == t_POL) be = mkpolmod(be, nf_get_pol(nf));
@@ -1061,16 +1062,16 @@ static GEN
 rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
 {
   ulong ell = kum->ell;
-  GEN bnfz = kum->bnfz, nfz = bnf_get_nf(bnfz);
+  GEN bnfz = kum->bnfz, nfz = bnf_get_nf(bnfz), gell = utoipos(ell);
   GEN vecC = kum->vecC, vecW = kum->vecW, cycgenmod = kum->cycgenmod;
   long lW = lg(vecW), rc = kum->rc, j, lSp;
   toK_s *T = &kum->T;
   GEN K, be, P, faFz, vsprk, Sp, vecAp, vecBp, matP, vecWA, vecWB, M, lambdaWB;
   /* primes landing in H must be totally split */
-  GEN Lpr = get_prlist(bnr, H, ell, &faFz, kum);
+  GEN Lpr = get_prlist(bnr, H, gell, &faFz, kum);
 
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
-  list_Hecke(&Sp, &vsprk, nfz, faFz, ell, T->tau);
+  list_Hecke(&Sp, &vsprk, nfz, faFz, gell, T->tau);
 
   if (DEBUGLEVEL>2) err_printf("Step 12\n");
   lSp = lg(Sp);
@@ -1090,18 +1091,18 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN H)
   vecWB = shallowconcat(vecW, vecBp);
 
   if (DEBUGLEVEL>2) err_printf("Step 14, 15 and 17\n");
-  M = matlogall(nfz, vecWA, lW, kum->mgi, ell, vsprk);
+  M = matlogall(nfz, vecWA, lW, kum->mgi, gell, vsprk);
   if (kum->tQ)
   {
     GEN QtP = Flm_mul(kum->tQ, matP, ell);
     M = vconcat(M, shallowconcat(zero_Flm(lgcols(kum->tQ)-1,lW-1), QtP));
   }
   lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
-  M = vconcat(M, subgroup_info(bnfz, Lpr, ell, lambdaWB));
+  M = vconcat(M, subgroup_info(bnfz, Lpr, gell, lambdaWB));
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
   K = Flm_ker(M, ell);
   if (DEBUGLEVEL>2) err_printf("Step 18\n");
-  be = compute_beta(gel(K,1), vecWB, utoipos(ell), kum->bnfz);
+  be = compute_beta(gel(K,1), vecWB, gell, kum->bnfz);
   P = compute_polrel(kum, be);
   nfX_Z_normalize(bnr_get_nf(bnr), P);
   if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
