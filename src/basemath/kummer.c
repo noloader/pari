@@ -351,26 +351,6 @@ compute_beta(GEN X, GEN vecWB, GEN ell, GEN bnfz)
   return be;
 }
 
-static GEN
-futu(GEN bnf)
-{
-  GEN fu, tu, SUnits = bnf_get_sunits(bnf);
-  if (SUnits)
-  {
-    tu = nf_to_scalar_or_basis(bnf_get_nf(bnf), bnf_get_tuU(bnf));
-    fu = bnf_compactfu(bnf);
-  }
-  else
-  {
-    GEN U = bnf_build_units(bnf);
-    tu = gel(U,1); fu = vecslice(U, 2, lg(U)-1);
-  }
-  return vec_append(fu, tu);
-}
-static GEN
-get_Selmer(GEN bnf, GEN cycgenmod, long rc)
-{ return shallowconcat(futu(bnf), vecslice(cycgenmod,1,rc)); }
-
 GEN
 lift_if_rational(GEN x)
 {
@@ -620,7 +600,23 @@ subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
 }
 
 static GEN
-bnf_cycgenmod(GEN bnf, long ell, long *prc)
+futu(GEN bnf)
+{
+  GEN fu, tu, SUnits = bnf_get_sunits(bnf);
+  if (SUnits)
+  {
+    tu = nf_to_scalar_or_basis(bnf_get_nf(bnf), bnf_get_tuU(bnf));
+    fu = bnf_compactfu(bnf);
+  }
+  else
+  {
+    GEN U = bnf_build_units(bnf);
+    tu = gel(U,1); fu = vecslice(U, 2, lg(U)-1);
+  }
+  return vec_append(fu, tu);
+}
+static GEN
+bnf_cycgenmod(GEN bnf, long ell, GEN *pselmer, long *prc)
 {
   GEN gen = bnf_get_gen(bnf), cyc = bnf_get_cyc(bnf), nf = bnf_get_nf(bnf);
   GEN B, r = ZV_to_Flv(cyc, ell);
@@ -639,6 +635,7 @@ bnf_cycgenmod(GEN bnf, long ell, long *prc)
     if (i > rc) G = idealmul(nf, G, g);
     gel(B,i) = gel(bnfisprincipal0(bnf, G, nf_GENMAT|nf_FORCE), 2);
   }
+  *pselmer = shallowconcat(futu(bnf), vecslice(B,1,rc));
   return B;
 }
 
@@ -656,8 +653,7 @@ rnfkummersimple(GEN bnr, GEN H, long ell)
   bid = bnr_get_bid(bnr);
   list_Hecke(&Sp, &vsprk, nf, bid_get_fact2(bid), ell, NULL);
 
-  cycgenmod = bnf_cycgenmod(bnf, ell, &rc);
-  vecW = get_Selmer(bnf, cycgenmod, rc);
+  cycgenmod = bnf_cycgenmod(bnf, ell, &vecW, &rc);
   lSp = lg(Sp);
   vecBp = cgetg(lSp, t_VEC);
   matP  = cgetg(lSp, t_MAT);
@@ -1042,12 +1038,10 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   /* could factor disc(R) using th. 2.1.6. */
   kum->bnfz = bnfz = Buchall(COMPO->R, nf_FORCE, maxss(prec,BIGDEFAULTPREC));
   if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] bnfinit(Kz)");
-  kum->cycgenmod = bnf_cycgenmod(bnfz, ell, &kum->rc);
+  kum->cycgenmod = bnf_cycgenmod(bnfz, ell, &vselmer, &kum->rc);
   kum->ell = ell;
   kum->g = g;
   kum->mgi = Fl_div(m, g, ell);
-
-  vselmer = get_Selmer(bnfz, kum->cycgenmod, kum->rc);
   get_tau(kum);
   if (DEBUGLEVEL>2) err_printf("Step 4\n");
   if (kum->rc)
