@@ -618,7 +618,7 @@ mssplit_i(GEN W, GEN H, long deglim)
       long k, lF = lg(F);
       if (lF == 2 && lP == 2)
       {
-        if (isint1(gel(E,1)))
+        if (equali1(gel(E,1)))
         { /* simple subspace */
           swap(gel(V,first), gel(V,j));
           first++;
@@ -638,7 +638,7 @@ mssplit_i(GEN W, GEN H, long deglim)
           if (d > D) D = d;
         }
         /* remove V[j] */
-        swap(gel(V,j), gel(V,lg(V)-1)); setlg(V, lg(V)-1);
+        gel(V,j) = gel(V,lg(V)-1); setlg(V, lg(V)-1);
         pows = RgM_powers(TVj, minss((long)2*sqrt((double)D), D));
         for (k = 1; k < lF; k++)
         {
