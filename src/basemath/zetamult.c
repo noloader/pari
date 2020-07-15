@@ -713,7 +713,7 @@ polylogmult(GEN a, GEN z, long prec)
     case t_COL: a = gtovecsmall(a); break;
     case t_VECSMALL: break;
     default: pari_err_TYPE("polylogmult", a);
-             return NULL;/*not reached*/
+             return NULL;/*LCOV_EXCL_LINE*/
   }
   switch (typ(z))
   {
