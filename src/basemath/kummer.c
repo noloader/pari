@@ -316,15 +316,8 @@ isprincipalell(GEN bnfz, GEN id, GEN cycgenmod, ulong ell, long rc,
                GEN *pv, GEN *pb)
 {
   long i, l = lg(cycgenmod);
-  GEN v, b, db, y = bnfisprincipal0(bnfz, id, nf_FORCE|nf_GENMAT);
-
-  v = ZV_to_Flv(gel(y,1), ell);
-  b = gel(y,2);
-  if (typ(b) == t_COL)
-  {
-    b = Q_remove_denom(gel(y,2), &db);
-    if (db) b = famat_mulpows_shallow(b, db, -1);
-  }
+  GEN y = bnfisprincipal0(bnfz, id, nf_FORCE|nf_GENMAT);
+  GEN v = ZV_to_Flv(gel(y,1), ell), b = gel(y,2);
   for (i = rc+1; i < l; i++)
     b = famat_mulpows_shallow(b, gel(cycgenmod,i), v[i]);
   setlg(v,rc+1); *pv = v; *pb = b;
