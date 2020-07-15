@@ -142,15 +142,14 @@ get_tau(struct rnfkummer *kum)
   kum->tau.zk = nfgaloismatrix(bnf_get_nf(kum->bnfz), kum->tau.x);
 }
 
-static GEN tauoffamat(GEN x, tau_s *tau);
-
+static GEN tauofvec(GEN x, tau_s *tau);
 static GEN
 tauofelt(GEN x, tau_s *tau)
 {
   switch(typ(x))
   {
     case t_COL: return RgM_RgC_mul(tau->zk, x);
-    case t_MAT: return tauoffamat(x, tau);
+    case t_MAT: return mkmat2(tauofvec(gel(x,1), tau), gel(x,2));
     default: return tauofalg(x, tau);
   }
 }
@@ -193,12 +192,6 @@ lambdaofvec(GEN x, toK_s *T)
   GEN y = cgetg_copy(x, &l);
   for (i=1; i<l; i++) gel(y,i) = lambdaofelt(gel(x,i), T);
   return y;
-}
-
-static GEN
-tauoffamat(GEN x, tau_s *tau)
-{
-  return mkmat2(tauofvec(gel(x,1), tau), gel(x,2));
 }
 
 static GEN
@@ -712,7 +705,7 @@ static GEN
 kervirtualunit(struct rnfkummer *kum, GEN vselmer)
 {
   GEN bnf = kum->bnfz, cyc = bnf_get_cyc(bnf), nf = bnf_get_nf(bnf);
-  GEN B, vy, vz, M, U1, U2, vtau, vell, SUnits = bnf_get_sunits(bnf);
+  GEN W, B, vy, vz, M, U1, U2, vtau, vell, SUnits = bnf_get_sunits(bnf);
   long i, j, r, l = lg(vselmer), rc = kum->rc, ru = l-1 - rc, ell = kum->ell;
   long LIMC = SUnits? itou(gel(SUnits,4)): 1;
   ulong p;
@@ -735,7 +728,7 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
         t = (typ(t) == t_INT)? ct: ZC_Z_mul(t, ct);
       }
     }
-    gel(vell,j) = t; /* integral, not to far from primitive */
+    gel(vell,j) = t; /* integral, not too far from primitive */
     gel(vtau,j) = tauofelt(t, &kum->tau);
   }
   U1 = vecslice(vell, 1, ru); /* units */
@@ -791,7 +784,10 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
   vz = Flm_transpose(vz); /* now ru x #vtau */
   for (j = 1; j < l; j++)
     gel(vy,j) = shallowconcat(Flm_Flc_mul(M, gel(vz,j), ell), gel(vy,j));
-  return Flm_ker(Flm_Fl_sub(vy, kum->g, ell), ell);
+  W = Flm_ker(Flm_Fl_sub(vy, kum->g, ell), ell); l = lg(W);
+  for (j = 1; j < l; j++)
+    gel(W,j) = famat_reduce(famatV_zv_factorback(vselmer, gel(W,j)));
+  settyp(W, t_VEC); return W;
 }
 
 static GEN
@@ -983,39 +979,35 @@ static void
 _rnfkummer_step4(struct rnfkummer *kum, long d, long m)
 {
   long i, j, rc = kum->rc;
-  GEN Tj, Bj, Q, vecC, vecB = cgetg(rc+1,t_VEC), T = cgetg(rc+1,t_MAT);
+  GEN Q, vT, vB, vC, vz, B = cgetg(rc+1,t_VEC), T = cgetg(rc+1,t_MAT);
   GEN gen = bnf_get_gen(kum->bnfz), cycgenmod = kum->cycgenmod;
   ulong ell = kum->ell;
 
   for (j = 1; j <= rc; j++)
   {
     GEN t = tauofideal(gel(gen,j), &kum->tau);
-    isprincipalell(kum->bnfz, t, cycgenmod,ell,rc, &gel(T,j), &gel(vecB,j));
+    isprincipalell(kum->bnfz, t, cycgenmod,ell,rc, &gel(T,j), &gel(B,j));
   }
-  kum->vecC = vecC = const_vec(rc, trivial_fact());
-  /* T = rc x rc matrix */
-  Tj = Flm_powers(T, m-2, ell); Bj = vecB;
-  for (j = 1; j < m; j++)
-  {
-    GEN z = Flm_Fl_mul(gel(Tj,m-j), Fl_mul(j,d,ell), ell);
-    Bj = tauofvec(Bj, &kum->tau);
-    for (i = 1; i <= rc; i++)
-      gel(vecC,i) = famat_mul_shallow(gel(vecC,i),
-                                      famatV_zv_factorback(Bj, gel(z,i)));
-  }
-  for (i = 1; i <= rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
   Q = Flm_ker(Flm_Fl_sub(Flm_transpose(T), kum->g, ell), ell);
   kum->tQ = lg(Q) == 1? NULL: Flm_transpose(Q);
-}
-
-static GEN
-_rnfkummer_step5(struct rnfkummer *kum, GEN vselmer)
-{
-  GEN W = kervirtualunit(kum, vselmer);
-  long j, l = lg(W);
-  for (j = 1; j < l; j++)
-    gel(W,j) = famat_reduce(famatV_zv_factorback(vselmer, gel(W,j)));
-  settyp(W, t_VEC); return W;
+  kum->vecC = vC = cgetg(rc+1, t_VEC);
+  /* T = rc x rc matrix */
+  vT = Flm_powers(T, m-2, ell);
+  vB = cgetg(m, t_VEC);
+  vz = cgetg(rc+1, t_VEC);
+  for (i = 1; i <= rc; i++) gel(vz, i) = cgetg(m, t_VEC);
+  for (j = 1; j < m; j++)
+  {
+    GEN Tj = Flm_Fl_mul(gel(vT,m-j), Fl_mul(j,d,ell), ell);
+    gel(vB, j) = tauofvec(j == 1? B: gel(vB, j-1), &kum->tau);
+    for (i = 1; i <= rc; i++) gmael(vz, i, j) = gel(Tj, i);
+  }
+  vB = shallowconcat1(vB);
+  for (i = 1; i <= rc; i++)
+  {
+    GEN z = shallowconcat1(gel(vz,i));
+    gel(vC,i) = famat_reduce(famatV_zv_factorback(vB, z));
+  }
 }
 
 /* alg 5.3.5 */
@@ -1061,7 +1053,7 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   else
   { kum->vecC = cgetg(1, t_VEC); kum->tQ = NULL; }
   if (DEBUGLEVEL>2) err_printf("Step 5\n");
-  kum->vecW = _rnfkummer_step5(kum, vselmer);
+  kum->vecW = kervirtualunit(kum, vselmer);
   if (DEBUGLEVEL>2) err_printf("Step 8\n");
   /* left inverse */
   T->invexpoteta1 = RgM_inv(RgXQ_matrix_pow(COMPO->p, degKz, degK, COMPO->R));
