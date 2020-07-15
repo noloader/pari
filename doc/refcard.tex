@@ -328,8 +328,12 @@ in gp header.\hfil\break
 \li{as \kbd{vector}}{parvector$(n,i,\{\var{expr}\})$}
 \li{eval $f$ for $i=a,\dots,b$}
    {parfor$(i = a, \{b\}, f,\{r\}, \{f_2\})$}
+\li{\dots for each element $x$ in $v$}
+   {parforeach$(v, x, f,\{r\}, \{f_2\})$}
 \li{\dots for $p$ prime in $[a,b]$}
    {parforprime$(p = a, \{b\}, f,\{r\}, \{f_2\})$}
+\li{\dots for $p = a \mod q$}
+   {parforprimestep$(p = a, \{b\}, q, f,\{r\}, \{f_2\})$}
 \li{\dots multivariate}
    {parforvec$(X = v, f,\{r\}, \{f_2\}, \{\fl\})$}
 \li{export $x$ to parallel world}{export$(x)$}
