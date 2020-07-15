@@ -142,8 +142,7 @@ tauofelt(GEN x, tau_s *tau)
     case t_INT: case t_FRAC: return x;
     case t_COL: return RgM_RgC_mul(tau->zk, x);
     case t_MAT: return mkmat2(tauofvec(gel(x,1), tau), gel(x,2));
-    default: pari_err_TYPE("tauofelt",x);
-             return NULL;/*LCOV_EXCL_LINE*/
+    default: pari_err_TYPE("tauofelt",x); return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 static GEN
@@ -548,8 +547,7 @@ get_prlist(GEN bnr, GEN H, GEN gell, GEN *pfa, struct rnfkummer *kum)
       }
     }
   }
-  pari_err_BUG("rnfkummer [get_prlist]");
-  return NULL;/*LCOV_EXCL_LINE*/
+  pari_err_BUG("rnfkummer [get_prlist]"); return NULL;/*LCOV_EXCL_LINE*/
 }
 /*Lprz list of prime ideals in Kz that must split completely in Lz/Kz, vecWA
  * generators for the S-units used to build the Kummer generators. Return
