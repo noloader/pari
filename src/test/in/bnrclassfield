@@ -125,7 +125,7 @@ bnr=bnrinit(bnf,M,,7); bnrclassfield(bnr)
 print("vector of subgroups");
 filter(v)=[if (cmp(a,b=-subst(a,x,-x)) < 0,b,a)| a<-v][^1]; \\ avoid 32-bit differences
 pol=y^2+3299;
-bnr=bnrinit(bnfinit(pol), 3,, 3);
+setrand(1);bnr=bnrinit(bnfinit(pol), 3,, 3);
 L=subgrouplist(bnr, [3], 1);
 filter(bnrclassfield(bnr, L, 0))
 filter(bnrclassfield(bnr, L, 1))
