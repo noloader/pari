@@ -220,13 +220,6 @@ downtoK(toK_s *T, GEN x)
   return mkpolmod(RgV_to_RgX(y,varn(T->polnf)), T->polnf);
 }
 
-static GEN
-get_gell(GEN bnr, GEN subgp)
-{
-  if (!subgp) return ZV_prod(bnr_get_cyc(bnr));
-  return det(subgp);
-}
-
 /* >= ell */
 static long
 get_z(GEN pr, long ell) { return ell * (pr_get_e(pr) / (ell-1)); }
@@ -882,8 +875,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     C_Rk = mul_content(C_Rk, D); /* root^k = prim_Rk * C_Rk */
 
     /* Newton sum is ell * constant coeff (in X), which has degree 0 in T */
-    z = polcoef_i(prim_Rk, 0, 0);
-    z = downtoK(T, gmulgs(z, ell));
+    z = downtoK(T, gmulgs(gel(prim_Rk, 2), ell));
     if (C_Rk) z = gmul(z, C_Rk);
     gerepileall(av, C_Rk? 3: 2, &z, &prim_Rk, &C_Rk);
     if (DEBUGLEVEL>1) err_printf("%ld(%ld) ", k, timer_delay(&ti));
@@ -1092,8 +1084,7 @@ _rnfkummer(GEN bnr, GEN H, long prec)
   struct rnfkummer kum;
 
   bnrclassfield_sanitize(&bnr, &H);
-  gell = get_gell(bnr,H);
-  if (typ(gell) != t_INT) pari_err_TYPE("rnfkummer",gell);
+  gell = H? ZM_det(H): ZV_prod(bnr_get_cyc(bnr));
   ell = itou(gell);
   if (ell == 1) return pol_x(0);
   if (!uisprime(ell)) pari_err_IMPL("rnfkummer for composite relative degree");
