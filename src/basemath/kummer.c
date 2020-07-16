@@ -833,14 +833,12 @@ compute_polrel(struct rnfkummer *kum, GEN be)
 {
   toK_s *T = &kum->T;
   long i, k, ell = kum->ell, m = T->m, vz = fetch_var();
-  GEN r, powtaubet, S, root, num, den, nfzpol, powtau_prim_invbe;
+  GEN r = Fl_powers(kum->g, m-1, ell); /* r[i+1] = g^i mod ell */
+  GEN powtaubet, S, root, num, den, nfzpol, powtau_prim_invbe;
   GEN prim_Rk, C_Rk, prim_root, C_root, prim_invbe, C_invbe;
   GEN nfz = bnf_get_nf(kum->bnfz);
   pari_timer ti;
 
-  r = cgetg(m+1,t_VECSMALL); /* r[i+1] = g^i mod ell */
-  r[1] = 1;
-  for (i=2; i<=m; i++) r[i] = (r[i-1] * kum->g) % ell;
   powtaubet = powtau(be, m, T->tau);
   if (DEBUGLEVEL>1) { err_printf("Computing Newton sums: "); timer_start(&ti); }
   prim_invbe = Q_primitive_part(nfinv(nfz, be), &C_invbe);
@@ -850,7 +848,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   root[1] = evalsigne(1) | evalvarn(0);
   for (i = 0; i < ell; i++) gel(root,2+i) = gen_0;
   for (i = 0; i < m; i++)
-  { /* compute (1/be) ^ (-mu) instead of be^mu [mu << 0].
+  { /* compute (1/be) ^ (-mu) instead of be^mu [mu < 0].
      * 1/be = C_invbe * prim_invbe */
     GEN mmu = get_mmu(i, r, ell), t; /* = prim_invbe ^ -mu */
     t = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu), vz);
