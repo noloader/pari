@@ -833,7 +833,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
 {
   toK_s *T = &kum->T;
   long i, k, ell = kum->ell, m = T->m, vT = fetch_var(), vz = fetch_var();
-  GEN r, powtaubet, S, p1, root, num_t, den_t, nfzpol, powtau_prim_invbe;
+  GEN r, powtaubet, S, root, num, den, nfzpol, powtau_prim_invbe;
   GEN prim_Rk, C_Rk, prim_root, C_root, prim_invbe, C_invbe;
   GEN nfz = bnf_get_nf(kum->bnfz);
   pari_timer ti;
@@ -852,12 +852,11 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   for (i = 0; i < m; i++)
   { /* compute (1/be) ^ (-mu) instead of be^mu [mu << 0].
      * 1/be = C_invbe * prim_invbe */
-    GEN mmu = get_mmu(i, r, ell);
-    /* p1 = prim_invbe ^ -mu */
-    p1 = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu), vz);
-    if (C_invbe) p1 = gmul(p1, gpowgs(C_invbe, zv_sumpart(mmu, m)));
+    GEN mmu = get_mmu(i, r, ell), t; /* = prim_invbe ^ -mu */
+    t = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu), vz);
+    if (C_invbe) t = gmul(t, gpowgs(C_invbe, zv_sumpart(mmu, m)));
     /* root += zeta_ell^{r_i} T^{r_i} be^mu_i */
-    gel(root, 2 + r[i+1]) = monomial(p1, r[i+1], vT);
+    gel(root, 2 + r[i+1]) = monomial(t, r[i+1], vT);
   }
   /* Other roots are as above with z_ell --> z_ell^j.
    * Treat all contents (C_*) and principal parts (prim_*) separately */
@@ -866,8 +865,8 @@ compute_polrel(struct rnfkummer *kum, GEN be)
 
   r = vecsmall_reverse(r); /* theta^ell = be^( sum tau^a r_{d-1-a} ) */
   /* Compute modulo X^ell - 1, T^ell - t, nfzpol(vz) */
-  p1 = to_alg(nfz, nffactorback(nfz, powtaubet, r), vz);
-  num_t = Q_remove_denom(p1, &den_t);
+  num = to_alg(nfz, nffactorback(nfz, powtaubet, r), vz);
+  num = Q_remove_denom(num, &den);
 
   nfzpol = leafcopy(nf_get_pol(nfz));
   setvarn(nfzpol, vz);
@@ -882,10 +881,10 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     for (i = 2; i < lg(Rk); i++)
     {
       if (typ(gel(Rk,i)) != t_POL) continue;
-      z = mod_Xell_a(gel(Rk,i), vT, ell, num_t,den_t); /* mod T^ell - t */
+      z = mod_Xell_a(gel(Rk,i), vT, ell, num,den); /* mod T^ell - t */
       gel(Rk,i) = RgXQX_red(z, nfzpol); /* mod nfz.pol */
     }
-    if (den_t) C_Rk = mul_content(C_Rk, ginv(den_t));
+    if (den) C_Rk = mul_content(C_Rk, ginv(den));
     prim_Rk = Q_primitive_part(Rk, &D);
     C_Rk = mul_content(C_Rk, D); /* root^k = prim_Rk * C_Rk */
 
