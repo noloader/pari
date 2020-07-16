@@ -2547,25 +2547,27 @@ idealprincipalunits(GEN nf, GEN pr, long k)
 static GEN
 sprkinit(GEN nf, GEN pr, long k, GEN x, GEN MOD)
 {
-  GEN T, p, modpr, cyc, gen, g, g0, A, prk, U, L2, ord0 = NULL;
+  GEN T, p, Ld, modpr, cyc, gen, g, g0, A, prk, U, L2, ord0 = NULL;
   long f = pr_get_f(pr);
 
   if(DEBUGLEVEL>3) err_printf("treating pr^%ld, pr = %Ps\n",k,pr);
   modpr = nf_to_Fq_init(nf, &pr,&T,&p);
   if (MOD)
   {
-    GEN A = subiu(powiu(p,f), 1), d = gcdii(A, MOD);
-    ord0 = mkvec2(A, Z_factor(d)); /* true order, factorization of order in G/G^MOD */
+    GEN A = subiu(powiu(p,f), 1), d = gcdii(A, MOD), fa = Z_factor(d);
+    ord0 = mkvec2(A, fa); /* true order, factorization of order in G/G^MOD */
+    Ld = gel(fa,1);
+    if (lg(Ld) > 1 && equaliu(gel(Ld,1),2)) Ld = vecslice(Ld,2,lg(Ld)-1);
   }
   /* (Z_K / pr)^* */
   if (f == 1)
-  { /* FIXME: could remove 2 from list */
-    g0 = g = MOD? pgener_Fp_local(p, gmael(ord0,2,1)): pgener_Fp(p);
+  {
+    g0 = g = MOD? pgener_Fp_local(p, Ld): pgener_Fp(p);
     if (!ord0) ord0 = get_arith_ZZM(subiu(p,1));
   }
   else
   {
-    g0 = g = MOD? gener_FpXQ_local(T, p, gmael(ord0,2,1)): gener_FpXQ(T,p, &ord0);
+    g0 = g = MOD? gener_FpXQ_local(T, p, Ld): gener_FpXQ(T,p, &ord0);
     g = Fq_to_nf(g, modpr);
     if (typ(g) == t_POL) g = poltobasis(nf, g);
   }
