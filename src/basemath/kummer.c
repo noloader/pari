@@ -776,7 +776,7 @@ pol_from_Newton(GEN S)
     for (i = 2; i < k-1; i++) s = gadd(s, gmul(gel(S,i), gel(c,k-i)));
     gel(c,k) = gdivgs(s, -k);
   }
-  return gtopoly(C, 0);
+  return RgV_to_RgX(vecreverse(C), 0);
 }
 
 /* - mu_b = sum_{0 <= i < m} floor(r_b r_{d-1-i} / ell) tau^i */
