@@ -784,8 +784,8 @@ static GEN
 get_mmu(long b, GEN r, long ell)
 {
   long i, m = lg(r)-1;
-  GEN M = cgetg(m+1, t_VEC);
-  for (i = 0; i < m; i++) gel(M,i+1) = stoi((r[b + 1] * r[m - i]) / ell);
+  GEN M = cgetg(m+1, t_VECSMALL);
+  for (i = 0; i < m; i++) M[i+1] = (r[b + 1] * r[m - i]) / ell;
   return M;
 }
 
@@ -855,7 +855,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     GEN mmu = get_mmu(i, r, ell);
     /* p1 = prim_invbe ^ -mu */
     p1 = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu), vz);
-    if (C_invbe) p1 = gmul(p1, powgi(C_invbe, RgV_sumpart(mmu, m)));
+    if (C_invbe) p1 = gmul(p1, gpowgs(C_invbe, zv_sumpart(mmu, m)));
     /* root += zeta_ell^{r_i} T^{r_i} be^mu_i */
     gel(root, 2 + r[i+1]) = monomial(p1, r[i+1], vT);
   }

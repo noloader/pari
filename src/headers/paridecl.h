@@ -1395,6 +1395,7 @@ GEN     zv_neg_inplace(GEN M);
 long    zv_prod(GEN v);
 GEN     zv_prod_Z(GEN v);
 long    zv_sum(GEN v);
+long    zv_sumpart(GEN v, long n);
 GEN     zv_to_Flv(GEN z, ulong p);
 GEN     zv_z_mul(GEN v, long n);
 GEN     zv_ZM_mul(GEN x, GEN y);

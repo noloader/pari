@@ -1477,6 +1477,15 @@ zv_sum(GEN v)
   n = v[1]; for (i = 2; i < l; i++) n += v[i];
   return n;
 }
+/* assumes no overflow and 0 <= n <= #v */
+long
+zv_sumpart(GEN v, long n)
+{
+  long i, p;
+  if (!n) return 0;
+  p = v[1]; for (i = 2; i <= n; i++) p += v[i];
+  return p;
+}
 GEN
 ZV_sum(GEN v)
 {
