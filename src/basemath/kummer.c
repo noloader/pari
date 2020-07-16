@@ -800,12 +800,12 @@ split_pol(GEN x, long v, long a, long b)
 /* return (den_a * z) mod (v^ell - num_a/den_a), assuming deg(z) < 2*ell
  * allow either num/den to be NULL (= 1) */
 static GEN
-mod_Xell_a(GEN z, long v, long ell, GEN num_a, GEN den_a)
+mod_Xell_a(GEN z, long v, long ell, GEN num_a, GEN den_a, GEN T)
 {
   GEN z1 = split_pol(z, v, ell, degpol(z));
   GEN z0 = split_pol(z, v, 0,   ell-1); /* z = v^ell z1 + z0*/
-  if (den_a) z0 = gmul(den_a, z0);
-  if (num_a) z1 = gmul(num_a, z1);
+  if (den_a) z0 = typ(den_a)==t_POL? ZXQX_ZXQ_mul(z0, den_a, T): ZXX_Z_mul(z0, den_a);
+  if (num_a) z1 = typ(num_a)==t_POL? ZXQX_ZXQ_mul(z1, num_a, T): ZXX_Z_mul(z1, den_a);
   return gadd(z0, z1);
 }
 static GEN
@@ -868,8 +868,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     pari_sp av = avma;
     GEN z, D, Rk = ZXQX_mul(prim_Rk, prim_root, nfzpol);
     C_Rk = mul_content(C_Rk, C_root);
-    Rk = mod_Xell_a(Rk, 0, ell, num,den); /* mod T^ell - t */
-    Rk = RgXQX_red(Rk, nfzpol); /* mod nfz.pol */
+    Rk = mod_Xell_a(Rk, 0, ell, num,den,nfzpol); /* mod T^ell - t */
     if (den) C_Rk = mul_content(C_Rk, ginv(den));
     prim_Rk = Q_primitive_part(Rk, &D);
     C_Rk = mul_content(C_Rk, D); /* root^k = prim_Rk * C_Rk */
