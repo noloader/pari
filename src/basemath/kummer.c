@@ -832,7 +832,7 @@ static GEN
 compute_polrel(struct rnfkummer *kum, GEN be)
 {
   toK_s *T = &kum->T;
-  long i, k, ell = kum->ell, m = T->m, vT = fetch_var(), vz = fetch_var();
+  long i, k, ell = kum->ell, m = T->m, vz = fetch_var();
   GEN r, powtaubet, S, root, num, den, nfzpol, powtau_prim_invbe;
   GEN prim_Rk, C_Rk, prim_root, C_root, prim_invbe, C_invbe;
   GEN nfz = bnf_get_nf(kum->bnfz);
@@ -856,7 +856,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     t = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu), vz);
     if (C_invbe) t = gmul(t, gpowgs(C_invbe, zv_sumpart(mmu, m)));
     /* root += zeta_ell^{r_i} T^{r_i} be^mu_i */
-    gel(root, 2 + r[i+1]) = monomial(t, r[i+1], vT);
+    gel(root, 2 + r[i+1]) = t;
   }
   /* Other roots are as above with z_ell --> z_ell^j.
    * Treat all contents (C_*) and principal parts (prim_*) separately */
@@ -875,22 +875,16 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   for (k = 2; k <= ell; k++)
   { /* compute the k-th Newton sum */
     pari_sp av = avma;
-    GEN z, D, Rk = gmul(prim_Rk, prim_root);
+    GEN z, D, Rk = ZXQX_mul(prim_Rk, prim_root, nfzpol);
     C_Rk = mul_content(C_Rk, C_root);
-    Rk = mod_Xell_a(Rk, 0, ell, NULL, NULL); /* mod X^ell - 1 */
-    for (i = 2; i < lg(Rk); i++)
-    {
-      if (typ(gel(Rk,i)) != t_POL) continue;
-      z = mod_Xell_a(gel(Rk,i), vT, ell, num,den); /* mod T^ell - t */
-      gel(Rk,i) = RgXQX_red(z, nfzpol); /* mod nfz.pol */
-    }
+    Rk = mod_Xell_a(Rk, 0, ell, num,den); /* mod T^ell - t */
+    Rk = RgXQX_red(Rk, nfzpol); /* mod nfz.pol */
     if (den) C_Rk = mul_content(C_Rk, ginv(den));
     prim_Rk = Q_primitive_part(Rk, &D);
     C_Rk = mul_content(C_Rk, D); /* root^k = prim_Rk * C_Rk */
 
     /* Newton sum is ell * constant coeff (in X), which has degree 0 in T */
     z = polcoef_i(prim_Rk, 0, 0);
-    z = polcoef_i(z      , 0,vT);
     z = downtoK(T, gmulgs(z, ell));
     if (C_Rk) z = gmul(z, C_Rk);
     gerepileall(av, C_Rk? 3: 2, &z, &prim_Rk, &C_Rk);
@@ -898,7 +892,6 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     gel(S,k) = z;
   }
   if (DEBUGLEVEL>1) err_printf("\n");
-  (void)delete_var();
   (void)delete_var(); return pol_from_Newton(S);
 }
 
