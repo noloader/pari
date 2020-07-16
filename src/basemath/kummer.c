@@ -39,15 +39,6 @@ typedef struct {
   GEN rev;
 } compo_s;
 
-static long
-prank(GEN cyc, long ell)
-{
-  long i, l = lg(cyc);
-  for (i=1; i < l; i++)
-    if (umodiu(gel(cyc,i),ell)) break;
-  return i-1;
-}
-
 /* REDUCTION MOD ell-TH POWERS */
 /* make b integral by multiplying by t in (Q^*)^ell */
 static GEN
@@ -236,13 +227,14 @@ get_gell(GEN bnr, GEN subgp)
   return det(subgp);
 }
 
+/* >= ell */
 static long
 get_z(GEN pr, long ell) { return ell * (pr_get_e(pr) / (ell-1)); }
+/* zeta_ell in nfz */
 static void
 list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, GEN gell, tau_s *tau)
 {
-  GEN P = gel(fa,1), E = gel(fa,2);
-  GEN faell, Sl, S, Sl1, Sl2, Vl, Vl2;
+  GEN P = gel(fa,1), E = gel(fa,2), faell, Sl, S, Sl1, Sl2, Vl, Vl2;
   long i, l = lg(P), ell = gell[2];
 
   S  = vectrunc_init(l);
@@ -252,15 +244,18 @@ list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, GEN gell, tau_s *tau)
   for (i = 1; i < l; i++)
   {
     GEN pr = gel(P,i);
-    long v = itou(gel(E,i));
-    if (!equaliu(pr_get_p(pr), ell)) /* => v != 1 */
+    if (!equaliu(pr_get_p(pr), ell))
     { if (!prconj_in_list(S,pr,tau)) vectrunc_append(S,pr); }
-    else if (pr_get_e(pr) * ell == (v-1) * (ell-1))
-    { if (!prconj_in_list(Sl1,pr,tau)) vectrunc_append(Sl1, pr); }
-    else if (!prconj_in_list(Sl2,pr,tau)) /* => v > 1 */
-    {
-      vectrunc_append(Sl2, pr);
-      vectrunc_append(Vl2, log_prk_init(nfz, pr, get_z(pr,ell)+1-v, gell));
+    else
+    { /* pr | ell */
+      long a = get_z(pr, ell) + 1 - itou(gel(E,i));
+      if (!a)
+      { if (!prconj_in_list(Sl1,pr,tau)) vectrunc_append(Sl1, pr); }
+      else if (a != 1 && !prconj_in_list(Sl2,pr,tau))
+      {
+        vectrunc_append(Sl2, pr);
+        vectrunc_append(Vl2, log_prk_init(nfz, pr, a, gell));
+      }
     }
   }
   faell = idealprimedec(nfz, gell); l = lg(faell);
@@ -275,22 +270,19 @@ list_Hecke(GEN *pSp, GEN *pvsprk, GEN nfz, GEN fa, GEN gell, tau_s *tau)
       vectrunc_append(Vl, log_prk_init(nfz, pr, get_z(pr,ell), gell));
     }
   }
-  *pvsprk = shallowconcat(Vl2, Vl);
+  *pvsprk = shallowconcat(Vl2, Vl); /* divide ell */
   *pSp = shallowconcat(S, Sl1);
 }
 
-/* Return a Flm */
+/* Return a Flm, sprk mod pr^k, pr | ell, k >= 2 */
 static GEN
 logall(GEN nf, GEN v, long lW, long mgi, GEN gell, GEN sprk)
 {
-  long i, ell = gell[2], l = lg(v), rk = prank(gel(sprk,1), ell);
-  GEN M;
-  if (!rk) return NULL;
-  M = cgetg(l,t_MAT);
+  long i, ell = gell[2], l = lg(v);
+  GEN M = cgetg(l,t_MAT);
   for (i = 1; i < l; i++)
   {
-    GEN c = log_prk(nf, gel(v,i), sprk, gell);
-    setlg(c, rk+1);
+    GEN c = log_prk(nf, gel(v,i), sprk, gell); /* ell-rank = #c */
     c = ZV_to_Flv(c, ell);
     if (i < lW) c = Flv_Fl_mul(c, mgi, ell);
     gel(M,i) = c;
