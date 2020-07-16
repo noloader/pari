@@ -1245,6 +1245,18 @@ ZXQX_mul(GEN x, GEN y, GEN T)
 }
 
 GEN
+ZXQX_ZXQ_mul(GEN P, GEN U, GEN T)
+{
+  long i, lP;
+  GEN res;
+  res = cgetg_copy(P, &lP); res[1] = P[1];
+  for(i=2; i<lP; i++)
+    gel(res,i) = typ(gel(P,i))==t_POL? ZXQ_mul(U, gel(P,i), T)
+                                     : gmul(U, gel(P,i));
+  return ZXX_renormalize(res,lP);
+}
+
+GEN
 QX_mul(GEN x, GEN y)
 {
   GEN dx, nx = Q_primitive_part(x, &dx);
