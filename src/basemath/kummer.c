@@ -804,8 +804,8 @@ mod_Xell_a(GEN z, long v, long ell, GEN an, GEN ad, GEN T)
 {
   GEN z1 = split_pol(z, v, ell, degpol(z));
   GEN z0 = split_pol(z, v, 0,   ell-1); /* z = v^ell z1 + z0*/
-  if (ad) z0 = typ(ad)==t_POL? ZXQX_ZXQ_mul(z0, ad, T): ZXX_Z_mul(z0, ad);
-  return gadd(z0, ZXX_Z_mul(z1, ad));
+  if (ad) z0 = ZXX_Z_mul(z0, ad);
+  return gadd(z0, ZXQX_ZXQ_mul(z1, an, T));
 }
 /* D*basistoalg(nfz, c), in variable v */
 static GEN
@@ -858,7 +858,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   r = vecsmall_reverse(r); /* theta^ell = be^( sum tau^a r_{d-1-a} ) */
   num = to_alg(nfz, nffactorback(nfz, powtaubet, r), vz, D);
   num = Q_remove_denom(num, &den); den = mul_denom(den, D);
-  if (DEBUGLEVEL>1) timer_printf(&ti, "root computed");
+  if (DEBUGLEVEL>1) err_printf("root(%ld) ", timer_delay(&ti));
 
   /* Compute modulo T^ell - t, nfzpol(vz), t = num/den */
   C_Rk = C_root; prim_Rk = prim_root;
