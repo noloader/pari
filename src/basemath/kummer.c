@@ -756,13 +756,14 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
   settyp(W, t_VEC); return W;
 }
 
-/* - mu_b = sum_{0 <= i < m} floor(r_b r_{m-1-i} / ell) tau^i */
+/* - mu_b = sum_{0 <= i < m} floor(r_b r_{m-1-i} / ell) tau^i.
+ * Note that i is in fact restricted to i < m-1 */
 static GEN
 get_mmu(long b, GEN r, long ell)
 {
   long i, m = lg(r)-1;
-  GEN M = cgetg(m+1, t_VECSMALL);
-  for (i = 0; i < m; i++) M[i+1] = (r[b + 1] * r[m - i]) / ell;
+  GEN M = cgetg(m, t_VECSMALL);
+  for (i = 0; i < m-1; i++) M[i+1] = (r[b + 1] * r[m - i]) / ell;
   return M;
 }
 /* max_b zv_sum(mu_b) < m ell */
@@ -823,7 +824,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   if (equali1(Dz)) Dz = NULL;
   D = Dz;
   Ninvbe = Q_remove_denom(nfinv(nfz, be), &Dinvbe);
-  powtau_Ninvbe = powtau(Ninvbe, m, T->tau);
+  powtau_Ninvbe = powtau(Ninvbe, m-1, T->tau);
   if (Dinvbe)
   {
     MU = max_smu(r, ell);
