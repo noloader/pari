@@ -756,22 +756,6 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
   settyp(W, t_VEC); return W;
 }
 
-static GEN
-pol_from_Newton(GEN S)
-{
-  long i, k, l = lg(S);
-  GEN C = cgetg(l+1, t_VEC), c = C + 1;
-  gel(c,0) = gen_1;
-  gel(c,1) = gel(S,1); /* gen_0 in our case */
-  for (k = 2; k < l; k++)
-  {
-    GEN s = gel(S,k);
-    for (i = 2; i < k-1; i++) s = gadd(s, gmul(gel(S,i), gel(c,k-i)));
-    gel(c,k) = gdivgs(s, -k);
-  }
-  return RgV_to_RgX(vecreverse(C), 0);
-}
-
 /* - mu_b = sum_{0 <= i < m} floor(r_b r_{d-1-i} / ell) tau^i */
 static GEN
 get_mmu(long b, GEN r, long ell)
@@ -862,8 +846,9 @@ compute_polrel(struct rnfkummer *kum, GEN be)
 
   /* Compute modulo T^ell - t, nfzpol(vz), t = num/den */
   C_Rk = C_root; prim_Rk = prim_root;
-  S = cgetg(ell+1, t_VEC); /* Newton sums */
-  gel(S,1) = gen_0;
+  S = cgetg(ell+3, t_POL); /* Newton sums */
+  S[1] = evalsigne(1) | evalvarn(0);
+  gel(S,2) = gen_0;
   for (k = 2; k <= ell; k++)
   { /* compute the k-th Newton sum */
     pari_sp av = avma;
@@ -875,14 +860,16 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     C_Rk = mul_content(C_Rk, D); /* root^k = prim_Rk * C_Rk */
 
     /* Newton sum is ell * constant coeff (in X), which has degree 0 in T */
-    z = downtoK(T, gmulgs(gel(prim_Rk, 2), ell));
+    z = gneg(downtoK(T, gmulgs(gel(prim_Rk, 2), ell)));
     if (C_Rk) z = gmul(z, C_Rk);
     gerepileall(av, C_Rk? 3: 2, &z, &prim_Rk, &C_Rk);
     if (DEBUGLEVEL>1) err_printf("%ld(%ld) ", k, timer_delay(&ti));
-    gel(S,k) = z;
+    gel(S,k+1) = z;
   }
+  gel(S,ell+2) = gen_m1;
   if (DEBUGLEVEL>1) err_printf("\n");
-  (void)delete_var(); return pol_from_Newton(S);
+  (void)delete_var();
+  return RgX_recip(RgXn_expint(S,ell+1));
 }
 
 static void
