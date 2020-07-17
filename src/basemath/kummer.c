@@ -793,13 +793,10 @@ mod_Xell_a(GEN z, long v, long ell, GEN an, GEN ad, GEN T)
 }
 /* D*basistoalg(nfz, c), in variable v */
 static GEN
-to_alg(GEN nfz, GEN c, long v, GEN D)
+to_alg(GEN nfz, GEN c, GEN D)
 {
-  GEN z;
   if (typ(c) != t_COL) return D? mulii(D,c): c;
-  z = RgV_dotproduct(nf_get_zkprimpart(nfz), c);
-  if (typ(z) == t_POL) setvarn(z, v);
-  return z;
+  return RgV_dotproduct(nf_get_zkprimpart(nfz), c);
 }
 
 /* th. 5.3.5. and prop. 5.3.9. */
@@ -807,21 +804,20 @@ static GEN
 compute_polrel(struct rnfkummer *kum, GEN be)
 {
   toK_s *T = &kum->T;
-  long i, k, ell = kum->ell, m = T->m, vz = fetch_var();
+  long i, k, ell = kum->ell, m = T->m, v = fetch_var_higher();
   GEN r = Fl_powers(kum->g, m-1, ell); /* r[i+1] = g^i mod ell */
-  GEN powtaubet, S, root, num, den, nfzpol, powtau_prim_invbe;
+  GEN powtaubet, S, root, num, den, powtau_prim_invbe;
   GEN prim_Rk, C_Rk, prim_root, C_root, prim_invbe, C_invbe;
-  GEN nfz = bnf_get_nf(kum->bnfz), D = nf_get_zkden(nfz);
+  GEN nfz = bnf_get_nf(kum->bnfz), Tz = nf_get_pol(nfz), D = nf_get_zkden(nfz);
   pari_timer ti;
 
-  nfzpol = leafcopy(nf_get_pol(nfz)); setvarn(nfzpol, vz);
   powtaubet = powtau(be, m, T->tau);
   if (DEBUGLEVEL>1) { err_printf("Computing Newton sums: "); timer_start(&ti); }
   prim_invbe = Q_primitive_part(nfinv(nfz, be), &C_invbe);
   powtau_prim_invbe = powtau(prim_invbe, m, T->tau);
 
   root = cgetg(ell + 2, t_POL); /* compute D*root, will correct at the end */
-  root[1] = evalsigne(1) | evalvarn(0);
+  root[1] = evalsigne(1) | evalvarn(v);
   gel(root,2) = gen_0;
   gel(root,3) = D;
   if (equali1(D)) D = NULL;
@@ -830,7 +826,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   { /* compute (1/be) ^ (-mu) instead of be^mu [mu < 0].
      * 1/be = C_invbe * prim_invbe */
     GEN mmu = get_mmu(i, r, ell), t; /* = prim_invbe ^ -mu */
-    t = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu), vz, D);
+    t = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu), D);
     if (C_invbe) t = gmul(t, gpowgs(C_invbe, zv_sum(mmu)));
     gel(root, 2 + r[i+1]) = t; /* root += D * (z_ell*T)^{r_i} be^mu_i */
   }
@@ -840,11 +836,11 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   if (D) C_root = mul_content(C_root, ginv(D));
 
   r = vecsmall_reverse(r); /* theta^ell = be^( sum tau^a r_{d-1-a} ) */
-  num = to_alg(nfz, nffactorback(nfz, powtaubet, r), vz, D);
+  num = to_alg(nfz, nffactorback(nfz, powtaubet, r), D);
   num = Q_remove_denom(num, &den); den = mul_denom(den, D);
   if (DEBUGLEVEL>1) err_printf("root(%ld) ", timer_delay(&ti));
 
-  /* Compute modulo T^ell - t, nfzpol(vz), t = num/den */
+  /* Compute mod (T^ell - t, nfz.pol), t = num/den */
   C_Rk = C_root; prim_Rk = prim_root;
   S = cgetg(ell+3, t_POL); /* Newton sums */
   S[1] = evalsigne(1) | evalvarn(0);
@@ -852,15 +848,15 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   for (k = 2; k <= ell; k++)
   { /* compute the k-th Newton sum */
     pari_sp av = avma;
-    GEN z, D, Rk = ZXQX_mul(prim_Rk, prim_root, nfzpol);
+    GEN z, D, Rk = ZXQX_mul(prim_Rk, prim_root, Tz);
     C_Rk = mul_content(C_Rk, C_root);
-    Rk = mod_Xell_a(Rk, 0, ell, num,den,nfzpol); /* (mod T^ell - t, nfz.pol) */
+    Rk = mod_Xell_a(Rk, v, ell, num,den,Tz); /* (mod T^ell - t, nfz.pol) */
     if (den) C_Rk = mul_content(C_Rk, ginv(den));
     prim_Rk = Q_primitive_part(Rk, &D);
     C_Rk = mul_content(C_Rk, D); /* root^k = prim_Rk * C_Rk */
 
-    /* Newton sum is ell * constant coeff (in X), which has degree 0 in T */
-    z = gneg(downtoK(T, gmulgs(gel(prim_Rk, 2), ell)));
+    /* Newton sum is ell * constant coeff */
+    z = downtoK(T, gmulgs(gel(prim_Rk, 2), -ell));
     if (C_Rk) z = gmul(z, C_Rk);
     gerepileall(av, C_Rk? 3: 2, &z, &prim_Rk, &C_Rk);
     if (DEBUGLEVEL>1) err_printf("%ld(%ld) ", k, timer_delay(&ti));
@@ -868,8 +864,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   }
   gel(S,ell+2) = gen_m1;
   if (DEBUGLEVEL>1) err_printf("\n");
-  (void)delete_var();
-  return RgX_recip(RgXn_expint(S,ell+1));
+  (void)delete_var(); return RgX_recip(RgXn_expint(S,ell+1));
 }
 
 static void
