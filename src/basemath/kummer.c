@@ -756,7 +756,7 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
   settyp(W, t_VEC); return W;
 }
 
-/* - mu_b = sum_{0 <= i < m} floor(r_b r_{d-1-i} / ell) tau^i */
+/* - mu_b = sum_{0 <= i < m} floor(r_b r_{m-1-i} / ell) tau^i */
 static GEN
 get_mmu(long b, GEN r, long ell)
 {
@@ -764,6 +764,14 @@ get_mmu(long b, GEN r, long ell)
   GEN M = cgetg(m+1, t_VECSMALL);
   for (i = 0; i < m; i++) M[i+1] = (r[b + 1] * r[m - i]) / ell;
   return M;
+}
+/* max_b zv_sum(mu_b) < m ell */
+static long
+max_smu(GEN r, long ell)
+{
+  long i, s = 0, z = vecsmall_max(r), l = lg(r);
+  for (i = 2; i < l; i++) s += (z * r[i]) / ell;
+  return s;
 }
 
 /* coeffs(x, a..b) in variable v >= varn(x) */
@@ -804,30 +812,39 @@ static GEN
 compute_polrel(struct rnfkummer *kum, GEN be)
 {
   toK_s *T = &kum->T;
-  long i, k, ell = kum->ell, m = T->m, v = fetch_var_higher();
+  long i, k, MU = 0, ell = kum->ell, m = T->m, v = fetch_var_higher();
   GEN r = Fl_powers(kum->g, m-1, ell); /* r[i+1] = g^i mod ell */
-  GEN powtaubet, S, root, num, den, powtau_prim_invbe;
-  GEN prim_Rk, C_Rk, prim_root, C_root, prim_invbe, C_invbe;
-  GEN nfz = bnf_get_nf(kum->bnfz), Tz = nf_get_pol(nfz), D = nf_get_zkden(nfz);
+  GEN D, S, root, num, den, powtau_Ninvbe, Ninvbe, Dinvbe;
+  GEN prim_Rk, C_Rk, prim_root, C_root;
+  GEN nfz = bnf_get_nf(kum->bnfz), Tz = nf_get_pol(nfz), Dz = nf_get_zkden(nfz);
   pari_timer ti;
 
-  powtaubet = powtau(be, m, T->tau);
   if (DEBUGLEVEL>1) { err_printf("Computing Newton sums: "); timer_start(&ti); }
-  prim_invbe = Q_primitive_part(nfinv(nfz, be), &C_invbe);
-  powtau_prim_invbe = powtau(prim_invbe, m, T->tau);
+  if (equali1(Dz)) Dz = NULL;
+  D = Dz;
+  Ninvbe = Q_remove_denom(nfinv(nfz, be), &Dinvbe);
+  powtau_Ninvbe = powtau(Ninvbe, m, T->tau);
+  if (Dinvbe)
+  {
+    MU = max_smu(r, ell);
+    D = mul_denom(Dz, powiu(Dinvbe, MU));
+  }
 
   root = cgetg(ell + 2, t_POL); /* compute D*root, will correct at the end */
   root[1] = evalsigne(1) | evalvarn(v);
   gel(root,2) = gen_0;
-  gel(root,3) = D;
-  if (equali1(D)) D = NULL;
+  gel(root,3) = D? D: gen_1;
   for (i = 2; i < ell; i++) gel(root,2+i) = gen_0;
   for (i = 1; i < m; i++)
   { /* compute (1/be) ^ (-mu) instead of be^mu [mu < 0].
-     * 1/be = C_invbe * prim_invbe */
-    GEN mmu = get_mmu(i, r, ell), t; /* = prim_invbe ^ -mu */
-    t = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu), D);
-    if (C_invbe) t = gmul(t, gpowgs(C_invbe, zv_sum(mmu)));
+     * 1/be = Ninvbe / Dinvbe */
+    GEN mmu = get_mmu(i, r, ell), t;
+    t = to_alg(nfz, nffactorback(nfz, powtau_Ninvbe, mmu), Dz);/* Ninvbe^-mu */
+    if (Dinvbe)
+    {
+      long a = MU - zv_sum(mmu);
+      if (a) t = gmul(t, powiu(Dinvbe, a));
+    }
     gel(root, 2 + r[i+1]) = t; /* root += D * (z_ell*T)^{r_i} be^mu_i */
   }
   /* Other roots are as above with z_ell -> z_ell^j.
@@ -836,8 +853,8 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   if (D) C_root = mul_content(C_root, ginv(D));
 
   r = vecsmall_reverse(r); /* theta^ell = be^( sum tau^a r_{d-1-a} ) */
-  num = to_alg(nfz, nffactorback(nfz, powtaubet, r), D);
-  num = Q_remove_denom(num, &den); den = mul_denom(den, D);
+  num = to_alg(nfz, nffactorback(nfz, powtau(be, m, T->tau), r), Dz);
+  num = Q_remove_denom(num, &den); den = mul_denom(den, Dz);
   if (DEBUGLEVEL>1) err_printf("root(%ld) ", timer_delay(&ti));
 
   /* Compute mod (T^ell - t, nfz.pol), t = num/den */
@@ -848,12 +865,12 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   for (k = 2; k <= ell; k++)
   { /* compute the k-th Newton sum */
     pari_sp av = avma;
-    GEN z, D, Rk = ZXQX_mul(prim_Rk, prim_root, Tz);
+    GEN z, d, Rk = ZXQX_mul(prim_Rk, prim_root, Tz);
     C_Rk = mul_content(C_Rk, C_root);
     Rk = mod_Xell_a(Rk, v, ell, num,den,Tz); /* (mod T^ell - t, nfz.pol) */
     if (den) C_Rk = mul_content(C_Rk, ginv(den));
-    prim_Rk = Q_primitive_part(Rk, &D);
-    C_Rk = mul_content(C_Rk, D); /* root^k = prim_Rk * C_Rk */
+    prim_Rk = Q_primitive_part(Rk, &d);
+    C_Rk = mul_content(C_Rk, d); /* root^k = prim_Rk * C_Rk */
 
     /* Newton sum is ell * constant coeff */
     z = downtoK(T, gmulgs(gel(prim_Rk, 2), -ell));
@@ -968,7 +985,7 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   if (DEBUGLEVEL>2) err_printf("Step 2\n");
   degK  = degpol(polnf);
   degKz = degpol(COMPO->R);
-  m = degKz / degK;
+  m = degKz / degK; /* > 1 */
   d = (ell-1) / m;
   g = Fl_powu(pgener_Fl(ell), d, ell);
   if (Fl_powu(g, m, ell*ell) == 1) g += ell;
