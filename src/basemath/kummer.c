@@ -800,7 +800,7 @@ mod_Xell_a(GEN z, long v, long ell, GEN an, GEN ad, GEN T)
   if (ad) z0 = ZXX_Z_mul(z0, ad);
   return gadd(z0, ZXQX_ZXQ_mul(z1, an, T));
 }
-/* D*basistoalg(nfz, c), in variable v */
+/* D*basistoalg(nfz, c), in variable v. Result is integral */
 static GEN
 to_alg(GEN nfz, GEN c, GEN D)
 {
@@ -816,7 +816,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   long i, k, MU = 0, ell = kum->ell, m = T->m, v = fetch_var_higher();
   GEN r = Fl_powers(kum->g, m-1, ell); /* r[i+1] = g^i mod ell */
   GEN D, S, root, num, den, powtau_Ninvbe, Ninvbe, Dinvbe;
-  GEN prim_Rk, C_Rk, prim_root, C_root;
+  GEN prim_Rk, C_Rk, prim_root, C_root, mell = utoineg(ell);
   GEN nfz = bnf_get_nf(kum->bnfz), Tz = nf_get_pol(nfz), Dz = nf_get_zkden(nfz);
   pari_timer ti;
 
@@ -853,9 +853,10 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   prim_root = Q_primitive_part(root, &C_root);
   C_root = div_content(C_root, D);
 
-  r = vecsmall_reverse(r); /* theta^ell = be^( sum tau^a r_{d-1-a} ) */
-  num = to_alg(nfz, nffactorback(nfz, powtau(be, m, T->tau), r), Dz);
-  num = Q_remove_denom(num, &den); den = mul_denom(den, Dz);
+  /* theta^ell = be^( sum tau^a r_{d-1-a} ) */
+  num = to_alg(nfz, nffactorback(nfz, powtau(be, m, T->tau),
+                                 vecsmall_reverse(r)), Dz);
+  den = Dz;
   if (DEBUGLEVEL>1) err_printf("root(%ld) ", timer_delay(&ti));
 
   /* Compute mod (T^ell - t, nfz.pol), t = num/den */
@@ -864,21 +865,22 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   S[1] = evalsigne(1) | evalvarn(0);
   gel(S,2) = gen_0;
   for (k = 2; k <= ell; k++)
-  { /* compute the k-th Newton sum */
+  { /* compute the k-th Newton sum; here C_Rk ~ C_root  */
     pari_sp av = avma;
-    GEN z, d, Rk = ZXQX_mul(prim_Rk, prim_root, Tz);
-    C_Rk = mul_content(C_Rk, C_root);
+    GEN z, C_z, d, Rk = ZXQX_mul(prim_Rk, prim_root, Tz);
+    C_Rk = mul_content(C_Rk, C_root); /* ~ C_root^2 */
     Rk = mod_Xell_a(Rk, v, ell, num,den,Tz); /* (mod T^ell - t, nfz.pol) */
-    C_Rk = div_content(C_Rk, den);
-    prim_Rk = Q_primitive_part(Rk, &d);
+    C_Rk = div_content(C_Rk, den); /* root^k = Rk * C_Rk */
+    prim_Rk = Q_primitive_part(Rk, &d); /* d C_root ~ 1 */
     C_Rk = mul_content(C_Rk, d); /* root^k = prim_Rk * C_Rk */
 
-    /* Newton sum is ell * constant coeff */
-    z = downtoK(T, gmulgs(gel(prim_Rk, 2), -ell));
-    if (C_Rk) z = gmul(z, C_Rk);
+    z = Q_primitive_part(gel(prim_Rk,2), &C_z); /* C_z ~ 1/C_root ~ 1/C_Rk */
+    z = downtoK(T, z);
+    C_z = mul_content(mul_content(C_z, C_Rk), mell);
+    z = gmul(z, C_z); /* C_z ~ 1 */
     gerepileall(av, C_Rk? 3: 2, &z, &prim_Rk, &C_Rk);
     if (DEBUGLEVEL>1) err_printf("%ld(%ld) ", k, timer_delay(&ti));
-    gel(S,k+1) = z;
+    gel(S,k+1) = z; /* - Newton sum */
   }
   gel(S,ell+2) = gen_m1;
   if (DEBUGLEVEL>1) err_printf("\n");
