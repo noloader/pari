@@ -211,15 +211,6 @@ prconj_in_list(GEN S, GEN P, tau_s *tau)
   return 0;
 }
 
-/* assume x in basistoalg form */
-static GEN
-downtoK(toK_s *T, GEN x)
-{
-  long degKz = lg(T->invexpoteta1) - 1;
-  GEN y = RgM_RgC_mul(T->invexpoteta1, Rg_to_RgC(lift_shallow(x), degKz));
-  return mkpolmod(RgV_to_RgX(y,varn(T->polnf)), T->polnf);
-}
-
 /* >= ell */
 static long
 get_z(GEN pr, long ell) { return ell * (pr_get_e(pr) / (ell-1)); }
@@ -807,6 +798,14 @@ to_alg(GEN nfz, GEN c, GEN D)
   if (typ(c) != t_COL) return D? mulii(D,c): c;
   return RgV_dotproduct(nf_get_zkprimpart(nfz), c);
 }
+/* assume x in alg form */
+static GEN
+downtoK(toK_s *T, GEN x)
+{
+  if (typ(x) != t_POL) return x;
+  x = RgM_RgC_mul(T->invexpoteta1, RgX_to_RgC(x, lg(T->invexpoteta1) - 1));
+  return mkpolmod(RgV_to_RgX(x, varn(T->polnf)), T->polnf);
+}
 
 /* th. 5.3.5. and prop. 5.3.9. */
 static GEN
@@ -1011,7 +1010,7 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   kum->vecW = kervirtualunit(kum, vselmer);
   if (DEBUGLEVEL>2) err_printf("Step 8\n");
   /* left inverse */
-  T->invexpoteta1 = RgM_inv(RgXQ_matrix_pow(COMPO->p, degKz, degK, COMPO->R));
+  T->invexpoteta1 = QM_inv(RgXQ_matrix_pow(COMPO->p, degKz, degK, COMPO->R));
   T->polnf = polnf;
   T->tau = &kum->tau;
   T->m = m;
