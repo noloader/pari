@@ -171,7 +171,7 @@ modulereltoabs(GEN rnf, GEN x)
     if (lg(id) == 1) continue; /* must be a t_MAT */
     id = Q_primitive_part(id, &cid);
     w = Q_primitive_part(eltreltoabs(rnfeq,w), &c0);
-    c0 = mul_content(c0, mul_content(cid,inv_content(dzknf)));
+    c0 = div_content(mul_content(c0,cid), dzknf);
     if (typ(id) == t_INT)
       for (j=1; j<=m; j++)
       {
@@ -396,7 +396,7 @@ nfeltup(GEN nf, GEN x, GEN zknf)
   x = Q_primitive_part(x, &c);
   if (!RgV_is_ZV(x)) pari_err_TYPE("rnfeltup", x);
   if (gequal1(dzknf)) dzknf = NULL;
-  c = mul_content(c, inv_content(dzknf));
+  c = div_content(c, dzknf);
   x = RgV_RgC_mul(zknf, x); if (c) x = RgX_Rg_mul(x, c);
   return x;
 }

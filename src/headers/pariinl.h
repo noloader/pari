@@ -2082,6 +2082,13 @@ mul_content(GEN cx, GEN cy)
 INLINE GEN
 inv_content(GEN c) { return c? ginv(c): NULL; }
 INLINE GEN
+div_content(GEN cx, GEN cy)
+{
+  if (!cy) return cx;
+  if (!cx) return ginv(cy);
+  return gdiv(cx,cy);
+}
+INLINE GEN
 mul_denom(GEN dx, GEN dy)
 {
   if (!dx) return dy;

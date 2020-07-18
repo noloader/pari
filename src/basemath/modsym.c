@@ -4998,7 +4998,7 @@ mspetersson(GEN W, GEN F, GEN G)
   mspetersson_i(W, F, G, &vf, &vg, &CD);
   vf = Q_primitive_part(vf, &cf);
   vg = Q_primitive_part(vg, &cg);
-  A = mul_content(mul_content(cf, cg), ginv(gel(CD,2)));
+  A = div_content(mul_content(cf, cg), gel(CD,2));
   l = lg(vf);
   if (tF != t_MAT)
   { /* <F,G>, two symbols */

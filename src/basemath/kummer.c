@@ -851,7 +851,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   /* Other roots are as above with z_ell -> z_ell^j.
    * Treat all contents (C_*) and principal parts (prim_*) separately */
   prim_root = Q_primitive_part(root, &C_root);
-  if (D) C_root = mul_content(C_root, ginv(D));
+  C_root = div_content(C_root, D);
 
   r = vecsmall_reverse(r); /* theta^ell = be^( sum tau^a r_{d-1-a} ) */
   num = to_alg(nfz, nffactorback(nfz, powtau(be, m, T->tau), r), Dz);
@@ -869,7 +869,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     GEN z, d, Rk = ZXQX_mul(prim_Rk, prim_root, Tz);
     C_Rk = mul_content(C_Rk, C_root);
     Rk = mod_Xell_a(Rk, v, ell, num,den,Tz); /* (mod T^ell - t, nfz.pol) */
-    if (den) C_Rk = mul_content(C_Rk, ginv(den));
+    C_Rk = div_content(C_Rk, den);
     prim_Rk = Q_primitive_part(Rk, &d);
     C_Rk = mul_content(C_Rk, d); /* root^k = prim_Rk * C_Rk */
 
