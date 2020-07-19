@@ -56,14 +56,13 @@ for (i = 1,10^4,
 Mod(1,2)-Mod(2,4)
 
 p=2^80+13; znlog(Mod(3,p),Mod(2,p))
-p=314138927;znlog(Mod(p\17,p),znprimroot(p))
-p=282744227;znlog(Mod(200474227,p),Mod(10,p))
+p=314138927;znlog(Mod(p\17,p),Mod(5,p))
+p=282744227;znlog(200474227,Mod(10,p))
+p=276922883;znlog(3,Mod(2,p)) \\ SEGV in Z_issmooth_fact
 
 g=Mod(3,11);
 v=[I,-1,Mat(1),matid(2)/2,Mat([5,1])];
 a=Mod(-1,11); for(i=1,#v, print(iferr(znlog(a,g,v[i]),E,E)));
-
-znlog(3,znprimroot(276922883)) \\ SEGV in Z_issmooth_fact
 
 bnr = bnrinit(bnfinit(x), [160,[1]], 1);
 g = bnr.gen;
