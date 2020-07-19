@@ -57,6 +57,7 @@ Mod(1,2)-Mod(2,4)
 
 p=2^80+13; znlog(Mod(3,p),Mod(2,p))
 p=314138927;znlog(Mod(p\17,p),znprimroot(p))
+p=282744227;znlog(Mod(200474227,p),Mod(10,p))
 
 g=Mod(3,11);
 v=[I,-1,Mat(1),matid(2)/2,Mat([5,1])];
