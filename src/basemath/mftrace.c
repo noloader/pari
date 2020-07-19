@@ -991,7 +991,7 @@ c_bracket(long n, long d, GEN S)
 
   if (!n)
   {
-    if (m > 0) { avma = av; return mkvec(gen_0); }
+    if (m > 0) { set_avma(av); return mkvec(gen_0); }
     return gerepilecopy(av, mkvec(gmul(gel(VF, 1), gel(VG, 1))));
   }
   tF = cgetg(nd+2, t_VEC);

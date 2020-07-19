@@ -219,7 +219,7 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
       g = ZM_mul(gel(C,m), gel(gam,a));
       k = conginlist(C, g, E, in);
       gel(M,m)[a] = k;
-      if (k < lg(C)) avma = av3;
+      if (k < lg(C)) set_avma(av3);
       else
       {
         k = _isin2(B, m, a);
@@ -238,7 +238,7 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
     g = ZM_mul(gel(C,m), gel(gam,a));
     k = conginlist(C, g, E, in);
     gel(M,m)[a] = k; /* class of C[m]*gam[a] */
-    if (k < lg(C)) avma = av3;
+    if (k < lg(C)) set_avma(av3);
     else
     {
       k = _isin2(B, m, a);

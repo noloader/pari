@@ -1429,14 +1429,14 @@ groupelts_to_group(GEN G)
     GEN p = gel(cyc,i);
     long o = ord[i];
     GEN H;
-    if (o == n) { avma = av; return cyclicgroup(p, o); }
+    if (o == n) { set_avma(av); return cyclicgroup(p, o); }
     H = cyclicgroup(p, o);
     if (groupelts_subgroup_isnormal(G, H))
     {
       GEN C = groupelts_quotient(G, H);
       GEN Q = quotient_groupelts(C);
       GEN R = groupelts_to_group(Q);
-      if (isintzero(R)) { avma = av; return gen_0; }
+      if (isintzero(R)) return gc_const(av, gen_0);
       return gerepilecopy(av, quotient_subgroup_lift(C, H, R));
     }
   }

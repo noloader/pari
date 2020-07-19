@@ -507,7 +507,7 @@ check_root(mpqs_handle_t *h, GEN mC, long p, long start)
     err_printf("MPQS: z = %ld\n", z);
     pari_err_BUG("MPQS: self_init: found wrong polynomial");
   }
-  avma = av;
+  set_avma(av);
 }
 #endif
 
