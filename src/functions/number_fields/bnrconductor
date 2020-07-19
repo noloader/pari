@@ -36,5 +36,29 @@ Doc: conductor $f$ of the subfield of a ray class field as defined by $[A,B,C]$
 
  If $\fl = 2$, $[f, \var{bnr}(f), \chi_f]$.
 
+ \misctitle{Note} Using this function with $\fl \neq 0$ is usually a
+ bad idea and kept for compatibility and convenience only: $\fl = 1$ has
+ always been useless, since it is no faster than $\fl = 2$ and returns less
+ information; $\fl = 2$ is mostly OK with two subtle drawbacks:
+
+ $\bullet$ it returns the full \var{bnr} attached to the full ray class
+ group, whereas in applications we only need $Cl_f$ modulo $N$-th powers,
+ where $N$ is any multiple of the exponent of $Cl_f/H$. Computing directly the
+ conductor, then calling \kbd{bnrinit} with optional argument $N$ avoids this
+ problem.
+
+ $\bullet$ computing the \var{bnr} needs only be done once for each
+ conductor, which is not possible using this function.
+
+ For maximal efficiency, the recommended procedure is as follows. Starting
+ from data (character or congruence subgroups) attached to a modulus $m$,
+ we can first compute the conductors using this function with default $\fl =
+ 0$. Then for all data with a common conductor $f \mid m$, compute (once!) the
+ \var{bnr} attached to $f$ using \kbd{bnrinit} (modulo $N$-th powers for
+ a suitable $N$!) and finally map original data to the new \var{bnr} using
+ \kbd{bnrmap}.
+
 Variant:
- Also available is \fun{GEN}{bnrconductor}{GEN bnr, GEN H, long flag}
+ Also available are \fun{GEN}{bnrconductor}{GEN bnr, GEN H, long flag}
+ and \fun{GEN}{bnrconductormod}{GEN bnr, GEN H, long flag, GEN cycmod}
+ which returns ray class groups modulo \kbd{cycmod}-th powers.
