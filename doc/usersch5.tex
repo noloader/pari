@@ -14369,7 +14369,9 @@ Some interesting hash functions are available:
 containing the first \kbd{len} characters (assume $\kbd{strlen}(s) \geq
 \kbd{len}$).
 
-\fun{ulong}{hash_GEN}{GEN x}
+\fun{ulong}{hash_GEN}{GEN x} generic hash function.
+
+\fun{ulong}{hash_zv}{GEN x} hash a \typ{VECSMALL}.
 
 \section{Dynamic arrays}
 
