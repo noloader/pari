@@ -62,6 +62,8 @@ g=Mod(3,11);
 v=[I,-1,Mat(1),matid(2)/2,Mat([5,1])];
 a=Mod(-1,11); for(i=1,#v, print(iferr(znlog(a,g,v[i]),E,E)));
 
+znlog(3,znprimroot(276922883)) \\ SEGV in Z_issmooth_fact
+
 bnr = bnrinit(bnfinit(x), [160,[1]], 1);
 g = bnr.gen;
 bnrchar(bnr, g, [1/2,0,0])
