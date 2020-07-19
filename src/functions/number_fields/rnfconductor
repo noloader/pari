@@ -1,7 +1,7 @@
 Function: rnfconductor
 Section: number_fields
 C-Name: rnfconductor0
-Prototype: GGDL0,L,
+Prototype: GGD0,L,
 Help: rnfconductor(bnf,T,{flag=0}): conductor of the Abelian extension
  of bnf defined by T. The result is [conductor,bnr,subgroup],
  where conductor is the conductor itself, bnr the attached bnr
