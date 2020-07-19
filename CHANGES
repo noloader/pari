@@ -109,6 +109,7 @@ BA  82- [mt] variable priorities in threads could be incorrect.
 BA  86- polmodular(p,,q) incorrect for large q
 BA  87- [pthread] polgalois(deg>7) could crash
     88- forqfvec or qfminim with negative bound => crash [#2237]
+    89- Z_issmooth_fact: incorrectly include 1 among prime factors
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

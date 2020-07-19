@@ -3513,10 +3513,9 @@ Z_issmooth_fact(GEN m, ulong lim)
       if (stop)
       {
         if (abscmpiu(m,lim) > 0) break;
-        P[i] = m[2];
-        E[i] = 1; i++;
+        if (m[2] > 1) { P[i] = m[2]; E[i] = 1; i++; }
         setlg(P, i);
-        setlg(E, i); set_avma((pari_sp)F); return F;
+        setlg(E, i); return gc_const((pari_sp)F, F);
       }
     }
   }
