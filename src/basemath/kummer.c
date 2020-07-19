@@ -766,15 +766,15 @@ max_smu(GEN r, long ell)
   return s;
 }
 
-/* coeffs(x, a..b) in variable v >= varn(x) */
+/* coeffs(x, a..b) in variable 0 >= varn(x) */
 static GEN
-split_pol(GEN x, long v, long a, long b)
+split_pol(GEN x, long a, long b)
 {
   long i, l = degpol(x);
   GEN y = x + a, z;
 
   if (l < b) b = l;
-  if (a > b || varn(x) != v) return pol_0(v);
+  if (a > b || varn(x) != 0) return pol_0(0);
   l = b-a + 3;
   z = cgetg(l, t_POL); z[1] = x[1];
   for (i = 2; i < l; i++) gel(z,i) = gel(y,i);
@@ -784,10 +784,10 @@ split_pol(GEN x, long v, long a, long b)
 /* return (ad * z) mod (T^ell - an/ad), assuming deg_T(z) < 2*ell
  * allow ad to be NULL (= 1) */
 static GEN
-mod_Xell_a(GEN z, long v, long ell, GEN an, GEN ad, GEN T)
+mod_Xell_a(GEN z, long ell, GEN an, GEN ad, GEN T)
 {
-  GEN z1 = split_pol(z, v, ell, degpol(z));
-  GEN z0 = split_pol(z, v, 0,   ell-1); /* z = v^ell z1 + z0*/
+  GEN z1 = split_pol(z, ell, degpol(z));
+  GEN z0 = split_pol(z, 0,   ell-1); /* z = v^ell z1 + z0*/
   if (ad) z0 = ZXX_Z_mul(z0, ad);
   return gadd(z0, ZXQX_ZXQ_mul(z1, an, T));
 }
@@ -812,10 +812,10 @@ static GEN
 compute_polrel(struct rnfkummer *kum, GEN be)
 {
   toK_s *T = &kum->T;
-  long i, k, MU = 0, ell = kum->ell, m = T->m, v = fetch_var_higher();
+  long i, k, MU = 0, ell = kum->ell, m = T->m;
   GEN r = Fl_powers(kum->g, m-1, ell); /* r[i+1] = g^i mod ell */
-  GEN D, S, root, num, den, powtau_Ninvbe, Ninvbe, Dinvbe;
-  GEN prim_Rk, C_Rk, prim_root, C_root, mell = utoineg(ell);
+  GEN D, S, root, numa, powtau_Ninvbe, Ninvbe, Dinvbe;
+  GEN C, prim_Rk, C_Rk, prim_root, C_root, mell = utoineg(ell);
   GEN nfz = bnf_get_nf(kum->bnfz), Tz = nf_get_pol(nfz), Dz = nf_get_zkden(nfz);
   pari_timer ti;
 
@@ -831,7 +831,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   }
 
   root = cgetg(ell + 2, t_POL); /* compute D*root, will correct at the end */
-  root[1] = evalsigne(1) | evalvarn(v);
+  root[1] = evalsigne(1) | evalvarn(0);
   gel(root,2) = gen_0;
   gel(root,3) = D? D: gen_1;
   for (i = 2; i < ell; i++) gel(root,2+i) = gen_0;
@@ -852,14 +852,14 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   prim_root = Q_primitive_part(root, &C_root);
   C_root = div_content(C_root, D);
 
-  /* theta^ell = be^( sum tau^a r_{d-1-a} ) */
-  num = to_alg(nfz, nffactorback(nfz, powtau(be, m, T->tau),
-                                 vecsmall_reverse(r)), Dz);
-  den = Dz;
+  /* theta^ell = be^( sum tau^a r_{d-1-a} ) = a = numa / Dz */
+  numa = to_alg(nfz, nffactorback(nfz, powtau(be, m, T->tau),
+                                  vecsmall_reverse(r)), Dz);
   if (DEBUGLEVEL>1) err_printf("root(%ld) ", timer_delay(&ti));
 
-  /* Compute mod (T^ell - t, nfz.pol), t = num/den */
+  /* Compute mod (X^ell - t, nfz.pol) */
   C_Rk = C_root; prim_Rk = prim_root;
+  C = div_content(C_root, Dz);
   S = cgetg(ell+3, t_POL); /* Newton sums */
   S[1] = evalsigne(1) | evalvarn(0);
   gel(S,2) = gen_0;
@@ -867,12 +867,10 @@ compute_polrel(struct rnfkummer *kum, GEN be)
   { /* compute the k-th Newton sum; here C_Rk ~ C_root  */
     pari_sp av = avma;
     GEN z, C_z, d, Rk = ZXQX_mul(prim_Rk, prim_root, Tz);
-    C_Rk = mul_content(C_Rk, C_root); /* ~ C_root^2 */
-    Rk = mod_Xell_a(Rk, v, ell, num,den,Tz); /* (mod T^ell - t, nfz.pol) */
-    C_Rk = div_content(C_Rk, den); /* root^k = Rk * C_Rk */
+    Rk = mod_Xell_a(Rk, ell, numa, Dz, Tz); /* (mod X^ell - a, nfz.pol) */
     prim_Rk = Q_primitive_part(Rk, &d); /* d C_root ~ 1 */
-    C_Rk = mul_content(C_Rk, d); /* root^k = prim_Rk * C_Rk */
-
+    C_Rk = mul_content(C_Rk, mul_content(d, C));
+    /* root^k = prim_Rk * C_Rk */
     z = Q_primitive_part(gel(prim_Rk,2), &C_z); /* C_z ~ 1/C_root ~ 1/C_Rk */
     z = downtoK(T, z);
     C_z = mul_content(mul_content(C_z, C_Rk), mell);
@@ -881,9 +879,8 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     if (DEBUGLEVEL>1) err_printf("%ld(%ld) ", k, timer_delay(&ti));
     gel(S,k+1) = z; /* - Newton sum */
   }
-  gel(S,ell+2) = gen_m1;
-  if (DEBUGLEVEL>1) err_printf("\n");
-  (void)delete_var(); return RgX_recip(RgXn_expint(S,ell+1));
+  gel(S,ell+2) = gen_m1; if (DEBUGLEVEL>1) err_printf("\n");
+  return RgX_recip(RgXn_expint(S,ell+1));
 }
 
 static void
