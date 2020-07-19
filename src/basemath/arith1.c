@@ -3937,7 +3937,7 @@ GEN
 Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pi, GEN sz)
 {
   pari_sp ltop = avma;
-  long th = expi(mulis(C,a)), n = lg(pi)-1;
+  long th, n = lg(pi)-1;
   long i, j;
   GEN sieve = zero_zv(a+2)+1;
   GEN L = cgetg(1+a+2, t_VEC);
@@ -3950,7 +3950,7 @@ Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pi, GE
     gel(L, rel++) = mkvec2(z, mkvecsmall3(1, a, -1));
     av = avma;
   }
-  for(i=1; i<=n; i++)
+  for (i=1; i<=n; i++)
   {
     ulong li = pi[i], s = sz[i], al = a % li;
     ulong u, iv = Fl_invsafe(Fl_add(Ci[i],al,li),li);
@@ -3959,8 +3959,12 @@ Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pi, GE
     for(j = u; j<=a; j+=li)
       sieve[j] += s;
   }
-  th = th - expu(th)-1;
-  for(j=0; j<a; j++)
+  if (a)
+  {
+    long e = expi(mulis(C,a));
+    th = e - expu(e) - 1;
+  } else th = -1;
+  for (j=0; j<a; j++)
     if (sieve[j]>=th)
     {
       GEN h = addiu(subii(muliu(C,a+j),c), a*j);
@@ -3975,10 +3979,7 @@ Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pi, GE
   {
     GEN h = addiu(subii(muliu(C,2*a),c), a*a);
     if ((z = Z_issmooth_fact(h, prmax)))
-    {
       gel(L, rel++) = mkvec2(z, mkvecsmall3(1, a, -2));
-      av = avma;
-    }
   }
   setlg(L, rel);
   return gerepilecopy(ltop, L);
