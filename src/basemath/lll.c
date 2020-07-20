@@ -21,30 +21,22 @@ static const double LLLDFT = 0.99;
 static GEN
 lll_trivial(GEN x, long flag)
 {
-  GEN y;
   if (lg(x) == 1)
   { /* dim x = 0 */
     if (! (flag & LLL_ALL)) return cgetg(1,t_MAT);
-    y=cgetg(3,t_VEC);
-    gel(y,1) = cgetg(1,t_MAT);
-    gel(y,2) = cgetg(1,t_MAT); return y;
+    retmkvec2(cgetg(1,t_MAT), cgetg(1,t_MAT));
   }
   /* dim x = 1 */
   if (gequal0(gel(x,1)))
   {
     if (flag & LLL_KER) return matid(1);
     if (flag & (LLL_IM|LLL_INPLACE)) return cgetg(1,t_MAT);
-    y = cgetg(3,t_VEC);
-    gel(y,1) = matid(1);
-    gel(y,2) = cgetg(1,t_MAT); return y;
+    retmkvec2(matid(1), cgetg(1,t_MAT));
   }
   if (flag & LLL_INPLACE) return gcopy(x);
   if (flag & LLL_KER) return cgetg(1,t_MAT);
   if (flag & LLL_IM)  return matid(1);
-  y=cgetg(3,t_VEC);
-  gel(y,1) = cgetg(1,t_MAT);
-  gel(y,2) = (flag & LLL_GRAM)? gcopy(x): matid(1);
-  return y;
+  retmkvec2(cgetg(1,t_MAT), (flag & LLL_GRAM)? gcopy(x): matid(1));
 }
 
 /* vecslice(h,#h-k,#h) in place. Works for t_MAT, t_VEC/t_COL */
