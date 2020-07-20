@@ -444,55 +444,53 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
       alpha[kappa] = kappa;
       tmp = mulrr(gmael(mu,kappa,kappa-1), gmael(r,kappa,kappa-1));
       affrr(subrr(gel(s,kappa-1), tmp), gmael(r,kappa,kappa));
-      set_avma(av2);
+      set_avma(av2); continue;
     }
-    else
-    { /* Step5: Find the right insertion index kappa, kappa2 = initial kappa */
-      if (DEBUGLEVEL>=4 && kappa==kappamax && signe(gel(s,kappa-1)))
-        if (++cnt > 20) { cnt = 0; err_printf("(%ld) ", expo(gel(s,1))); }
-      kappa2 = kappa;
-      do {
-        kappa--;
-        if (kappa<zeros+2 + (keepfirst ? 1: 0)) break;
-        tmp = mulrr(gmael(r,kappa-1,kappa-1), delta);
-      } while (cmprr(gel(s,kappa-1), tmp) <=0 );
-      set_avma(av2);
+    /* Step5: Find the right insertion index kappa, kappa2 = initial kappa */
+    if (DEBUGLEVEL>=4 && kappa==kappamax && signe(gel(s,kappa-1)))
+      if (++cnt > 20) { cnt = 0; err_printf("(%ld) ", expo(gel(s,1))); }
+    kappa2 = kappa;
+    do {
+      kappa--;
+      if (kappa<zeros+2 + (keepfirst ? 1: 0)) break;
+      tmp = mulrr(gmael(r,kappa-1,kappa-1), delta);
+    } while (cmprr(gel(s,kappa-1), tmp) <=0 );
+    set_avma(av2);
 
-      for (i=kappa; i<kappa2; i++)
-        if (kappa <= alpha[i]) alpha[i] = kappa;
-      for (i=kappa2; i>kappa; i--) alpha[i] = alpha[i-1];
-      for (i=kappa2+1; i<=kappamax; i++)
-        if (kappa < alpha[i]) alpha[i] = kappa;
-      alpha[kappa] = kappa;
+    for (i=kappa; i<kappa2; i++)
+      if (kappa <= alpha[i]) alpha[i] = kappa;
+    for (i=kappa2; i>kappa; i--) alpha[i] = alpha[i-1];
+    for (i=kappa2+1; i<=kappamax; i++)
+      if (kappa < alpha[i]) alpha[i] = kappa;
+    alpha[kappa] = kappa;
 
-      /* Step6: Update the mu's and r's */
-      rotate(mu,kappa2,kappa,d);
-      rotate(r,kappa2,kappa,d);
-      affrr(gel(s,kappa), gmael(r,kappa,kappa));
+    /* Step6: Update the mu's and r's */
+    rotate(mu,kappa2,kappa,d);
+    rotate(r,kappa2,kappa,d);
+    affrr(gel(s,kappa), gmael(r,kappa,kappa));
 
-      /* Step7: Update B, G, U */
-      if (!gram) rotate(B,kappa2,kappa,n);
-      if (U) rotate(U,kappa2,kappa,d);
+    /* Step7: Update B, G, U */
+    if (!gram) rotate(B,kappa2,kappa,n);
+    if (U) rotate(U,kappa2,kappa,d);
 
-      for (i=1; i<=kappa2; i++) gel(SPtmp,i) = gmael(G,kappa2,i);
-      for (i=kappa2+1; i<=maxG; i++) gel(SPtmp,i) = gmael(G,i,kappa2);
-      for (i=kappa2; i>kappa; i--)
-      {
-        for (j=1; j<kappa; j++) gmael(G,i,j) = gmael(G,i-1,j);
-        gmael(G,i,kappa) = gel(SPtmp,i-1);
-        for (j=kappa+1; j<=i; j++) gmael(G,i,j) = gmael(G,i-1,j-1);
-        for (j=kappa2+1; j<=maxG; j++) gmael(G,j,i) = gmael(G,j,i-1);
-      }
-      for (i=1; i<kappa; i++) gmael(G,kappa,i) = gel(SPtmp,i);
-      gmael(G,kappa,kappa) = gel(SPtmp,kappa2);
-      for (i=kappa2+1; i<=maxG; i++) gmael(G,i,kappa) = gel(SPtmp,i);
+    for (i=1; i<=kappa2; i++) gel(SPtmp,i) = gmael(G,kappa2,i);
+    for (i=kappa2+1; i<=maxG; i++) gel(SPtmp,i) = gmael(G,i,kappa2);
+    for (i=kappa2; i>kappa; i--)
+    {
+      for (j=1; j<kappa; j++) gmael(G,i,j) = gmael(G,i-1,j);
+      gmael(G,i,kappa) = gel(SPtmp,i-1);
+      for (j=kappa+1; j<=i; j++) gmael(G,i,j) = gmael(G,i-1,j-1);
+      for (j=kappa2+1; j<=maxG; j++) gmael(G,j,i) = gmael(G,j,i-1);
+    }
+    for (i=1; i<kappa; i++) gmael(G,kappa,i) = gel(SPtmp,i);
+    gmael(G,kappa,kappa) = gel(SPtmp,kappa2);
+    for (i=kappa2+1; i<=maxG; i++) gmael(G,i,kappa) = gel(SPtmp,i);
 
-      /* Step8: Prepare the next loop iteration */
-      if (kappa == zeros+1 && !signe(gmael(G,kappa,kappa)))
-      {
-        zeros++; kappa++;
-        affir(gmael(G,kappa,kappa), gmael(r,kappa,kappa));
-      }
+    /* Step8: Prepare the next loop iteration */
+    if (kappa == zeros+1 && !signe(gmael(G,kappa,kappa)))
+    {
+      zeros++; kappa++;
+      affir(gmael(G,kappa,kappa), gmael(r,kappa,kappa));
     }
   }
 
