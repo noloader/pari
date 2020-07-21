@@ -355,16 +355,16 @@ rotate(GEN mu, long kappa2, long kappa, long d)
 
 /* LLL-reduces the integer matrix(ces) (G,B,U)? "in place" */
 static GEN
-fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long prec)
+fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
 {
   const long gram = flag & LLL_GRAM; /*Gram matrix*/
   const long keepfirst = flag & LLL_KEEP_FIRST; /*never swap with first vector*/
   pari_sp av, av2;
-  long kappa, kappa2, d, n, i, j, zeros, kappamax, maxG, bab;
+  long kappa, kappa2, d, n, i, j, zeros, kappamax, maxG;
   GEN G, mu, r, s, tmp, SPtmp, alpha;
   GEN delta = dbltor(DELTA), eta = dbltor(ETA), halfplus1 = dbltor(1.5);
   pari_timer T;
-  GEN B = *ptrB, U;
+  GEN B = *pB, U;
   long cnt = 0;
 
   d = lg(B)-1;
@@ -379,7 +379,7 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
     G = zeromatcopy(d,d);
     n = nbrows(B);
   }
-  U = *ptrU; /* NULL if inplace */
+  U = *pU; /* NULL if inplace */
 
   if(DEBUGLEVEL>=4)
   {
@@ -432,10 +432,9 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
       }
     }
     /* Step3: Call to the Babai algorithm, mu,r,s updated in place */
-    bab = Babai(av, kappa, &G,&B,&U, mu,r,s, alpha[kappa], zeros, maxG,
+    if (Babai(av, kappa, &G,&B,&U, mu,r,s, alpha[kappa], zeros, maxG,
       gram? 0 : n,
-      eta, halfplus1, prec);
-    if (bab) {*ptrB=(gram?G:B); *ptrU=U; return NULL; }
+      eta, halfplus1, prec)) { *pB=(gram?G:B); *pU=U; return NULL; }
 
     av2 = avma;
     if ((keepfirst && kappa == 2) ||
@@ -495,7 +494,7 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
   }
 
   if (DEBUGLEVEL>=4) timer_printf(&T,"LLL");
-  if (ptrr) *ptrr = RgM_diagonal_shallow(r);
+  if (pr) *pr = RgM_diagonal_shallow(r);
   if (!U)
   {
     if (zeros) {
@@ -520,9 +519,9 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
   return U? U: B;
 }
 
-/* Assume x a ZM, if ptB != NULL, set it to Gram-Schmidt (squared) norms */
+/* Assume x a ZM, if pB != NULL, set it to Gram-Schmidt (squared) norms */
 GEN
-ZM_lll_norms(GEN x, double DELTA, long flag, GEN *B)
+ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pB)
 {
   pari_sp ltop = avma;
   const double ETA = 0.51;
@@ -533,7 +532,7 @@ ZM_lll_norms(GEN x, double DELTA, long flag, GEN *B)
   U = (flag & LLL_INPLACE)? NULL: matid(n);
   for (p = DEFAULTPREC;;)
   {
-    GEN m = fplll(&x, &U, B, DELTA, ETA, flag, p);
+    GEN m = fplll(&x, &U, pB, DELTA, ETA, flag, p);
     if (m) return m;
     p += DEFAULTPREC-2;
     gerepileall(ltop, U? 2: 1, &x, &U);
