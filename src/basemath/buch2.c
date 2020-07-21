@@ -3736,9 +3736,10 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   }
   LIMC2 = (high == LIMC0+1 && GRHchk(nf, &GRHcheck, LIMC0))? LIMC0: high;
   if (LIMC2 > LIMCMAX) LIMC2 = LIMCMAX;
+  /* Assuming GRH, {P, NP <= LIMC2} generate Cl(K) */
   if (DEBUGLEVEL) err_printf("LIMC2 = %ld\n", LIMC2);
-  LIMC0 = (long)(cbach*LOGD2);
-  LIMC = cbach? LIMC0: LIMC2;
+  LIMC0 = (long)(cbach*LOGD2); /* initial value for LIMC */
+  LIMC = cbach? LIMC0: LIMC2; /* use {P, NP <= LIMC} as a factorbase */
   LIMC = maxss(LIMC, nthideal(&GRHcheck, nf, N));
   if (DEBUGLEVEL) timer_printf(&T, "computing Bach constant");
   LIMres = primeneeded(N, R1, R2, LOGD);
