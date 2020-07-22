@@ -280,10 +280,10 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
       else
       {
         pari_sp btop;
-        GEN X, tmp2  = itor(ztmp,prec);
-        long e = expo(tmp2) - prec2nbits(prec);
+        long e = expi(ztmp) - prec2nbits(prec);
+        GEN X = ztmp;
 
-        X = trunc2nr(tmp2, -e); if (e < 0) { X = shifti(X,e); e = 0; }
+        if (e <= 0) e = 0; else X = shifti(X, -e);
         btop = avma;
         for (k=zeros+1; k<j; k++)
         {
