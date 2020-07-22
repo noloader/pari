@@ -167,6 +167,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
         maxmu = gmael(mu,kappa,j);
       set_avma(btop);
     }
+    maxmu = absr(maxmu); /* copy needed: we 'affrr' to mu later */
     if (typ(max3mu)==t_REAL && abscmprr(max3mu, shiftr(max2mu, 5)) <= 0)
     { /* precision too low */
       *pG = G; *pU = U; return kappa;
