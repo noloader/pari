@@ -362,13 +362,11 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
 {
   const long keepfirst = flag & LLL_KEEP_FIRST; /*never swap with first vector*/
   pari_sp av, av2;
-  long kappa, kappa2, d, i, j, zeros, kappamax;
+  long kappa, kappa2, i, j, zeros, kappamax;
   GEN G, mu, r, s, tmp, SPtmp, alpha, B = *pB, U = *pU;
   GEN delta = dbltor(DELTA), eta = dbltor(ETA), halfplus1 = dbltor(1.5);
-  pari_timer T;
-  long cnt = 0;
+  long cnt = 0, d = lg(B)-1;
 
-  d = lg(B)-1;
   if (flag & LLL_GRAM)
   { /*Gram matrix*/
     G = B;
@@ -376,12 +374,6 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
   }
   else
     G = ZM_gram_upper(B);
-  if(DEBUGLEVEL>=4)
-  {
-    timer_start(&T);
-    err_printf("Entering L^2: LLL-parameters (%P.3f,%.3Pf), working precision %d words\n",delta,eta, prec);
-  }
-
   mu = cgetg(d+1, t_MAT);
   r  = cgetg(d+1, t_MAT);
   s  = cgetg(d+1, t_VEC);
@@ -476,8 +468,6 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
       affir(gmael(G,kappa,kappa), gmael(r,kappa,kappa));
     }
   }
-
-  if (DEBUGLEVEL>=4) timer_printf(&T,"LLL");
   if (pr) *pr = RgM_diagonal_shallow(r);
   if (!U)
   { if (zeros) B = lll_get_im(B, zeros); }
@@ -496,7 +486,7 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
 GEN
 ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pB)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   const double ETA = 0.51;
   long p, n = lg(x)-1;
   GEN U;
@@ -505,10 +495,19 @@ ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pB)
   U = (flag & LLL_INPLACE)? NULL: matid(n);
   for (p = DEFAULTPREC;;)
   {
-    GEN m = fplll(&x, &U, pB, DELTA, ETA, flag, p);
+    pari_timer T;
+    GEN m;
+    if(DEBUGLEVEL>=4)
+    {
+      err_printf("Entering L^2: LLL-parameters (%.3f,%.3f), prec = %d\n",
+                 DELTA,ETA, p);
+      timer_start(&T);
+    }
+    m = fplll(&x, &U, pB, DELTA, ETA, flag, p);
+    if (DEBUGLEVEL>=4) timer_printf(&T,"LLL");
     if (m) return m;
     p += DEFAULTPREC-2;
-    gerepileall(ltop, U? 2: 1, &x, &U);
+    gerepileall(av, U? 2: 1, &x, &U);
   }
 }
 
