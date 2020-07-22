@@ -1391,7 +1391,18 @@ famat_reduce(GEN fa)
 GEN
 matreduce(GEN f)
 { pari_sp av = avma;
-  if (typ(f) != t_MAT || lg(f) != 3) pari_err_TYPE("matreduce", f);
+  switch(typ(f))
+  {
+    case t_VEC: case t_COL:
+    {
+      GEN e = RgV_count(&f);
+      return gerepilecopy(av, mkmat2(f, zv_to_ZV(e)));
+    }
+    case t_MAT:
+      if (lg(f) == 3) break;
+    default:
+      pari_err_TYPE("matreduce", f);
+  }
   if (typ(gel(f,1)) == t_VECSMALL)
     f = famatsmall_reduce(f);
   else
