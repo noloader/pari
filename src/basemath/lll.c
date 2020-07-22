@@ -39,14 +39,13 @@ lll_trivial(GEN x, long flag)
   retmkvec2(cgetg(1,t_MAT), (flag & LLL_GRAM)? gcopy(x): matid(1));
 }
 
-/* vecslice(h,#h-k,#h) in place. Works for t_MAT, t_VEC/t_COL */
+/* vecslice(x,#x-k,#x) in place. Works for t_MAT, t_VEC/t_COL */
 static GEN
-lll_get_im(GEN h, long k)
+vectail_inplace(GEN x, long k)
 {
-  ulong mask = h[0] & ~LGBITS;
-  long l = lg(h) - k;
-  h += k; h[0] = mask | evallg(l);
-  return h;
+  if (!k) return x;
+  x[k] = ((ulong)x[0] & ~LGBITS) | evallg(lg(x) - k);
+  return x + k;
 }
 
 /* k = dim Kernel */
@@ -54,10 +53,11 @@ static GEN
 lll_finish(GEN h, long k, long flag)
 {
   GEN g;
+  if (!(flag & (LLL_IM|LLL_KER|LLL_ALL|LLL_INPLACE))) return h;
+  if (flag & (LLL_IM|LLL_INPLACE)) return vectail_inplace(h, k);
   if (flag & LLL_KER) { setlg(h,k+1); return h; }
-  if (flag & LLL_IM) return lll_get_im(h, k);
-  g = vecslice(h,1,k);
-  return mkvec2(g, lll_get_im(h, k));
+  g = vecslice(h,1,k); /* done first: vectail_inplace kills h */
+  return mkvec2(g, vectail_inplace(h, k));
 }
 
 INLINE GEN
@@ -167,12 +167,9 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
         maxmu = gmael(mu,kappa,j);
       set_avma(btop);
     }
-    maxmu = absr(maxmu);
-    if (typ(max3mu)==t_REAL && abscmprr(max3mu, shiftr(max2mu, 5))<=0)
-    {
-      *pG = G; *pU = U;
-      if (DEBUGLEVEL>5) err_printf("prec too low\n");
-      return kappa;
+    if (typ(max3mu)==t_REAL && abscmprr(max3mu, shiftr(max2mu, 5)) <= 0)
+    { /* precision too low */
+      *pG = G; *pU = U; return kappa;
     }
 
     /* Step3--5: compute the X_j's  */
@@ -356,24 +353,19 @@ ZM_gram_upper(GEN x)
   return M;
 }
 
-/* LLL-reduces the integer matrix(ces) (G,B,U) "in place" */
-static GEN
-fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
+/* G integral Gram matrix, LLL-reduces (G,U) in place [apply base change
+ * transforms to U]. If (keepfirst), never swap with first vector.
+ * Return -1 on failure, else zeros = dim Kernel (>= 0) */
+static long
+fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
+      long prec)
 {
-  const long keepfirst = flag & LLL_KEEP_FIRST; /*never swap with first vector*/
   pari_sp av, av2;
   long kappa, kappa2, i, j, zeros, kappamax;
-  GEN G, mu, r, s, tmp, SPtmp, alpha, B = *pB, U = *pU;
+  GEN mu, r, s, tmp, SPtmp, alpha, G = *pG, U = *pU;
   GEN delta = dbltor(DELTA), eta = dbltor(ETA), halfplus1 = dbltor(1.5);
-  long cnt = 0, d = lg(B)-1;
+  long cnt = 0, d = lg(G)-1;
 
-  if (flag & LLL_GRAM)
-  { /*Gram matrix*/
-    G = B;
-    B = NULL; /* dummy */
-  }
-  else
-    G = ZM_gram_upper(B);
   mu = cgetg(d+1, t_MAT);
   r  = cgetg(d+1, t_MAT);
   s  = cgetg(d+1, t_VEC);
@@ -412,8 +404,8 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
       kappamax = kappa;
     }
     /* Step3: Call to the Babai algorithm, mu,r,s updated in place */
-    if (Babai(av, kappa, &G, U? &U: &B, mu,r,s, alpha[kappa], zeros,
-              eta, halfplus1, prec)) { *pB = B? B: G; *pU = U; return NULL; }
+    if (Babai(av, kappa, &G, &U, mu,r,s, alpha[kappa], zeros,
+              eta, halfplus1, prec)) { *pG = G; *pU = U; return -1; }
     av2 = avma;
     if ((keepfirst && kappa == 2) ||
         cmprr(mulrr(gmael(r,kappa-1,kappa-1), delta), gel(s,kappa-1)) <= 0)
@@ -447,7 +439,7 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
     affrr(gel(s,kappa), gmael(r,kappa,kappa));
 
     /* Step7: Update G, U */
-    rotate(U? U: B, kappa2, kappa);
+    rotate(U, kappa2, kappa);
     for (i=1; i<=kappa2; i++) gel(SPtmp,i) = gmael(G,kappa2,i);
     for (i=kappa2+1; i<=d; i++) gel(SPtmp,i) = gmael(G,i,kappa2);
     for (i=kappa2; i>kappa; i--)
@@ -469,14 +461,10 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
     }
   }
   if (pr) *pr = RgM_diagonal_shallow(r);
-  if (!U)
-  { if (zeros) B = lll_get_im(B, zeros); }
-  else if (flag & (LLL_IM|LLL_KER|LLL_ALL))
-    U = lll_finish(U, zeros, flag);
-  return U? U: B;
+  *pG = G; *pU = U; return zeros; /* success */
 }
 
-/* Assume x a ZM, if pB != NULL, set it to Gram-Schmidt (squared) norms
+/* Assume x a ZM, if pN != NULL, set it to Gram-Schmidt (squared) norms
  * The following modes are supported:
  * - flag & LLL_INPLACE: x a lattice basis, return x*U
  * - flag & LLL_GRAM: x a Gram matrix / else x a lattice basis; return
@@ -484,31 +472,39 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
  *     kernel basis [LLL_KER, non-reduced]
  *     both [LLL_ALL] */
 GEN
-ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pB)
+ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pN)
 {
   pari_sp av = avma;
   const double ETA = 0.51;
-  long p, n = lg(x)-1;
-  GEN U;
+  long p, zeros, n = lg(x)-1;
+  GEN G, U;
+  pari_timer T;
+
   if (n <= 1) return lll_trivial(x, flag);
-  x = RgM_shallowcopy(x);
-  U = (flag & LLL_INPLACE)? NULL: matid(n);
-  for (p = DEFAULTPREC;;)
+  if (flag & LLL_INPLACE)
+  { /* INPLACE => !GRAM & IM */
+    U = RgM_shallowcopy(x);
+    G = ZM_gram_upper(x);
+  }
+  else
   {
-    pari_timer T;
-    GEN m;
-    if(DEBUGLEVEL>=4)
+    U = matid(n);
+    G = (flag & LLL_GRAM)? RgM_shallowcopy(x): ZM_gram_upper(x);
+  }
+  for (p = DEFAULTPREC;; p += DEFAULTPREC-2)
+  {
+    if (DEBUGLEVEL>=4)
     {
       err_printf("Entering L^2: LLL-parameters (%.3f,%.3f), prec = %d\n",
                  DELTA,ETA, p);
       timer_start(&T);
     }
-    m = fplll(&x, &U, pB, DELTA, ETA, flag, p);
-    if (DEBUGLEVEL>=4) timer_printf(&T,"LLL");
-    if (m) return m;
-    p += DEFAULTPREC-2;
-    gerepileall(av, U? 2: 1, &x, &U);
+    zeros = fplll(&G, &U, pN, DELTA, ETA, flag & LLL_KEEP_FIRST, p);
+    if (zeros >= 0) break;
+    gerepileall(av, 2, &G, &U);
   }
+  if (DEBUGLEVEL>=4) timer_printf(&T,"LLL");
+  return lll_finish(U, zeros, flag);
 }
 
 /********************************************************************/
