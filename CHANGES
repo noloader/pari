@@ -183,6 +183,9 @@ BA  45- closures: do not copy the full context, only the accessible part
 HC  56- zetamultall: add flag
     57- subgrouplist: allow any object affording a .cyc method
     58- remove zetamultinit and corresponding optional argument in zetamult
+    59- [libpari] ZM_lll: flags LLL_INPLACE and LLL_GRAM are now incompatible
+        (reducing a Gram matrix in place without returning the base change
+        matrix is not useful; supporting it would complicate the code)
 
   Added
      1- new GP function rootsof1

@@ -336,8 +336,27 @@ rotate(GEN A, long k2, long k)
 /* ****************** */
 /* The LLL Algorithm  */
 /* ****************** */
+/* Gram matrix; only fill upper part [use less memory]. Assume dim > 0 */
+static GEN
+ZM_gram_upper(GEN x)
+{
+  long i, j, lx = lg(x);
+  GEN M = cgetg(lx,t_MAT);
+  for (i = 1; i < lx; i++)
+  {
+    GEN xi = gel(x,i), c = cgetg(lx,t_COL);
+    gel(M,i) = c;
+    for (j = 1; j < i; j++)
+    {
+      gcoeff(M,i,j) = gen_0;
+      gel(c,j) = ZV_dotproduct(xi, gel(x,j));
+    }
+    gel(c,i) = ZV_dotsquare(xi);
+  }
+  return M;
+}
 
-/* LLL-reduces the integer matrix(ces) (G,B,U)? "in place" */
+/* LLL-reduces the integer matrix(ces) (G,B,U) "in place" */
 static GEN
 fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
 {
@@ -356,7 +375,7 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
     B = NULL; /* dummy */
   }
   else
-    G = gram_matrix(B);
+    G = ZM_gram_upper(B);
   if(DEBUGLEVEL>=4)
   {
     timer_start(&T);
@@ -378,7 +397,7 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
       gel(M,i) = cgetr(prec);
     }
   }
-  SPtmp = zerovec(d+1);
+  SPtmp = cgetg(d+1, t_VEC);
   alpha = cgetg(d+1, t_VECSMALL);
   av = avma;
 
@@ -395,7 +414,7 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
 
   while (++kappa <= d)
   {
-    if (kappa>kappamax)
+    if (kappa > kappamax)
     {
       if (DEBUGLEVEL>=4) err_printf("K%ld ",kappa);
       kappamax = kappa;
@@ -464,14 +483,16 @@ fplll(GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
   { if (zeros) B = lll_get_im(B, zeros); }
   else if (flag & (LLL_IM|LLL_KER|LLL_ALL))
     U = lll_finish(U, zeros, flag);
-  if (U) return U;
-  if (B) return B;
-  for (i = 1; i <= d; i++)
-    for (j = i+1; j <= d; j++) gmael(G,i,j) = gmael(G,j,i);
-  return G;
+  return U? U: B;
 }
 
-/* Assume x a ZM, if pB != NULL, set it to Gram-Schmidt (squared) norms */
+/* Assume x a ZM, if pB != NULL, set it to Gram-Schmidt (squared) norms
+ * The following modes are supported:
+ * - flag & LLL_INPLACE: x a lattice basis, return x*U
+ * - flag & LLL_GRAM: x a Gram matrix / else x a lattice basis; return
+ *     LLL base change matrix U [LLL_IM]
+ *     kernel basis [LLL_KER, non-reduced]
+ *     both [LLL_ALL] */
 GEN
 ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pB)
 {

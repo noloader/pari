@@ -2802,8 +2802,8 @@ multiplication), then collect garbage immediately.
 \item  \tet{LLL_GRAM}. If set, the input matrix $x$ is the Gram matrix ${}^t
 v v$ of some lattice vectors $v$.
 
-\item  \tet{LLL_INPLACE}. If unset, we return the base change matrix $U$,
-otherwise the transformed matrix $x U$ or ${}^t U x U$ (\kbd{LLL\_GRAM}).
+\item  \tet{LLL_INPLACE}. Incompatible with \kbd{LLL\_GRAM}. If unset, we
+return the base change matrix $U$, otherwise the transformed matrix $x U$.
 Implies \tet{LLL_IM} (see below).
 
 \item  \tet{LLL_KEEP_FIRST}. The first vector in the output basis is the same
@@ -2839,7 +2839,6 @@ exact base change matrix).
 general version of \kbd{ZM\_lll}, setting \kbd{*ptB} to a vector containing
 the squared norms of the Gram-Schmidt vectors $(b_i^*)$ attached to the
 output basis $(b_i)$, $b_i^* = b_i + \sum_{j < i} \mu_{i,j} b_j^*$.
-
 
 \fun{GEN}{lllintpartial_inplace}{GEN x} given a \kbd{ZM} $x$ of maximal rank,
 returns a partially reduced basis $(b_i)$ for the space spanned by the

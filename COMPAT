@@ -73,6 +73,9 @@ This file lists the incompatible changes between Version 2.x and older versions
   - bnrsurjection now returns [Matrix, cyc(F), cyc(f)] inste of Matrix
   - zetamultall prototype change: added flag
   - remove obsolete function checkbnrgen: use bnr_get_gen(bnr)
+  - ZM_lll / ZM_lll_norms: flags LLL_INPLACE and LLL_GRAM are now incompatible
+    (reducing a Gram matrix in place without returning the base change
+    matrix is not useful; supporting it would complicate the code)
 
 * Specific to the pthread interface
 ===================================
