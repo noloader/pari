@@ -83,7 +83,7 @@ get_int(const char *s, long dflt)
   int minus = 0;
 
   if (*p == '-') { minus = 1; p++; }
-  if (!isdigit((int)*p)) gc_long(av, dflt);
+  if (!isdigit((int)*p)) return gc_long(av, dflt);
 
   n = (long)my_int(p);
   if (n < 0) pari_err(e_SYNTAX,"integer too large",s,s);
