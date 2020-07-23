@@ -110,6 +110,14 @@ submulshift(GEN x, GEN y, GEN z, long e)
   http://www.shoup.net/ntl/
 */
 
+/* x t_REAL, |x| >= 1/2. Test whether |x| <= 1.5 */
+static int
+absrsmall(GEN x)
+{
+  long e = expo(x);
+  return (e < 0) || (e == 0 && x[2] <= (3UL << (BITS_IN_LONG-2)));
+}
+
 /***********************************************/
 /* Babai's Nearest Plane algorithm (iterative) */
 /***********************************************/
@@ -119,7 +127,7 @@ mu, r, s updated in place (affrr).
 */
 static long
 Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
-      long a, long zeros, long maxG, GEN eta, GEN halfplus1, long prec)
+      long a, long zeros, long maxG, GEN eta, long prec)
 {
   pari_sp av0 = avma;
   GEN G = *pG, U = *pU, tmp, rtmp, ztmp;
@@ -186,7 +194,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
       }
       go_on = 1;
       /* we consider separately the case |X| = 1 */
-      if (abscmprr(tmp, halfplus1) <= 0)
+      if (absrsmall(tmp))
       {
         if (signe(tmp) > 0) { /* in this case, X = 1 */
           pari_sp btop = avma;
@@ -364,7 +372,7 @@ fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
 {
   pari_sp av, av2;
   GEN mu, r, s, tmp, SPtmp, alpha, G = *pG, U = *pU;
-  GEN delta = dbltor(DELTA), eta = dbltor(ETA), halfplus1 = dbltor(1.5);
+  GEN delta = dbltor(DELTA), eta = dbltor(ETA);
   long d, maxG, kappa, kappa2, i, j, zeros, kappamax, incgram = !G, cnt = 0;
 
   if (incgram)
@@ -420,8 +428,7 @@ fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
       }
     }
     /* Step3: Call to the Babai algorithm, mu,r,s updated in place */
-    if (Babai(av, kappa, &G, &U, mu,r,s, alpha[kappa], zeros, maxG,
-              eta, halfplus1, prec))
+    if (Babai(av, kappa, &G, &U, mu,r,s, alpha[kappa], zeros, maxG, eta, prec))
     {
       if (incgram) G = NULL;
       *pG = G; *pU = U; return -1;
