@@ -496,7 +496,7 @@ ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pN)
 {
   pari_sp av = avma;
   const double ETA = 0.51;
-  long p, zeros, maxG, n = lg(x)-1;
+  long p, zeros, n = lg(x)-1;
   GEN G, U;
   pari_timer T;
 
@@ -505,13 +505,11 @@ ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pN)
   { /* INPLACE => !GRAM & IM */
     U = RgM_shallowcopy(x);
     G = NULL; /* will be computed incrementally */
-    maxG = 1;
   }
   else
   {
     U = matid(n);
     G = (flag & LLL_GRAM)? RgM_shallowcopy(x): ZM_gram_upper(x);
-    maxG = n;
   }
   for (p = DEFAULTPREC;; p += DEFAULTPREC-2)
   {
