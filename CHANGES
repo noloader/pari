@@ -301,6 +301,7 @@ BA 102- [libpari] ZXQ_powers, ZXX_Q_mul, QXQX_mul, QXQX_sqr, QXQX_powers
 BA 103- [libpari] Kronecker_to_ZXQX, QXQX_QXQ_mul, ZXQX_ZXQ_mul
    104- [libpari] zv_sumpart, div_content, hash_zv
 BA 105- [libpari] groupelts_conj_set, group_subgroup_is_faithful
+   106- qflll(x,3) in place reduction: return x * qflll(x) [faster]
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

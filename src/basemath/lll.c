@@ -686,7 +686,7 @@ static GEN
 lllallgen(GEN x, long flag)
 {
   pari_sp av = avma;
-  if ((flag & LLL_GRAM) == 0) x = gram_matrix(x);
+  if (!(flag & LLL_GRAM)) x = gram_matrix(x);
   else if (!RgM_square(x)) pari_err_DIM("qflllgram");
   return gerepilecopy(av, lllgramallgen(x, flag));
 }
@@ -701,19 +701,19 @@ lllgramkerimgen(GEN x)  { return lllallgen(x, LLL_ALL|LLL_GRAM); }
 
 static GEN
 lllall(GEN x, long flag)
-{
-  pari_sp av = avma;
-  if ((flag & LLL_GRAM) && !RgM_square(x)) pari_err_DIM("qflllgram");
-  return gerepilecopy(av, ZM_lll(x, LLLDFT, flag));
-}
+{ pari_sp av = avma; return gerepilecopy(av, ZM_lll(x, LLLDFT, flag)); }
 GEN
 lllint(GEN x) { return lllall(x, LLL_IM); }
 GEN
 lllkerim(GEN x) { return lllall(x, LLL_ALL); }
 GEN
-lllgramint(GEN x) { return lllall(x, LLL_IM | LLL_GRAM); }
+lllgramint(GEN x)
+{ if (!RgM_square(x)) pari_err_DIM("qflllgram");
+  return lllall(x, LLL_IM | LLL_GRAM); }
 GEN
-lllgramkerim(GEN x) { return lllall(x, LLL_ALL | LLL_GRAM); }
+lllgramkerim(GEN x)
+{ if (!RgM_square(x)) pari_err_DIM("qflllgram");
+  return lllall(x, LLL_ALL | LLL_GRAM); }
 
 GEN
 lllfp(GEN x, double D, long flag)
@@ -741,6 +741,7 @@ qflll0(GEN x, long flag)
     case 0: return lll(x);
     case 1: RgM_check_ZM(x,"qflll"); return lllint(x);
     case 2: RgM_check_ZM(x,"qflll"); return lllintpartial(x);
+    case 3: RgM_check_ZM(x,"qflll"); return lllall(x, LLL_INPLACE);
     case 4: RgM_check_ZM(x,"qflll"); return lllkerim(x);
     case 5: return lllkerimgen(x);
     case 8: return lllgen(x);
