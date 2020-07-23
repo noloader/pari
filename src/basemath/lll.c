@@ -461,7 +461,7 @@ fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
     /* Step7: Update G, U */
     rotate(U, kappa2, kappa);
     for (i=1; i<=kappa2; i++) gel(SPtmp,i) = gmael(G,kappa2,i);
-    for (i=kappa2+1; i<=maxG; i++) gel(SPtmp,i) = gmael(G,i,kappa2);
+    for (   ; i<=maxG;   i++) gel(SPtmp,i) = gmael(G,i,kappa2);
     for (i=kappa2; i>kappa; i--)
     {
       for (j=1; j<kappa; j++) gmael(G,i,j) = gmael(G,i-1,j);
