@@ -356,21 +356,20 @@ ZM_gram_upper(GEN x)
 
 /* G integral Gram matrix, LLL-reduces (G,U) in place [apply base change
  * transforms to U]. If (keepfirst), never swap with first vector.
- * Return -1 on failure, else zeros = dim Kernel (>= 0) */
+ * If G = NULL, U is the lattice basis and we compute the Gram matrix
+ * incrementally. Return -1 on failure, else zeros = dim Kernel (>= 0) */
 static long
-fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long flag, long prec)
+fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
+      long prec)
 {
-  const long keepfirst = flag & LLL_KEEP_FIRST;
   pari_sp av, av2;
-  long d, maxG, kappa, kappa2, i, j, zeros, kappamax, incgram = 0, cnt = 0;
   GEN mu, r, s, tmp, SPtmp, alpha, G = *pG, U = *pU;
   GEN delta = dbltor(DELTA), eta = dbltor(ETA), halfplus1 = dbltor(1.5);
+  long d, maxG, kappa, kappa2, i, j, zeros, kappamax, incgram = !G, cnt = 0;
 
-  if (!G)
-  { /* LLL_INPLACE <=> incremental Gram matrix; U = lattice basis */
-    incgram = 1;
-    maxG = 2;
-    d = lg(U)-1;
+  if (incgram)
+  { /* LLL_INPLACE <=> incremental Gram matrix */
+    maxG = 2; d = lg(U)-1;
     G = zeromatcopy(d, d);
   }
   else
@@ -522,7 +521,8 @@ ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pN)
                  DELTA,ETA, p);
       timer_start(&T);
     }
-    if ((zeros = fplll(&G, &U, pN, DELTA, ETA, flag, p)) >= 0) break;
+    zeros = fplll(&G, &U, pN, DELTA, ETA, flag & LLL_KEEP_FIRST, p);
+    if (zeros >= 0) break;
     gerepileall(av, G? 2: 1, &U, &G);
   }
   if (DEBUGLEVEL>=4) timer_printf(&T,"LLL");
