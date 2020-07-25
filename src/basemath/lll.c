@@ -131,7 +131,7 @@ static int
 absrsmall(GEN x)
 {
   long e = expo(x);
-  return (e < 0) || (e == 0 && x[2] <= (3UL << (BITS_IN_LONG-2)));
+  return (e < 0) || (e == 0 && (ulong)x[2] <= (3UL << (BITS_IN_LONG-2)));
 }
 
 /***********************************************/
