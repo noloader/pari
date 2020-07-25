@@ -618,7 +618,7 @@ do_SWAPgen(GEN h, GEN L, GEN B, long k, GEN fl, int *flc)
       gcoeff(L,i,k) = gcoeff(L,i,k-1);
       gcoeff(L,i,k-1) = gen_0;
     }
-    B[k] = B[k-1]; fl[k] = 1; fl[k-1] = 0;
+    gel(B,k) = gel(B,k-1); fl[k] = 1; fl[k-1] = 0;
   }
   return 1;
 }
@@ -627,12 +627,12 @@ static void
 incrementalGSgen(GEN x, GEN L, GEN B, long k, GEN fl)
 {
   GEN u = NULL; /* gcc -Wall */
-  long i, j, tu;
-  for (j=1; j<=k; j++)
+  long i, j;
+  for (j = 1; j <= k; j++)
     if (j==k || fl[j])
     {
-      u = gcoeff(x,k,j); tu = typ(u);
-      if (! is_extscalar_t(tu)) pari_err_TYPE("incrementalGSgen",u);
+      u = gcoeff(x,k,j);
+      if (!is_extscalar_t(typ(u))) pari_err_TYPE("incrementalGSgen",u);
       for (i=1; i<j; i++)
         if (fl[i])
         {
@@ -641,7 +641,7 @@ incrementalGSgen(GEN x, GEN L, GEN B, long k, GEN fl)
         }
       gcoeff(L,k,j) = u;
     }
-  if (gequal0(u)) B[k+1] = B[k];
+  if (gequal0(u)) gel(B,k+1) = gel(B,k);
   else
   {
     gel(B,k+1) = gcoeff(L,k,k); gcoeff(L,k,k) = gen_1; fl[k] = 1;
