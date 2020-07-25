@@ -94,6 +94,22 @@ submulshift(GEN x, GEN y, GEN z, long e)
 /**                   FPLLL (adapted from D. Stehle's code)        **/
 /**                                                                **/
 /********************************************************************/
+/* n < 10; gerepileall supporting &NULL arguments. Maybe rename and export ? */
+INLINE void
+gc_lll(pari_sp av, int n, ...)
+{
+  int i, j;
+  va_list a; va_start(a, n);
+  GEN *gptr[10];
+  for (i=j=0; i<n; i++)
+  {
+    GEN *x = va_arg(a,GEN*);
+    if (*x) { gptr[j++] = x; *x = (GEN)copy_bin(*x); }
+  }
+  set_avma(av);
+  for (--j; j>=0; j--) *gptr[j] = bin_copy((GENbin*)*gptr[j]);
+  va_end(a);
+}
 /* Babai() and fplll() are a conversion to libpari API and data types
    of the file proved.c in fplll-1.3 by Damien Stehle'.
 
@@ -126,18 +142,21 @@ Updates B (kappa); computes mu_{kappa,j}, r_{kappa,j} for j<=kappa, and s(kappa)
 mu, r, s updated in place (affrr).
 */
 static long
-Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
+Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       long a, long zeros, long maxG, GEN eta, long prec)
 {
   pari_sp av0 = avma;
-  GEN G = *pG, U = *pU, tmp, rtmp, ztmp;
-  long k, n = nbrows(U), aa = a > zeros? a: zeros+1;
+  GEN G = *pG, B = *pB, U = *pU, tmp, rtmp, ztmp;
+  long k, d, n, aa = a > zeros? a: zeros+1;
   GEN maxmu = gen_0, max2mu = gen_0;
 
+  /* N.B: we set d = 0 (resp. n = 0) to avoid updating U (resp. B) */
+  d = U? lg(U)-1: 0;
+  n = B? nbrows(B): 0;
   if (gc_needed(av,2))
   {
     if(DEBUGMEM>1) pari_warn(warnmem,"Babai[0], a=%ld", aa);
-    gerepileall(av,2,&G,&U);
+    gc_lll(av,3,&G,&B,&U);
   }
   for (;;) {
     int go_on = 0;
@@ -147,7 +166,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
     if (gc_needed(av0,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"Babai[1], a=%ld", aa);
-      gerepileall(av,4,&G,&U,&maxmu,&max2mu);
+      gc_lll(av,5,&G,&B,&U,&maxmu,&max2mu);
     }
     /* Step2: compute the GSO for stage kappa */
     max3mu = max2mu;
@@ -178,7 +197,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
     maxmu = absr(maxmu); /* copy needed: we 'affrr' to mu later */
     if (typ(max3mu)==t_REAL && abscmprr(max3mu, shiftr(max2mu, 5)) <= 0)
     { /* precision too low */
-      *pG = G; *pU = U; return kappa;
+      *pG = G; *pB = B; *pU = U; return kappa;
     }
 
     /* Step3--5: compute the X_j's  */
@@ -190,7 +209,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
       if (gc_needed(av0,2))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"Babai[2], a=%ld, j=%ld", aa,j);
-        gerepileall(av,4,&G,&U,&maxmu,&max2mu);
+        gc_lll(av,5,&G,&B,&U,&maxmu,&max2mu);
       }
       go_on = 1;
       /* we consider separately the case |X| = 1 */
@@ -203,6 +222,8 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
           set_avma(btop);
 
           for (i=1; i<=n; i++)
+            gmael(B,kappa,i) = subii(gmael(B,kappa,i), gmael(B,j,i));
+          for (i=1; i<=d; i++)
             gmael(U,kappa,i) = subii(gmael(U,kappa,i), gmael(U,j,i));
           btop = avma;
           ztmp = subii(gmael(G,j,j), shifti(gmael(G,kappa,j), 1));
@@ -221,6 +242,8 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
           set_avma(btop);
 
           for (i=1; i<=n; i++)
+            gmael(B,kappa,i) = addii(gmael(B,kappa,i),gmael(B,j,i));
+          for (i=1; i<=d; i++)
             gmael(U,kappa,i) = addii(gmael(U,kappa,i),gmael(U,j,i));
           btop = avma;
           ztmp = addii(gmael(G,j,j), shifti(gmael(G,kappa,j), 1));
@@ -250,6 +273,8 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
           }
           set_avma(btop);
           for (i=1; i<=n; i++)
+            gmael(B,kappa,i) = submuliu_inplace(gmael(B,kappa,i), gmael(B,j,i), xx);
+          for (i=1; i<=d; i++)
             gmael(U,kappa,i) = submuliu_inplace(gmael(U,kappa,i), gmael(U,j,i), xx);
           btop = avma;
           ztmp = shifti(muliu(gmael(G,kappa,j), xx), 1);
@@ -272,6 +297,8 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
           }
           set_avma(btop);
           for (i=1; i<=n; i++)
+            gmael(B,kappa,i) = addmuliu_inplace(gmael(B,kappa,i), gmael(B,j,i), xx);
+          for (i=1; i<=d; i++)
             gmael(U,kappa,i) = addmuliu_inplace(gmael(U,kappa,i), gmael(U,j,i), xx);
           btop = avma;
           ztmp = shifti(muliu(gmael(G,kappa,j), xx), 1);
@@ -301,6 +328,8 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
         }
         set_avma(btop);
         for (i=1; i<=n; i++)
+          gmael(B,kappa,i) = submulshift(gmael(B,kappa,i), gmael(B,j,i), X, e);
+        for (i=1; i<=d; i++)
           gmael(U,kappa,i) = submulshift(gmael(U,kappa,i), gmael(U,j,i), X, e);
         btop = avma;
         ztmp = shifti(mulii(gmael(G,kappa,j), X), e+1);
@@ -327,7 +356,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pU, GEN mu, GEN r, GEN s,
     tmp = subrr(gel(s,k), mulrr(gmael(mu,kappa,k), gmael(r,kappa,k)));
     affrr(tmp, gel(s,k+1));
   }
-  *pG = G; *pU = U; return gc_long(av, 0);
+  *pG = G; *pB = B; *pU = U; return gc_long(av, 0);
 }
 
 static void
@@ -342,42 +371,22 @@ rotate(GEN A, long k2, long k)
 /* ****************** */
 /* The LLL Algorithm  */
 /* ****************** */
-/* Gram matrix; only fill upper part [use less memory]. Assume dim > 0 */
-static GEN
-ZM_gram_upper(GEN x)
-{
-  long i, j, lx = lg(x);
-  GEN M = cgetg(lx,t_MAT);
-  for (i = 1; i < lx; i++)
-  {
-    GEN xi = gel(x,i), c = cgetg(lx,t_COL);
-    gel(M,i) = c;
-    for (j = 1; j < i; j++)
-    {
-      gcoeff(M,i,j) = gen_0;
-      gel(c,j) = ZV_dotproduct(xi, gel(x,j));
-    }
-    gel(c,i) = ZV_dotsquare(xi);
-  }
-  return M;
-}
-
-/* G integral Gram matrix, LLL-reduces (G,U) in place [apply base change
- * transforms to U]. If (keepfirst), never swap with first vector.
- * If G = NULL, U is the lattice basis and we compute the Gram matrix
- * incrementally. Return -1 on failure, else zeros = dim Kernel (>= 0) */
+/* G integral Gram matrix, LLL-reduces (G,B,U) in place [apply base change
+ * transforms to B and U]. If (keepfirst), never swap with first vector.
+ * If G = NULL, we compute the Gram matrix incrementally.
+ * Return -1 on failure, else zeros = dim Kernel (>= 0) */
 static long
-fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
-      long prec)
+fplll(GEN *pG, GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA,
+      long keepfirst, long prec)
 {
   pari_sp av, av2;
-  GEN mu, r, s, tmp, SPtmp, alpha, G = *pG, U = *pU;
+  GEN mu, r, s, tmp, SPtmp, alpha, G = *pG, B = *pB, U = *pU;
   GEN delta = dbltor(DELTA), eta = dbltor(ETA);
   long d, maxG, kappa, kappa2, i, j, zeros, kappamax, incgram = !G, cnt = 0;
 
   if (incgram)
-  { /* LLL_INPLACE <=> incremental Gram matrix */
-    maxG = 2; d = lg(U)-1;
+  { /* incremental Gram matrix */
+    maxG = 2; d = lg(B)-1;
     G = zeromatcopy(d, d);
   }
   else
@@ -406,7 +415,7 @@ fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
   kappamax = 1;
   i = 1;
   do {
-    if (incgram) gmael(G,i,i) = ZV_dotsquare(gel(U,i));
+    if (incgram) gmael(G,i,i) = ZV_dotsquare(gel(B,i));
     affir(gmael(G,i,i), gmael(r,i,i));
   } while (!signe(gmael(G,i,i)) && ++i <= d);
   zeros = i-1; /* all basis vectors b_i with i <= zeros are zero vectors */
@@ -423,15 +432,15 @@ fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
       if (incgram)
       {
         for (i=zeros+1; i<=kappa; i++)
-          gmael(G,kappa,i) = ZV_dotproduct(gel(U,kappa), gel(U,i));
+          gmael(G,kappa,i) = ZV_dotproduct(gel(B,kappa), gel(B,i));
         maxG = kappamax;
       }
     }
     /* Step3: Call to the Babai algorithm, mu,r,s updated in place */
-    if (Babai(av, kappa, &G, &U, mu,r,s, alpha[kappa], zeros, maxG, eta, prec))
+    if (Babai(av, kappa, &G,&B,&U, mu,r,s, alpha[kappa], zeros, maxG, eta,prec))
     {
       if (incgram) G = NULL;
-      *pG = G; *pU = U; return -1;
+      *pG = G; *pB = B; *pU = U; return -1;
     }
     av2 = avma;
     if ((keepfirst && kappa == 2) ||
@@ -465,8 +474,9 @@ fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
     rotate(r, kappa2, kappa);
     affrr(gel(s,kappa), gmael(r,kappa,kappa));
 
-    /* Step7: Update G, U */
-    rotate(U, kappa2, kappa);
+    /* Step7: Update G, B, U */
+    if (U) rotate(U, kappa2, kappa);
+    if (B) rotate(B, kappa2, kappa);
     for (i=1; i<=kappa2; i++) gel(SPtmp,i) = gmael(G,kappa2,i);
     for (   ; i<=maxG;   i++) gel(SPtmp,i) = gmael(G,i,kappa2);
     for (i=kappa2; i>kappa; i--)
@@ -488,7 +498,7 @@ fplll(GEN *pG, GEN *pU, GEN *pr, double DELTA, double ETA, long keepfirst,
     }
   }
   if (pr) *pr = RgM_diagonal_shallow(r);
-  *pG = G; *pU = U; return zeros; /* success */
+  *pG = G; *pB = B; *pU = U; return zeros; /* success */
 }
 
 /* Assume x a ZM, if pN != NULL, set it to Gram-Schmidt (squared) norms
@@ -504,20 +514,15 @@ ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pN)
   pari_sp av = avma;
   const double ETA = 0.51;
   long p, zeros, n = lg(x)-1;
-  GEN G, U;
+  GEN G, B, U;
   pari_timer T;
 
   if (n <= 1) return lll_trivial(x, flag);
-  if (flag & LLL_INPLACE)
-  { /* INPLACE => !GRAM & IM */
-    U = RgM_shallowcopy(x);
-    G = NULL; /* will be computed incrementally */
-  }
+  x = RgM_shallowcopy(x);
+  if (flag & LLL_GRAM)
+  { G = x; B = NULL; U = matid(n); }
   else
-  {
-    U = matid(n);
-    G = (flag & LLL_GRAM)? RgM_shallowcopy(x): ZM_gram_upper(x);
-  }
+  { G = NULL; B = x; U = (flag & LLL_INPLACE)? NULL: matid(n); }
   for (p = DEFAULTPREC;; p += DEFAULTPREC-2)
   {
     if (DEBUGLEVEL>=4)
@@ -526,12 +531,12 @@ ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pN)
                  DELTA,ETA, p);
       timer_start(&T);
     }
-    zeros = fplll(&G, &U, pN, DELTA, ETA, flag & LLL_KEEP_FIRST, p);
+    zeros = fplll(&G, &B, &U, pN, DELTA, ETA, flag & LLL_KEEP_FIRST, p);
     if (zeros >= 0) break;
-    gerepileall(av, G? 2: 1, &U, &G);
+    gc_lll(av, 3, &G, &B, &U);
   }
   if (DEBUGLEVEL>=4) timer_printf(&T,"LLL");
-  return lll_finish(U, zeros, flag);
+  return lll_finish(U? U: B, zeros, flag);
 }
 
 /********************************************************************/
