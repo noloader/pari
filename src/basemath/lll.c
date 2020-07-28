@@ -99,8 +99,8 @@ INLINE void
 gc_lll(pari_sp av, int n, ...)
 {
   int i, j;
-  va_list a; va_start(a, n);
   GEN *gptr[10];
+  va_list a; va_start(a, n);
   for (i=j=0; i<n; i++)
   {
     GEN *x = va_arg(a,GEN*);
