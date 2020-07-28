@@ -110,65 +110,99 @@ bnfisunit(GEN bnf, GEN x)
   gel(ex,RU) = utoi(e); setlg(ex, RU+1); return gerepilecopy(av, ex);
 }
 
+/* split M a square ZM in HNF as [H, B; 0, Id], H in HNF without 1-eigenvalue */
+static GEN
+hnfsplit(GEN M, GEN *pB)
+{
+  long i, l = lg(M);
+  for (i = l-1; i; i--)
+    if (!equali1(gcoeff(M,i,i))) break;
+  if (!i) { *pB = zeromat(0, l-1); return cgetg(1, t_MAT); }
+  *pB = matslice(M, 1, i, i+1, l-1); return matslice(M, 1, i, 1, i);
+}
+
 /* S a list of prime ideal in idealprimedec format. If pH != NULL, set it to
  * the HNF of the S-class group and return bnfsunit, else return bnfunits */
 static GEN
-bnfsunit_i(GEN bnf, GEN S, GEN *pH, GEN *pperm, GEN *pA, GEN *pden)
+bnfsunit_i(GEN bnf, GEN S, GEN *pH, GEN *pA, GEN *pden)
 {
-  const long FLAG = nf_FORCE | (pH? nf_GEN: nf_GENMAT);
-  long i, nH, lS = lg(S);
-  GEN M, U, H, Sunit, den, S2, perm, dep, B, C, U1;
+  long FLAG, i, lS = lg(S);
+  GEN M, U1, U2, U, V, H, Sunit, B, g;
 
   if (!is_vec_t(typ(S))) pari_err_TYPE("bnfsunit",S);
   bnf = checkbnf(bnf);
   if (lS == 1)
   {
-    *pperm = cgetg(1,t_VECSMALL);
     *pA = cgetg(1,t_MAT);
     *pden = gen_1; return cgetg(1,t_VEC);
   }
   M = cgetg(lS,t_MAT); /* relation matrix for the S class group */
+  g = cgetg(lS,t_MAT); /* principal part */
+  FLAG = pH ? 0: nf_GENMAT;
   for (i = 1; i < lS; i++)
   {
-    GEN pr = gel(S,i); checkprid(pr);
-    gel(M,i) = isprincipal(bnf,pr);
+    GEN pr = gel(S,i);
+    checkprid(pr);
+    if (pH)
+      gel(M,i) = isprincipal(bnf, pr);
+    else
+    {
+      GEN v = bnfisprincipal0(bnf, pr, FLAG);
+      gel(M,i) = gel(v,1);
+      gel(g,i) = gel(v,2);
+    }
   }
-  /* S class group */
+  /* S class group and S units, use ZM_hnflll to get small 'U' */
   M = shallowconcat(M, diagonal_shallow(bnf_get_cyc(bnf)));
-  H = ZM_hnfall(M, &U, 1); if (pH) *pH = H;
-  /* S-units */
-  U1 = U; setlg(U1,lS); for (i = 1; i < lS; i++) setlg(U1[i], lS);
+  H = ZM_hnflll(M, &U, 1); setlg(U, lS); if (pH) *pH = H;
+  U1 = rowslice(U,1, lS-1);
+  U2 = rowslice(U,lS, lg(M)-1); /* (M | cyc) [U1; U2] = 0 */
+  H = ZM_hnflll(U1, pH? NULL: &V, 0);
  /* U1 = upper left corner of U, invertible. S * U1 = principal ideals
   * whose generators generate the S-units */
-  C = zeromat(0, lS-1); /* junk for mathnfspec */
-  H = mathnfspec(U1, &perm, &dep, &B, &C); /* dep has 0 rows */
- /*                   [ H B  ]            [ H^-1   - H^-1 B ]
-  * perm o HNF(U1) =  [ 0 Id ], inverse = [  0         Id   ]
-  * S * HNF(U1) = integral generators for S-units  = Sunit */
+  H = hnfsplit(H, &B);
+ /*                     [ H B  ]            [ H^-1   - H^-1 B ]
+  * U1 * V = HNF(U1) =  [ 0 Id ], inverse = [  0         Id   ]
+  * S * HNF(U1) = integral generators for S-units = Sunit */
   Sunit = cgetg(lS, t_VEC);
-  S2 = vecpermute(S, perm);
-  nH = lg(H) - 1; setlg(S2, nH + 1);
-  for (i = 1; i < lS; i++)
+  if (pH)
   {
-    GEN C = NULL, E;
-    if (i <= nH) E = gel(H,i); else { C = gel(S2,i), E = gel(B,i-nH); }
-    gel(Sunit,i) = gel(isprincipalfact(bnf, C, S2, E, FLAG), 2);
+    long nH = lg(H) - 1;
+    FLAG = nf_FORCE | nf_GEN;
+    for (i = 1; i < lS; i++)
+    {
+      GEN C = NULL, E;
+      if (i <= nH) E = gel(H,i); else { C = gel(S,i), E = gel(B,i-nH); }
+      gel(Sunit,i) = gel(isprincipalfact(bnf, C, S, E, FLAG), 2);
+    }
   }
-  H = ZM_inv(H,&den);
-  *pperm = perm;
+  else
+  {
+    GEN cycgen = bnf_build_cycgen(bnf);
+    U1 = ZM_mul(U1, V);
+    U2 = ZM_mul(U2, V);
+    FLAG = nf_FORCE | nf_GENMAT;
+    for (i = 1; i < lS; i++)
+    {
+      GEN a = famatV_factorback(g, gel(U1,i));
+      GEN b = famatV_factorback(cycgen, ZC_neg(gel(U2,i)));
+      gel(Sunit,i) = famat_reduce(famat_mul(a, b));
+    }
+  }
+  H = ZM_inv(H, pden);
   *pA = shallowconcat(H, ZM_neg(ZM_mul(H,B))); /* top inverse * den */
-  *pden = den; return Sunit;
+  return Sunit;
 }
 GEN
 bnfsunit(GEN bnf,GEN S,long prec)
 {
   pari_sp av = avma;
   long i, l = lg(S);
-  GEN v, R, h, nf, perm, A, den, U, H = NULL;
+  GEN v, R, h, nf, A, den, U, H = NULL;
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   v = cgetg(7, t_VEC);
-  gel(v,1) = U = bnfsunit_i(bnf, S, &H, &perm, &A, &den);
-  gel(v,2) = mkvec3(perm, A, den);
+  gel(v,1) = U = bnfsunit_i(bnf, S, &H, &A, &den);
+  gel(v,2) = mkvec2(A, den);
   gel(v,3) = cgetg(1,t_VEC); /* dummy */
   h = gen_1;
   if (l == 1)
@@ -199,9 +233,9 @@ GEN
 bnfunits(GEN bnf, GEN S)
 {
   pari_sp av = avma;
-  GEN perm, A, den, U, fu, tu;
+  GEN A, den, U, fu, tu;
   bnf = checkbnf(bnf);
-  U = bnfsunit_i(bnf, S? S: cgetg(1,t_VEC), NULL, &perm, &A, &den);
+  U = bnfsunit_i(bnf, S? S: cgetg(1,t_VEC), NULL, &A, &den);
   if (!S) S = cgetg(1,t_VEC);
   fu = bnf_compactfu(bnf);
   if (!fu)
@@ -213,15 +247,15 @@ bnfunits(GEN bnf, GEN S)
   }
   tu = nf_to_scalar_or_basis(bnf_get_nf(bnf), bnf_get_tuU(bnf));
   U = shallowconcat(U, vec_append(fu, to_famat_shallow(tu,gen_1)));
-  return gerepilecopy(av, mkvec5(U, S, perm, A, den));
+  return gerepilecopy(av, mkvec4(U, S, A, den));
 }
 GEN
 sunits_mod_units(GEN bnf, GEN S)
 {
   pari_sp av = avma;
-  GEN perm, A, den;
+  GEN A, den;
   bnf = checkbnf(bnf);
-  return gerepilecopy(av, bnfsunit_i(bnf, S, NULL, &perm, &A, &den));
+  return gerepilecopy(av, bnfsunit_i(bnf, S, NULL, &A, &den));
 }
 
 /* v_S(x), x in famat form */
@@ -251,16 +285,15 @@ sunit_val(GEN nf, GEN S, GEN x, GEN N)
 static GEN
 make_unit(GEN nf, GEN U, GEN *px)
 {
-  GEN den, v, w, A, perm, gen = gel(U,1), S = gel(U,2), x = *px;
+  GEN den, v, w, A, gen = gel(U,1), S = gel(U,2), x = *px;
   long cH, i, l = lg(S);
 
   if (l == 1) return cgetg(1, t_COL);
-  perm = gel(U,3); A = gel(U,4); den = gel(U,5);
+  A = gel(U,3); den = gel(U,4);
   cH = nbrows(A);
   if (typ(x) == t_MAT && lg(x) == 3)
   {
-    v = sunit_famat_val(nf, S, x); /* x = S v */
-    w = vecpermute(v, perm);
+    w = sunit_famat_val(nf, S, x); /* x = S v */
     v = ZM_ZC_mul(A, w);
     w += cH; w[0] = evaltyp(t_COL) | evallg(lg(A) - cH);
   }
@@ -276,9 +309,8 @@ make_unit(GEN nf, GEN U, GEN *px)
     }
     /* relevant primes divide N */
     if (is_pm1(N)) return zerocol(l-1);
-    v = sunit_val(nf, S, x, N);
-    if (!v) return NULL;
-    w = vecsmallpermute(v, perm);
+    w = sunit_val(nf, S, x, N);
+    if (!w) return NULL;
     v = ZM_zc_mul(A, w);
     w += cH; w[0] = evaltyp(t_VECSMALL) | evallg(lg(A) - cH);
     w = zc_to_ZC(w);
@@ -311,11 +343,9 @@ bnfissunit_i(GEN bnf, GEN x, GEN U)
 static int
 checkU(GEN U)
 {
-  GEN g, S, perm;
-  if (typ(U) != t_VEC || lg(U) != 6) return 0;
-  g = gel(U,1); S = gel(U,2); perm = gel(U,3);
-  return typ(g) == t_VEC && is_vec_t(typ(S)) && typ(perm) == t_VECSMALL
-         && lg(S) == lg(perm);
+  if (typ(U) != t_VEC || lg(U) != 5) return 0;
+  return typ(gel(U,1)) == t_VEC && is_vec_t(typ(gel(U,2)))
+         && typ(gel(U,4))==t_INT;
 }
 GEN
 bnfisunit0(GEN bnf, GEN x, GEN U)
@@ -337,7 +367,7 @@ checkbnfS_i(GEN v)
   if (typ(v) != t_VEC || lg(v) != 7) return 0;
   g = gel(v,1); w = gel(v,2); S = gel(v,6);
   if (typ(g) != t_VEC || !is_vec_t(typ(S)) || lg(S) != lg(g)) return 0;
-  return typ(w) == t_VEC && lg(w) == 4 && typ(gel(w,1)) == t_VECSMALL;
+  return typ(w) == t_VEC && lg(w) == 3;
 }
 /* OBSOLETE */
 GEN
@@ -346,8 +376,7 @@ bnfissunit(GEN bnf, GEN bnfS, GEN x)
   pari_sp av = avma;
   GEN z, U;
   if (!checkbnfS_i(bnfS)) pari_err_TYPE("bnfissunit",bnfS);
-  U = mkvec5(gel(bnfS,1), gel(bnfS,6), gmael(bnfS,2,1), gmael(bnfS,2,2),
-             gmael(bnfS,2,3));
+  U = mkvec4(gel(bnfS,1), gel(bnfS,6), gmael(bnfS,2,1), gmael(bnfS,2,2));
   z = bnfissunit_i(bnf, x, U);
   if (!z) { set_avma(av); return cgetg(1,t_COL); }
   return gerepilecopy(av, shallowconcat(gel(z,1), gel(z,2)));
