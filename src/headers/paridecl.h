@@ -5692,6 +5692,7 @@ INLINE ulong  hash_str_len(const char *s, long len);
 INLINE GEN    idealchineseinit(GEN nf, GEN x);
 INLINE GEN    idealpseudomin(GEN I, GEN G);
 INLINE GEN    idealpseudomin_nonscalar(GEN I, GEN G);
+INLINE GEN    idealpseudominvec(GEN I, GEN G);
 INLINE GEN    idealpseudored(GEN I, GEN G);
 INLINE GEN    idealred_elt(GEN nf, GEN I);
 INLINE GEN    idealred(GEN nf, GEN I);

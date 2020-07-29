@@ -1792,6 +1792,10 @@ the dimension of $x$ is $> 1$.
 In the interpretation where $x$ defines an integral ideal on a fixed $\Z_K$
 basis whose first element is $1$, this means that $a$ is not rational.
 
+\fun{GEN}{idealpseudominvec}{GEN x, GEN G}. As \tet{idealpseudomin\_vec},
+but we return about $n^2/2$ non-scalar elements in $x$ with small $T_2$-norm,
+where the dimension of $x$ is $n$.
+
 \fun{GEN}{idealpseudored}{GEN x, GEN G}. As \tet{idealpseudomin} but we
 return the full reduced $\Z$-basis of $x$ as a \typ{MAT} instead of a single
 vector.

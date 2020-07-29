@@ -186,6 +186,8 @@ HC  56- zetamultall: add flag
     59- [libpari] ZM_lll: flags LLL_INPLACE and LLL_GRAM are now incompatible
         (reducing a Gram matrix in place without returning the base change
         matrix is not useful; supporting it would complicate the code)
+AP  60- improve bnfisprincipal in fields of large degree (test more small
+        elements)
 
   Added
      1- new GP function rootsof1
@@ -302,6 +304,7 @@ BA 103- [libpari] Kronecker_to_ZXQX, QXQX_QXQ_mul, ZXQX_ZXQ_mul
    104- [libpari] zv_sumpart, div_content, hash_zv
 BA 105- [libpari] groupelts_conj_set, group_subgroup_is_faithful
    106- qflll(x,3) in place reduction: return x * qflll(x) [faster]
+   107- [libpari] idealpseudominvec
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

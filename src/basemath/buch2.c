@@ -1396,8 +1396,8 @@ genback(GEN z, GEN nf, GEN P, GEN E)
 static GEN
 SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
 {
-  GEN vecG, ex, y, x0, Nx = ZM_det_triangular(x);
-  long nbtest_lim, nbtest, i, j, ru, lgsub;
+  GEN vecG, ex, Ly, y, x0, Nx = ZM_det_triangular(x);
+  long nbtest_lim, nbtest, i, j, k, ru, lgsub;
   pari_sp av;
 
   /* try without reduction if x is small */
@@ -1405,8 +1405,12 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
       can_factor(F, nf, x, NULL, Nx, fact)) return NULL;
 
   av = avma;
-  y = idealpseudomin_nonscalar(x, nf_get_roundG(nf));
-  if (factorgen(F, nf, x, Nx, y, fact)) return y;
+  Ly = idealpseudominvec(x, nf_get_roundG(nf));
+  for(k=1; k<lg(Ly); k++)
+  {
+    y = gel(Ly,k);
+    if (factorgen(F, nf, x, Nx, y, fact)) return y;
+  }
   set_avma(av);
 
   /* reduce in various directions */
@@ -1416,8 +1420,12 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
   {
     gel(vecG,j) = nf_get_Gtwist1(nf, j);
     av = avma;
-    y = idealpseudomin_nonscalar(x, gel(vecG,j));
-    if (factorgen(F, nf, x, Nx, y, fact)) return y;
+    Ly = idealpseudominvec(x, gel(vecG,j));
+    for(k=1; k<lg(Ly); k++)
+    {
+      y = gel(Ly,k);
+      if (factorgen(F, nf, x, Nx, y, fact)) return y;
+    }
     set_avma(av);
   }
 
@@ -1451,12 +1459,16 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
     for (j=1; j<ru; j++)
     {
       pari_sp av2 = avma;
-      y = idealpseudomin_nonscalar(Ired, gel(vecG,j));
-      if (factorgen(F, nf, I, NI, y, fact))
+      Ly = idealpseudominvec(Ired, gel(vecG,j));
+      for (k=1; k < lg(Ly); k++)
       {
-        for (i=1; i<lgsub; i++)
-          if (ex[i]) add_to_fact(Vbase_to_FB(F,gel(Vbase,i)), ex[i], fact);
-        return famat_mul_shallow(gel(id,2), y);
+        y = gel(Ly,k);
+        if (factorgen(F, nf, I, NI, y, fact))
+        {
+          for (i=1; i<lgsub; i++)
+            if (ex[i]) add_to_fact(Vbase_to_FB(F,gel(Vbase,i)), ex[i], fact);
+          return famat_mul_shallow(gel(id,2), y);
+        }
       }
       set_avma(av2);
     }
