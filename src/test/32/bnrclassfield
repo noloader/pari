@@ -283,8 +283,8 @@ tough conductor factorization
 vector of subgroups
 [[x^3 + (-1182*y + 25851)*x + (-585410*y + 33638948)], [x^3 - 39*x + 10*y], 
 [x^3 - 12*x + 3283]]
-[x^3 + 78*x + 33127, x^3 + 24*x + 295, x^3 + (-1182*y + 25851)*x + (-5409111
-92*y + 10002440870)]
+[x^3 + 96*x + 10979*y, x^3 + 24*x + 295, x^3 + (-1182*y + 25851)*x + (-54091
+1192*y + 10002440870)]
 [x^6 + 51702*x^4 - 67277896*x^3 + 5277386277*x^2 - 6304717472256*x + 2262162
 182408604, x^6 - 78*x^4 + 1521*x^2 + 329900, x^6 + 9873*x^4 - 6566*x^3 + 326
 50347*x^2 + 65062494*x + 36176794668]
@@ -331,4 +331,4 @@ bad inputs
   ***   at top-level: bnrclassfield(bnfinit(x))
   ***                 ^-------------------------
   *** bnrclassfield: incorrect priority in bnrclassfield: variable x = x
-Total time spent: 9494
+Total time spent: 7113

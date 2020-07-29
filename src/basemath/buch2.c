@@ -1367,10 +1367,10 @@ idealHNF_mulred(GEN nf, GEN x, GEN y)
 /* idealred(x * pr^n), n > 0 is small, x extended ideal. Reduction in order to
  * avoid prec pb: don't let id become too large as lgsub increases */
 static GEN
-idealmulpowprimered(GEN nf, GEN x, GEN pr, ulong n)
+idealmulpowprime2(GEN nf, GEN x, GEN pr, ulong n)
 {
   GEN A = idealmulpowprime(nf, gel(x,1), pr, utoipos(n));
-  return idealred(nf, mkvec2(A, gel(x,2)));
+  return mkvec2(A, gel(x,2));
 }
 static GEN
 init_famat(GEN x) { return mkvec2(x, trivial_fact()); }
@@ -1434,7 +1434,7 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
     for (i=1; i<lgsub; i++)
     {
       ex[i] = random_bits(RANDOM_BITS);
-      if (ex[i]) id = idealmulpowprimered(nf, id, gel(Vbase,i), ex[i]);
+      if (ex[i]) id = idealmulpowprime2(nf, id, gel(Vbase,i), ex[i]);
     }
     if (id == x0) continue;
     /* I^(-1) * \prod Vbase[i]^ex[i] = (id[2]) / x */
