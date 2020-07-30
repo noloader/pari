@@ -53,7 +53,7 @@ bnrdisclist(bnfinit(galoissubcyclo(32,15)),94);
 setrand(1);bnfinit(x^16-48*x^14+934*x^12-9632*x^10+57251*x^8-198568*x^6+386172*x^4-377776*x^2+137288).no
 
 \\ oo loop in 2.9
-K=bnfinit(x^2+2323);
+setrand(1);K=bnfinit(x^2+2323);
 P=idealprimedec(K,23)[1];
 bnfisprincipal(K,P)
 
