@@ -1920,7 +1920,7 @@ New syntax: isincl(x,y) ===> nfisincl(x,y)
 nfisincl(f,g,{flag=0}): let f and g define number fields, either irreducible 
 rational polynomials or number fields as output by nfinit; tests whether the 
 number field f is isomorphic to a subfield of g. Return 0 if not, and otherwise 
-all the isomorphisms (flag=0, default) or only one (flag=1).
+all the embeddings (flag=0, default) or only one (flag=1).
 
 
   ***   at top-level: isinclfast()
@@ -1933,7 +1933,7 @@ New syntax: isinclfast(nf1,nf2) ===> nfisincl(nf1,nf2,1)
 nfisincl(f,g,{flag=0}): let f and g define number fields, either irreducible 
 rational polynomials or number fields as output by nfinit; tests whether the 
 number field f is isomorphic to a subfield of g. Return 0 if not, and otherwise 
-all the isomorphisms (flag=0, default) or only one (flag=1).
+all the embeddings (flag=0, default) or only one (flag=1).
 
 
   ***   at top-level: isirreducible()
