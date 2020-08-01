@@ -8,7 +8,7 @@ Description:
 Help: nfisincl(f,g,{flag=0}): let f and g define number fields, either
  irreducible rational polynomials or number fields as output by nfinit; tests
  whether the number field f is isomorphic to a subfield of g. Return 0 if not,
- and otherwise all the isomorphisms (flag=0, default) or only one (flag=1).
+ and otherwise all the embeddings (flag=0, default) or only one (flag=1).
 Doc: let $f$ and $g$ define number fields, where $f$ and $g$ are irreducible
  polynomials in $\Q[X]$ and \var{nf} structures as output by \kbd{nfinit}.
  Tests whether the number field $f$ is conjugate to a subfield of the field
