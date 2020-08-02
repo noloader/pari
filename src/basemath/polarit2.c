@@ -2231,7 +2231,7 @@ rescale_init(GEN c, int *exact, long *emin, GEN *D)
       break;
     case t_FRAC:
       e = expi(gel(c,1)) - expi(gel(c,2)) + 32;
-      if (exact) *D = lcmii(*D, gel(c,2));
+      if (*exact) *D = lcmii(*D, gel(c,2));
       break;
     default:
       pari_err_TYPE("rescale_to_int",c);
