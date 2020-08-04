@@ -2218,19 +2218,22 @@ Q_muli_to_int(GEN x, GEN d)
 static void
 rescale_init(GEN c, int *exact, long *emin, GEN *D)
 {
-  long e;
+  long e, i;
   switch(typ(c))
   {
     case t_REAL:
       *exact = 0;
-      e = signe(c)? expo(c) - bit_prec(c): expo(c);
-      break;
+      if (!signe(c)) return;
+      e = expo(c) + 1 - bit_prec(c);
+      for (i = lg(c)-1; i > 2; i--, e += BITS_IN_LONG)
+        if (c[i]) break;
+      e += vals(c[i]); break; /* e[2] != 0 */
     case t_INT:
       if (!signe(c)) return;
-      e = expi(c) + 32;
+      e = expi(c);
       break;
     case t_FRAC:
-      e = expi(gel(c,1)) - expi(gel(c,2)) + 32;
+      e = expi(gel(c,1)) - expi(gel(c,2));
       if (*exact) *D = lcmii(*D, gel(c,2));
       break;
     default:
