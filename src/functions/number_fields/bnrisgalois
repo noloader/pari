@@ -19,14 +19,12 @@ Doc: check whether the class field attached to the subgroup $H$ is Galois
  over the rationals.
 
  \bprog
- K=bnfinit(a^4-3*a^2+253009);
- G=galoisinit(K);
- B=bnrinit(K,9,1);
- L1=[H|H<-subgrouplist(B,3), bnrisgalois(B,G,H)]
- ##
- M=bnrgaloismatrix(B,G)
- L2=[H|H<-subgrouplist(B,3), bnrisgalois(B,M,H)]
- ##
+ ? K = bnfinit(a^4-3*a^2+253009); B = bnrinit(K,9); G = galoisinit(K);
+ ? [H | H<-subgrouplist(B,3), bnrisgalois(B,G,H)];
+ time = 160 ms.
+ ? M = bnrgaloismatrix(B,G);
+ ? [H | H<-subgrouplist(B,3), bnrisgalois(B,M,H)]
+ time = 1 ms.
  @eprog
  The second computation is much faster since \kbd{bnrgaloismatrix(B,G)} is
  computed only once.

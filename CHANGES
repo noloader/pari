@@ -189,6 +189,8 @@ HC  56- zetamultall: add flag
         matrix is not useful; supporting it would complicate the code)
 AP  60- improve bnfisprincipal in fields of large degree (test more small
         elements)
+    61- bnrgaloismatrix(bnr) no longer needs a bnr with generators
+        (from bnrinit(,1))
 
   Added
      1- new GP function rootsof1

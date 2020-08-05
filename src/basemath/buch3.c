@@ -2718,16 +2718,22 @@ bnrdisclist0(GEN bnf, GEN L, GEN arch)
 GEN
 bnrautmatrix(GEN bnr, GEN aut)
 {
-  pari_sp av=avma;
-  GEN gen, mat, nf;
+  pari_sp av = avma;
+  GEN bnf = bnr_get_bnf(bnr), nf = bnf_get_nf(bnf), bid = bnr_get_bid(bnr);
+  GEN Gen = shallowconcat(bnf_get_gen(bnf), bid_get_gen(bid));
+  GEN M, El = bnr_get_El(bnr), cyc = bnr_get_cyc(bnr);
   long i, l;
-  nf = bnr_get_nf(bnr);
-  gen = bnr_get_gen(bnr); l = lg(gen);
-  aut = algtobasis(nf, aut);
-  mat = cgetg(l,t_MAT);
-  for (i=1; i<l; i++)
-    gel(mat, i) = isprincipalray(bnr,galoisapply(nf,aut,gel(gen,i)));
-  return gerepilecopy(av, mat);
+
+  l = lg(El);
+  for (i = 1; i < l; i++) gel(Gen,i) = idealmul(nf, gel(El,i), gel(Gen,i));
+  l = lg(Gen); M = cgetg(l, t_MAT);
+  /* Gen = clg.gen*U, clg.gen = Gen*Ui */
+  for (i = 1; i < l; i++)
+    gel(M,i) = isprincipalray(bnr, galoisapply(nf,aut,gel(Gen,i)));
+  M = ZM_mul(M, bnr_get_Ui(bnr));
+  l = lg(M);
+  for (i = 1; i < l; i++) gel(M,i) = vecmodii(gel(M,i), cyc);
+  return gerepileupto(av, M);
 }
 
 GEN
