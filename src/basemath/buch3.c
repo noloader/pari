@@ -30,7 +30,7 @@ bnr_get_Ui(GEN bnr) { return gmael(bnr,4,3); }
 GEN
 bnfnarrow(GEN bnf)
 {
-  GEN nf, cyc, gen, Cyc, Gen, A, GD, v, w, H, invpi, logs, R, u, U0, Uoo, archp, sarch;
+  GEN nf, cyc, gen, Cyc, Gen, A, GD, v, w, H, invpi, L, R, u, U0, Uoo, archp, sarch;
   long r1, j, l, t, RU;
   pari_sp av;
 
@@ -56,16 +56,15 @@ bnfnarrow(GEN bnf)
   sarch = nfarchstar(nf, NULL, archp);
   cyc = bnf_get_cyc(bnf);
   gen = bnf_get_gen(bnf); l = lg(gen);
-  logs = cgetg(l,t_MAT); GD = gmael(bnf,9,3);
+  L = cgetg(l,t_MAT); GD = gmael(bnf,9,3);
   for (j=1; j<l; j++)
   {
     GEN z = nfsign_from_logarch(gel(GD,j), invpi, archp);
-    gel(logs,j) = zc_to_ZC( Flm_Flc_mul(w, z, 2) );
+    gel(L,j) = zc_to_ZC( Flm_Flc_mul(w, z, 2) );
   }
-  /* [ cyc  0 ]
-   * [ logs 2 ] = relation matrix for Cl_f */
+  /* [cyc, 0; L, 2] = relation matrix for Cl_f */
   R = shallowconcat(
-    vconcat(diagonal_shallow(cyc), logs),
+    vconcat(diagonal_shallow(cyc), L),
     vconcat(zeromat(l-1, r1-t), scalarmat_shallow(gen_2,r1-t)));
   Cyc = ZM_snf_group(R, NULL, &u);
   U0 = rowslice(u, 1, l-1);
@@ -494,18 +493,16 @@ Buchraymod_i(GEN bnf, GEN module, long flag, GEN MOD)
     h = H;
   else
   {
-    GEN logs = cgetg(ngen+1, t_MAT);
+    GEN L = cgetg(ngen+1, t_MAT);
     GEN cycgen = bnf_build_cycgen(bnf);
     for (j=1; j<=ngen; j++)
     {
-      GEN c = gel(cycgen,j);
-      if (typ(gel(El,j)) != t_INT) /* <==> != 1 */
-        c = famat_mulpow_shallow(c, gel(El,j),gel(cyc0,j));
-      gel(logs,j) = ideallogmod(nf, c, bid, MOD); /* = log(Gen[j]^cyc[j]) */
+      GEN c = gel(cycgen,j), e = gel(El,j);
+      if (!equali1(e)) c = famat_mulpow_shallow(c, e, gel(cyc0,j));
+      gel(L,j) = ideallogmod(nf, c, bid, MOD); /* = log(Gen[j]^cyc[j]) */
     }
-    /* [ cyc0 0 ]
-     * [-logs H ] = relation matrix for generators Gen of Cl_f */
-    h = shallowconcat(vconcat(diagonal_shallow(cyc0), ZM_neg(logs)),
+    /* [cyc0, 0; -L, H] = relation matrix for generators Gen of Cl_f */
+    h = shallowconcat(vconcat(diagonal_shallow(cyc0), ZM_neg(L)),
                       vconcat(zeromat(ngen, Ri), H));
     h = MOD? ZM_hnfmodid(h, MOD): ZM_hnf(h);
   }
