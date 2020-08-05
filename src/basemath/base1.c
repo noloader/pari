@@ -1716,9 +1716,14 @@ static void
 set_LLL_basis(nfmaxord_t *S, GEN *pro, double DELTA)
 {
   GEN B = S->basis;
-  if (S->r1 < 0) S->r1 = ZX_sturm_irred(S->T);
+  long N = degpol(S->T);
+  if (S->r1 < 0)
+  {
+    S->r1 = ZX_sturm_irred(S->T);
+    if (odd(N - S->r1)) pari_err_IRREDPOL("set_LLL_basis", S->T);
+  }
   if (!S->basden) S->basden = get_bas_den(B);
-  if (S->r1 == degpol(S->T)) {
+  if (S->r1 == N) {
     pari_sp av = avma;
     GEN u = ZM_lll(make_Tr(S), DELTA, LLL_GRAM|LLL_KEEP_FIRST|LLL_IM);
     B = gerepileupto(av, RgV_RgM_mul(B, u));

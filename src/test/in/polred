@@ -78,3 +78,7 @@ rnfpolredabs(K,u)
 K=nfinit(polcyclo(5,t));
 rnfpolredabs(K, y^2+(t^3+3*t^2+3*t+1)*y+(-53*t^3-10*t-10), 1)
 
+\\ ERRORS, keep at end of file
+
+\\#2241
+polredbest(x^6+30*x^5+133*x^4-2340*x^3-12284*x^2+29519*x-3856)
