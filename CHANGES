@@ -308,6 +308,7 @@ BA 103- [libpari] Kronecker_to_ZXQX, QXQX_QXQ_mul, ZXQX_ZXQ_mul
 BA 105- [libpari] groupelts_conj_set, group_subgroup_is_faithful
    106- qflll(x,3) in place reduction: return x * qflll(x) [faster]
    107- [libpari] idealpseudominvec
+   108- [libpari] galoismatrixapply
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

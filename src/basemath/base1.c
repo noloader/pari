@@ -583,25 +583,31 @@ zk_galoisapplymod(GEN nf, GEN z, GEN S, GEN p)
 
 /* true nf */
 static GEN
+pr_make(GEN nf, GEN p, GEN u, GEN e, GEN f)
+{
+  GEN t = FpM_deplin(zk_multable(nf, u), p);
+  t = zk_scalar_or_multable(nf, t);
+  return mkvec5(p, u, e, f, t);
+}
+static GEN
 pr_galoisapply(GEN nf, GEN pr, GEN aut)
 {
-  GEN p, t, u;
-  if (typ(pr_get_tau(pr)) == t_INT) return pr; /* inert */
-  p = pr_get_p(pr);
-  u = zk_galoisapplymod(nf, pr_get_gen(pr), aut, p);
-  t = FpM_deplin(zk_multable(nf, u), p);
-  t = zk_scalar_or_multable(nf, t);
-  return mkvec5(p, u, gel(pr,3), gel(pr,4), t);
+  GEN p = pr_get_p(pr), u = zk_galoisapplymod(nf, pr_get_gen(pr), aut, p);
+  return pr_make(nf, p, u, gel(pr,3), gel(pr,4));
+}
+static GEN
+pr_galoismatrixapply(GEN nf, GEN pr, GEN M)
+{
+  GEN p = pr_get_p(pr), u = FpC_red(ZM_ZC_mul(M, pr_get_gen(pr)), p);
+  return pr_make(nf, p, u, gel(pr,3), gel(pr,4));
 }
 
 static GEN
-vecgaloisapply(GEN nf, GEN aut, GEN v)
-{
-  long i, l;
-  GEN V = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(V,i) = galoisapply(nf, aut, gel(v,i));
-  return V;
-}
+vecgaloisapply(GEN nf, GEN aut, GEN x)
+{ pari_APPLY_same(galoisapply(nf, aut, gel(x,i))); }
+static GEN
+vecgaloismatrixapply(GEN nf, GEN aut, GEN x)
+{ pari_APPLY_same(nfgaloismatrixapply(nf, aut, gel(x,i))); }
 
 /* x: famat or standard algebraic number, aut automorphism in ZC form
  * simplified from general galoisapply */
@@ -629,6 +635,17 @@ elt_galoisapply(GEN nf, GEN aut, GEN x)
   pari_err_TYPE("galoisapply",x);
   return NULL; /* LCOV_EXCL_LINE */
 }
+/* M automorphism in matrix form */
+static GEN
+elt_galoismatrixapply(GEN nf, GEN M, GEN x)
+{
+  if (typ(x) == t_MAT)
+    switch(lg(x)) {
+      case 1: return cgetg(1, t_MAT);
+      case 3: retmkmat2(vecgaloismatrixapply(nf,M,gel(x,1)), ZC_copy(gel(x,2)));
+    }
+  return nfgaloismatrixapply(nf, M, x);
+}
 
 GEN
 galoisapply(GEN nf, GEN aut, GEN x)
@@ -653,7 +670,9 @@ galoisapply(GEN nf, GEN aut, GEN x)
       aut = algtobasis(nf, aut);
       switch(lg(x))
       {
-        case 6: return gerepilecopy(av, pr_galoisapply(nf, x, aut));
+        case 6:
+          if (pr_is_inert(x)) { set_avma(av); return gcopy(x); }
+          return gerepilecopy(av, pr_galoisapply(nf, x, aut));
         case 3: y = cgetg(3,t_VEC);
           gel(y,1) = galoisapply(nf, aut, gel(x,1));
           gel(y,2) = elt_galoisapply(nf, aut, gel(x,2));
@@ -670,6 +689,49 @@ galoisapply(GEN nf, GEN aut, GEN x)
       if (nbrows(x) != nf_get_degree(nf)) break;
       y = RgM_mul(nfgaloismatrix(nf,aut), x);
       return gerepileupto(av, idealhnf_shallow(nf,y));
+  }
+  pari_err_TYPE("galoisapply",x);
+  return NULL; /* LCOV_EXCL_LINE */
+}
+
+/* M automorphism in galoismatrix form */
+GEN
+nfgaloismatrixapply(GEN nf, GEN M, GEN x)
+{
+  pari_sp av = avma;
+  long lx;
+  GEN y;
+
+  nf = checknf(nf);
+  switch(typ(x))
+  {
+    case t_INT:  return icopy(x);
+    case t_FRAC: return gcopy(x);
+
+    case t_POLMOD: x = gel(x,2); /* fall through */
+    case t_POL:
+      x = algtobasis(nf, x);
+      return gerepileupto(av, basistoalg(nf, RgM_RgC_mul(M, x)));
+
+    case t_VEC:
+      switch(lg(x))
+      {
+        case 6:
+          if (pr_is_inert(x)) { set_avma(av); return gcopy(x); }
+          return gerepilecopy(av, pr_galoismatrixapply(nf, x, M));
+        case 3: y = cgetg(3,t_VEC);
+          gel(y,1) = nfgaloismatrixapply(nf, M, gel(x,1));
+          gel(y,2) = elt_galoismatrixapply(nf, M, gel(x,2));
+          return gerepileupto(av, y);
+      }
+      break;
+
+    case t_COL: return RgM_RgC_mul(M, x);
+
+    case t_MAT: /* ideal */
+      lx = lg(x); if (lx==1) return cgetg(1,t_MAT);
+      if (nbrows(x) != nf_get_degree(nf)) break;
+      return gerepileupto(av, idealhnf_shallow(nf,RgM_mul(M, x)));
   }
   pari_err_TYPE("galoisapply",x);
   return NULL; /* LCOV_EXCL_LINE */

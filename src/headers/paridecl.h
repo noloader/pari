@@ -2155,6 +2155,7 @@ long    nf_get_prec(GEN x);
 GEN     nfmaxord_to_nf(nfmaxord_t *T, GEN ro, long prec);
 GEN     nfcertify(GEN x);
 GEN     nfgaloismatrix(GEN nf, GEN s);
+GEN     nfgaloismatrixapply(GEN nf, GEN M, GEN x);
 GEN     nfgaloispermtobasis(GEN nf, GEN gal);
 void    nfinit_basic(nfmaxord_t *T, GEN x);
 GEN     nfinit_complete(nfmaxord_t *T, long flag, long prec);

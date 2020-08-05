@@ -2717,7 +2717,7 @@ INLINE long pr_get_e(GEN pr) { return gel(pr,3)[2]; }
 INLINE long pr_get_f(GEN pr) { return gel(pr,4)[2]; }
 INLINE GEN pr_get_tau(GEN pr){ return gel(pr,5); }
 INLINE int
-pr_is_inert(GEN P) { return pr_get_f(P) == lg(pr_get_gen(P))-1; }
+pr_is_inert(GEN P) { return typ(pr_get_tau(P)) == t_INT; }
 INLINE GEN
 pr_norm(GEN pr) { return powiu(pr_get_p(pr), pr_get_f(pr)); }
 INLINE ulong

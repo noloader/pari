@@ -2727,13 +2727,14 @@ bnrautmatrix(GEN bnr, GEN aut)
   l = lg(El);
   for (i = 1; i < l; i++) gel(Gen,i) = idealmul(nf, gel(El,i), gel(Gen,i));
   l = lg(Gen); M = cgetg(l, t_MAT);
+  aut = nfgaloismatrix(nf, aut);
   /* Gen = clg.gen*U, clg.gen = Gen*Ui */
   for (i = 1; i < l; i++)
-    gel(M,i) = isprincipalray(bnr, galoisapply(nf,aut,gel(Gen,i)));
+    gel(M,i) = isprincipalray(bnr, nfgaloismatrixapply(nf,aut,gel(Gen,i)));
   M = ZM_mul(M, bnr_get_Ui(bnr));
   l = lg(M);
   for (i = 1; i < l; i++) gel(M,i) = vecmodii(gel(M,i), cyc);
-  return gerepileupto(av, M);
+  return gerepilecopy(av, M);
 }
 
 GEN
