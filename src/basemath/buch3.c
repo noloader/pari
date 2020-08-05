@@ -414,7 +414,7 @@ static GEN
 Buchraymod_i(GEN bnf, GEN module, long flag, GEN MOD)
 {
   GEN nf, cyc0, cyc, gen, Cyc, Gen, clg, h, logU, U, Ui, vu;
-  GEN bid, cycbid, genbid, H, El;
+  GEN bid, cycbid, H, El;
   long RU, Ri, j, ngen;
   const long add_gen = flag & nf_GEN;
   const long do_init = flag & nf_INIT;
@@ -436,7 +436,6 @@ Buchraymod_i(GEN bnf, GEN module, long flag, GEN MOD)
     cyc = ZV_snf_gcd(cyc, MOD);
     cycbid = ZV_snf_gcd(cycbid, MOD);
   }
-  genbid = bid_get_gen(bid);
   Ri = lg(cycbid)-1;
   if (Ri || add_gen || do_init)
   {
@@ -452,7 +451,7 @@ Buchraymod_i(GEN bnf, GEN module, long flag, GEN MOD)
   {
     Gen = cgetg(ngen+1,t_VEC);
     for (j=1; j<=ngen; j++) gel(Gen,j) = idealmul(nf, gel(El,j), gel(gen,j));
-    Gen = shallowconcat(Gen, genbid);
+    Gen = shallowconcat(Gen, bid_get_gen(bid));
   }
   if (!Ri)
   {
