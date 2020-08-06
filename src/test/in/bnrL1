@@ -18,4 +18,4 @@ bnr=bnrinit(bnf,cond[1]);
 real(bnrL1(bnr,cond[3],1))
 
 default(realprecision,100);
-bnrL1(bnrinit(bnfinit(Q),[5,[1]],1))[1]
+bnrL1(bnrinit(bnfinit(Q),[5,[1]]))[1]
