@@ -98,7 +98,8 @@
 [2, 2, 1]~
 2
 2
-  ***   at top-level: bnrisprincipal(bnrinit(bnf,1),1)
-  ***                 ^--------------------------------
-  *** bnrisprincipal: missing bnr generators: please use bnrinit(,,1).
-Total time spent: 362
+[[3, 0, 0]~, 9]
+[3, 0, 0]~
+[[3, 0, 0]~, 1/128625]
+[3, 0, 0]~
+Total time spent: 370

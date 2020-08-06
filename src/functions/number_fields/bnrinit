@@ -44,8 +44,13 @@ Doc: $\var{bnf}$ is as
  refer to $(\Z_K/f)^*$; use \kbd{\var{bnr}.bid.\var{xxx}} to access these,
  e.g.~\kbd{\var{bnr}.bid.no} to get $\phi(f)$.
 
- If $\fl=0$ (default), the generators of the ray class group are not computed,
- which saves time. Hence \kbd{\var{bnr}.gen} would produce an error.
+ If $\fl=0$ (default), the generators of the ray class group are not
+ explicitly computed, which saves time. Hence \kbd{\var{bnr}.gen} would
+ produce an error. Note that implicit generators are still fixed and stored
+ in the \var{bnr} (and guaranteed to be the same for fixed \var{bnf} and
+ \var{bid} inputs), in terms of \kbd{bnr.bnf.gen} and \kbd{bnr.bid.gen}.
+ The computation which is not performed is the expansion of such products
+ in the ray class group so as to fix eplicit ideal representatives.
 
  If $\fl=1$, as the default, except that generators are computed.
 Variant: Instead of the above hardcoded  numerical flags,  one should rather use

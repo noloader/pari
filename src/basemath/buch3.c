@@ -493,8 +493,7 @@ Buchraymod_i(GEN bnf, GEN module, long flag, GEN MOD)
     h = H;
   else
   {
-    GEN L = cgetg(ngen+1, t_MAT);
-    GEN cycgen = bnf_build_cycgen(bnf);
+    GEN L = cgetg(ngen+1, t_MAT), cycgen = bnf_build_cycgen(bnf);
     for (j=1; j<=ngen; j++)
     {
       GEN c = gel(cycgen,j), e = gel(El,j);
@@ -595,9 +594,11 @@ GEN
 bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
 {
   pari_sp av = avma;
-  GEN bnf, nf, bid, L, ex, cycray, alpha;
+  GEN E, G, clgp, bnf, nf, bid, L, ex, cycray, alpha, El;
+  int trivialbid;
 
   checkbnr(bnr);
+  El = bnr_get_El(bnr);
   cycray = bnr_get_cyc(bnr);
   if (MOD && flag) pari_err_FLAG("bnrisprincipalmod [MOD!=NULL and flag!=0]");
   if (lg(cycray) == 1 && !(flag & nf_GEN)) return cgetg(1,t_COL);
@@ -605,11 +606,10 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
 
   bnf = bnr_get_bnf(bnr); nf = bnf_get_nf(bnf);
   bid = bnr_get_bid(bnr);
-  if (lg(bid_get_cyc(bid)) == 1) bid = NULL; /* trivial bid */
-  if (!bid) ex = isprincipal(bnf, x);
+  trivialbid = lg(bid_get_cyc(bid)) == 1;
+  if (trivialbid) ex = isprincipal(bnf, x);
   else
   {
-    GEN El = bnr_get_El(bnr);
     GEN v = bnfisprincipal0(bnf, x, nf_FORCE|nf_GENMAT);
     GEN e = gel(v,1), b = gel(v,2);
     long i, j = lg(e);
@@ -623,11 +623,19 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
   if (!(flag & nf_GEN)) return gerepileupto(av, ex);
 
   /* compute generator */
-  L = isprincipalfact(bnf, x, bnr_get_gen(bnr), ZC_neg(ex),
-                      nf_GENMAT|nf_GEN_IF_PRINCIPAL|nf_FORCE);
+  E = ZC_neg(ex);
+  clgp = bnr_get_clgp(bnr);
+  if (lg(clgp) == 4)
+    G = abgrp_get_gen(clgp);
+  else
+  {
+    G = get_Gen(bnf, bid, El);
+    E = ZM_ZC_mul(bnr_get_Ui(bnr), E);
+  }
+  L = isprincipalfact(bnf, x, G, E, nf_GENMAT|nf_GEN_IF_PRINCIPAL|nf_FORCE);
   if (L == gen_0) pari_err_BUG("isprincipalray");
   alpha = nffactorback(nf, L, NULL);
-  if (bid)
+  if (!trivialbid)
   {
     GEN v = gel(bnr,6), u2 = gel(v,1), u1 = gel(v,2), du2 = gel(v,3);
     GEN y = ZM_ZC_mul(u2, ideallog(nf, L, bid));

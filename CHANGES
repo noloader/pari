@@ -191,6 +191,8 @@ AP  60- improve bnfisprincipal in fields of large degree (test more small
         elements)
     61- bnrgaloismatrix(bnr) no longer needs a bnr with generators
         (from bnrinit(,1))
+    62- bnrisprincipal(bnr,1) no longer needs a bnr with generators
+        (from bnrinit(,1))
 
   Added
      1- new GP function rootsof1

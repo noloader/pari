@@ -520,12 +520,13 @@ galoiscyclo(long n, long v)
 static GEN
 bnr_to_abgrp(GEN bnr, long *cx)
 {
-  GEN gen, F, v, bid, Ui = NULL;
+  GEN gen, F, v, bid, G, Ui = NULL;
   long l, i;
   checkbnr(bnr);
   bid = bnr_get_bid(bnr);
-  if (lg(bnr_get_clgp(bnr)) == 4)
-    gen = bnr_get_gen(bnr);
+  G = bnr_get_clgp(bnr);
+  if (lg(G) == 4)
+    gen = abgrp_get_gen(bnr);
   else
   {
     Ui = gmael(bnr,4,3);
