@@ -4616,6 +4616,7 @@ GEN     perm_pow(GEN perm, long exp);
 long    perm_sign(GEN perm);
 GEN     perm_to_GAP(GEN v);
 GEN     perm_to_Z(GEN v);
+GEN     permcycles(GEN perm);
 long    permorder(GEN perm);
 long    permsign(GEN perm);
 GEN     permtonum(GEN x);

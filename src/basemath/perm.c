@@ -397,14 +397,6 @@ vecperm_orbits(GEN v, long n)
   return gerepilecopy(av, vecperm_orbits_i(v, n));
 }
 
-/* Compute the cyclic decomposition of a permutation */
-GEN
-perm_cycles(GEN v)
-{
-  pari_sp av = avma;
-  return gerepilecopy(av, vecperm_orbits_i(mkvec(v), lg(v)-1));
-}
-
 static int
 isperm(GEN v)
 {
@@ -420,6 +412,21 @@ isperm(GEN v)
     w[d] = 1;
   }
   return gc_bool(av,1);
+}
+
+/* Compute the cyclic decomposition of a permutation */
+GEN
+perm_cycles(GEN v)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, vecperm_orbits_i(mkvec(v), lg(v)-1));
+}
+
+GEN
+permcycles(GEN v)
+{
+  if (!isperm(v)) pari_err_TYPE("permcycles",v);
+  return perm_cycles(v);
 }
 
 /* Output the order of p */

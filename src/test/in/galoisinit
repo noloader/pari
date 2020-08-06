@@ -64,6 +64,7 @@ apply(H->galoisisnormal(G,H),L)
 apply(H->galoisisabelian(H),L)
 apply(H->galoisisabelian(H,1),L)
 apply(H->galoisisabelian(H,2),L)
+apply(permcycles,G.group)
 apply(permorder,G.group)
 apply(permsign,G.group)
 
