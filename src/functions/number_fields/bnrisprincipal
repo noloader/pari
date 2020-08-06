@@ -45,7 +45,7 @@ Doc: let \var{bnr} be the ray class group data output by
  unique generators for the ray class group as ideal \emph{classes}, whether
  we use \kbd{bnrinit(,0)} or \kbd{bnrinit,1}. But the actual ideal
  representatives (implicit if the flag is $0$, computed and stored in the
- \var{bnr} if the flag is $1) are in general different and this is what
+ \var{bnr} if the flag is $1$) are in general different and this is what
  happens here. Indeed, the implicit generators are naturally expressed
  expressed in terms of \kbd{bnr.bnf.gen} and \kbd{bnr.bid.gen} and \emph{then}
  expanded and simplified (in the same ideal class) so that we obtain ideal
