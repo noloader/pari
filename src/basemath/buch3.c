@@ -594,7 +594,7 @@ GEN
 bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
 {
   pari_sp av = avma;
-  GEN E, G, clgp, bnf, nf, bid, L, ex, cycray, alpha, El;
+  GEN E, G, clgp, bnf, nf, bid, ex, cycray, alpha, El;
   int trivialbid;
 
   checkbnr(bnr);
@@ -620,7 +620,7 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
     ex = ZM2_ZC2_mul(bnr_get_U(bnr), e, ideallogmod(nf, b, bid, MOD));
   }
   ex = vecmodii(ex, cycray);
-  if (!(flag & nf_GEN)) return gerepileupto(av, ex);
+  if (!(flag & (nf_GEN|nf_GENMAT))) return gerepileupto(av, ex);
 
   /* compute generator */
   E = ZC_neg(ex);
@@ -632,21 +632,22 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
     G = get_Gen(bnf, bid, El);
     E = ZM_ZC_mul(bnr_get_Ui(bnr), E);
   }
-  L = isprincipalfact(bnf, x, G, E, nf_GENMAT|nf_GEN_IF_PRINCIPAL|nf_FORCE);
-  if (L == gen_0) pari_err_BUG("isprincipalray");
-  alpha = nffactorback(nf, L, NULL);
+  alpha = isprincipalfact(bnf, x, G, E, nf_GENMAT|nf_GEN_IF_PRINCIPAL|nf_FORCE);
+  if (alpha == gen_0) pari_err_BUG("isprincipalray");
   if (!trivialbid)
   {
     GEN v = gel(bnr,6), u2 = gel(v,1), u1 = gel(v,2), du2 = gel(v,3);
-    GEN y = ZM_ZC_mul(u2, ideallog(nf, L, bid));
+    GEN y = ZM_ZC_mul(u2, ideallog(nf, alpha, bid));
     if (!is_pm1(du2)) y = ZC_Z_divexact(y,du2);
     y = ZC_reducemodmatrix(y, u1);
     if (!ZV_equal0(y))
     {
       GEN U = bnf_build_units(bnf);
-      alpha = nfdiv(nf, alpha, nffactorback(nf, U, y));
+      alpha = famat_div(alpha, mkmat2(U,y));
     }
   }
+  alpha = famat_reduce(alpha);
+  if (!(flag & nf_GENMAT)) alpha = nffactorback(nf, alpha, NULL);
   return gerepilecopy(av, mkvec2(ex,alpha));
 }
 
