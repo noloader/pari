@@ -1746,6 +1746,18 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
   }
 
   x = Q_primitive_part(x, &xc);
+  if (equali1(gcoeff(x,1,1))) /* trivial ideal */
+  {
+    R = zerocol(lg(cyc)-1);
+    if (!(flag & (nf_GEN|nf_GENMAT|nf_GEN_IF_PRINCIPAL))) return R;
+    if (flag & nf_GEN_IF_PRINCIPAL)
+      return scalarcol_shallow(xc? xc: gen_1, nf_get_degree(nf));
+    if (flag & nf_GENMAT)
+      col = xc? to_famat_shallow(xc, gen_1): trivial_fact();
+    else
+      col = scalarcol_shallow(xc? xc: gen_1, nf_get_degree(nf));
+    return mkvec2(R, col);
+  }
   xar = split_ideal(bnf, x, &Wex, &Bex);
   /* x = g_W Wex + g_B Bex + [xar] = g_W (Wex - B*Bex) + [xar] + [C_B]Bex */
   A = zc_to_ZC(Wex); nB = lg(Bex)-1;
@@ -1837,8 +1849,9 @@ triv_gen(GEN bnf, GEN x, long flag)
   long c;
   if (flag & nf_GEN_IF_PRINCIPAL)
   {
-    x = algtobasis(nf,x);
-    if (!(flag & nf_GENMAT)) return x;
+    if (!(flag & nf_GENMAT)) return algtobasis(nf,x);
+    x = nf_to_scalar_or_basis(nf,x);
+    if (typ(x) == t_INT && is_pm1(x)) return trivial_fact();
     return gerepilecopy(av, to_famat_shallow(x, gen_1));
   }
   c = lg(bnf_get_cyc(bnf)) - 1;
@@ -2010,6 +2023,11 @@ isprincipalfact(GEN bnf, GEN C, GEN P, GEN e, long flag)
   if (id == C0) /* e = 0 */
   {
     if (!C) return bnfisprincipal0(bnf, gen_1, flag);
+    switch(typ(C))
+    {
+      case t_INT: case t_FRAC: case t_POL: case t_POLMOD: case t_COL:
+        return triv_gen(bnf, C, flag);
+    }
     C = idealhnf_shallow(nf,C);
   }
   else
