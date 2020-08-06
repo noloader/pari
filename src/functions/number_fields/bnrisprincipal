@@ -18,7 +18,7 @@ Doc: let \var{bnr} be the ray class group data output by
  generators in \kbd{bnr.bnf.gen} and \kbd{bnr.bid.gen}) and compute with
  respect to them.
 
- The binary digits of $\fl$ (default $\fl = 1) mean:
+ The binary digits of $\fl$ (default $\fl = 1$) mean:
 
  \item $1$: If set returns a 2-component vector $[e,\alpha]$ where $e$
  is the vector of components of $x$ on the ray class group generators,
