@@ -111,7 +111,7 @@ L=lfuninit(L,[1,0,0]);
 lfuncheckfeq(L)
 lfun(L,1)
 
-K=bnfinit('x^2+23);B=bnrinit(K,1,1);
+K=bnfinit('x^2+23);B=bnrinit(K,1);
 L=lfuncreate([B,[1]]);
 lfuncheckfeq(L)
 algdep(exp(lfun(L,0,1)),3)
@@ -203,7 +203,7 @@ localbitprec(32);lfuncheckfeq(E)
 print("Grossencharacter");
 K=bnfinit(polcyclo(5));
 id5=idealprimedec(K,5)[1];
-B=bnrinit(K,id5,1);
+B=bnrinit(K,id5);
 F(p,d)=
 {
   my(pr=idealprimedec(K, p, d-1));
