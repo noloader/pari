@@ -1905,13 +1905,13 @@ thus
 structure from \kbd{bnf} and modulus \kbd{mod}. \kbd{flag} is an or-ed
 combination of \kbd{nf\_GEN} (include generators) and \kbd{nf\_INIT} (if
 omitted, do not return a \var{bnr}, only the ray class group as an abelian
-group). In fact, a single value of \kbd{flag} actually makes sense:
-\kbd{nf\_GEN | nf\_INIT} to initialize a proper \var{bnr}: removing
-\kbd{nf\_GEN} saves very little time, but the corresponding crippled
-\var{bnr} structure will raise errors in most class field theoretic
-functions. Possibly also 0 to quickly compute the ray class group structure;
-\tet{bnrclassno} is faster if we only need the \emph{order} of the ray class
-group.
+group). In fact, the single most useful value of \kbd{flag} is
+\kbd{nf\_INIT} to initialize a proper \var{bnr}: omitting
+\kbd{nf\_GEN} saves a lot of time and will not adversely affect
+any class field theoretic function; adding \kbd{nf\_GEN} makes debugging
+easier. The flag 0 allows to compute only the ray class group structure but
+will gain little time; if we only need the \emph{order} of the ray class
+group, then \tet{bnrclassno} is fastest.
 
 Now we have a proper \var{bnr} encoding a \kbd{bnf} and a modulus, we no longer
 need the $[\var{bnf},\var{modulus}]$ and
