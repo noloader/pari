@@ -526,7 +526,7 @@ bnr_to_abgrp(GEN bnr, long *cx)
   bid = bnr_get_bid(bnr);
   G = bnr_get_clgp(bnr);
   if (lg(G) == 4)
-    gen = abgrp_get_gen(bnr);
+    gen = abgrp_get_gen(G);
   else
   {
     Ui = gmael(bnr,4,3);
