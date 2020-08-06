@@ -642,8 +642,9 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
     y = ZC_reducemodmatrix(y, u1);
     if (!ZV_equal0(y))
     {
-      GEN U = bnf_build_units(bnf);
-      alpha = famat_div(alpha, mkmat2(U,y));
+      GEN U = shallowcopy(bnf_build_units(bnf));
+      settyp(U, t_COL);
+      alpha = famat_div_shallow(alpha, mkmat2(U,y));
     }
   }
   alpha = famat_reduce(alpha);
