@@ -506,8 +506,6 @@ parseproto(char const **q, char *c, const char *str)
   case 'D':
     switch(p[1])
     {
-    case 0:
-      compile_err("function has incomplete prototype",str);
     case 'G':
     case '&':
     case 'W':
@@ -519,16 +517,11 @@ parseproto(char const **q, char *c, const char *str)
     case 'P':
     case 'r':
     case 's':
-      *c=p[1];
-      *q=p+2;
-      return PPdefault;
+      *c=p[1]; *q=p+2; return PPdefault;
     default:
       for(i=0;*p && i<2;p++) i+=*p==',';
-      if (i<2)
-        compile_err("function has incomplete prototype",str);
-      *c=p[-2];
-      *q=p;
-      return PPdefaultmulti;
+      /* assert(i>=2) because check_proto validated the protototype */
+      *c=p[-2]; *q=p; return PPdefaultmulti;
     }
     break;
   case 'C':
@@ -536,38 +529,25 @@ parseproto(char const **q, char *c, const char *str)
   case 'b':
   case 'P':
   case 'f':
-    *c=*p;
-    *q=p+1;
-    return PPauto;
+    *c=*p; *q=p+1; return PPauto;
   case '&':
-    *c='*';
-    *q=p+1;
-    return PPstd;
+    *c='*'; *q=p+1; return PPstd;
   case 'V':
     if (p[1]=='=')
     {
       if (p[2]!='G')
         compile_err("function prototype is not supported",str);
-      *c='=';
-      p+=2;
+      *c='='; p+=2;
     }
     else
       *c=*p;
-    *q=p+1;
-    return PPstd;
+    *q=p+1; return PPstd;
   case 'E':
   case 's':
-    if (p[1]=='*')
-    {
-      *c=*p++;
-      *q=p+1;
-      return PPstar;
-    }
+    if (p[1]=='*') { *c=*p++; *q=p+1; return PPstar; }
     /*fall through*/
   }
-  *c=*p;
-  *q=p+1;
-  return PPstd;
+  *c=*p; *q=p+1; return PPstd;
 }
 
 static long

@@ -210,12 +210,37 @@ GEN
 gp_read_str_prec(const char *s, long prec)
 { return gp_read_str_bitprec(s, prec2nbits(prec)); }
 
+/* valid return type */
+static int
+isreturn(char c)
+{ return c == 'l' || c == 'v' || c == 'i' || c == 'm' || c == 'u'; }
+
+/* if is known that 2 commas follow s; base-10 signed integer followed
+ * by comma? */
+static int
+is_long(const char *s)
+{
+  while (isspace(*s)) s++;
+  if (*s == '+' || *s == '-') s++;
+  while (isdigit(*s)) s++;
+  return *s == ',';
+}
+/* if is known that 2 commas follow s; base-10 unsigned integer followed
+ * by comma? */
+static int
+is_ulong(const char *s)
+{
+  while (isspace(*s)) s++;
+  if (*s == '+') s++;
+  while (isdigit(*s)) s++;
+  return *s == ',';
+}
 static long
 check_proto(const char *code)
 {
   long arity = 0;
-  const char *s = code, *old;
-  if (*s == 'l' || *s == 'v' || *s == 'i' || *s == 'm' || *s == 'u') s++;
+  const char *s = code;
+  if (isreturn(*s)) s++;
   while (*s && *s != '\n') switch (*s++)
   {
     case '&':
@@ -233,33 +258,51 @@ check_proto(const char *code)
     case 'p':
     case 'b':
     case 'r':
-      arity++;
-      break;
+      arity++; break;
     case 'E':
     case 's':
       if (*s == '*') s++;
-      arity++;
-      break;
+      arity++; break;
     case 'D':
-      if (*s == 'G' || *s == '&' || *s == 'n' || *s == 'I' || *s == 'E'
-                    || *s == 'V' || *s == 'P' || *s == 's' || *s == 'r')
+      switch(*s)
       {
-        if (*s != 'V') arity++;
-        s++; break;
+        case 'G': case '&': case 'n': case 'I': case 'E':
+        case 'P': case 's': case 'r': s++; arity++; break;
+        case 'V': s++; break;
+        case 0:
+          pari_err(e_SYNTAX,"function has incomplete prototype", s,code);
+          break;
+        default:
+        {
+          const char *p;
+          long i;
+          for(i = 0, p = s; *p && i < 2; p++) i += *p==','; /* skip 2 commas */
+          if (i < 2) pari_err(e_SYNTAX,"missing comma",s,code);
+          arity++;
+          switch(p[-2])
+          {
+            case 'L':
+              if (!is_long(s)) pari_err(e_SYNTAX,"not a long",s,code);
+              break;
+            case 'U':
+              if (!is_ulong(s)) pari_err(e_SYNTAX,"not an ulong",s,code);
+              break;
+            case 'G': case 'r': case 's': case 'M':
+              break;
+            default: pari_err(e_SYNTAX,"incorrect type",s-2,code);
+          }
+          s = p;
+        }
       }
-      old = s; while (*s && *s != ',') s++;
-      if (*s != ',') pari_err(e_SYNTAX, "missing comma", old, code);
       break;
     case 'V':
     case '=':
     case ',': break;
     case '\n': break; /* Before the mnemonic */
-
-    case 'm':
-    case 'l':
-    case 'i':
-    case 'v': pari_err(e_SYNTAX, "this code has to come first", s-1, code);
-    default: pari_err(e_SYNTAX, "unknown parser code", s-1, code);
+    default:
+      if (isreturn(s[-1]))
+        pari_err(e_SYNTAX, "this code has to come first", s-1, code);
+      pari_err(e_SYNTAX, "unknown parser code", s-1, code);
   }
   if (arity > 20) pari_err_IMPL("functions with more than 20 parameters");
   return arity;
