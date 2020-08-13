@@ -14,13 +14,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-static const long EXTRAPREC =
-#ifdef LONG_IS_64BIT
-  1;
-#else
-  2;
-#endif
-
 static GEN
 intlin(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec);
 
@@ -252,7 +245,7 @@ intnumgaussinit(long N, long prec)
   long N2, j, k, l, bit;
   GEN V, W, F;
 
-  prec += EXTRAPREC;
+  prec += EXTRAPREC64;
   bit = prec2nbits(prec);
   if (N <= 0)
   {
@@ -293,7 +286,7 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
   pari_sp ltop = avma;
   GEN R, W, bma, bpa, S;
-  long n, i, prec2 = prec + EXTRAPREC;
+  long n, i, prec2 = prec + EXTRAPREC64;
   if (!tab)
     tab = intnumgaussinit(0,prec);
   else if (typ(tab) != t_INT)
@@ -1011,7 +1004,7 @@ intnuminit_i(GEN a, GEN b, long m, long prec)
 
   if (m > 30) pari_err_OVERFLOW("intnuminit [m]");
   if (m < 0) pari_err_DOMAIN("intnuminit", "m", "<", gen_0, stoi(m));
-  l = prec+EXTRAPREC;
+  l = prec+EXTRAPREC64;
   codea = transcode(a, "a"); if (codea == f_SER) codea = f_REG;
   codeb = transcode(b, "b"); if (codeb == f_SER) codeb = f_REG;
   if (codea == f_SINGSER || codeb == f_SINGSER)
@@ -1248,7 +1241,7 @@ GEN
 intnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
   pari_sp ltop = avma;
-  long l = prec+EXTRAPREC;
+  long l = prec+EXTRAPREC64;
   GEN na = NULL, nb = NULL, S;
 
   if (transcode(a,"a") == f_SINGSER) {
@@ -1694,7 +1687,7 @@ sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
   double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*M_LN2;
   double da = maxdd(1., gtodouble(a));
   long n = (long)ceil(D / (da*(log(D)-1)));
-  long j, prec2, prec0 = prec + EXTRAPREC;
+  long j, prec2, prec0 = prec + EXTRAPREC64;
   double bit0 = ceil((2*n+1)*LOG2_10);
   int neg = 1;
   struct mon_w S;
@@ -1850,7 +1843,7 @@ sumnuminit(GEN fast, long prec)
   N = (long)ceil(M_LN2*bitprec/(w*(1+w))+5);
   k = (long)ceil(N*w); if (k&1) k--;
 
-  prec += EXTRAPREC;
+  prec += EXTRAPREC64;
   k2 = k/2;
   s = RgX_to_ser(monomial(real_1(prec),1,0), k+3);
   s = gmul2n(gasinh(s, prec), 2); /* asinh(x)/d, d = 1/4 */
@@ -1877,7 +1870,7 @@ sumnuminit(GEN fast, long prec)
   gel(res, 2) = utoi(N);
   gel(res, 3) = utoi(k);
   if (!fast) fast = get_oo(gen_0);
-  gel(res, 5) = intnuminit(gel(res,2), fast, 0, prec - EXTRAPREC);
+  gel(res, 5) = intnuminit(gel(res,2), fast, 0, prec - EXTRAPREC64);
   return res;
 }
 
@@ -1912,7 +1905,7 @@ sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
   k = itos(gel(tab,3));
   v = gel(tab,4);
   tabint = gel(tab,5);
-  prec2 = prec+EXTRAPREC;
+  prec2 = prec+EXTRAPREC64;
   av2 = avma;
   S = gmul(eval(E, stoi(N)), real2n(-1,prec2));
   for (m = as; m < N; m++)
@@ -1955,7 +1948,7 @@ intnumgauexpinit(long prec)
 {
   pari_sp ltop = avma;
   GEN V, N, E, P, Q, R, vabs, vwt;
-  long l, n, k, j, prec2, prec0 = prec + EXTRAPREC, bit = prec2nbits(prec);
+  long l, n, k, j, prec2, prec0 = prec + EXTRAPREC64, bit = prec2nbits(prec);
 
   n = (long)ceil(bit*0.226);
   n |= 1; /* make n odd */
@@ -2108,7 +2101,7 @@ intnumainfrat(GEN F, long N, double r, long prec)
   pari_sp av = avma;
 
   lim = (long)ceil(B/log2(N/r));
-  ser = gmul(F, real_1(prec + EXTRAPREC));
+  ser = gmul(F, real_1(prec + EXTRAPREC64));
   ser = rfracrecip_to_ser_absolute(ser, lim+2);
   v = valp(ser);
   S = gdivgs(sercoeff(ser,lim+1), lim*N);
@@ -2366,7 +2359,7 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   pari_sp av = avma;
   GEN ser, z, P;
   double r, rs, RS, lN;
-  long B = prec2nbits(prec), prec2 = prec + EXTRAPREC, vF, N, lim;
+  long B = prec2nbits(prec), prec2 = prec + EXTRAPREC64, vF, N, lim;
 
   euler_set_Fs(&F, &s);
   switch(typ(F))
@@ -2411,7 +2404,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   pari_sp ltop = avma;
   GEN DF, NF, ser, P, z;
   double r, rs, RS, lN;
-  long B = prec2nbits(prec), prec2 = prec + EXTRAPREC, vF, N, lim;
+  long B = prec2nbits(prec), prec2 = prec + EXTRAPREC64, vF, N, lim;
 
   euler_set_Fs(&F, &s);
   switch(typ(F))

@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 
 #define HALF_E 1.3591409 /* exp(1) / 2 */
-static const long EXTRAPREC = DEFAULTPREC-2;
 
 /***********************************************************************/
 /**                                                                   **/
@@ -675,7 +674,7 @@ eint1r_asymp(GEN x, GEN expx, long prec)
   GEN S, q, z, ix;
   long oldeq = LONG_MAX, esx = -prec2nbits(prec), j;
 
-  if (realprec(x) < prec + EXTRAPREC) x = rtor(x, prec+EXTRAPREC);
+  if (realprec(x) < prec + EXTRAPREC64) x = rtor(x, prec+EXTRAPREC64);
   ix = invr(x); q = z = negr(ix);
   av2 = avma; S = addrs(q, 1);
   for (j = 2;; j++)
@@ -702,7 +701,7 @@ eint1_asymp(GEN x, GEN expx, long prec)
   GEN S, q, z, ix;
   long oldeq = LONG_MAX, esx = -prec2nbits(prec), j;
 
-  if (typ(x) != t_REAL) x = gtofp(x, prec+EXTRAPREC);
+  if (typ(x) != t_REAL) x = gtofp(x, prec+EXTRAPREC64);
   if (typ(x) == t_REAL) return eint1r_asymp(x, expx, prec);
   ix = ginv(x); q = z = gneg_i(ix);
   av2 = avma; S = gaddgs(q, 1);
@@ -757,7 +756,7 @@ eint1m(GEN x, GEN expx)
   long l  = realprec(x), n  = prec2nbits(l), j;
   pari_sp av = avma;
 
-  y  = rtor(x, l + EXTRAPREC); setsigne(y,1); /* |x| */
+  y  = rtor(x, l + EXTRAPREC64); setsigne(y,1); /* |x| */
   if (gamma_use_asymp(y, n))
   { /* ~eint1_asymp: asymptotic expansion */
     p1 = q = invr(y); S = addrs(q, 1);
@@ -800,7 +799,7 @@ expmx_xs(GEN s, GEN x, GEN logx, long prec)
   if (ts == t_INT || (ts == t_FRAC && absequaliu(gel(s,2), 2)))
     z = gmul(gexp(gneg(x), prec), gpow(x, s, prec));
   else
-    z = gexp(gsub(gmul(s, logx? logx: glog(x,prec+EXTRAPREC)), x), prec);
+    z = gexp(gsub(gmul(s, logx? logx: glog(x,prec+EXTRAPREC64)), x), prec);
   return z;
 }
 
@@ -936,7 +935,7 @@ incgamc_i(GEN s, GEN x, long *ptexd, long prec)
     x = gtofp(x, p);
     if (isinexactreal(s)) s = gtofp(s, p);
   }
-  else x = gtofp(x, l+EXTRAPREC);
+  else x = gtofp(x, l+EXTRAPREC64);
   av2 = avma;
   S = gdiv(x, gaddsg(1,s));
   t = gaddsg(1, S);
@@ -968,7 +967,7 @@ incgam_asymp(GEN s, GEN x, long prec)
   long oldeq = LONG_MAX, eq, esx, j;
   int flint = (typ(s) == t_INT && signe(s) > 0);
 
-  x = gtofp(x,prec+EXTRAPREC);
+  x = gtofp(x,prec+EXTRAPREC64);
   invx = ginv(x);
   esx = -prec2nbits(prec);
   av2 = avma;
@@ -1032,7 +1031,7 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     if (d > 0) prec += nbits2extraprec((long)d);
     if (isinexactreal(s)) s = gtofp(s, prec);
   }
-  x = gtofp(x, maxss(precision(x), prec) + EXTRAPREC);
+  x = gtofp(x, maxss(precision(x), prec) + EXTRAPREC64);
   sk = gaddgs(s, k); /* |Re(sk)| <= 1/2 */
   logx = glog(x, prec);
   mx = gneg(x);
@@ -1072,11 +1071,11 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     logx = glog(x, prec); sk = gtofp(sk, prec);
     E += X;
   }
-  if (isinexactreal(sk)) sk = gtofp(sk, prec+EXTRAPREC);
+  if (isinexactreal(sk)) sk = gtofp(sk, prec+EXTRAPREC64);
   /* |sk| < 2^-7 is small, guard against cancellation */
   F3 = gexpm1(gmul(sk, logx), prec);
   /* ( gamma(1+sk) - exp(sk log(x))) ) / sk */
-  S1 = gdiv(gsub(ggamma1m1(sk, prec+EXTRAPREC), F3), sk);
+  S1 = gdiv(gsub(ggamma1m1(sk, prec+EXTRAPREC64), F3), sk);
   q = x; S3 = gdiv(x, gaddsg(1,sk));
   for (n = 2; gexpo(q) - gexpo(S3) > -E; ++n)
   {
@@ -1439,7 +1438,7 @@ gerfc(GEN x, long prec)
     */
     /* NOT gsubsg(2, ...) : would create a result of
      * huge accuracy if re(x)>>1, rounded to 2 by subsequent affc_fixlg... */
-    z = gsub(real2n(1,prec+EXTRAPREC), gerfc(gneg(x), prec));
+    z = gsub(real2n(1,prec+EXTRAPREC64), gerfc(gneg(x), prec));
   }
   set_avma(av); return affc_fixlg(z, res);
 }

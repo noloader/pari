@@ -617,8 +617,6 @@ multgam(GEN a, GEN b, GEN c, GEN d, long prec)
   return gdiv(mulgamma2(a, b, prec), mulgamma2(c, d, prec));
 }
 
-const long EXTRAPREC = DEFAULTPREC-2;
-
 static GEN
 intnumsplit(void *E, GEN (*f)(void*, GEN), GEN a, GEN b, GEN z, long prec)
 {
@@ -639,7 +637,7 @@ myint21(void *E, GEN (*f)(void*, GEN), long prec)
     if (gsigne(r) <= 0 || gcmp(r, gen_1) >= 0) pz = NULL;
   }
   if (pz) pz = mkendpt(pz,a);
-  else if (gcmpgs(a,-1) <= 0) prec += ((gexpo(a)+1)>>1) * EXTRAPREC;
+  else if (gcmpgs(a,-1) <= 0) prec += ((gexpo(a)+1)>>1) * EXTRAPREC64;
   return intnumsplit(E, f, p0, p1, pz, prec);
 }
 
@@ -723,7 +721,7 @@ F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
   }
   if (gcmp(real_i(a), real_i(b)) < 0 && gsigne(real_i(a)) > 0) swap(a,b);
   /* Here real(b) > 0 and either real(a) <= 0 or real(a) > real(b) */
-  prec2 = prec + EXTRAPREC;
+  prec2 = prec + EXTRAPREC64;
   a = gprec_wensure(a,prec2);
   b = gprec_wensure(b,prec2);
   c = gprec_wensure(c,prec2);

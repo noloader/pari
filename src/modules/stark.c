@@ -19,8 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-static const long EXTRA_PREC = DEFAULTPREC-2;
-
 /* ComputeCoeff */
 typedef struct {
   GEN L0, L1, L11, L2; /* VECSMALL of p */
@@ -362,7 +360,7 @@ CplxModulus(GEN data, long *newprec)
   {
     GEN cpl, pol = AllStark(data, -1, dprec);
     cpl = RgX_fpnorml2(pol, LOWDEFAULTPREC);
-    dprec = maxss(dprec, nbits2extraprec(gexpo(pol))) + EXTRA_PREC;
+    dprec = maxss(dprec, nbits2extraprec(gexpo(pol))) + EXTRAPREC64;
     if (!gequal0(cpl)) { *newprec = dprec; return gexpo(cpl); }
     set_avma(av);
     if (DEBUGLEVEL>1) pari_warn(warnprec, "CplxModulus", dprec);
@@ -809,7 +807,7 @@ InitChar(GEN bnr, GEN ch, long all, long prec)
 {
   GEN bnf = checkbnf(bnr), nf = bnf_get_nf(bnf), mod = bnr_get_mod(bnr);
   GEN C, dataCR, ncyc, vChar = sortChars(ch);
-  long n, l, r2 = nf_get_r2(nf), prec2 = precdbl(prec) + EXTRA_PREC;
+  long n, l, r2 = nf_get_r2(nf), prec2 = precdbl(prec) + EXTRAPREC64;
   long lv = lg(vChar);
 
   C = get_C(nf, prec2);
@@ -862,7 +860,7 @@ InitChar(GEN bnr, GEN ch, long all, long prec)
 static void
 CharNewPrec(GEN data, long prec)
 {
-  long j, l, prec2 = precdbl(prec) + EXTRA_PREC;
+  long j, l, prec2 = precdbl(prec) + EXTRAPREC64;
   GEN C, nf, dataCR = gmael(data,4,2), D = gel(dataCR,1);
 
   if (ch_prec(D) >= prec2) return;
@@ -2059,7 +2057,7 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN CR, long prec)
   cScT.i0 = i0 = zeta_get_i0(r1, r2, prec2nbits(prec), limx);
   if (DEBUGLEVEL>1) err_printf("i0 = %ld, N0 = %ld\n",i0, n0);
   InitPrimes(bnr, n0, &LIST);
-  prec2 = precdbl(prec) + EXTRA_PREC;
+  prec2 = precdbl(prec) + EXTRAPREC64;
   cScT.powracpi = powersr(sqrtr(mppi(prec2)), r1);
   cScT.cS = cgetg(n0+1, t_VEC);
   cScT.cT = cgetg(n0+1, t_VEC);

@@ -523,7 +523,7 @@ ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pN)
   { G = x; B = NULL; U = matid(n); }
   else
   { G = NULL; B = x; U = (flag & LLL_INPLACE)? NULL: matid(n); }
-  for (p = DEFAULTPREC;; p += DEFAULTPREC-2)
+  for (p = DEFAULTPREC;; p += EXTRAPREC64)
   {
     if (DEBUGLEVEL>=4)
     {
