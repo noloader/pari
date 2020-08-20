@@ -76,3 +76,6 @@ check(Mod(3,101));
 check(Mod(nextprime(2^65),nextprime(2^100)));
 check(ffgen([3,7]));
 check(ffgen([nextprime(2^100),3]));
+
+\\ ERRORS
+sqrtn(Mod(13,112),6) \\ #2242

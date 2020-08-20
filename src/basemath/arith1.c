@@ -2178,9 +2178,8 @@ Fl_sqrtl_raw(ulong a, ulong l, ulong e, ulong r, ulong p, ulong pi, ulong y, ulo
     do
     {
       z = p1; p1 = Fl_powu_pre(p1, l, p, pi);
-      k++;
+      if (++k == e) return ULONG_MAX;
     } while (p1!=1);
-    if (k==e) return ULONG_MAX;
     dl = Fl_log_pre(z, m, l, p, pi);
     dl = Fl_neg(dl, l);
     p1 = Fl_powu_pre(y,dl*upowuu(l,e-k-1),p,pi);
