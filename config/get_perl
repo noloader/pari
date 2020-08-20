@@ -15,3 +15,9 @@ fi
 if test -z "$runtime_perl"; then
   runtime_perl=$perl
 fi
+if test -z "add_funclist" -a ! -f "../src/language/init.h"; then
+  echo "###"
+  echo "### Please install 'perl' to build from GIT sources"
+  echo "###"
+  exit 1
+fi
