@@ -651,10 +651,10 @@ idealHNF_factor(GEN nf, GEN x, ulong lim)
   if (lim)
   {
     GEN P, E;
-    long i, l;
+    long i;
     /* strict useless because of prime table */
     F = absZ_factor_limit(gcoeff(x,1,1), lim);
-    P = gel(F,1); l = lg(P);
+    P = gel(F,1);
     E = gel(F,2);
     /* filter out entries > lim */
     for (i = lg(P)-1; i; i--)
