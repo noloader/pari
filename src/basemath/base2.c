@@ -1800,20 +1800,23 @@ indexpartial(GEN T, GEN DT)
 {
   pari_sp av = avma;
   long i, nb;
-  GEN fa, E, P, res = gen_1, dT = ZX_deriv(T);
+  GEN fa, E, P, U, res = gen_1, dT = ZX_deriv(T);
 
   if (!DT) DT = ZX_disc(T);
-  fa = absZ_factor_limit(DT, 0);
+  fa = absZ_factor_limit_strict(DT, 0, &U);
   P = gel(fa,1);
   E = gel(fa,2); nb = lg(P)-1;
   for (i = 1; i <= nb; i++)
   {
     long e = itou(gel(E,i)), e2 = e >> 1;
     GEN p = gel(P,i), q = p;
-    if (i == nb)
-      q = powiu(p, (odd(e) && !BPSW_psp(p))? e2+1: e2);
-    else if (e2 >= 2)
-      q = ZpX_reduced_resultant_fast(T, dT, p, e2);
+    if (e2 >= 2) q = ZpX_reduced_resultant_fast(T, dT, p, e2);
+    res = mulii(res, q);
+  }
+  if (U)
+  {
+    long e = itou(gel(U,2)), e2 = e >> 1;
+    GEN p = gel(U,1), q = powiu(p, odd(e)? e2+1: e2);
     res = mulii(res, q);
   }
   return gerepileuptoint(av,res);
