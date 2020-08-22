@@ -306,33 +306,33 @@ static GEN
 backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GEN,GEN,GEN), GEN* fa, GEN N, GEN I)
 {
   long b, i;
-  GEN y1, y2, ny, fan;
+  ulong lim = 1UL << 17;
   long *v = new_chunk(n+1);
   pari_sp av = avma;
-  for (b = 0;; b = b+(2*b)/(3*n)+1)
+  for (b = 0;; b += (2*b)/(3*n) + 1)
   {
+    GEN U, fan, ny, y1, y2;
     set_avma(av);
-    for (i=1; i<=n; i++) v[i] = -b;
+    for (i = 1; i <= n; i++) v[i] = -b;
     v[n]--;
-    while (1) {
-      i=n;
-      while (i>0) {
-        if (v[i]==b) { v[i] = -b; i--; } else { v[i]++; break; }
-      }
+    for(;;)
+    {
+      i = n;
+      while (i > 0)
+      { if (v[i] == b) v[i--] = -b; else { v[i]++; break; } }
       if (i==0) break;
 
       y1 = y0;
-      for (i=1; i<=n; i++) y1 = nfadd(nf, y1, ZC_z_mul(gel(red,i), v[i]));
+      for (i = 1; i <= n; i++) y1 = nfadd(nf, y1, ZC_z_mul(gel(red,i), v[i]));
       if (!nfchecksigns(nf, y1, pl)) continue;
 
       ny = absi_shallow(nfnorm(nf, y1));
       if (!signe(ny)) continue;
-      ny = diviiexact(ny,gcdii(ny,N));
-      fan = Z_factor_limit(ny,1<<17);
-      if (lg(fan)>1 && nbrows(fan)>0 && !isprime(gcoeff(fan,nbrows(fan),1)))
-        continue;
+      ny = diviiexact(ny, gcdii(ny,N));
+      fan = absZ_factor_limit_strict(ny, lim, &U);
+      if (U) continue;
 
-      y2 = idealdivexact(nf,y1,idealadd(nf,y1,I));
+      y2 = idealdivexact(nf, y1, idealadd(nf,y1,I));
       *fa = idealfactor(nf, y2);
       if (!data || test(data,y1,*fa)) return y1;
     }
@@ -3628,24 +3628,25 @@ localcomplete(GEN rnf, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* 
   return b;
 }
 
+/* b != 0 */
 static int
 testsplits(GEN data, GEN b, GEN fa)
 {
-  GEN rnf, fapr, forbid, P, E;
-  long i, n;
-  if (gequal0(b)) return 0;
-  P = gel(fa,1);
-  E = gel(fa,2);
-  rnf = gel(data,1);
-  forbid = gel(data,2);
-  n = rnf_get_degree(rnf);
-  for (i=1; i<lgcols(fa); i++) {
+  GEN rnf, forbid = gel(data,2), P = gel(fa,1), E = gel(fa,2);
+  long i, n, l = lg(P);
+
+  for (i = 1; i < l; i++)
+  {
     GEN pr = gel(P,i);
-    long g;
     if (tablesearch(forbid, pr, &cmp_prime_ideal)) return 0;
-    fapr = rnfprimedec(rnf,pr);
-    g = nbrows(fapr);
-    if ((itos(gel(E,i))*g)%n) return 0;
+  }
+  rnf = gel(data,1);
+  n = rnf_get_degree(rnf);
+  for (i = 1; i < l; i++)
+  {
+    GEN fapr = rnfprimedec(rnf, gel(P,i));
+    long g = nbrows(fapr);
+    if ((itos(gel(E,i)) * g) % n) return 0;
   }
   return 1;
 }
