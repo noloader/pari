@@ -3128,10 +3128,11 @@ u_forprime_next_fast(forprime_t *T)
 }
 
 /* Factor n and output [p,e] where
- * p, e are vecsmall with n = prod{p[i]^e[i]}. If hint & 31, don't include
- * unfactored composites in factorisation [ if all != 0 ] */
+ * p, e are vecsmall with n = prod{p[i]^e[i]}. If all != 0:
+ * if pU is not NULL, set it to unfactored composite; else include it
+ * in factorization */
 static GEN
-factoru_sign(ulong n, ulong all, long hint)
+factoru_sign(ulong n, ulong all, long hint, GEN *pU)
 {
   GEN f, E, E2, P, P2;
   pari_sp av;
@@ -3139,6 +3140,7 @@ factoru_sign(ulong n, ulong all, long hint)
   long i;
   forprime_t S;
 
+  if (pU) *pU = NULL;
   if (n == 0) retmkvec2(mkvecsmall(0), mkvecsmall(1));
   if (n == 1) retmkvec2(cgetg(1,t_VECSMALL), cgetg(1,t_VECSMALL));
 
@@ -3189,7 +3191,10 @@ factoru_sign(ulong n, ulong all, long hint)
     long k = 1, ex;
     while (uissquareall(n, &n)) k <<= 1;
     while ( (ex = uis_357_power(n, &n, &mask)) ) k *= ex;
-    if (!(hint & 31) || uisprime(n)) { P[i] = n; E[i] = k; i++; }
+    if (pU && !uisprime(n))
+      *pU = mkvec2(utoipos(n), utoipos(k));
+    else
+    { P[i] = n; E[i] = k; i++; }
     goto END;
   }
   {
@@ -3209,7 +3214,7 @@ END:
 }
 GEN
 factoru(ulong n)
-{ return factoru_sign(n, 0, decomp_default_hint); }
+{ return factoru_sign(n, 0, decomp_default_hint, NULL); }
 
 ulong
 radicalu(ulong n)
@@ -3553,7 +3558,7 @@ static void
 STOREu(long *nb, ulong x, long e) { STORE(nb, utoipos(x), e); }
 static void
 STOREi(long *nb, GEN x, long e) { STORE(nb, icopy(x), e); }
-/* no prime less than p divides n */
+/* no prime less than p divides n; return 1 if factored completely */
 static int
 special_primes(GEN n, ulong p, long *nb, GEN T)
 {
@@ -3564,21 +3569,25 @@ special_primes(GEN n, ulong p, long *nb, GEN T)
     pari_sp av = avma; affii(sqru(p), pp); set_avma(av);
 
     for (i = 1; i < l; i++)
-      if (dvdiiz(n,gel(T,i), n))
+      if (dvdiiz(n, gel(T,i), n))
       {
-        long k = 1; while (dvdiiz(n,gel(T,i), n)) k++;
+        long k = 1; while (dvdiiz(n, gel(T,i), n)) k++;
         STOREi(nb, gel(T,i), k);
-        if (abscmpii(pp, n) > 0) return 1;
+        if (abscmpii(pp, n) > 0)
+        {
+          if (!is_pm1(n)) STOREi(nb, n, 1);
+          return 1;
+        }
       }
   }
   return 0;
 }
 
-/* factor(sn*|n|), where sn = -1,1 or 0.
- * all != 0 : only look for prime divisors < all. If hint & 31, don't include
- * unfactored composites in factorisation */
+/* factor(sn*|n|), where sn = -1 or 1.
+ * all != 0 : only look for prime divisors < all. If pU is not NULL,
+ * set it to unfactored composite */
 static GEN
-ifactor_sign(GEN n, ulong all, long hint, long sn)
+ifactor_sign(GEN n, ulong all, long hint, long sn, GEN *pU)
 {
   GEN M, N;
   pari_sp av;
@@ -3586,7 +3595,6 @@ ifactor_sign(GEN n, ulong all, long hint, long sn)
   ulong lim;
   forprime_t T;
 
-  if (!sn) retmkmat2(mkcol(gen_0), mkcol(gen_1));
   if (lgefint(n) == 3)
   { /* small integer */
     GEN f, Pf, Ef, P, E, F = cgetg(3, t_MAT);
@@ -3594,7 +3602,7 @@ ifactor_sign(GEN n, ulong all, long hint, long sn)
     av = avma;
     /* enough room to store <= 15 primes and exponents (OK if n < 2^64) */
     (void)new_chunk((15*3 + 15 + 1) * 2);
-    f = factoru_sign(uel(n,2), all, hint);
+    f = factoru_sign(uel(n,2), all, hint, pU);
     set_avma(av);
     Pf = gel(f,1);
     Ef = gel(f,2);
@@ -3619,6 +3627,7 @@ ifactor_sign(GEN n, ulong all, long hint, long sn)
     }
     return F;
   }
+  if (pU) *pU = NULL;
   M = cgetg(3,t_MAT);
   if (sn < 0) STORE(&nb, utoineg(1), 1);
   if (is_pm1(n)) return aux_end(M,NULL,nb);
@@ -3682,13 +3691,7 @@ ifactor_sign(GEN n, ulong all, long hint, long sn)
       stackdummy(av, av2);
     }
   }
-  /* trial divide by the special primes */
-  if (special_primes(n, lim, &nb, primetab))
-  {
-    if (!is_pm1(n)) STOREi(&nb, n, 1);
-    return aux_end(M,n,nb);
-  }
-
+  if (special_primes(n, lim, &nb, primetab)) return aux_end(M,n, nb);
   if (all)
   { /* smallfact: look for easy pure powers then stop. Cf Z_isanypower */
     GEN x;
@@ -3696,30 +3699,36 @@ ifactor_sign(GEN n, ulong all, long hint, long sn)
     av = avma;
     k = isanypower_nosmalldiv(n, &x);
     if (k > 1) affii(x, n);
-    if (!(hint & 31) || abscmpiu(n, lim) <= 0
-                     || cmpii(n, sqru(lim)) <= 0 || ifac_isprime(n))
+    if (pU)
     {
-      set_avma(av);
-      STOREi(&nb, n, k);
+      GEN F;
+      if (abscmpiu(n, lim) <= 0
+          || cmpii(n, sqru(lim)) <= 0 || ifac_isprime(n))
+      { set_avma(av); STOREi(&nb, n, k); return aux_end(M,n, nb); }
+      set_avma(av); F = aux_end(M, NULL, nb); /* don't destroy n */
+      *pU = mkvec2(icopy(n), utoipos(k)); /* composite cofactor */
+      guncloneNULL(n); return F;
     }
     else
-      set_avma(av);
+    { set_avma(av); STOREi(&nb, n, k); }
     if (DEBUGLEVEL >= 2) {
       pari_warn(warner,
         "IFAC: untested %ld-bit integer declared prime", expi(n)+1);
-      if (expi(n) <= 256)
-        err_printf("\t%Ps\n", n);
+      if (expi(n) <= 256) err_printf("\t%Ps\n", n);
     }
-    return aux_end(M,n,nb);
   }
-  if (ifac_isprime(n)) { STOREi(&nb, n, 1); return aux_end(M,n,nb); }
-  nb += ifac_decomp(n, hint);
+  else if (ifac_isprime(n)) STOREi(&nb, n, 1);
+  else nb += ifac_decomp(n, hint);
   return aux_end(M,n, nb);
 }
 
 static GEN
 ifactor(GEN n, ulong all, long hint)
-{ return ifactor_sign(n, all, hint, signe(n)); }
+{
+  long s = signe(n);
+  if (!s) retmkmat2(mkcol(gen_0), mkcol(gen_1));
+  return ifactor_sign(n, all, hint, s, NULL);
+}
 
 int
 ifac_next(GEN *part, GEN *p, long *e)
@@ -3745,48 +3754,55 @@ GEN
 Z_factor_limit(GEN n, ulong all)
 {
   if (!all) all = GP_DATA->primelimit + 1;
-  return ifactor(n,all,decomp_default_hint);
+  return ifactor(n, all, decomp_default_hint);
 }
 GEN
-Z_factor_limit_strict(GEN n, ulong all, GEN *pU)
+absZ_factor_limit_strict(GEN n, ulong all, GEN *pU)
 {
-  GEN F = Z_factor_limit(n, all), P = gel(F,1), E = gel(F,2);
-  long l = lg(P);
-  if (pU) *pU = NULL;
-  if (l > 1 && abscmpiu(gel(P,l-1), all) >= 0)
+  GEN F, U;
+  if (!signe(n))
   {
-    setlg(P,l-1);
-    setlg(E,l-1); if (pU) *pU = gel(P,l-1);
+    if (pU) *pU = NULL;
+    retmkmat2(mkcol(gen_0), mkcol(gen_1));
   }
+  if (!all) all = GP_DATA->primelimit + 1;
+  F = ifactor_sign(n, all, decomp_default_hint, 1, &U);
+  if (pU) *pU = U;
   return F;
 }
 GEN
 absZ_factor_limit(GEN n, ulong all)
 {
+  if (!signe(n)) retmkmat2(mkcol(gen_0), mkcol(gen_1));
   if (!all) all = GP_DATA->primelimit + 1;
-  return ifactor_sign(n,all,decomp_default_hint, signe(n)?1 : 0);
+  return ifactor_sign(n, all, decomp_default_hint, 1, NULL);
 }
 GEN
 Z_factor(GEN n)
 { return ifactor(n,0,decomp_default_hint); }
 GEN
 absZ_factor(GEN n)
-{ return ifactor_sign(n, 0, decomp_default_hint, signe(n)? 1: 0); }
-
+{
+  if (!signe(n)) retmkmat2(mkcol(gen_0), mkcol(gen_1));
+  return ifactor_sign(n, 0, decomp_default_hint, 1, NULL);
+}
 /* Factor until the unfactored part is smaller than limit. Return the
  * factored part. Hence factorback(output) may be smaller than n */
 GEN
 Z_factor_until(GEN n, GEN limit)
 {
-  pari_sp av = avma, av2;
-  GEN q, F = ifactor(n, tridiv_bound(n), decomp_default_hint | 31);
+  pari_sp av = avma;
+  long s = signe(n), eq;
+  GEN q, F, U;
 
-  av2 = avma; q = diviiexact(n, factorback(F));
-  if (is_pm1(q)) { set_avma(av2); return F; }
-  /* q = composite unfactored part */
-  if (cmpii(q, limit) > 0)
+  if (!s) retmkmat2(mkcol(gen_0), mkcol(gen_1));
+  F = ifactor_sign(n, tridiv_bound(n), decomp_default_hint, s, &U);
+  if (!U) return F;
+  q = gel(U,1); /* composite, q^eq = unfactored part */
+  eq = itou(gel(U,2));
+  if (cmpii(eq == 1? q: powiu(q, eq), limit) > 0)
   { /* factor further */
-    long eq = isanypower_nosmalldiv(q, &q), l2 = expi(q)+1;
+    long l2 = expi(q)+1;
     GEN P2, E2, F2, part;
     if (eq > 1) limit = sqrtnint(limit, eq);
     P2 = coltrunc_init(l2);

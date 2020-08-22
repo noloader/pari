@@ -105,20 +105,24 @@ set_disc(nfmaxord_t *S)
 static GEN
 poldiscfactors_i(GEN T, GEN dT, long flag)
 {
-  GEN fa = absZ_factor_limit(dT, minuu(tridiv_bound(dT), maxprime()));
-  GEN Z, E, P = gel(fa,1), Tp = NULL;
-  long i, first = 1, l = lg(P);
-  if (l == 1) return fa;
-  setlg(P, l-1); Z = mkcol(gel(P, l-1));
+  GEN U, fa, Z, E, P, Tp;
+  long i, l;
+
+  fa = absZ_factor_limit_strict(dT, minuu(tridiv_bound(dT), maxprime()), &U);
+  if (!U) return fa;
+  Z = mkcol(gel(U,1)); P = gel(fa,1); Tp = NULL;
   while (lg(Z) != 1)
-  { /* handle last element of Z */
+  { /* pop and handle last element of Z */
     GEN p = gel(Z, lg(Z)-1), r;
     setlg(Z, lg(Z)-1);
-    if (!first) (void)Z_isanypower(p, &p);
-    first = 0;
-    if ((flag || lgefint(p)==3) && BPSW_psp(p))
-    { P = vec_append(P, p); continue; }
-    if (!Tp) Tp = ZX_deriv(T);
+    if (!Tp) /* first time: p is composite and not a power */
+      Tp = ZX_deriv(T);
+    else
+    {
+      (void)Z_isanypower(p, &p);
+      if ((flag || lgefint(p)==3) && BPSW_psp(p))
+      { P = vec_append(P, p); continue; }
+    }
     r = FpX_gcd_check(T, Tp, p);
     if (r)
       Z = shallowconcat(Z, Z_cba(r, diviiexact(p,r)));
@@ -128,8 +132,7 @@ poldiscfactors_i(GEN T, GEN dT, long flag)
       P = vec_append(P, p);
   }
   ZV_sort_inplace(P); l = lg(P); E = cgetg(l, t_COL);
-  for (i = 1; i < l; i++)
-    gel(E,i) = utoipos(Z_pvalrem(dT, gel(P,i), &dT));
+  for (i = 1; i < l; i++) gel(E,i) = utoipos(Z_pvalrem(dT, gel(P,i), &dT));
   return mkmat2(P,E);
 }
 

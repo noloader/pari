@@ -392,7 +392,7 @@ ZX_primitive_to_monic(GEN pol, GEN *pL)
   else
     POL = leafcopy(pol);
   a = POL+2; lc = gel(a,n);
-  fa = Z_factor_limit(lc,0); L = gen_1;
+  fa = absZ_factor_limit(lc,0); L = gen_1;
   P = gel(fa,1);
   E = gel(fa,2);
   for (i = lg(P)-1; i > 0; i--)

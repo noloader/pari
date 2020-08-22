@@ -620,21 +620,15 @@ BPSW_try_PL(GEN N)
 {
   ulong B = minuu(1UL<<19, maxprime());
   GEN E, p, U, F, N_1 = subiu(N,1);
-  GEN fa = Z_factor_limit(N_1, B), P = gel(fa,1);
-  long n = lg(P)-1;
+  GEN fa = absZ_factor_limit_strict(N_1, B, &U), P = gel(fa,1);
 
-  p = gel(P,n);
-  /* if p prime, then N-1 is fully factored */
-  if (cmpii(p,sqru(B)) <= 0 || (BPSW_psp_nosmalldiv(p) && BPSW_isprime(p)))
-    return P;
-
+  if (!U) return P; /* N-1 fully factored */
+  p = gel(U,1);
   E = gel(fa,2);
-  U = powii(p, gel(E,n)); /* unfactored part of N-1 */
-  /* factored part of N-1; n >= 2 since 2p | N-1 */
-  F = (n == 2)? powii(gel(P,1), gel(E,1)): diviiexact(N_1,  U);
-  setlg(P, n); /* remove last (composite) entry */
+  U = powii(p, gel(U,2)); /* unfactored part of N-1 */
+  F = (lg(P) == 2)? powii(gel(P,1), gel(E,1)): diviiexact(N_1,  U);
 
-  /* N-1 = F U, F factored, U possibly composite, (U,F) = 1 */
+  /* N-1 = F U, F factored, U composite, (U,F) = 1 */
   if (cmpii(F, U) > 0) return P; /* 1/2-smooth */
   if (cmpii(sqri(F), U) > 0) return BLS_test(N,F)? P: gen_0; /* 1/3-smooth */
   return NULL; /* not smooth enough */

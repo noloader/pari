@@ -593,7 +593,7 @@ update_cyc(subgp_iter *T, GEN cyc)
     case b_MAX:
       if ((k = itos_or_0(T->bound)))
       {
-        GEN fa = Z_factor_limit_strict(cyc_get_expo(cyc), k + 1, NULL);
+        GEN fa = absZ_factor_limit_strict(cyc_get_expo(cyc), k + 1, NULL);
         cyc = T->cyc = ZV_snf_gcd(cyc, factorback(fa));
         snf_clean(cyc); break;
       }

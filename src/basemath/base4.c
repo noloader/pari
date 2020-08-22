@@ -647,7 +647,21 @@ idealHNF_factor_i(GEN nf, GEN x, GEN cx, GEN FA)
 static GEN
 idealHNF_factor(GEN nf, GEN x, ulong lim)
 {
-  GEN cx, F = lim? Z_factor_limit_strict(gcoeff(x,1,1), lim, NULL): NULL;
+  GEN cx, F = NULL;
+  if (lim)
+  {
+    GEN P, E;
+    long i, l;
+    /* strict useless because of prime table */
+    F = absZ_factor_limit(gcoeff(x,1,1), lim);
+    P = gel(F,1); l = lg(P);
+    E = gel(F,2);
+    /* filter out entries > lim */
+    for (i = lg(P)-1; i; i--)
+      if (cmpiu(gel(P,i), lim) <= 0) break;
+    setlg(P, i+1);
+    setlg(E, i+1);
+  }
   x = Q_primitive_part(x, &cx);
   return idealHNF_factor_i(nf, x, cx, F);
 }
@@ -867,7 +881,6 @@ static GEN
 idealredmodpower_i(GEN nf, GEN x, ulong k, ulong B)
 {
   GEN cx, y, U, N, F, Q;
-  long nF;
   if (typ(x) == t_INT)
   {
     if (!signe(x) || is_pm1(x)) return gen_1;
@@ -876,16 +889,13 @@ idealredmodpower_i(GEN nf, GEN x, ulong k, ulong B)
     return ginv(factorback(F));
   }
   N = gcoeff(x,1,1); if (is_pm1(N)) return gen_1;
-  F = Z_factor_limit(N, B); nF=lg(gel(F,1))-1;
-  if (BPSW_psp(gcoeff(F,nF,1))) U = NULL;
-  else
+  F = absZ_factor_limit_strict(N, B, &U);
+  if (U)
   {
-    GEN M = powii(gcoeff(F,nF,1), gcoeff(F,nF,2));
+    GEN M = powii(gel(U,1), gel(U,2));
     y = hnfmodid(x, M); /* coprime part to B! */
     if (!idealispower(nf, y, k, &U)) U = NULL;
     x = hnfmodid(x, diviiexact(N, M));
-    setlg(gel(F,1), nF); /* remove last entry (unfactored part) */
-    setlg(gel(F,2), nF);
   }
   /* x = B-smooth part of initial x */
   x = Q_primitive_part(x, &cx);
