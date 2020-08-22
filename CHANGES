@@ -115,6 +115,9 @@ DJ  91- sqrtn(Mod(13,112),6) -> o loop [instead of 'bad input' error]
     92- addprimes() creates issues with nfdisc [wrong results], because it
         breaks the assumption that a potential composite in a "bounded
         factorization" has to come last.
+    93- addprimes() creates issues with thue [wrong results].
+        addprimes(360000000029);
+        #thue(x^2+1,500009*500029* 360000000029* 2^100) -> 0 [instead of 32]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

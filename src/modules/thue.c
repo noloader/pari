@@ -1202,12 +1202,13 @@ maybe_warn(GEN bnf, GEN a, GEN Ind)
   if (!is_pm1(Ind) && !is_pm1(bnf_get_no(bnf)) && !is_pm1(a))
     pari_warn(warner, "The result returned by 'thue' is conditional on the GRH");
 }
+static GEN bnfisintnorm_fa(GEN bnf, GEN a, GEN fa, long sa);
 /* return solutions of Norm(x) = a mod U(K)^+ */
 static GEN
-get_ne(GEN bnf, GEN a, GEN Ind)
+get_ne(GEN bnf, GEN a, GEN fa, GEN Ind)
 {
   if (DEBUGLEVEL) maybe_warn(bnf,a,Ind);
-  return bnfisintnorm(bnf, a);
+  return bnfisintnorm_fa(bnf, a, fa, signe(a));
 }
 /* return solutions of |Norm(x)| = |a| mod U(K) */
 static GEN
@@ -1252,14 +1253,12 @@ sols_from_R(GEN Rab, GEN *pS, GEN P, GEN POL, GEN rhs)
     if (typ(gel(ry,k)) == t_INT) check_y(pS, P, POL, gel(ry,k), rhs);
 }
 static GEN
-Z_factor_if_easy(GEN rhs)
+absZ_factor_if_easy(GEN rhs, GEN x3)
 {
-  GEN F, P;
-  long l;
-  if (expi(rhs) < 150) return Z_factor(rhs);
-  F = Z_factor_limit(rhs, 500000);
-  P = gel(F,1); l = lg(P);
-  return (l == 1 || BPSW_psp(gel(P,l-1)))? F: NULL;
+  GEN F, U;
+  if (expi(rhs) < 150 || expo(x3) >= BITS_IN_LONG) return absZ_factor(rhs);
+  F = absZ_factor_limit_strict(rhs, 500000, &U);
+  return U? NULL: F;
 }
 /* Given a tnf structure as returned by thueinit, a RHS and
  * optionally the solutions to the norm equation, returns the solutions to
@@ -1292,7 +1291,11 @@ thue(GEN tnf, GEN rhs, GEN ne)
   POL = gel(POL,1);
   if (lg(tnf) == 8)
   {
-    if (!ne) ne = get_ne(tnf_get_bnf(tnf), rhs, tnf_get_Ind(tnf));
+    if (!ne)
+    {
+      GEN F = absZ_factor(rhs);
+      ne = get_ne(tnf_get_bnf(tnf), rhs, F, tnf_get_Ind(tnf));
+    }
     if (lg(ne) == 1) { set_avma(av); return cgetg(1, t_VEC); }
     S = LargeSols(POL, tnf, rhs, ne);
   }
@@ -1305,8 +1308,8 @@ thue(GEN tnf, GEN rhs, GEN ne)
     S = cgetg(1,t_VEC);
     if (!ne && typ(bnf) == t_VEC && expo(x3) > 10)
     {
-      F = Z_factor_if_easy(rhs);
-      if (F) ne = get_ne(bnf, F, gen_1);
+      F = absZ_factor_if_easy(rhs, x3);
+      if (F) ne = get_ne(bnf, rhs, F, gen_1);
     }
     if (ne)
     {
@@ -1318,7 +1321,7 @@ thue(GEN tnf, GEN rhs, GEN ne)
         if (typ(bnf) == t_VEC)
         {
           u = bnf_get_tuU(bnf);
-          w =  bnf_get_tuN(bnf);
+          w = bnf_get_tuN(bnf);
         }
         else
         {
@@ -1679,6 +1682,11 @@ bnfisintnorm_i(GEN bnf, GEN a, long sa, GEN z)
   }
   setlg(z, j); return z;
 }
+/* bnfisintnorm sa * |a|, fa = factor(|a|) */
+static GEN
+bnfisintnorm_fa(GEN bnf, GEN a, GEN fa, long sa)
+{ return bnfisintnorm_i(bnf, a, sa, bnfisintnormabs(bnf, mkvec2(a, fa)));
+}
 GEN
 bnfisintnorm(GEN bnf, GEN a)
 {
@@ -1689,5 +1697,5 @@ bnfisintnorm(GEN bnf, GEN a)
     case t_VEC: a = gel(a,1); break;
     case t_MAT: a = factorback(a); break;
   }
-  return gerepilecopy(av, bnfisintnorm_i(bnf,a,signe(a), ne));
+  return gerepilecopy(av, bnfisintnorm_i(bnf, a, signe(a), ne));
 }
