@@ -303,7 +303,7 @@ alglat_get_scalar(GEN lat) { return gel(lat,2); }
 
 /* no garbage collection */
 static GEN
-backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GEN,GEN,GEN), GEN* fa, GEN N, GEN I)
+backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GEN,GEN), GEN* fa, GEN N, GEN I)
 {
   long b, i;
   ulong lim = 1UL << 17;
@@ -311,7 +311,7 @@ backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GE
   pari_sp av = avma;
   for (b = 0;; b += (2*b)/(3*n) + 1)
   {
-    GEN U, fan, ny, y1, y2;
+    GEN ny, y1, y2;
     set_avma(av);
     for (i = 1; i <= n; i++) v[i] = -b;
     v[n]--;
@@ -328,13 +328,12 @@ backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GE
 
       ny = absi_shallow(nfnorm(nf, y1));
       if (!signe(ny)) continue;
-      ny = diviiexact(ny, gcdii(ny,N));
-      fan = absZ_factor_limit_strict(ny, lim, &U);
-      if (U) continue;
+      ny = diviiexact(ny, gcdii(ny, N));
+      if (!Z_issmooth(ny, lim)) continue;
 
       y2 = idealdivexact(nf, y1, idealadd(nf,y1,I));
       *fa = idealfactor(nf, y2);
-      if (!data || test(data,y1,*fa)) return y1;
+      if (!data || test(data,*fa)) return y1;
     }
   }
 }
@@ -342,7 +341,7 @@ backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GE
 /* if data == NULL, the test is skipped */
 /* in the test, the factorization does not contain the known factors */
 static GEN
-factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*test)(GEN,GEN,GEN))
+factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*test)(GEN,GEN))
 {
   pari_sp av = avma;
   long n,i;
@@ -3627,9 +3626,8 @@ localcomplete(GEN rnf, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* 
   return b;
 }
 
-/* b != 0 */
 static int
-testsplits(GEN data, GEN b, GEN fa)
+testsplits(GEN data, GEN fa)
 {
   GEN rnf, forbid = gel(data,2), P = gel(fa,1), E = gel(fa,2);
   long i, n, l = lg(P);
