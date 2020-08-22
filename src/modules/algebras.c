@@ -3644,9 +3644,13 @@ testsplits(GEN data, GEN b, GEN fa)
   n = rnf_get_degree(rnf);
   for (i = 1; i < l; i++)
   {
-    GEN fapr = rnfprimedec(rnf, gel(P,i));
-    long g = nbrows(fapr);
-    if ((itos(gel(E,i)) * g) % n) return 0;
+    long e = itos(gel(E,i)) % n;
+    if (e)
+    {
+      GEN fapr = rnfprimedec(rnf, gel(P,i));
+      long g = nbrows(fapr);
+      if ((e * g) % n) return 0;
+    }
   }
   return 1;
 }
