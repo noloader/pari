@@ -3384,8 +3384,7 @@ cyclicrelfrob0(GEN nf, GEN aut, GEN pr, GEN q, long f, long g)
   b = galoisapply(nf, aut, modpr_genFq(modpr));
   b = nf_to_Fq(nf, b, modpr);
   for (s=0; !ZX_equal(a, b); s++) a = Fq_pow(a, q, T, p);
-  set_avma(av);
-  return g*Fl_inv(s, f);/* <n */
+  return gc_long(av, g*Fl_inv(s, f));/* < n */
 }
 
 static GEN
