@@ -1083,14 +1083,24 @@ incl_disc(GEN nfa, GEN a, int nolocal)
   return d;
 }
 
+static int
+badp(GEN fa, GEN db, long q)
+{
+  GEN P = gel(fa,1), E = gel(fa,2);
+  long i, l = lg(P);
+  for (i = 1; i < l; i++)
+    if (mod2(gel(E,i)) && !dvdii(db, powiu(gel(P,i),q))) return 1;
+  return 0;
+}
+
 /* is isomorphism / inclusion (a \subset b) compatible with what we know about
  * basic invariants ? (degree, signature, discriminant); test for isomorphism
  * if fliso is set and for inclusion otherwise */
 static int
 tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
 {
-  GEN da2, da, db, fa, P, E, U;
-  long i, l, nP, q, m = degpol(a), n = degpol(b);
+  GEN da2, da, db, fa, P, U;
+  long i, l, q, m = degpol(a), n = degpol(b);
 
   if (m <= 0) pari_err_IRREDPOL("nfisincl",a);
   if (n <= 0) pari_err_IRREDPOL("nfisincl",b);
@@ -1139,28 +1149,12 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
     da = diviiexact(da, da2);
   }
   if (is_pm1(da)) return 1;
-  fa = absZ_factor_limit(da, 0);
-  P = gel(fa,1);
-  E = gel(fa,2); nP = lg(P) - 1;
-  for (i=1; i<nP; i++) /* all but last factor (primes) */
-    if (mod2(gel(E,i)) && !dvdii(db, powiu(gel(P,i),q))) return 0;
-  U = gel(P,nP); /* unknown */
-  if (mod2(gel(E,i)) && expi(U) < 150)
-  { /* "unfactored" cofactor is small, finish */
-    if (abscmpiu(U, maxprime()) > 0)
-    {
-      fa = Z_factor(U);
-      P = gel(fa,1);
-      E = gel(fa,2);
-    }
-    else
-    {
-      P = mkvec(U);
-      E = mkvec(gen_1);
-    }
-    nP = lg(P) - 1;
-    for (i=1; i<=nP; i++)
-      if (mod2(gel(E,i)) && !dvdii(db, powiu(gel(P,i),q))) return 0;
+  fa = absZ_factor_limit_strict(da, 0, &U);
+  if (badp(fa, db, q)) return 0;
+  if (U && mod2(gel(U,2)) && expi(gel(U,1)) < 150)
+  { /* cofactor is small, finish */
+    fa = absZ_factor(gel(U,1));
+    if (badp(fa, db, q)) return 0;
   }
   return 1;
 }
