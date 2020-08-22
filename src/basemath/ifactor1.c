@@ -3132,7 +3132,7 @@ u_forprime_next_fast(forprime_t *T)
  * if pU is not NULL, set it to unfactored composite; else include it
  * in factorization */
 static GEN
-factoru_sign(ulong n, ulong all, long hint, GEN *pU)
+factoru_sign(ulong n, ulong all, long hint, ulong *pU1, ulong *pU2)
 {
   GEN f, E, E2, P, P2;
   pari_sp av;
@@ -3140,7 +3140,7 @@ factoru_sign(ulong n, ulong all, long hint, GEN *pU)
   long i;
   forprime_t S;
 
-  if (pU) *pU = NULL;
+  if (pU1) *pU1 = *pU2 = 1;
   if (n == 0) retmkvec2(mkvecsmall(0), mkvecsmall(1));
   if (n == 1) retmkvec2(cgetg(1,t_VECSMALL), cgetg(1,t_VECSMALL));
 
@@ -3191,8 +3191,8 @@ factoru_sign(ulong n, ulong all, long hint, GEN *pU)
     long k = 1, ex;
     while (uissquareall(n, &n)) k <<= 1;
     while ( (ex = uis_357_power(n, &n, &mask)) ) k *= ex;
-    if (pU && !uisprime(n))
-      *pU = mkvec2(utoipos(n), utoipos(k));
+    if (pU1 && !uisprime(n))
+    { *pU1 = n; *pU2 = (ulong)k; }
     else
     { P[i] = n; E[i] = k; i++; }
     goto END;
@@ -3214,7 +3214,7 @@ END:
 }
 GEN
 factoru(ulong n)
-{ return factoru_sign(n, 0, decomp_default_hint, NULL); }
+{ return factoru_sign(n, 0, decomp_default_hint, NULL, NULL); }
 
 ulong
 radicalu(ulong n)
@@ -3598,11 +3598,12 @@ ifactor_sign(GEN n, ulong all, long hint, long sn, GEN *pU)
   if (lgefint(n) == 3)
   { /* small integer */
     GEN f, Pf, Ef, P, E, F = cgetg(3, t_MAT);
+    ulong U1, U2;
     long l;
     av = avma;
     /* enough room to store <= 15 primes and exponents (OK if n < 2^64) */
     (void)new_chunk((15*3 + 15 + 1) * 2);
-    f = factoru_sign(uel(n,2), all, hint, pU);
+    f = factoru_sign(uel(n,2), all, hint, pU? &U1: NULL, pU? &U2: NULL);
     set_avma(av);
     Pf = gel(f,1);
     Ef = gel(f,2);
@@ -3625,6 +3626,7 @@ ifactor_sign(GEN n, ulong all, long hint, long sn, GEN *pU)
       gel(P,i) = utoipos(Pf[i]);
       gel(E,i) = utoipos(Ef[i]);
     }
+    if (pU) *pU = U1 == 1? NULL: mkvec2(utoipos(U1), utoipos(U2));
     return F;
   }
   if (pU) *pU = NULL;
@@ -3707,7 +3709,7 @@ ifactor_sign(GEN n, ulong all, long hint, long sn, GEN *pU)
       { set_avma(av); STOREi(&nb, n, k); return aux_end(M,n, nb); }
       set_avma(av); F = aux_end(M, NULL, nb); /* don't destroy n */
       *pU = mkvec2(icopy(n), utoipos(k)); /* composite cofactor */
-      guncloneNULL(n); return F;
+      gunclone(n); return F;
     }
     else
     { set_avma(av); STOREi(&nb, n, k); }
