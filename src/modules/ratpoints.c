@@ -659,20 +659,19 @@ rpjacobi(long b, GEN lcf)
 static void
 setup_us1(ratpoints_args *args, GEN w0)
 {
-  GEN divisors;
-  GEN F = Z_factor_limit(w0, 1000), P = gel(F,1), E = gel(F,2), S;
-  long i, l = lg(P);
-  if (cmpiu(gel(P,l-1), 1000) > 0)
-    return;
-  P = ZV_to_zv(P); E = ZV_to_zv(E);
-  divisors  = cgetg(1+(1<<(l-1)), t_VECSMALL);
+  GEN F = Z_issmooth_fact(w0, 1000), P, E, S, D;
+  long i, l;
+
+  if (!F) return;
+  P = gel(F,1); l = lg(P);
+  E = gel(F,2);
+  D  = cgetg(1+(1<<(l-1)), t_VECSMALL);
   /* factorization is complete, set up array of squarefree divisors */
-  divisors[1] = 1;
+  D[1] = 1;
   for (i = 1; i < l; i++)
   { /* multiply all divisors known so far by next prime */
     long k, n = 1<<(i-1);
-    for (k=0; k<n; k++)
-      uel(divisors,1+n+k) = uel(divisors,1+k) * P[i];
+    for (k=0; k<n; k++) uel(D,1+n+k) = uel(D,1+k) * P[i];
   }
   S = cgetg(l, t_VECSMALL);
   /* set slopes in den_info */
@@ -685,13 +684,13 @@ setup_us1(ratpoints_args *args, GEN w0)
     for (k = d - 1; k >= 0; k--)
     {
       long t = 1 + v - Z_lval(gel(c,k+2), p);
-      long m = CEIL(t, (d - k));
+      long m = CEIL(t, d - k);
 
       if (m > n) n = m;
     }
     S[i] = n;
   }
-  args->divisors = divisors;
+  args->divisors = D;
   args->flags |= RATPOINTS_USE_SQUARES1;
   args->den_info = mkvec3(P, E, S);
 }
