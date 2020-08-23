@@ -2,20 +2,11 @@ Qi = nfinit(x^2+1);
 idealintersect(Qi,0,1)
 Q = nfinit(y);
 idealaddtoone(Q,1,[;])
-idealaddtoone(Q,2,[;])
-idealaddtoone(Q,[;],[;])
 idealaddtoone(Q,[;],1)
 idealaddtoone(Q,[1,[;]])
-idealaddtoone(Q,[1,[;],Mat(1/2)])
 zQ = idealstar(,4);
-ideallog(Q,2,zQ)
-z=znstar(6,1);
+zerror=z=znstar(6,1);
 z.clgp
-ideallog(,0,z)
-ideallog(,2,z)
-ideallog(,3,z)
-ideallog(Q,3,z)
-ideallog(,3,zQ)
 p=19;N=19^4;z=znstar(N,1);g=Mod(z.gen[1],N);
 for(i=1,1000,if (i%p && g^ideallog(,i,z)[1] != i, error(i)))
 z=znstar(3120,1);
@@ -32,7 +23,7 @@ idealdiv(Qi,7*x-1,3*x+1,1)
 K=nfinit(x^2-236*x+13384);\\ Q(sqrt(60)), in disguise
 idealhnf(K, qfbprimeform(60,2))
 
-K=nfinit(x^3-2);
+Kerror=K=nfinit(x^3-2);
 u=nfalgtobasis(K,x);v=nfalgtobasis(K,x^2);
 idealhnf(K,Mat([u,v]))
 idealhnf(K,1/4,1/6)
@@ -47,8 +38,6 @@ idealval(K,P[2],P[2])
 P[1][2] += 5;
 idealval(K,P[1],P[1])
 idealmul(K,P[1],P[1].gen[2])
-idealmul(K,[2,1;0,1],[2,1;0,1])
-idealmul(K,matid(4),matid(4))
 idealnorm(K,P[1])
 idealinv(K,Mod(x,K.pol))
 idealinv(K,Mod(x-1,K.pol))
@@ -175,4 +164,15 @@ u=-32957263694617312893464623540275510951475078507968109764850530157874612983531
 if (!idealispower(K,u,5,&v) || idealpow(K,v,5) != idealhnf(K,u), error("#2181"))
 
 \\ Errors, keep at end of file
+idealaddtoone(Q,2,[;])
+idealaddtoone(Q,[;],[;])
+idealaddtoone(Q,[1,[;],Mat(1/2)])
+ideallog(Q,2,zQ)
+ideallog(,0,zerror)
+ideallog(,2,zerror)
+ideallog(,3,zerror)
+ideallog(Q,3,zerror)
+ideallog(,3,zQ)
+idealmul(Kerror,[2,1;0,1],[2,1;0,1])
+idealmul(Kerror,matid(4),matid(4))
 idealred(nf,[2,Mat(1)])
