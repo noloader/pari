@@ -690,13 +690,11 @@ Q_nffactor(GEN nf, GEN y, ulong lim)
   else
   {
     f = Q_factor_limit(y, lim);
-    P = gel(f,1); l = lg(P);
+    P = gel(f,1);
     E = gel(f,2);
-    for (i = l-1; i > 0; i--)
-    {
+    for (i = lg(P)-1; i > 0; i--)
       if (abscmpiu(gel(P,i), lim) < 0) break;
-      setlg(P,i); setlg(E,i);
-    }
+    setlg(P,i+1); setlg(E,i+1);
   }
   P = gel(f,1); l = lg(P); if (l == 1) return f;
   E = gel(f,2);
