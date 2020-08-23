@@ -791,16 +791,8 @@ rnfidealprimedec(GEN rnf, GEN pr)
   rnfcomplete(rnf);
   NF = obj_check(rnf,rnf_NFABS);
   nf = rnf_get_nf(rnf);
-  if (typ(pr) == t_INT)
-  {
-    p = pr;
-    pr = NULL;
-  }
-  else
-  {
-    checkprid(pr);
-    p = pr_get_p(pr);
-  }
+  if (typ(pr) == t_INT) { p = pr; pr = NULL; }
+  else { checkprid(pr); p = pr_get_p(pr); }
   SL = idealprimedec(NF, p);
   if (pr) z = rnfidealprimedec_1(rnf, SL, pr);
   else

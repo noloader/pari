@@ -3623,7 +3623,7 @@ localcomplete(GEN rnf, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* 
 static int
 testsplits(GEN data, GEN fa)
 {
-  GEN rnf, forbid = gel(data,2), P = gel(fa,1), E = gel(fa,2);
+  GEN rnf = gel(data,1), forbid = gel(data,2), P = gel(fa,1), E = gel(fa,2);
   long i, n, l = lg(P);
 
   for (i = 1; i < l; i++)
@@ -3631,7 +3631,6 @@ testsplits(GEN data, GEN fa)
     GEN pr = gel(P,i);
     if (tablesearch(forbid, pr, &cmp_prime_ideal)) return 0;
   }
-  rnf = gel(data,1);
   n = rnf_get_degree(rnf);
   for (i = 1; i < l; i++)
   {
