@@ -3179,7 +3179,8 @@ factoru_sign(ulong n, ulong all, long hint, ulong *pU1, ulong *pU2)
         goto END;
       }
     }
-    if (oldi != i && uisprime_661(n)) { P[i] = n; E[i] = 1; i++; goto END; }
+    if (oldi != i && !all && uisprime_661(n))
+    { P[i] = n; E[i] = 1; i++; goto END; }
   }
   if (all)
   { /* smallfact: look for easy pure powers then stop */
