@@ -37,8 +37,7 @@ P = [13,73,89]; TP = [x^4-x^3+10558*x^2-2169592*x+195873967, P];
 nfbasis(TP)
 nfbasis(TP,&D)
 D
-dK = sign(D) * vecprod([p^valuation(D,p) | p <-P])
-sqrt(D / dK)
+sqrtint(abs(D / vecprod([p^valuation(D,p) | p <-P])))
 
 \\#1158
 nf=nfinit(x^2+x+1);
