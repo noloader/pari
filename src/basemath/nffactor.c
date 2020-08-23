@@ -377,14 +377,12 @@ fix_nf(GEN *pnf, GEN *pT, GEN *pA)
 
   D = nf_get_disc(nf);
   if (is_pm1(D)) return gen_1;
-  fa = absZ_factor_limit(D, 0);
-  P = gel(fa,1); q = gel(P, lg(P)-1);
-  if (BPSW_psp(q)) return gen_1;
-  /* nf_get_disc(nf) may be incorrect */
-  P = nf_get_ramified_primes(nf);
-  l = lg(P);
-  Q = q; q = gen_1;
-  for (i = 1; i < l; i++)
+  fa = absZ_factor_limit_strict(D, 0, &Q);
+  if (!Q) return gen_1;
+  /* D may be incorrect */
+  Q = gel(Q,1);
+  P = nf_get_ramified_primes(nf); l = lg(P);
+  for (i = 1, q = gen_1; i < l; i++)
   {
     GEN p = gel(P,i);
     if (Z_pvalrem(Q, p, &Q) && !BPSW_psp(p)) q = mulii(q, p);
