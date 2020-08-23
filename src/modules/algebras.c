@@ -3374,37 +3374,31 @@ hasseconvert(GEN H, long n)
 static long
 cyclicrelfrob0(GEN nf, GEN aut, GEN pr, GEN q, long f, long g)
 {
-  pari_sp av = avma;
+  GEN T, p, a, b, modpr = nf_to_Fq_init(nf,&pr,&T,&p);
   long s;
-  GEN T, p, modpr, a, b;
 
-  modpr = nf_to_Fq_init(nf,&pr,&T,&p);
   a = pol_x(nf_get_varn(nf));
   b = galoisapply(nf, aut, modpr_genFq(modpr));
   b = nf_to_Fq(nf, b, modpr);
-  for (s=0; !ZX_equal(a, b); s++) a = Fq_pow(a, q, T, p);
-  return gc_long(av, g*Fl_inv(s, f));/* < n */
+  for (s = 0; !ZX_equal(a, b); s++) a = Fq_pow(a, q, T, p);
+  return g * Fl_inv(s, f); /* < n */
 }
-
-static GEN
-rnfprimedec(GEN rnf, GEN pr)
-{ return idealfactor(obj_check(rnf,rnf_NFABS), rnfidealup0(rnf, pr, 1)); }
 
 static long
 cyclicrelfrob(GEN rnf, GEN auts, GEN pr)
 {
   pari_sp av = avma;
   long f,g,frob, n = rnf_get_degree(rnf);
-  GEN fa = rnfprimedec(rnf, pr);
+  GEN P = rnfidealprimedec(rnf, pr);
 
-  if (cmpis(gcoeff(fa,1,2), 1) > 0)
+  if (pr_get_e(gel(P,1)) > pr_get_e(pr))
     pari_err_DOMAIN("cyclicrelfrob","e(PR/pr)",">",gen_1,pr);
-  g = nbrows(fa);
-  f = n/g;
+  g = lg(P) - 1;
+  f = n / g;
 
-  if (f <= 2) frob = g%n;
+  if (f <= 2) frob = g % n;
   else {
-    GEN nf2, PR = gcoeff(fa,1,1);
+    GEN nf2, PR = gel(P,1);
     GEN autabs = rnfeltreltoabs(rnf,gel(auts,g));
     nf2 = obj_check(rnf,rnf_NFABS);
     autabs = nfadd(nf2, autabs, gmul(rnf_get_k(rnf), rnf_get_alpha(rnf)));
@@ -3644,8 +3638,8 @@ testsplits(GEN data, GEN fa)
     long e = itos(gel(E,i)) % n;
     if (e)
     {
-      GEN fapr = rnfprimedec(rnf, gel(P,i));
-      long g = nbrows(fapr);
+      GEN L = rnfidealprimedec(rnf, gel(P,i));
+      long g = lg(L) - 1;
       if ((e * g) % n) return 0;
     }
   }
