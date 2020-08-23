@@ -694,10 +694,10 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
   for (i = 1; i <= rc; i++) B = mulii(B, nfnorm(nf, gel(U2,i)));
   if (LIMC > 1)
   {
-    GEN F = absZ_factor_limit(B, LIMC), P = gel(F,1);
-    long lP = lg(P);
-    B = (lP > 1)? gel(P,lP-1): gen_1;
+    GEN U; (void)absZ_factor_limit_strict(B, LIMC, &U);
+    B = U? gel(U,1): gen_1;
   }
+  if (is_pm1(B)) B = NULL;
   vy = cgetg(l, t_MAT);
   for (j = 1; j <= ru; j++) gel(vy,j) = zero_Flv(rc); /* units */
   for (     ; j < l; j++)
@@ -713,7 +713,7 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
   u_forprime_arith_init(&T, LIMC+1, ULONG_MAX, 1, ell);
   M = cgetg(ru+1, t_MAT); r = 1; setlg(M,2);
   vz = cgetg(ru+1, t_MAT);
-  while ((p = u_forprime_next(&T))) if (umodiu(B,p))
+  while ((p = u_forprime_next(&T))) if (!B || umodiu(B,p))
   {
     GEN P = idealprimedec_limit_f(nf, utoipos(p), 1);
     long nP = lg(P)-1;
