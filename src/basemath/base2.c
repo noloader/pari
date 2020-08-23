@@ -85,16 +85,16 @@ update_fact(GEN d, GEN f)
 static GEN
 set_disc(nfmaxord_t *S)
 {
-  GEN l0, L, dT;
+  GEN L, dT;
   long d;
   if (S->T0 == S->T) return ZX_disc(S->T);
   d = degpol(S->T0);
-  l0 = leading_coeff(S->T0);
   L = S->unscale;
   if (typ(L) == t_FRAC && abscmpii(gel(L,1), gel(L,2)) < 0)
     dT = ZX_disc(S->T); /* more efficient */
   else
   {
+    GEN l0 = leading_coeff(S->T0);
     GEN a = gpowgs(gdiv(gpowgs(L, d), sqri(l0)), d-1);
     dT = gmul(a, ZX_disc(S->T0)); /* more efficient */
   }
@@ -165,29 +165,30 @@ nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
   if (degpol(T) <= 0) pari_err_CONSTPOL("nfmaxord");
   RgX_check_ZX(T, "nfmaxord");
   S->T0 = T;
-  T = ZX_Q_normalize(T, &L);
+  S->T = T = ZX_Q_normalize(T, &L);
   S->unscale = L;
-  S->T = T;
   S->dT = dT = set_disc(S);
+  if (!signe(dT)) pari_err_IRREDPOL("nfmaxord",T);
   if (fa)
   {
     const long MIN = 100; /* include at least all p < 101 */
-    long tf;
+    GEN P0 = NULL, U;
     if (!isint1(L)) fa = update_fact(dT, fa);
-    tf = typ(fa);
-    switch(tf)
+    switch(typ(fa))
     {
       case t_MAT:
         if (!is_Z_factornon0(fa)) pari_err_TYPE("nfmaxord",fa);
-        fa = gel(fa,1); tf = t_COL; /* fall through */
+        P0 = gel(fa,1); /* fall through */
       case t_VEC: case t_COL:
-        P = gel(absZ_factor_limit(dT, MIN), 1); l = lg(P);
-        if (l > 1 && abscmpiu(gel(P,1), MIN) <= 0)
+        if (!P0)
         {
-          if (abscmpiu(gel(P,l-1), MIN) > 0) setlg(P,l-1);
-          settyp(P,tf); fa = ZV_sort_uniq(shallowconcat(fa,P));
+          if (!RgV_is_ZV(fa)) pari_err_TYPE("nfmaxord",fa);
+          P0 = fa;
         }
-        fa = fact_from_factors(dT, fa, 0);
+        P = gel(absZ_factor_limit_strict(dT, MIN, &U), 1);
+        if (lg(P) != 0) { settyp(P, typ(P0)); P0 = shallowconcat(P0,P); }
+        P0 = ZV_sort_uniq(P0);
+        fa = fact_from_factors(dT, P0, 0);
         break;
       case t_INT:
         fa = absZ_factor_limit(dT, (signe(fa) <= 0)? 1: maxuu(itou(fa), MIN));
@@ -195,7 +196,6 @@ nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
       default:
         pari_err_TYPE("nfmaxord",fa);
     }
-    if (!signe(dT)) pari_err_IRREDPOL("nfmaxord",mkvec2(T,fa));
   }
   else
     fa = poldiscfactors_i(T, dT, !(flag & nf_PARTIALFACT));
