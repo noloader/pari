@@ -1822,7 +1822,7 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
   { /* add back missing content */
     if (xc) col = (typ(col)==t_MAT)? famat_mul_shallow(col,xc)
                                    : RgC_Rg_mul(col,xc);
-    if (typ(col) != t_MAT && (flag & nf_GENMAT))
+    if (typ(col) != t_MAT && lg(col) != 1 && (flag & nf_GENMAT))
       col = to_famat_shallow(col, gen_1);
   }
   else
