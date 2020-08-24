@@ -351,7 +351,7 @@ proper_nf(GEN nf)
 static GEN
 fix_nf(GEN *pnf, GEN *pT, GEN *pA)
 {
-  GEN nf, NF, fa, P, Q, q, D, T = *pT;
+  GEN nf, NF, P, Q, q, D, T = *pT;
   nfmaxord_t S;
   long i, l;
 
@@ -377,7 +377,7 @@ fix_nf(GEN *pnf, GEN *pT, GEN *pA)
 
   D = nf_get_disc(nf);
   if (is_pm1(D)) return gen_1;
-  fa = absZ_factor_limit_strict(D, 0, &Q);
+  (void)absZ_factor_limit_strict(D, 0, &Q);
   if (!Q) return gen_1;
   /* D may be incorrect */
   Q = gel(Q,1);
