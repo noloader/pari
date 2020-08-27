@@ -8,14 +8,14 @@ Help: lfuncreate(obj): given either an object such as a polynomial, elliptic
  create the Ldata structure necessary for lfun computation.
 Doc: This low-level routine creates \tet{Ldata} structures, needed by
  \var{lfun} functions, describing an $L$-function and its functional equation.
- We advise to use a high-level constructor when one is available, see
+ We advise using a high-level constructor when one is available, see
  \kbd{??lfun}, and this function accepts them:
  \bprog
  ? L = lfuncreate(1); \\ Riemann zeta
  ? L = lfuncreate(5); \\ Dirichlet L-function for quadratic character (5/.)
  ? L = lfuncreate(x^2+1); \\ Dedekind zeta for Q(i)
  ? L = lfuncreate(ellinit([0,1])); \\ L-function of E/Q: y^2=x^3+1
- @eprog\noindent One can then use, e.g., \kbd{Lfun(L,s)} to directly
+ @eprog\noindent One can then use, e.g., \kbd{lfun(L,s)} to directly
  evaluate the respective $L$-functions at $s$, or \kbd{lfuninit(L, [c,w,h]}
  to initialize computations in the rectangular box $\Re(s-c) \leq w$,
  $\Im(s) \leq h$.
