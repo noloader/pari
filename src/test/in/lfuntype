@@ -48,14 +48,15 @@ lfuncreate([n->my(V=ellan(E,n));vector(n,i,V[i]/sqrt(i)),0,[1/2,3/2],1,11,1])),
 lfuntwist(E, Mod(2,5)),
 lfunsympow(E,2),
 lfunsympow(E,3),
+\\35
   if(1,localprec(19);
 lfuncreate(()->[n->lfunan(Mod(2,7),n),1,[0],1,7,((-13-3*sqrt(-3))/14)^(1/6)])),
-\\35
   if(1,my(bnf=bnfinit('a^2+47),bnr=bnrinit(bnf,1));
 lfuncreate([bnr,[[1],[2]]])),
 if(1,my(G=znstar(44,1)); lfuncreate([G,[[3,0],[9,0]]])),
 lfunshift(x^2+1,1),
 lfunshift(x^2+1,-1/2),
+\\40
 lfunshift(x^2+1,1,1)
 ];
 }
@@ -97,6 +98,9 @@ for(i=1,#VALL,
   a=lfuncheckfeq(L);
   b=lfuncheckfeq(ldata);
   chk("lfuncheckfeq",i,a,b);
+  a=lfuncheckfeq(lfundual(L));
+  b=lfuncheckfeq(lfundual(ldata));
+  chk("lfuncheckfeq(lfundual)",i,a,b);
   a=lfunhardy(L,2);
   b=lfunhardy(ldata,2);
   chk("lfunhardy",i,a,b);

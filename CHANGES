@@ -329,6 +329,7 @@ BA 112- [libpari] minim_zm
    113- new GP function dirpowerssum
    114- [libpari] vecfactorsquarefreeu_coprime
 BA 115- [libpari] nfX_disc, nfX_resultant
+BA 116- new GP function lfundual
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

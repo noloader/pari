@@ -1,0 +1,23 @@
+Function: lfundual
+Section: l_functions
+C-Name: lfundual
+Prototype: Gb
+Help: lfundual(L): creates the Ldata structure (without
+ initialization) corresponding to the dual L-function of L.
+Doc: creates the Ldata structure (without initialization) corresponding to the
+ corresponding to the dual L-function of $L$.
+ If \kbd{k=L[4]} and \kbd{eps=lfunrootres(L)[3]}, the following formula holds
+ outside poles (up to numerical errors).
+ $$\kbd{lfunlamda(L,s) = eps * lfunlambda(lfundual(L),k-s)}$$
+
+ \bprog ? L = lfunqf(matdiagonal([1,2,3,4]));
+ ? eps = lfunrootres(L)[3]; k = L[4];
+ ? M = lfundual(L);
+ ? lfuncheckfeq(M)
+ %4 = -127
+ ? s= 1+Pi*I;
+ ? lfunlambda(L,s)
+ %6 = -0.080199638931150968884740652230599085859+0.14975675606267545256054417283398427957*I
+ ? eps * lfunlambda(M,k-s)
+ %7 = -0.080199638931150968884740652230599085859+0.14975675606267545256054417283398427957*I
+ @eprog

@@ -385,6 +385,58 @@ lfuntwist(GEN ldata1, GEN chi, long bitprec)
 }
 
 static GEN
+lfundualpoles(GEN ldata, GEN reno, long bitprec)
+{
+  long l, j;
+  GEN k = ldata_get_k(ldata);
+  GEN r = gel(reno,2), eno = gel(reno,3), R;
+  R = cgetg_copy(r, &l);
+  for (j = 1; j < l; j++)
+  {
+    GEN b = gmael(r,j,1), e = gmael(r,j,2);
+    long v = varn(e);
+    GEN E = gsubst(gdiv(e, eno), v, gneg(pol_x(v)));
+    gel(R,l-j) = mkvec2(gsub(k,b), E);
+  }
+  return R;
+}
+
+static GEN
+ginvvec(GEN x)
+{
+  if (is_vec_t(typ(x)))
+    pari_APPLY_same(ginv(gel(x,i)))
+  else
+    return ginv(x);
+}
+
+GEN
+lfundual(GEN L, long bitprec)
+{
+  pari_sp av = avma;
+  long prec = nbits2prec(bitprec);
+  GEN ldata = ldata_newprec(lfunmisc_to_ldata_shallow(L), prec);
+  GEN a = ldata_get_an(ldata), b = ldata_get_dual(ldata);
+  GEN e = ldata_get_rootno(ldata);
+  GEN ldual, ad, bd, ed, Rd = NULL;
+  if (typ(b) == t_INT)
+  {
+    ad = equali1(b) ? lfunconj(a): a;
+    bd = b;
+  }
+  else { ad = b; bd = a; }
+  if (lg(ldata)==8)
+  {
+    GEN reno = lfunrootres(ldata, bitprec);
+    e = gel(reno,3);
+    Rd = lfundualpoles(ldata, reno, bitprec);
+  }
+  ed = isintzero(e) ? e: ginvvec(e);
+  ldual = mkvecn(Rd ? 7:6, ad, bd, gel(ldata,3), gel(ldata,4), gel(ldata,5), ed, Rd);
+  return gerepilecopy(av, ldual);
+}
+
+static GEN
 RgV_Rg_translate(GEN x, GEN s)
 { pari_APPLY_same(gadd(gel(x,i),s)) }
 
