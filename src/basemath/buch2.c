@@ -3689,7 +3689,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   P = get_nfpol(P, &nf);
   if (nf)
   {
-    PREC = nf_get_prec(nf);
+    PREC = maxss(nf_get_prec(nf), MEDDEFAULTPREC);
     D = nf_get_disc(nf);
   }
   else
