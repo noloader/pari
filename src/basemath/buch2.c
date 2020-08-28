@@ -2176,17 +2176,16 @@ rel_embed(REL_t *rel, FB_t *F, GEN embs, long ind, GEN M, long RU, long R1,
   return D;
 }
 static GEN
-get_embs(FB_t *F, RELCACHE_t *cache, GEN nf, long RU, long R1, GEN embs,
-         long PREC)
+get_embs(FB_t *F, RELCACHE_t *cache, GEN nf, GEN embs, long PREC)
 {
-  long l = cache->last - cache->chk + 1, j, k;
+  long ru, j, k, l = cache->last - cache->chk + 1, r1 = nf_get_r1(nf);
   GEN M = nf_get_M(nf), nembs = cgetg(cache->last - cache->base+1, t_MAT);
   REL_t *rel;
 
   for (k = 1; k <= cache->chk - cache->base; k++) gel(nembs,k) = gel(embs,k);
-  embs = nembs;
+  embs = nembs; ru = nbrows(M);
   for (j=1,rel = cache->chk + 1; j < l; rel++,j++,k++)
-    gel(embs,k) = rel_embed(rel, F, embs, k, M, RU, R1, PREC);
+    gel(embs,k) = rel_embed(rel, F, embs, k, M, ru, r1, PREC);
   return embs;
 }
 static void
@@ -3663,6 +3662,14 @@ myprecdbl(long prec, GEN C)
   return p;
 }
 
+static GEN
+_nfnewprec(GEN nf, long prec, long *isclone)
+{
+  GEN NF = gclone(nfnewprec_shallow(nf, prec));
+  if (*isclone) gunclone(nf);
+  *isclone = 1; return NF;
+}
+
 /* Nrelid = nb relations per ideal, possibly 0. If flag is set, keep data in
  * algebraic form. */
 GEN
@@ -3673,6 +3680,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   long PREC, N, R1, R2, RU, low, high, LIMC0, LIMC, LIMC2, LIMCMAX, zc, i;
   long LIMres, bit = 0, flag_nfinit = 0;
   long nreldep, sfb_trials, need, old_need, precdouble = 0, TRIES = 0;
+  long nfisclone = 0;
   long done_small, small_fail, fail_limit, squash_index, small_norm_prec;
   double LOGD, LOGD2, lim;
   GEN computed = NULL, fu = NULL, zu, nf, M_sn, D, A, W, R, h, Ce, PERM;
@@ -3920,22 +3928,19 @@ START:
       if (DEBUGLEVEL) timer_start(&T);
       if (precpb)
       {
-        GEN nf0 = nf, M;
         REL_t *rel;
         if (DEBUGLEVEL)
         {
           char str[64]; sprintf(str,"Buchall_param (%s)",precpb);
           pari_warn(warnprec,str,PREC);
         }
-        nf = gclone( nfnewprec_shallow(nf, PREC) );
-        M = nf_get_M(nf);
-        if (precdouble) gunclone(nf0);
+        nf = _nfnewprec(nf, PREC, &nfisclone);
         precdouble++; precpb = NULL;
 
         if (flag)
         { /* recompute embs only, no need to redo HNF */
           long j, le = lg(embs), lC = lg(C);
-          GEN E;
+          GEN E, M = nf_get_M(nf);
           set_avma(av4);
           for (rel = cache.base+1, i = 1; i < le; i++,rel++)
             gel(embs,i) = rel_embed(rel, &F, embs, i, M, RU, R1, PREC);
@@ -3962,7 +3967,7 @@ START:
         for (j=1,rel = cache.chk + 1; j < l; rel++,j++) gel(mat,j) = rel->R;
         if (!flag || W)
         {
-          embs = get_embs(&F, &cache, nf, RU, R1, embs, PREC);
+          embs = get_embs(&F, &cache, nf, embs, PREC);
           if (DEBUGLEVEL && timer_get(&T) > 1)
             timer_printf(&T, "floating point embeddings");
         }
@@ -3975,7 +3980,8 @@ START:
           if (flag)
           {
             PREC += nbits2extraprec(gexpo(C));
-            embs = get_embs(&F, &cache, nf, RU, R1, embs, PREC);
+            if (nf_get_prec(nf) < PREC) nf = _nfnewprec(nf, PREC, &nfisclone);
+            embs = get_embs(&F, &cache, nf, embs, PREC);
             C = vconcat(RgM_mul(embs, C), C);
           }
           if (DEBUGLEVEL)

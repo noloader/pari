@@ -100,4 +100,5 @@ Mat([0, 0, 0, -2, 0]), 2]]], [[0]~, Mat(1)]]], [[2], Vecsmall([1]), Mat(1/2)
   *** bnfisprincipal: Warning: precision too low for generators, not given.
 18
 [120, 4, 4, 2]
-Total time spent: 18127
+112850
+Total time spent: 29899
