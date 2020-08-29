@@ -127,7 +127,7 @@ lfuncombdual(GEN fun(GEN, GEN), GEN ldata1, GEN ldata2)
   GEN a1 = ldata_get_an(ldata1), a2 = ldata_get_an(ldata2);
   GEN b1 = ldata_get_dual(ldata1), b2 = ldata_get_dual(ldata2);
   if (typ(b1)==t_INT && typ(b2)==t_INT)
-    return utoi(signe(b1) && signe(b2));
+    return utoi(signe(b1) || signe(b2));
   else
   {
     if (typ(b1)==t_INT) b1 = signe(b1) ? lfunconj(a1): a1;

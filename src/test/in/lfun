@@ -26,6 +26,7 @@ lfun(x^4-2,x+O(x^6),2)
 
 lfun(polcyclo(12),2)
 
+lfunmul(1,Mod(2,5))[2..5]
 lfun(lfunmul(1,1),1)
 lfun(lfunmul(x^2+1,x^2+1),1)
 lfun(lfundiv(x^2+1,-4),1)
