@@ -2052,7 +2052,7 @@ nfnewprec_shallow(GEN nf, long prec)
   F.r1 = nf_get_r1(nf);
   F.basden = nf_basden(nf);
   F.extraprec = -1;
-  F.prec = prec; make_M_G(&F, 1);
+  F.prec = prec; make_M_G(&F, 0);
   gel(NF,5) = m = leafcopy(gel(NF,5));
   gel(m,1) = F.M;
   gel(m,2) = F.G;
