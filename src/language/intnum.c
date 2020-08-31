@@ -336,7 +336,7 @@ intnumgauss0(GEN a, GEN b, GEN code, GEN tab, long prec)
 /********************************************************************/
 
 typedef struct _intdata {
-  long eps;  /* bit accuracy of current precision */
+  long bit;  /* bit accuracy of current precision */
   long l; /* table lengths */
   GEN tabx0; /* abscissa phi(0) for t = 0 */
   GEN tabw0; /* weight phi'(0) for t = 0 */
@@ -414,7 +414,7 @@ intinit_start(intdata *D, long m, double TUNE, long prec)
   h = divru(nh, n);
   if (m > 0) { h = gmul2n(h,-m); n <<= m; }
   D->h = h;
-  D->eps = bitprec;
+  D->bit = bitprec;
   D->l = l = n+1;
   D->tabxp = cgetg(l, t_VEC);
   D->tabwp = cgetg(l, t_VEC);
@@ -463,7 +463,7 @@ inittanhsinh(long m, long prec)
     ct = divr2_ip(addrr(ek, eik)); /* Pi ch(kh) */
     st = subrr(ek, ct); /* Pi sh(kh) */
     z = invr( addrs(mpexp(st), 1) );
-    shiftr_inplace(z, 1); if (expo(z) < -D.eps) { nt = k-1; break; }
+    shiftr_inplace(z, 1); if (expo(z) < -D.bit) { nt = k-1; break; }
     xp = subsr(1, z);
     wp = divr2_ip(mulrr(ct, subsr(1, sqrr(xp))));
     affrr(xp, gel(D.tabxp,k)); mulrrz(ek, e, ek);
@@ -497,7 +497,7 @@ initsinhsinh(long m, long prec)
     exu = invr(ext);
     xp = divr2_ip(subrr(ext, exu));
     wp = divr2_ip(mulrr(ct, addrr(ext, exu)));
-    if (expo(wp) - 2*expo(xp) < -D.eps) { nt = k-1; break; }
+    if (expo(wp) - 2*expo(xp) < -D.bit) { nt = k-1; break; }
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
   }
@@ -524,7 +524,7 @@ initsinh(long m, long prec)
     eti = invr(et);
     xp = subrr(et, eti);
     wp = addrr(et, eti);
-    if (cmprs(xp, (long)(M_LN2*(expo(wp)+D.eps) + 1)) > 0) { nt = k-1; break; }
+    if (cmprs(xp, (long)(M_LN2*(expo(wp)+D.bit) + 1)) > 0) { nt = k-1; break; }
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
   }
@@ -554,7 +554,7 @@ initexpsinh(long m, long prec)
     gel(D.tabwp,k) = mulrr(xp, t);
     gel(D.tabxm,k) = invr(xp);
     gel(D.tabwm,k) = mulrr(gel(D.tabxm,k), t);
-    if (expo(gel(D.tabxm,k)) < -D.eps) { nt = k-1; break; }
+    if (expo(gel(D.tabxm,k)) < -D.bit) { nt = k-1; break; }
   }
   return intinit_end(&D, nt, nt);
 }
@@ -583,7 +583,7 @@ initexpexp(long m, long prec)
     xp = mpexp(subrr(kh, et));
     xm = mpexp(negr(addrr(kh, eti)));
     wp = mulrr(xp, addsr(1, et));
-    if (expo(xm) < -D.eps && cmprs(xp, (long)(M_LN2*(expo(wp)+D.eps) + 1)) > 0) { nt = k-1; break; }
+    if (expo(xm) < -D.bit && cmprs(xp, (long)(M_LN2*(expo(wp)+D.bit) + 1)) > 0) { nt = k-1; break; }
     wm = mulrr(xm, addsr(1, eti));
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k));
@@ -630,7 +630,7 @@ initnumsine(long m, long prec)
     wp = mulrr(subrr(extm1, mulrr(kct, extm)), mulrr(pi, sqrr(extm2)));
     xm = mulrr(negr(kpi), extp2); /* phi(-kh) */
     wm = mulrr(addrr(extp1, mulrr(kct, extp)), mulrr(pi, sqrr(extp2)));
-    if (expo(wm) < -D.eps && expo(extm) + exh + expu(10 * k) < -D.eps) { nt = k-1; break; }
+    if (expo(wm) < -D.bit && expo(extm) + exh + expu(10 * k) < -D.bit) { nt = k-1; break; }
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k));
     affrr(xm, gel(D.tabxm,k));
