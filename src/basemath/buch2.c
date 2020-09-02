@@ -3038,7 +3038,7 @@ compute_R(GEN Ar, GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
   A = RgM_mul(Ar, vecslice(U,lg(U)-r, lg(U)-1));
   /* could loop over the r possibilities */
   R2 = det(rowsplice(A,1)); setsigne(R2,1);
-  if (gexpo(gsub(R,R2)) - gexpo(R) > -3) return gc_long(av, fupb_PRECI);
+  if (gexpo(gsub(R,R2)) - gexpo(R) > -20) return gc_long(av, fupb_PRECI);
   *ptkR = R; *ptL = L; return fupb_NONE;
 }
 static GEN

@@ -89,10 +89,17 @@ bnf=bnfinit(a^3 - 65249548*a - 207761301170,1);exponent(bnf[3])
 \\ wrong cyclic components
 setrand(1);bnfinit(a^6+6748*a^4-750056*a^3+45535504*a^2-2530688944*a+140646000784,1).cyc
 
+\\ D. Broadhurst's examples
 P=x^7+10*x^6+16*x^5+160*x^4+76*x^3+760*x^2+96*x+962;
 localbitprec(64);setrand(1); bnfinit(nfinit(P),1).no
 
 P=x^7+3*x^6+57*x^5+171*x^4+927*x^3+2781*x^2+4455*x+13368;
 localbitprec(64);setrand(1);bnfinit(nfinit(P)).no
+
+P=x^7+3*x^6+54*x^5+162*x^4+621*x^3+1863*x^2+1404*x+4215;
+localbitprec(128);bnfinit(P,1).reg
+
+P=x^7+6*x^6+30*x^5+180*x^4+207*x^3+1242*x^2+378*x+2271;
+localbitprec(128); k=bnfinit(P); [k.no, k.reg]
 
 \\ ERRORS: keep at end of file
