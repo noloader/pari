@@ -97,9 +97,9 @@ P=x^7+3*x^6+57*x^5+171*x^4+927*x^3+2781*x^2+4455*x+13368;
 localbitprec(64);setrand(1);bnfinit(nfinit(P)).no
 
 P=x^7+3*x^6+54*x^5+162*x^4+621*x^3+1863*x^2+1404*x+4215;
-localbitprec(128);bnfinit(P,1).reg
+localbitprec(128);bitprecision(bnfinit(P,1).reg,128)
 
 P=x^7+6*x^6+30*x^5+180*x^4+207*x^3+1242*x^2+378*x+2271;
-localbitprec(128); k=bnfinit(P); [k.no, k.reg]
+localbitprec(128); k=bnfinit(P); [k.no, bitprecision(k.reg,128)]
 
 \\ ERRORS: keep at end of file
