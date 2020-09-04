@@ -1486,7 +1486,7 @@ groupelts_to_group(GEN G)
       GEN C = groupelts_quotient(G, H);
       GEN Q = quotient_groupelts(C);
       GEN R = groupelts_to_group(Q);
-      if (isintzero(R)) return gc_const(av, gen_0);
+      if (!R) return gc_NULL(av);
       return gerepilecopy(av, quotient_subgroup_lift(C, H, R));
     }
   }
@@ -1500,5 +1500,5 @@ groupelts_to_group(GEN G)
     return gerepilecopy(av,
       mkvec2(mkvec4(t21,t22, gel(cyc,11), gel(cyc,15)), mkvecsmall4(2,2,3,2)));
   }
-  set_avma(av); return gen_0;
+  return gc_NULL(av);
 }

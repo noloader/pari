@@ -2748,7 +2748,7 @@ galoisinitfromaut(GEN T, GEN aut)
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "FpV_invVandermonde()");
   A = aut_to_groupelts(aut, L, ga.l);
   G = groupelts_to_group(A);
-  if (!G) pari_err_IMPL("galoisinit");
+  if (!G) pari_err_IMPL("galoisinit(non WSS group)");
   A = group_elts(G,n);
   grp = cgetg(9, t_VEC);
   gel(grp,1) = T;
