@@ -426,16 +426,16 @@ orbitlen(long pt, long orblen, GEN G, long nG, GEN V)
   long i, len, cnd, n = lg(V)-1;
   GEN orb, flag;
   /* if flag[i + n+1] = 1, -n <= i <= n, then i is already in the orbit */
-  flag = zero_Flv(2*n + 1)+n+1;
+  flag = zero_F2v(2*n + 1);
   orb = zero_Flv(orblen); orb[1] = pt;
-  flag[pt] = 1;
+  F2v_set(flag,pt+n+1);
   len = 1;
   for (cnd = 1; cnd <= len && len < orblen; cnd++)
     for (i = 1; i <= nG && len < orblen; i++)
     {
       long im = operate(orb[cnd], gel(G,i), V);
       /* image is a new point in the orbit */
-      if (flag[im] == 0) { orb[++len] = im; flag[im] = 1; }
+      if (!F2v_coeff(flag,im+n+1)) { orb[++len] = im; F2v_set(flag,im+n+1); }
     }
   return gc_long(av, len);
 }
@@ -534,9 +534,9 @@ stab(long I, struct group *G, struct fingerprint *fp, GEN V, ulong p)
   /* in w[V.n+i] an element is stored that maps fp.e[I] on v[i] */
   w = cgetg(2*n+2,t_VEC);
   orb = zero_Flv(2*n); /* the orbit of fp.e[I] */
-  flag = zero_Flv(2*n+1); /* if flag[i + V.n], then i is already in orbit */
+  flag = zero_F2v(2*n+1); /* if flag[i + V.n], then i is already in orbit */
   orb[1] = fp->e[I];
-  flag[orb[1]+n+1] = 1;
+  F2v_set(flag,orb[1]+n+1);
   gel(w,orb[1]+n+1) = cgetg(dim+1,t_VECSMALL);
   for (i = 1; i <= dim; i++) mael(w,orb[1]+n+1,i) = fp->e[i];
   cnd = len = 1;
@@ -553,12 +553,12 @@ stab(long I, struct group *G, struct fingerprint *fp, GEN V, ulong p)
         i = 1+(long)random_Fl(nH);
       }
       im = operate(orb[cnd], gel(H,i), V);
-      if (flag[im+n+1] == 0)
+      if (F2v_coeff(flag,im+n+1) == 0)
       { /* found new element, appended to the orbit; an element mapping
          *  fp.e[I] to im is stored in w[im+V.n] */
         GEN wim;
         orb[++len] = im;
-        flag[im+n+1] = 1;
+        F2v_set(flag,im+n+1);
         wim = cgetg(dim+1,t_VECSMALL);
         gel(w,im+n+1) = wim;
         for (j = 1; j <= dim; ++j)
