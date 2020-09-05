@@ -2596,6 +2596,7 @@ GEN     mathouseholder(GEN Q, GEN v);
 GEN     matqr(GEN x, long flag, long prec);
 GEN     minim(GEN a, GEN borne, GEN stockmax);
 GEN     minim_raw(GEN a, GEN borne, GEN stockmax);
+GEN     minim_zm(GEN a, GEN borne, GEN stockmax);
 GEN     minim2(GEN a, GEN borne, GEN stockmax);
 GEN     lindep_padic(GEN x);
 GEN     qfperfection(GEN a);

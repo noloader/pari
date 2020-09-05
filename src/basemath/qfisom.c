@@ -943,8 +943,9 @@ zm_maxdiag(GEN A)
 static GEN
 init_qfauto(GEN F, GEN U, long max, struct qfauto *qf, GEN norm, GEN minvec)
 {
-  GEN M = minvec? minvec: gel(minim(zm_to_ZM(gel(F,1)), stoi(max), NULL), 3);
-  GEN W, v, V = ZM_to_zm_canon(M);
+  GEN V = minvec ? ZM_to_zm_canon(minvec)
+                 : gel(minim_zm(zm_to_ZM(gel(F,1)), stoi(max), NULL), 3);
+  GEN W, v;
   long i, j, k, n = lg(V)-1, f = lg(F)-1, dim = lg(gel(F,1))-1;
   for (i = 1; i <= n; i++)
   {

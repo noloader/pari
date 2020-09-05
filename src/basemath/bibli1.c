@@ -1062,6 +1062,14 @@ ZM_zc_mul_canon(GEN u, GEN x)
   return ZC_canon(ZM_zc_mul(u,x));
 }
 
+static GEN
+ZM_zc_mul_canon_zm(GEN u, GEN x)
+{
+  pari_sp av = avma;
+  GEN M = ZV_to_zv(ZC_canon(ZM_zc_mul(u,x)));
+  return gerepileupto(av, M);
+}
+
 struct qfvec
 {
   GEN a, r, u;
@@ -1402,7 +1410,9 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
   k = minss(s,maxrank);
   L[0] = evaltyp(t_MAT) | evallg(k + 1);
   if (dolll)
-    for (j=1; j<=k; j++) gel(L,j) = ZM_zc_mul_canon(u, gel(L,j));
+    for (j=1; j<=k; j++)
+      gel(L,j) = dolll==1 ? ZM_zc_mul_canon(u, gel(L,j))
+                          : ZM_zc_mul_canon_zm(u, gel(L,j));
   return gerepilecopy(av, mkvec3(stoi(s<<1), r, L));
 }
 
@@ -1410,6 +1420,14 @@ static GEN
 minim0(GEN a, GEN BORNE, GEN STOCKMAX, long flag)
 {
   GEN v = minim0_dolll(a, BORNE, STOCKMAX, flag, 1);
+  if (!v) pari_err_PREC("qfminim");
+  return v;
+}
+
+static GEN
+minim0_zm(GEN a, GEN BORNE, GEN STOCKMAX, long flag)
+{
+  GEN v = minim0_dolll(a, BORNE, STOCKMAX, flag, 2);
   if (!v) pari_err_PREC("qfminim");
   return v;
 }
@@ -1445,6 +1463,10 @@ qfminim0(GEN a, GEN borne, GEN stockmax, long flag, long prec)
 GEN
 minim(GEN a, GEN borne, GEN stockmax)
 { return minim0(a,borne,stockmax,min_ALL); }
+
+GEN
+minim_zm(GEN a, GEN borne, GEN stockmax)
+{ return minim0_zm(a,borne,stockmax,min_ALL); }
 
 GEN
 minim_raw(GEN a, GEN BORNE, GEN STOCKMAX)

@@ -95,4 +95,5 @@ Variant: Also available are
  \fun{GEN}{minim2}{GEN x, GEN b = NULL, GEN m = NULL} ($\fl=1$).
  \fun{GEN}{minim_raw}{GEN x, GEN b = NULL, GEN m = NULL} (do not perform LLL
  reduction on x and return \kbd{NULL} on accuracy error).
-
+ \fun{GEN}{minim_zm}{GEN x, GEN b = NULL, GEN m = NULL} ($\fl=0$, return vectors as
+ \typ{VECSMALL} to save memory)
