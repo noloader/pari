@@ -3000,6 +3000,11 @@ GEN  strtime(long t);
 /* dirichlet.c */
 
 GEN     direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c);
+GEN     dirpowers(long n, GEN x, long prec);
+GEN     dirpowerssum0(GEN N, GEN s, long prec);
+GEN     dirpowerssum(ulong N, GEN s, long prec);
+GEN     vecpowuu(long N, ulong B);
+GEN     vecpowug(long N, GEN B, long prec);
 
 /* ellanal.c */
 
@@ -3974,6 +3979,7 @@ long    uissquarefree_fact(GEN f);
 ulong   unextprime(ulong n);
 ulong   uprecprime(ulong n);
 GEN     vecfactorsquarefreeu(ulong a, ulong b);
+GEN     vecfactorsquarefreeu_coprime(ulong a, ulong b, GEN P);
 GEN     vecfactoru_i(ulong a, ulong b);
 GEN     vecfactoru(ulong a, ulong b);
 GEN     vecfactoroddu_i(ulong a, ulong b);
@@ -4102,7 +4108,6 @@ GEN     rnfkummer(GEN bnr, GEN subgroup, long prec);
 
 /* lfun.c */
 
-GEN     dirpowers(long n, GEN x, long prec);
 long    is_linit(GEN data);
 GEN     ldata_get_an(GEN ldata);
 GEN     ldata_get_dual(GEN ldata);
@@ -4167,8 +4172,6 @@ long    theta_get_bitprec(GEN tdata);
 long    theta_get_m(GEN tdata);
 GEN     theta_get_tdom(GEN tdata);
 GEN     theta_get_isqrtN(GEN tdata);
-GEN     vecpowuu(long N, ulong B);
-GEN     vecpowug(long N, GEN B, long prec);
 int     Vgaeasytheta(GEN Vga);
 GEN     znchargauss(GEN G, GEN chi, GEN a, long bitprec);
 

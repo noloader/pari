@@ -1703,7 +1703,7 @@ szeta(long k, long prec)
 static GEN
 czeta(GEN s0, long prec)
 {
-  GEN s, u, y, res, tes, sig, tau, invn2, ns, Ns, funeq_factor = NULL;
+  GEN ms, s, u, y, res, tes, sig, tau, invn2, ns, Ns, funeq_factor = NULL;
   long i, nn, lim, lim2;
   pari_sp av0 = avma, av, av2;
   pari_timer T;
@@ -1746,12 +1746,11 @@ czeta(GEN s0, long prec)
   if (DEBUGLEVEL>2) err_printf("lim, nn: [%ld, %ld]\n", lim, nn);
   incrprec(prec); /* one extra word of precision */
 
-  av2 = avma;
-  Ns = vecpowug(nn, gneg(s), prec);
-  ns = gel(Ns,nn);
-  y = gmul2n(ns, -1); for (i = nn-1; i; i--) y = gadd(y, gel(Ns,i));
+  ms = gneg(s);
+  Ns = dirpowerssum(nn, ms, prec);
+  ns = gpow(utor(nn, prec), ms, prec);
+  y = gsub(Ns, gmul2n(ns, -1));
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 1 to N-1");
-  gerepileall(av2, 2, &y,&ns);
 
   invn2 = divri(real_1(prec), sqru(nn)); lim2 = lim<<1;
   constbern(lim);

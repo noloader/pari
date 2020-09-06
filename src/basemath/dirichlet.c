@@ -256,3 +256,206 @@ pardireuler(GEN worker, GEN a, GEN b, GEN c, GEN Sbad)
   mt_queue_end(&pt);
   return gerepilecopy(av0,V);
 }
+
+/********************************************************************/
+/**                                                                **/
+/**                 DIRPOWERS and DIRPOWERSSUM                     **/
+/**                                                                **/
+/********************************************************************/
+
+/* [1^B,...,N^B] */
+GEN
+vecpowuu(long N, ulong B)
+{
+  GEN v;
+  long p, i;
+  forprime_t T;
+
+  if (B <= 2)
+  {
+    if (!B) return const_vec(N,gen_1);
+    v = cgetg(N+1, t_VEC); if (N == 0) return v;
+    gel(v,1) = gen_1;
+    if (B == 1)
+      for (i = 2; i <= N; i++) gel(v,i) = utoipos(i);
+    else
+      for (i = 2; i <= N; i++) gel(v,i) = sqru(i);
+    return v;
+  }
+  v = const_vec(N, NULL);
+  u_forprime_init(&T, 3, N);
+  while ((p = u_forprime_next(&T)))
+  {
+    long m, pk, oldpk;
+    gel(v,p) = powuu(p, B);
+    for (pk = p, oldpk = p; pk; oldpk = pk, pk = umuluu_le(pk,p,N))
+    {
+      if (pk != p) gel(v,pk) = mulii(gel(v,oldpk), gel(v,p));
+      for (m = N/pk; m > 1; m--)
+        if (gel(v,m) && m%p) gel(v, m*pk) = mulii(gel(v,m), gel(v,pk));
+    }
+  }
+  gel(v,1) = gen_1;
+  for (i = 2; i <= N; i+=2)
+  {
+    long vi = vals(i);
+    gel(v,i) = shifti(gel(v,i >> vi), B * vi);
+  }
+  return v;
+}
+/* [1^B,...,N^B] */
+GEN
+vecpowug(long N, GEN B, long prec)
+{
+  GEN v, pow = NULL;
+  long p, precp = 2, eB, prec0;
+  forprime_t T;
+  if (N == 1) return mkvec(gen_1);
+  eB = gexpo(B);
+  prec0 = eB < 5? prec: prec + nbits2extraprec(eB);
+  u_forprime_init(&T, 2, N);
+  v = const_vec(N, NULL);
+  gel(v,1) = gen_1;
+  while ((p = u_forprime_next(&T)))
+  {
+    long m, pk, oldpk;
+    if (!pow)
+      pow = gpow(utor(p,prec0), B, prec);
+    else
+    {
+      GEN t = gpow(divru(utor(p,prec0), precp), B, prec);
+      pow = gmul(pow, t); /* (p / precp)^B * precp^B */
+    }
+    precp = p;
+    gel(v,p) = pow; /* p^B */
+    if (prec0 != prec) gel(v,p) = gprec_wtrunc(gel(v,p), prec);
+    for (pk = p, oldpk = p; pk; oldpk = pk, pk = umuluu_le(pk,p,N))
+    {
+      if (pk != p) gel(v,pk) = gmul(gel(v,oldpk), gel(v,p));
+      for (m = N/pk; m > 1; m--)
+        if (gel(v,m) && m%p) gel(v, m*pk) = gmul(gel(v,m), gel(v,pk));
+    }
+  }
+  return v;
+}
+
+GEN
+dirpowers(long n, GEN x, long prec)
+{
+  pari_sp av = avma;
+  GEN v;
+  if (n <= 0) return cgetg(1, t_VEC);
+  if (typ(x) == t_INT && lgefint(x) <= 3 && signe(x) >= 0)
+  {
+    ulong B = itou(x);
+    v = vecpowuu(n, B);
+    if (B <= 2) return v;
+  }
+  else v = vecpowug(n, x, prec);
+  return gerepilecopy(av, v);
+}
+
+/* P = prime divisors of (squarefree) n */
+static GEN
+smallfact(ulong n, GEN P, ulong sq, GEN V)
+{
+  long i, l = lg(P);
+  ulong p;
+  GEN c;
+  if (l == 1) return gen_1;
+  p = uel(P,l - 1); if (p > sq) return NULL;
+  c = gel(V, p);
+  for (i = l-2; i > 0; i--)
+  {
+    n /= p; if (n <= sq) return gmul(c, gel(V,n));
+    p = uel(P, i); c = gmul(c, gel(V,p));
+  }
+  return c;
+}
+/* sum_{n <= N} n^s. */
+GEN
+dirpowerssum(ulong N, GEN s, long prec)
+{
+  const ulong step = 1024;
+  pari_sp av = avma, av2;
+  GEN P, V, W, F, c2, c3, c6, c12, c123, c1234, tmp, S;
+  forprime_t T;
+  ulong x1, n, sq, p, precp;
+  long prec0;
+
+  if (!N) return gen_0;
+  if (N < 9UL) return gerepileupto(av, RgV_sum(dirpowers(N, s, prec)));
+  sq = usqrt(N);
+  V = cgetg(sq+1, t_VEC);
+  W = cgetg(sq+1, t_VEC);
+  F = cgetg(sq+1, t_VEC);
+  prec0 = prec + EXTRAPRECWORD;
+  s = gprec_w(s, prec0);
+  gel(V,1) = gel(W,1) = gel(F,1) = gen_1;
+  for (n = 2; n <= sq; n++)
+  {
+    GEN t = divru(utor(n, prec0), n-1);
+    gel(V,n) = gmul(gel(V,n-1), gpow(t, s, prec0));
+    gel(W,n) = gadd(gel(W,n-1), gel(V,n));
+    gel(F,n) = gadd(gel(F,n-1), gsqr(gel(V,n)));
+  }
+  c2 = gel(V,2); c3 = gel(V,3); c6 = gmul(c2, c3);
+  c12 = gaddgs(c2, 1);
+  c123 = gadd(c12, c3);
+  c1234 = gadd(gel(F,2), gadd(c2,c3));
+  precp = 0; tmp = NULL; S = gen_0;
+  u_forprime_init(&T, sq + 1, N);
+  av2 = avma;
+  while ((p = u_forprime_next(&T)))
+  {
+    GEN t = utor(p, prec0);
+    if (precp) t = divru(t, precp);
+    t = gpow(t, s, prec0);
+    tmp = precp? gmul(tmp, t): t; /* p^s */
+    S = gadd(S, gmul(gel(W, N / p), tmp));
+    precp = p;
+    if ((p & 0x1ff) == 1) S = gerepileupto(av2, S);
+  }
+  P = mkvecsmall2(2, 3);
+  av2 = avma;
+  for(x1 = 1;; x1 += step)
+  { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
+    ulong j, lv, x2 = (N >= 2*step && N - 2*step >= x1)? x1-1 + step: N;
+    GEN v = vecfactorsquarefreeu_coprime(x1, x2, P);
+    lv = lg(v);
+    for (j = 1; j < lv; j++) if (gel(v,j))
+    {
+      ulong d = x1-1 + j; /* squarefree, coprime to 6 */
+      ulong q;
+      tmp = smallfact(d, gel(v,j), sq, V);
+      if (!tmp) continue;
+      q = N / d;
+      switch(q = N / d)
+      {
+        case 1: break;
+        case 2: tmp = gmul(tmp, c12); break;
+        case 3: tmp = gmul(tmp, c123); break;
+        case 4:
+        case 5: tmp = gmul(tmp, c1234); break;
+        default:
+        {
+          GEN a = gel(F, usqrt(q)), b = gel(F, usqrt(q / 2));
+          GEN c = gel(F, usqrt(q / 3)), d = gel(F, usqrt(q / 6));
+          tmp = gmul(tmp, gadd(gadd(a, gmul(c2, b)),
+                               gadd(gmul(c3, c), gmul(c6, d))));
+        }
+      }
+      S = gadd(S, tmp);
+    }
+    if (x2 == N) break;
+    S = gerepileupto(av2, S);
+  }
+  return gerepilecopy(av, S);
+}
+GEN
+dirpowerssum0(GEN N, GEN s, long prec)
+{
+  if (typ(N) != t_INT) pari_err_TYPE("dirpowerssum", N);
+  if (signe(N) <= 0) return gen_0;
+  return dirpowerssum(itou(N), s, prec);
+}

@@ -3972,9 +3972,8 @@ vecfactorsquarefreeu(ulong a, ulong b)
   while ((p = u_forprime_next(&T)))
   { /* p <= sqrt(b), kill non-squarefree */
     ulong j, pk = p*p, t = a / pk, ap = t * pk;
-    if (ap < a) { ap += pk; t++; }
-    /* t = (j+a-1) \ pk */
-    for (j = ap-a+1; j <= n; j += pk, t++) gel(L,j) = NULL;
+    if (ap < a) ap += pk;
+    for (j = ap-a+1; j <= n; j += pk) gel(L,j) = NULL;
 
     t = a / p; ap = t * p;
     if (ap < a) { ap += p; t++; }
@@ -3984,6 +3983,51 @@ vecfactorsquarefreeu(ulong a, ulong b)
   /* complete factorisation of non-sqrt(b)-smooth numbers */
   for (k = 1, N = a; k <= n; k++, N++)
     if (gel(L,k) && uel(v,k) != N) vecsmalltrunc_append(gel(L,k), N/uel(v,k));
+  return L;
+}
+/* If 0 <= a <= c <= b; L[c-a+1] = factoru(c)[,1] if c squarefree and coprime
+ * to all the primes in sorted zv P, else NULL */
+GEN
+vecfactorsquarefreeu_coprime(ulong a, ulong b, GEN P)
+{
+  ulong N, k, p, n = b-a+1, sqb = usqrt(b);
+  GEN v = const_vecsmall(n, 1);
+  GEN L = cgetg(n+1, t_VEC);
+  forprime_t T;
+  if (b < 510510UL) N = 7;
+  else if (b < 9699690UL) N = 8;
+#ifdef LONG_IS_64BIT
+  else if (b < 223092870UL) N = 9;
+  else if (b < 6469693230UL) N = 10;
+  else if (b < 200560490130UL) N = 11;
+  else if (b < 7420738134810UL) N = 12;
+  else if (b < 304250263527210UL) N = 13;
+  else N = 16; /* don't bother */
+#else
+  else N = 9;
+#endif
+  for (k = 1; k <= n; k++) gel(L,k) = vecsmalltrunc_init(N);
+  u_forprime_init(&T, 2, sqb);
+  while ((p = u_forprime_next(&T)))
+  { /* p <= sqrt(b), kill non-squarefree */
+    ulong j, t, ap, bad = zv_search(P, p), pk = bad ? p: p * p;
+    t = a / pk; ap = t * pk; if (ap < a) ap += pk;
+    for (j = ap-a+1; j <= n; j += pk) gel(L,j) = NULL;
+    if (bad) continue;
+
+    t = a / p; ap = t * p;
+    if (ap < a) { ap += p; t++; }
+    for (j = ap-a+1; j <= n; j += p, t++)
+      if (gel(L,j)) { v[j] *= p; vecsmalltrunc_append(gel(L,j), p); }
+  }
+  if (uel(P,lg(P)-1) <= sqb) P = NULL;
+  /* complete factorisation of non-sqrt(b)-smooth numbers */
+  for (k = 1, N = a; k <= n; k++, N++)
+    if (gel(L,k) && uel(v,k) != N)
+    {
+      ulong q = N / uel(v,k);
+      if (!P || !zv_search(P, q)) vecsmalltrunc_append(gel(L,k), q);
+    }
   return L;
 }
 
