@@ -751,16 +751,27 @@ vecpowuu(long N, ulong B)
 GEN
 vecpowug(long N, GEN B, long prec)
 {
-  GEN v = const_vec(N, NULL);
-  long p, eB = gexpo(B);
-  long prec0 = eB < 5? prec: prec + nbits2extraprec(eB);
+  GEN v, pow = NULL;
+  long p, precp = 2, eB, prec0;
   forprime_t T;
+  if (N == 1) return mkvec(gen_1);
+  eB = gexpo(B);
+  prec0 = eB < 5? prec: prec + nbits2extraprec(eB);
   u_forprime_init(&T, 2, N);
+  v = const_vec(N, NULL);
   gel(v,1) = gen_1;
   while ((p = u_forprime_next(&T)))
   {
     long m, pk, oldpk;
-    gel(v,p) = gpow(utor(p,prec0), B, prec);
+    if (!pow)
+      pow = gpow(utor(p,prec0), B, prec);
+    else
+    {
+      GEN t = gpow(divru(utor(p,prec0), precp), B, prec);
+      pow = gmul(pow, t); /* (p / precp)^B * precp^B */
+    }
+    precp = p;
+    gel(v,p) = pow; /* p^B */
     if (prec0 != prec) gel(v,p) = gprec_wtrunc(gel(v,p), prec);
     for (pk = p, oldpk = p; pk; oldpk = pk, pk = umuluu_le(pk,p,N))
     {
