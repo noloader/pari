@@ -362,13 +362,13 @@ in gp header.\hfil\break
 \li{$\{g(x)\colon x \in v~{\rm s.t.}~f(x)\}$}{[g(x) | x <- v, f(x)]}
 \li{$\{x\colon x \in v~{\rm s.t.}~f(x)\}$}{[x | x <- v, f(x)]}
 \li{$\{g(x)\colon x \in v\}$}{[g(x) | x <- v]}
+
 \li{row vec.\ of \expr\ eval'ed at $1\le i\le n$}{vector$(n,\{i\},\{\expr\})$}
 \li{col.\ vec.\ of \expr\ eval'ed at $1\le i\le n$}{vectorv$(n,\{i\},\{\expr\})$}
 \li{vector of small ints}{vectorsmall$(n,\{i\},\{\expr\})$}
+\newcolumn
 \li{$[c, c\cdot x, \dots, c\cdot x^n]$}{powers$(x,n,\{c = 1\})$}
 \li{$[1, 2^x, \dots, n^x]$}{dirpowers$(n,x)$}
-\newcolumn
-
 \li{matrix $1\le i\le m$, $1\le j\le n$}{matrix$(m,n,\{i\},\{j\},\{\expr\})$}
 \li{define matrix by blocks}{matconcat$(B)$}
 \li{diagonal matrix with diagonal $x$}{matdiagonal$(x)$}
@@ -426,12 +426,11 @@ in gp header.\hfil\break
 \li{find isomorphism between $q$ and $Q$}{qfisom$(q,Q)$}
 \li{precompute for isomorphism test with $q$}{qfisominit$(q)$}
 \li{automorphism group of $q$}{qfauto$(q)$}
+\copyrightnotice
+\newcolumn
 \li{convert \kbd{qfauto} for GAP/Magma}{qfautoexport$(G,\{\fl\})$}
 \li{orbits of $V$ under $G\subset \text{GL}(V)$}
    {qforbits$(G,V)$}
-
-\copyrightnotice
-\newcolumn
 
 \section{Polynomials \& Rational Functions}
 \li{all defined polynomial variables}{variables$()$}
@@ -499,12 +498,6 @@ $e$ \hfil \kbd{polinterpolate}$(x,\{y\},\{t\},\{\&e\})$\break
    {polteichmuller$(T,p,e)$}
 \li{extensions of $\QQ_p$ of degree $N$}{padicfields$(p,N)$}
 
-\subsec{Roots and Factorization (Miscellaneous)}
-\li{symmetric powers of roots of $f$ up to $n$}{polsym$(f,n)$}
-\li{Graeffe transform of $f$, $g(x^2)=f(x)f(-x)$}{polgraeffe$(f)$}
-\li{factor $f$ over coefficient field}{factor$(f)$}
-\li{cyclotomic factors of $f\in\QQ[X]$}{polcyclofactors$(f)$}
-
 \shortcopyrightnotice
 \newcolumn
 
@@ -512,6 +505,12 @@ $e$ \hfil \kbd{polinterpolate}$(x,\{y\},\{t\},\{\&e\})$\break
 
 \centerline{(PARI-GP version \PARIversion)}
 \bigskip
+
+\subsec{Roots and Factorization (Miscellaneous)}
+\li{symmetric powers of roots of $f$ up to $n$}{polsym$(f,n)$}
+\li{Graeffe transform of $f$, $g(x^2)=f(x)f(-x)$}{polgraeffe$(f)$}
+\li{factor $f$ over coefficient field}{factor$(f)$}
+\li{cyclotomic factors of $f\in\QQ[X]$}{polcyclofactors$(f)$}
 
 \section{Finite Fields}
 A finite field is encoded by any element (\typ{FFELT}).\hfil\break
@@ -557,12 +556,14 @@ A finite field is encoded by any element (\typ{FFELT}).\hfil\break
    {gamma{\rm, }lngamma{\rm, }psi}
 \li{half-integer gamma function $\Gamma(n+1/2)$}{gammah$(n)$}
 \li{Riemann's zeta $\zeta(s)=\sum n^{-s}$}{zeta$(s)$}
+\li{$\sum_{n \le N} n^s$}{dirpowerssum$(N,s)$}
 \li{Hurwitz's $\zeta(s,x)=\sum (n+x)^{-s}$}{zetahurwitz$(s,x)$}
 \li{multiple zeta value (MZV), $\zeta(s_1,\dots,s_k)$}{zetamult$(s,\{T\})$}
 \li{all MZVs for weight $\sum s_i = n$}{zetamultall$(n)$}
 \li{convert MZV id to $[s_1,\dots,s_k]$}{zetamultconvert$(f,\{\fl\})$}
 \li{MZV dual sequence}{zetamultdual$(s)$}
 \li{multiple polylog $Li_{s_1,\dots s_k}(z_1,\dots,z_k)$}{polylogmult$(s,z)$}
+\newcolumn
 \li{incomplete $\Gamma$ function ($y=\Gamma(s)$)}{incgam$(s,x,\{y\})$}
 \li{complementary incomplete $\Gamma$}{incgamc$(s,x)$}
 \li{$\int_x^\infty e^{-t}\,dt/t$,\quad $(2/\sqrt\pi)\int_x^\infty e^{-t^2}dt$}
@@ -571,7 +572,6 @@ A finite field is encoded by any element (\typ{FFELT}).\hfil\break
 \li{dilogarithm of $x$}{dilog$(x)$}
 \li{$m$-th polylogarithm of $x$}{polylog$(m,x,\{\fl\})$}
 \li{$U$-confluent hypergeometric function}{hyperu$(a,b,u)$}
-\newcolumn
 \li{Hypergeometric $_pF_q(A,B;z)$}{hypergeom$(A, B, z)$}
 \li{Bessel $J_n(x)$, $J_{n+1/2}(x)$}{besselj$(n,x)$, besseljh$(n,x)$}
 \li{Bessel $I_\nu$, $K_\nu$, $H^1_\nu$, $H^2_\nu$, $Y_\nu$}
@@ -626,8 +626,7 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{product over primes $a\le X\le b$}{prodeuler$(X=a,b,\expr)$}
 \li{infinite product $a\le X\le\infty$}{prodinf$(X=a,\expr)$}
 \li{$\prod_{n\geq a} F(n)$, $F$ rational function}{prodnumrat$(F,a)$}
-\li{\dots $\prod_{p\geq a} F(p^s)$}
-   {prodeulerrat$(F,\{s=1\},\{a=2\})$}
+\li{$\prod_{p\geq a} F(p^s)$}{prodeulerrat$(F,\{s=1\},\{a=2\})$}
 
 \subsec{Other numerical methods}
 \li{real root of $f$ in $[a,b]$; bracketed root}{solve$(X=a,b,f)$}
@@ -685,26 +684,27 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \subsec{Combinatorics}
 \li{factorial of $x$}{$x$!~{\rm or} factorial$(x)$}
 \li{binomial coefficient $x\choose k$}{binomial$(x,\{k\})$}
+
 \li{Bernoulli number $B_n$ as real/rational}{bernreal$(n)${\rm, }bernfrac}
 \li{$[B_0,B_2,\dots B_{2k}]$}{bernvec$(k)$}
 \li{Bernoulli polynomial $B_n(x)$}{bernpol$(n,\{x\})$}
 \li{Euler numbers}{eulerfrac{\rm, }eulervec}
 \li{Euler polynomials $E_n(x)$}{eulerpol$(n,\{x\})$}
 \li{Eulerian polynomials $A_n(x)$}{eulerianpol}
+
 \li{Fibonacci number $F_n$}{fibonacci$(n)$}
 \li{Stirling numbers $s(n,k)$ and $S(n,k)$}{stirling$(n,k,\{\fl\})$}
-\li{number of partitions of $n$}{numbpart$(n)$}
-\li{$k$-th permutation on $n$ letters}{numtoperm$(n,k)$}
-\li{\dots index $k$ of permutation $v$}{permtonum$(v)$}
-\li{order of permutation $p$}{permorder$(p)$}
-\li{signature of permutation $p$}{permsign$(p)$}
 \newcolumn
 
 \title{\TITLE}
 
 \centerline{(PARI-GP version \PARIversion)}
 \bigskip
-
+\li{number of partitions of $n$}{numbpart$(n)$}
+\li{$k$-th permutation on $n$ letters}{numtoperm$(n,k)$}
+\li{\dots index $k$ of permutation $v$}{permtonum$(v)$}
+\li{order of permutation $p$}{permorder$(p)$}
+\li{signature of permutation $p$}{permsign$(p)$}
 
 \subsec{Multiplicative groups $(\ZZ/N\ZZ)^*$, $\FF_q^*$}
 \li{Euler $\phi$-function}{eulerphi$(x)$}
