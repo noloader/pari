@@ -376,7 +376,7 @@ smallfact(ulong n, GEN P, ulong sq, GEN V)
 GEN
 dirpowerssum(ulong N, GEN s, long prec)
 {
-  const ulong step = 1024;
+  const ulong step = 2048;
   pari_sp av = avma, av2;
   GEN P, V, W, F, c2, c3, c6, c12, c123, c1234, tmp, S;
   forprime_t T;
