@@ -10,6 +10,9 @@
 1
 1
 -1
+1
+-1
+1
 [1, 2]: 1
 [1, 3]: 1
 [1, 4]: error("precision too low in hilbert.")
@@ -104,4 +107,4 @@ p = 5:
 -1
 -1
 1
-Total time spent: 344
+Total time spent: 173

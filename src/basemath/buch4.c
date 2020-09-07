@@ -411,7 +411,7 @@ static long
 nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
 {
   GEN t;
-  long va, vb, rep;
+  long va, vb;
   pari_sp av = avma;
 
   if (absequaliu(pr_get_p(pr), 2)) return hilb2nf(nf,a,b,pr);
@@ -423,23 +423,19 @@ nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
   /* Trick: pretend the exponent is 2, result is OK up to squares ! */
   t = famat_makecoprime(nf, mkvec2(a,b), mkvec2s(vb, -va),
                         pr, pr_hnf(nf, pr), gen_2);
-  if (typ(t) == t_INT) {
-    if (odd(va) && odd(vb)) t = negi(t);
-    /* t = (-1)^(v(a)v(b)) a^v(b) b^(-v(a)) */
-    rep = Z_quad_char(t, pr);
+  /* quad. symbol is image of t = (-1)^(v(a)v(b)) a^v(b) b^(-v(a))
+   * by the quadratic character  */
+  switch(typ(t))
+  {
+    default: /* t_COL */
+      if (!ZV_isscalar(t)) break;
+      t = gel(t,1); /* fall through */
+    case t_INT:
+      if (odd(va) && odd(vb)) t = negi(t);
+      return gc_long(av,  Z_quad_char(t, pr));
   }
-  else if (ZV_isscalar(t)) {
-    t = gel(t,1);
-    if (odd(va) && odd(vb)) t = negi(t);
-    /* t = (-1)^(v(a)v(b)) a^v(b) b^(-v(a)) */
-    rep = Z_quad_char(t, pr);
-  } else {
-    if (odd(va) && odd(vb)) t = ZC_neg(t);
-    /* t = (-1)^(v(a)v(b)) a^v(b) b^(-v(a)) */
-    rep = quad_char(nf, t, pr);
-  }
-  /* quad. symbol is image of t by the quadratic character  */
-  return gc_long(av,rep);
+  if (odd(va) && odd(vb)) t = ZC_neg(t);
+  return gc_long(av, quad_char(nf, t, pr));
 }
 
 /* Global quadratic Hilbert symbol (a,b):

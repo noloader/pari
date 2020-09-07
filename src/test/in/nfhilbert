@@ -24,6 +24,10 @@ nfhilbert(nf,[3,0]~,[3,0]~,idealprimedec(nf,2)[1])
 K = nfinit(x^5-23);
 p = idealprimedec(K, 2)[1];
 nfhilbert(K,x,-x^2-5*x,p)
+q = idealprimedec(K, 3)[2];
+nfhilbert(K,x^4-x^3+x^2-x+1,24*x^3+24*x^2+48,q) \\ t = [1,0,...,0]~ in nfhilbertp
+nfhilbert(K,-x,-x^2)
+nfhilbert(K,1,x^2)
 
 K = nfinit(x^8 + 2*x^7 + 3*x^6 + 3*x^4 + 3*x^2 + 2*x + 3);
 p = idealprimedec(K, 2)[1];
