@@ -333,4 +333,25 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfunorderzero([errG,[[1,8]~,[1,2]~]])
   ***                 ^-------------------------------------
   *** lfunorderzero: incorrect type in lfunorderzero [vector-valued] (t_VEC).
-Total time spent: 6593
+  ***   at top-level: ...z)->1,1],0,[0],1,1,1,1]);lfunan(L,5)
+  ***                                             ^-----------
+  *** lfunan: incorrect type in vecan_closure (t_VEC).
+  ***   at top-level: ...->1,[1]],0,[0],1,1,1,1]);lfunan(L,5)
+  ***                                             ^-----------
+  *** lfunan: incorrect type in vecan_closure [wrong arity] (t_CLOSURE).
+  ***   at top-level: ...->1,[1]],0,[0],1,1,1,1]);lfunan(L,5)
+  ***                                             ^-----------
+  *** lfunan: incorrect type in vecan_closure (t_INT).
+  ***   at top-level: ...1,[2,3]],0,[0],1,1,1,1]);lfunan(L,5)
+  ***                                             ^-----------
+  *** lfunan: incorrect type in direuler [bad primes] (t_INT).
+  ***   at top-level: ...[[2,3]]],0,[0],1,1,1,1]);lfunan(L,5)
+  ***                                             ^-----------
+  *** lfunan: domain error in direuler: constant term != 1
+  ***   at top-level: ...["",3]]],0,[0],1,1,1,1]);lfunan(L,5)
+  ***                                             ^-----------
+  *** lfunan: incorrect type in gtou [integer >=0 expected] (t_STR).
+  ***   at top-level: ...[2,""]]],0,[0],1,1,1,1]);lfunan(L,5)
+  ***                                             ^-----------
+  *** lfunan: incorrect type in direuler (t_STR).
+Total time spent: 8269
