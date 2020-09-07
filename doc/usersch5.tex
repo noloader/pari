@@ -8078,6 +8078,16 @@ For all squarefree $c$, $a\leq c\leq b$, the prime divisors of $c$ (as a
 \kbd{GEN}, it is not memory clean and cannot be used in garbage collection
 routines.
 
+\fun{GEN}{vecfactorsquarefreeu_coprime}{ulong a, ulong b, GEN P}
+given a \emph{sorted} \typ{VECSMALL} of primes $P$, return a \typ{VEC} $v$
+containing the prime divisors of squarefree integers in $a,\dots,b$ coprime to
+the elements of $P$; assume that $a \leq b$. Uses a sieve with primes up to
+$\sqrt{b}$. For all squarefree $c$, $a\leq c\leq b$, the prime divisors of $c$
+(as a \typ{VECSMALL}) are given in $v[c-a+1]$, and the other entries are
+\kbd{NULL}. Note that because of these \kbd{NULL} markers, $v$ is not a valid
+\kbd{GEN}, it is not memory clean and cannot be used in garbage collection
+routines.
+
 \fun{GEN}{vecsquarefreeu}{ulong a, ulong b} return a \typ{VECSMALL} $v$
 containing the squarefree integers in $a,\dots,b$. Assume that
 $a\leq b$. Uses a sieve with primes up to $\sqrt{b}$.

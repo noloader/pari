@@ -327,6 +327,7 @@ BA 110- [libpari] FpX_FpXV_multirem, FpXV_chinese
 BA 111- galoisinit: support for group (3x3):4 (GAP4(36,9))
 BA 112- [libpari] minim_zm
    113- new GP function dirpowerssum
+   114- [libpari] vecfactorsquarefreeu_coprime
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
