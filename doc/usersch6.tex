@@ -684,6 +684,16 @@ it will return them in algebraic form. If \kbd{pL} is not \kbd{NULL},
 argument is a true \var{nf} (e.g.~a \var{bnf} is not allowed) and their
 argument are restricted in various ways, see the precise description below.
 
+\fun{GEN}{nfX_disc}{GEN nf, GEN A} given an \var{nf} structure attached to a
+number field $K$ with main variable $Y$ (\kbd{nf\_get\_varn(nf)}), a \typ{POL}
+$A \in K[X]$ given as a lift in $\Q[X,Y]$ (implicitly modulo
+\kbd{nf\_get\_pol(nf)}, return the discriminant of $A$ as a \typ{POL} in
+$\Q[Y]$ (representing an element of $K$).
+
+\fun{GEN}{nfX_resultant}{GEN nf, GEN A, GEN B} analogous to \kbd{nfX\_disc},
+$A, B\in \Q[X,Y]$; return the resultant of $A$ and $B$ with respect to $X$
+as a \typ{POL} in $\Q[Y]$ (representing an element of $K$).
+
 \fun{GEN}{nfinvmodideal}{GEN nf, GEN x, GEN A} given an algebraic integer
 $x$ and a non-zero integral ideal $A$ in HNF, returns a $y$ such that
 $xy \equiv 1$ modulo $A$.
