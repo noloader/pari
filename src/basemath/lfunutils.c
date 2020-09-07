@@ -122,7 +122,7 @@ lfunconj(GEN a1)
 { return tag(mkvec(a1), t_LFUN_CONJ); }
 
 static GEN
-lfuncombdual(GEN fun(GEN, GEN), GEN ldata1, GEN ldata2)
+lfuncombdual(GEN (*fun)(GEN, GEN), GEN ldata1, GEN ldata2)
 {
   GEN a1 = ldata_get_an(ldata1), a2 = ldata_get_an(ldata2);
   GEN b1 = ldata_get_dual(ldata1), b2 = ldata_get_dual(ldata2);
