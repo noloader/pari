@@ -847,6 +847,7 @@ compute_polrel(struct rnfkummer *kum, GEN be)
     }
     gel(root, 2 + r[i+1]) = t; /* root += D * (z_ell*T)^{r_i} be^mu_i */
   }
+  root = ZXX_renormalize(root, ell+2);
   /* Other roots are as above with z_ell -> z_ell^j.
    * Treat all contents (C_*) and principal parts (prim_*) separately */
   prim_root = Q_primitive_part(root, &C_root);
