@@ -1,5 +1,5 @@
 Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
-Done for version 2.12.1 (released ??/??/2019):
+Done for version 2.12.1 (released 14/09/2020):
   Fixed
 BA   1- plotlines flag was ignored
      2- fileopen(,"w" or "a") was bypassing the check for 'secure' default
