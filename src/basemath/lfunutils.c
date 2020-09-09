@@ -419,7 +419,7 @@ lfunshift(GEN ldata, GEN s, long flag, long bitprec)
   GEN k, k1, L, N, a, b, gam, eps, res;
   long prec = nbits2prec(bitprec);
   if (!is_rational_t(typ(s))) pari_err_TYPE("lfunshift",s);
-  ldata = lfunmisc_to_ldata_shallow(ldata);
+  ldata = ldata_newprec(lfunmisc_to_ldata_shallow(ldata), prec);
   a = ldata_get_an(ldata);
   b = ldata_get_dual(ldata);
   gam = RgV_Rg_translate(ldata_get_gammavec(ldata), gneg(s));
