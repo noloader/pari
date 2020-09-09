@@ -1,7 +1,7 @@
 Function: lfuntwist
 Section: l_functions
 C-Name: lfuntwist
-Prototype: GG
+Prototype: GGb
 Help: lfuntwist(L,chi): creates the Ldata structure (without
  initialization) corresponding to the twist of L by the primitive character
  attached to the Dirichlet L-function chi. This requires that the conductor

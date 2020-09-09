@@ -3147,7 +3147,7 @@ ell_get_Cw(GEN LE, GEN W, GEN xpm, long s)
       S = seval(G, chi, vx);
       if (!S) { set_avma(av2); continue; }
 
-      L = lfuntwist(LE, mkvec2(G, zncharconj(G,chi)));
+      L = lfuntwist(LE, mkvec2(G, zncharconj(G,chi)), bit);
       z = lfun(L, gen_1, bit);
       tau = znchargauss(G, chi, gen_1, bit);
       return gdiv(gmul(z, tau), S); /* C * w */
