@@ -443,3 +443,9 @@ L=lfuncreate([[(x,y)->1,[2,3]],0,[0],1,1,1,1]); lfunan(L,5)
 L=lfuncreate([[(x,y)->1,[[2,3]]],0,[0],1,1,1,1]); lfunan(L,5)
 L=lfuncreate([[(x,y)->1,[["",3]]],0,[0],1,1,1,1]); lfunan(L,5)
 L=lfuncreate([[(x,y)->1,[[2,""]]],0,[0],1,1,1,1]); lfunan(L,5)
+
+L=lfuncreate(()->x^2-3);
+lfuncheckfeq(L)
+lfuncheckfeq(lfunmul(L,L))
+lfuncheckfeq(lfunmul(L,1))
+lfuncheckfeq(lfundiv(L,1))

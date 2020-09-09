@@ -238,8 +238,9 @@ lfunmul(GEN ldata1, GEN ldata2, long bitprec)
 {
   pari_sp ltop = avma;
   GEN k;
-  ldata1 = lfunmisc_to_ldata_shallow(ldata1);
-  ldata2 = lfunmisc_to_ldata_shallow(ldata2);
+  long prec = nbits2prec(bitprec);
+  ldata1 = ldata_newprec(lfunmisc_to_ldata_shallow(ldata1), prec);
+  ldata2 = ldata_newprec(lfunmisc_to_ldata_shallow(ldata2), prec);
   k = ldata_get_k(ldata1);
   if (!gequal(ldata_get_k(ldata2),k))
     pari_err_OP("lfunmul [weight]",ldata1, ldata2);
@@ -275,8 +276,9 @@ lfundiv(GEN ldata1, GEN ldata2, long bitprec)
   pari_sp ltop = avma;
   GEN k, r, N, v, v1, v2, eno, a1a2, b1b2, LD, eno2;
   long j, j1, j2, l1, l2;
-  ldata1 = lfunmisc_to_ldata_shallow(ldata1);
-  ldata2 = lfunmisc_to_ldata_shallow(ldata2);
+  long prec = nbits2prec(bitprec);
+  ldata1 = ldata_newprec(lfunmisc_to_ldata_shallow(ldata1), prec);
+  ldata2 = ldata_newprec(lfunmisc_to_ldata_shallow(ldata2), prec);
   k = ldata_get_k(ldata1);
   if (!gequal(ldata_get_k(ldata2),k))
     pari_err_OP("lfundiv [weight]",ldata1, ldata2);
