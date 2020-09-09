@@ -6208,11 +6208,22 @@ char_normalize_zv(GEN chi, GEN ncyc)
 
 static GEN
 dihan_bnf(long D)
-{ setrand(gen_1); return Buchall(quadpoly(stoi(D)), 0, LOWDEFAULTPREC); }
+{
+  GEN c = getrand(), bnf;
+  setrand(gen_1);
+  bnf = Buchall(quadpoly(stoi(D)), 0, LOWDEFAULTPREC);
+  setrand(c);
+  return bnf;
+}
 static GEN
 dihan_bnr(GEN bnf, GEN A)
-{ setrand(gen_1); return Buchray(bnf, A, nf_INIT|nf_GEN); }
-
+{
+  GEN c = getrand(), bnr;
+  setrand(gen_1);
+  bnr = Buchray(bnf, A, nf_INIT|nf_GEN);
+  setrand(c);
+  return bnr;
+}
 /* Hecke xi * (D/.) = Dirichlet chi, return v in Q^r st chi(g_i) = e(v[i]).
  * cycn = cyc_normalize_zv(bnr.cyc), chin = char_normalize_zv(chi,cyc) */
 static GEN

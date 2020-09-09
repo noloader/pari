@@ -680,6 +680,7 @@ ecpp_step2_worker(GEN S, GEN HD, GEN primelist)
   long D = Dinfo_get_D(Dinfo), inv = Dinfo_get_bi(Dinfo);
   GEN Dfacp = Dfac_to_p(Dinfo_get_Dfac(Dinfo), primelist);
   long C2 = 0, C3 = 0, D1 = 0;
+  GEN c = getrand();
   setrand(gen_1); /* for reproducibility */
   /* C2: Find a root modulo N of polclass(D,inv) */
   dbg_mode() timer_start(&ti);
@@ -696,6 +697,7 @@ ecpp_step2_worker(GEN S, GEN HD, GEN primelist)
   /* D2: Compute for t and s */
   t = subii(addiu(N, 1), m); /* t = N+1-m */
   res = mkvec2(mkvec5(N, t, s, gel(EP,1), gel(EP,2)),mkvecsmall3(C2,C3,D1));
+  setrand(c);
   return gerepilecopy(av, res);
 }
 
