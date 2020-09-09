@@ -603,6 +603,9 @@ matrix(0,2)
 
 [3 1]
 
+
+[1 1]
+
   ***   at top-level: 1/Mat([0,0]~)
   ***                  ^------------
   *** _/_: impossible inverse in ginv: 0.
@@ -657,4 +660,4 @@ matrix(0,2)
   ***   at top-level: matreduce([1,x;1,y])
   ***                 ^--------------------
   *** matreduce: incorrect type in matreduce (t_MAT).
-Total time spent: 821
+Total time spent: 826
