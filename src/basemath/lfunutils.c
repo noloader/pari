@@ -342,13 +342,14 @@ gamma_imagchi(GEN gam, GEN w)
 }
 
 GEN
-lfuntwist(GEN ldata1, GEN chi)
+lfuntwist(GEN ldata1, GEN chi, long bitprec)
 {
   pari_sp ltop = avma;
   GEN k, L, N, N1, N2, a, a1, a2, b, b1, b2, gam, gam1, gam2;
   GEN ldata2;
   long d1, t;
-  ldata1 = lfunmisc_to_ldata_shallow(ldata1);
+  long prec = nbits2prec(bitprec);
+  ldata1 = ldata_newprec(lfunmisc_to_ldata_shallow(ldata1), prec);
   ldata2 = lfunmisc_to_ldata_shallow(chi);
   t = ldata_get_type(ldata2);
   a1 = ldata_get_an(ldata1);
