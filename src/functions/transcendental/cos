@@ -2,5 +2,9 @@ Function: cos
 Section: transcendental
 C-Name: gcos
 Prototype: Gp
+Description:
+ (real):real         mpcos($1)
+ (mp):real:prec      gcos($1, $prec)
+ (gen):gen:prec      gcos($1, $prec)
 Help: cos(x): cosine of x.
 Doc: cosine of $x$.

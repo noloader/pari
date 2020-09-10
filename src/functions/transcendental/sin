@@ -2,5 +2,9 @@ Function: sin
 Section: transcendental
 C-Name: gsin
 Prototype: Gp
+Description:
+ (real):real         mpsin($1)
+ (mp):real:prec      gsin($1, $prec)
+ (gen):gen:prec      gsin($1, $prec)
 Help: sin(x): sine of x.
 Doc: sine of $x$.
