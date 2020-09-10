@@ -2842,8 +2842,8 @@ gmulsg(long s, GEN y)
 
   switch(typ(y))
   {
-    case t_INT:  return s? mulsi(s,y): gen_0; /* gmul semantic */
-    case t_REAL: return s? mulsr(s,y): gen_0;
+    case t_INT:  return mulsi(s,y);
+    case t_REAL: return s? mulsr(s,y): gen_0; /* gmul semantic */
     case t_INTMOD: { GEN p = gel(y,1);
       z = cgetg(3,t_INTMOD);
       gel(z,2) = gerepileuptoint((pari_sp)z, modii(mulsi(s,gel(y,2)), p));
