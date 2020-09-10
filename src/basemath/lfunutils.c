@@ -385,7 +385,7 @@ lfuntwist(GEN ldata1, GEN chi, long bitprec)
 }
 
 static GEN
-lfundualpoles(GEN ldata, GEN reno, long bitprec)
+lfundualpoles(GEN ldata, GEN reno)
 {
   long l, j;
   GEN k = ldata_get_k(ldata);
@@ -429,7 +429,7 @@ lfundual(GEN L, long bitprec)
   {
     GEN reno = lfunrootres(ldata, bitprec);
     e = gel(reno,3);
-    Rd = lfundualpoles(ldata, reno, bitprec);
+    Rd = lfundualpoles(ldata, reno);
   }
   ed = isintzero(e) ? e: ginvvec(e);
   ldual = mkvecn(Rd ? 7:6, ad, bd, gel(ldata,3), gel(ldata,4), gel(ldata,5), ed, Rd);
