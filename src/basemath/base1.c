@@ -1667,6 +1667,7 @@ nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
   gel(nf,3) = S->dK;
   gel(nf,4) = S->index;
   gel(nf,5) = mat;
+  if (gprecision(gel(F.ro,1)) > prec) F.ro = gprec_wtrunc(F.ro, prec);
   gel(nf,6) = F.ro;
   w = S->basis;
   if (!is_pm1(S->index)) w = Q_remove_denom(w, NULL);
