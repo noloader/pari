@@ -11,4 +11,4 @@ for(i=1,2*10^6,)
 t3=gettime();
 abs(t2+t3 - (getabstime() - T)) < 5
 [a,b] = %#5;
-abs(a - (T2-T)) < 2 && abs(b - (T2-T)) < 2
+abs(a - (T2-T)) < 2 && abs(b - (T2-T)) < 5
