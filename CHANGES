@@ -120,7 +120,8 @@ DJ  91- sqrtn(Mod(13,112),6) -> o loop [instead of 'bad input' error]
         #thue(x^2+1,500009*500029* 360000000029* 2^100) -> 0 [instead of 32]
     94- factor(257377849,100) -> [61,2; 69169,1] instead of  [61,2; 263,2]
     95- addprimes() creates issues with nffactor [wrong results].
-    96- gmulsg(0, t_REAL) followed mulsr semantic (t_REAL) instead of gmul's (t_INT)
+    96- gmulsg(0, t_REAL) followed mulsr semantic (t_REAL) instead of gmul's
+       (t_INT). Analogous problem for gmulsg(0, t_COMPLEX)
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

@@ -2867,7 +2867,9 @@ gmulsg(long s, GEN y)
       }
       return z;
 
-    case t_COMPLEX: z = cgetg(3, t_COMPLEX);
+    case t_COMPLEX:
+      if (!s) return gen_0;
+      z = cgetg(3, t_COMPLEX);
       gel(z,1) = gmulsg(s,gel(y,1));
       gel(z,2) = gmulsg(s,gel(y,2)); return z;
 
