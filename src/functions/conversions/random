@@ -8,6 +8,7 @@ Help: random({N=2^31}): random object, depending on the type of N.
  field).
 Description:
  (?int):int    genrand($1)
+ (real):real   genrand($1)
  (gen):gen     genrand($1)
 Doc:
  returns a random element in various natural sets depending on the
