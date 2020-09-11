@@ -4105,12 +4105,14 @@ START:
         long add = nbits2extraprec( gexpo(AU) + 64 ) - gprecision(AU);
         precpb = "cleanarch"; PREC += maxss(add, 1); continue;
       }
-      /* last check: recompute directly the regulator from A */
-      R2 = det(real_i(rowsplice(AU,1))); setsigne(R2,1);
-      if (gexpo(gsub(R,R2)) - gexpo(R) > -20)
-      {
-        if ((precdouble&7) == 7 && LIMC<=LIMCMAX/6) goto START;
-        precpb = "compute_R2"; PREC = precdbl(PREC);
+      if (lg(A) > 1)
+      { /* last check: recompute directly the regulator from A */
+        R2 = det(real_i(rowsplice(AU,1))); setsigne(R2,1);
+        if (gexpo(gsub(R,R2)) - gexpo(R) > -20)
+        {
+          if ((precdouble&7) == 7 && LIMC<=LIMCMAX/6) goto START;
+          precpb = "compute_R2"; PREC = precdbl(PREC);
+        }
       }
       if (flag)
       {
