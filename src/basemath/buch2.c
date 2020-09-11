@@ -3021,7 +3021,7 @@ compute_R(GEN Ar, GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
       return fupb_PRECI;
     }
   }
-  H = ZM_hnflll(L,&U,1); r = lg(H)-1;
+  H = ZM_hnf(L); r = lg(H)-1;
   if (!r || r != nbrows(H))
     R = gen_0; /* wrong rank */
   else
@@ -3034,7 +3034,8 @@ compute_R(GEN Ar, GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
   c = gmul(R,z); /* should be n (= 1 if we are done) */
   if (DEBUGLEVEL) err_printf("\n#### Tentative regulator: %.28Pg\n", R);
   if ((reason = bad_check(c))) return gc_long(av, reason);
-  /* one final check: comppute directly the regulator from A */
+  /* one final check: compute directly the regulator from A */
+  H = ZM_hnflll(L,&U,1); /* if r1+r2 large, computing U is expensive */
   A = RgM_mul(Ar, vecslice(U,lg(U)-r, lg(U)-1));
   /* could loop over the r possibilities */
   R2 = det(rowsplice(A,1)); setsigne(R2,1);
