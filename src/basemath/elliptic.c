@@ -4985,14 +4985,13 @@ static GEN
 ellnfembed(GEN E, long prec)
 {
   GEN E0, nf = ellnf_get_nf(E), Eb = cgetg(6,t_VEC), e = cgetg(6,t_VEC), L, sD;
-  long prec0 = prec, r1, r2, n, i;
+  long prec0 = prec, pp, r1, r2, n, i;
 
   nf_get_sign(nf, &r1, &r2); n = r1+r2;
   E0 = RgC_to_nfC(nf, vecslice(E,1,5));
-  prec += nfembed_extraprec(E0);
+  pp = nfembed_extraprec(E0); prec += pp;
   /* need accuracy 3b for bmodel to ensure roots are correct to b bits */
-  prec0 = prec;
-  prec += (prec-2)*3 + nfembed_extraprec(E0);
+  prec0 = prec; prec += (prec-2)*3 + pp;
   L =  cgetg(n+1, t_VEC);
   sD = nfeltsign(nf, ell_get_disc(E), identity_perm(r1));
   for(;;)
