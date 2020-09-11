@@ -206,7 +206,7 @@ invcmp(void *E, GEN x, GEN y) { (void)E; return -gcmp(x,y); }
 static GEN
 doellR_roots_i(GEN e, long prec, long prec0)
 {
-  GEN d1, d2, d3, e1, e2, e3, R = roots(ec_bmodel(e), prec);
+  GEN d1, d2, d3, e1, e2, e3, R = cleanroots(ec_bmodel(e), prec);
   long s = ellR_get_sign(e);
   if (s > 0)
   { /* sort 3 real roots in decreasing order */
