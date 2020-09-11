@@ -530,7 +530,7 @@ _puts_log(const char *s)
   FILE *f = pari_logfile;
   const char *p;
   if (!f) return;
-  if (logstyle != logstyle_color)
+  if (pari_logstyle != logstyle_color)
     while ( (p = strchr(s, '\x1b')) )
     { /* skip ANSI color escape sequence */
       if ( p!=s ) fwrite(s, 1, p-s, f);

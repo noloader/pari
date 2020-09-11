@@ -93,7 +93,7 @@ ulong   DEBUGFILES, DEBUGLEVEL, DEBUGMEM;
 long    DEBUGVAR;
 ulong   pari_mt_nbthreads;
 long    precreal;
-ulong   precdl, logstyle;
+ulong   precdl, pari_logstyle;
 gp_data *GP_DATA;
 
 entree  **varentries;
@@ -791,7 +791,7 @@ pari_init_defaults(void)
   DEBUGFILES = DEBUGLEVEL = 0;
   DEBUGMEM = 1;
   disable_color = 1;
-  logstyle = logstyle_none;
+  pari_logstyle = logstyle_none;
 
   current_psfile = pari_strdup("pari.ps");
   current_logfile= pari_strdup("pari.log");

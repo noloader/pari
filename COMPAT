@@ -76,6 +76,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - ZM_lll / ZM_lll_norms: flags LLL_INPLACE and LLL_GRAM are now incompatible
     (reducing a Gram matrix in place without returning the base change
     matrix is not useful; supporting it would complicate the code)
+  - the global C variable logstyle was renamed to pari_logstyle
 
 * Specific to the pthread interface
 ===================================

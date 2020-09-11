@@ -1118,7 +1118,7 @@ update_logfile(const char *prompt, const char *s)
   av = avma;
   p = strip_prompt(prompt); /* raw prompt */
 
-  switch (logstyle) {
+  switch (pari_logstyle) {
     case logstyle_TeX:
       fprintf(pari_logfile,
               "\\PARIpromptSTART|%s\\PARIpromptEND|%s\\PARIinputEND|%%\n",
@@ -1411,7 +1411,7 @@ tex2mail_output(GEN z, long n)
         fprintf(out, "\\%%%ld = ", n);
     }
     if (log) {
-      switch (logstyle) {
+      switch (pari_logstyle) {
       case logstyle_plain:
         fprintf(log, "%%%ld = ", n);
         break;
@@ -1430,7 +1430,7 @@ tex2mail_output(GEN z, long n)
   /* flush and restore, output to logfile */
   prettyp_wait(out);
   if (log) {
-    if (logstyle == logstyle_TeX) {
+    if (pari_logstyle == logstyle_TeX) {
       T.TeXstyle |= TEXSTYLE_BREAK;
       fputGEN_pariout(z, &T, log);
       fputc('%', log);

@@ -355,9 +355,9 @@ extern gp_data *GP_DATA;
 
 extern PariOUT *pariOut, *pariErr;
 extern FILE    *pari_outfile, *pari_logfile, *pari_infile, *pari_errfile;
-extern ulong    logstyle;
+extern ulong    pari_logstyle;
 
-enum logstyles {
+enum pari_logstyles {
     logstyle_none,        /* 0 */
     logstyle_plain,        /* 1 */
     logstyle_color,        /* 2 */
