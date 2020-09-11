@@ -2988,7 +2988,7 @@ compute_R(GEN Ar, GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
 {
   pari_sp av = avma;
   long r, reason, RU = lg(lambda) == 1? 1: lgcols(lambda);
-  GEN A, L, H, D, den, R, R2, U, c;
+  GEN L, H, D, den, R, c;
 
   *ptL = NULL;
   if (DEBUGLEVEL) err_printf("\n#### Computing check\n");
@@ -3034,12 +3034,6 @@ compute_R(GEN Ar, GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
   c = gmul(R,z); /* should be n (= 1 if we are done) */
   if (DEBUGLEVEL) err_printf("\n#### Tentative regulator: %.28Pg\n", R);
   if ((reason = bad_check(c))) return gc_long(av, reason);
-  /* one final check: compute directly the regulator from A */
-  H = ZM_hnflll(L,&U,1); /* if r1+r2 large, computing U is expensive */
-  A = RgM_mul(Ar, vecslice(U,lg(U)-r, lg(U)-1));
-  /* could loop over the r possibilities */
-  R2 = det(rowsplice(A,1)); setsigne(R2,1);
-  if (gexpo(gsub(R,R2)) - gexpo(R) > -20) return gc_long(av, fupb_PRECI);
   *ptkR = R; *ptL = L; return fupb_NONE;
 }
 static GEN
@@ -4098,12 +4092,11 @@ START:
 
     /* fundamental units */
     {
-      GEN AU, CU, U, H, v = extract_full_lattice(L); /* L may be very large */
+      GEN R2, AU, CU, U, v = extract_full_lattice(L); /* L may be very large */
       CU = NULL;
       if (v) { A = vecpermute(A, v); L = vecpermute(L, v); }
       /* arch. components of fund. units */
-      H = ZM_hnflll(L, &U, 1); U = vecslice(U, lg(U)-(RU-1), lg(U)-1);
-      U = ZM_mul(U, ZM_lll(H, 0.99, LLL_IM));
+      U = ZM_lll(L, 0.99, LLL_IM);
       AU = RgM_mul(A, U);
       A = cleanarch(AU, N, PREC);
       if (DEBUGLEVEL) timer_printf(&T, "units LLL + cleanarch");
@@ -4111,6 +4104,13 @@ START:
       {
         long add = nbits2extraprec( gexpo(AU) + 64 ) - gprecision(AU);
         precpb = "cleanarch"; PREC += maxss(add, 1); continue;
+      }
+      /* last check: recompute directly the regulator from A */
+      R2 = det(real_i(rowsplice(AU,1))); setsigne(R2,1);
+      if (gexpo(gsub(R,R2)) - gexpo(R) > -20)
+      {
+        if ((precdouble&7) == 7 && LIMC<=LIMCMAX/6) goto START;
+        precpb = "compute_R2"; PREC = precdbl(PREC);
       }
       if (flag)
       {
