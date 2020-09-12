@@ -223,9 +223,11 @@ doellR_roots_i(GEN e, long prec, long prec0)
     { /* make sure e1 is real, imag(e2) > 0 and imag(e3) < 0 */
       e1 = real_i(e1);
       if (signe(gel(e2,2)) < 0) swap(e2, e3);
+      d1 = mkcomplex(gen_0, gsub(gel(e2,2),gel(e3,2)));
     }
+    else
+      d1 = gsub(e2,e3);
     d3 = gsub(e1,e2);
-    d1 = gsub(e2,e3);
     d2 = gsub(e1,e3);
     if (precision(d1) < prec0
         || precision(d2) < prec0
@@ -2158,7 +2160,7 @@ static GEN
 ellomega_cx(GEN E, long prec)
 {
   pari_sp av = avma;
-  GEN roots = ellR_roots(E,prec);
+  GEN roots = ellR_roots(E, prec + EXTRAPRECWORD);
   GEN d1=gel(roots,4), d2=gel(roots,5), d3=gel(roots,6);
   GEN a = gsqrt(d3,prec), b = gsqrt(d1,prec), c = gsqrt(d2,prec);
   return gerepileupto(av, ellomega_agm(a,b,c,prec));
@@ -2173,7 +2175,7 @@ doellR_omega(GEN E, long prec)
   pari_sp av = avma;
   GEN roots, d2, z, a, b, c;
   if (ellR_get_sign(E) >= 0) return ellomega_cx(E,prec);
-  roots = ellR_roots(E,prec);
+  roots = ellR_roots(E,prec + EXTRAPRECWORD);
   d2 = gel(roots,5);
   z = gsqrt(d2,prec); /* imag(e1-e3) > 0, so that b > 0*/
   a = gel(z,1); /* >= 0 */
@@ -2184,7 +2186,7 @@ doellR_omega(GEN E, long prec)
 }
 static GEN
 doellR_eta(GEN E, long prec)
-{ GEN w = ellR_omega(E, prec); return elleta(w, prec); }
+{ GEN w = ellR_omega(E, prec + EXTRAPRECWORD); return elleta(w, prec); }
 
 GEN
 ellR_omega(GEN E, long prec)
@@ -2441,9 +2443,10 @@ typedef struct {
 static void
 set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
 {
-  GEN a, b, c, d, t, t0e, t0 = *pt, run = dbltor(1. - 1e-8);
+  GEN a, b, c, d, t, t0 = *pt, run = dbltor(1. - 1e-8);
   long e = gexpo(gel(t0,2));
-  t = t0e = (e >= 0)? t0: gprec_wensure(t0, precision(t0)+nbits2extraprec(-e));
+  if (e < 0) t0 = gprec_wensure(t0, precision(t0)+nbits2extraprec(-e));
+  t = t0;
   a = d = gen_1;
   b = c = gen_0;
   for(;;)
@@ -2460,7 +2463,7 @@ set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
     togglesign_safe(&c); swap(a,c);
     togglesign_safe(&d); swap(b,d);
   }
-  if (e < 0 && (signe(b) || signe(c))) *pt = t0e;
+  if (e < 0 && (signe(b) || signe(c))) *pt = t0;
   *pa = a; *pb = b; *pc = c; *pd = d;
 }
 /* Im z > 0. Return U.z in PSl2(Z)'s standard fundamental domain.
@@ -4980,18 +4983,18 @@ nfembedall(GEN nf, GEN x)
 }
 static long
 nfembed_extraprec(GEN x)
-{ long e = gexpo(x); return e < 8? 0: nbits2extraprec(e); }
+{ long e = gexpo(x); return (e < 8)? 0: nbits2extraprec(e); }
 static GEN
 ellnfembed(GEN E, long prec)
 {
   GEN E0, nf = ellnf_get_nf(E), Eb = cgetg(6,t_VEC), e = cgetg(6,t_VEC), L, sD;
-  long prec0 = prec, pp, r1, r2, n, i;
+  long prec0, r1, r2, n, i;
 
   nf_get_sign(nf, &r1, &r2); n = r1+r2;
   E0 = RgC_to_nfC(nf, vecslice(E,1,5));
-  pp = nfembed_extraprec(E0); prec += pp;
+  prec0 = prec + EXTRAPRECWORD;
   /* need accuracy 3b for bmodel to ensure roots are correct to b bits */
-  prec0 = prec; prec += (prec-2)*3 + pp;
+  prec += (prec0-2)*3 + nfembed_extraprec(E0);
   L =  cgetg(n+1, t_VEC);
   sD = nfeltsign(nf, ell_get_disc(E), identity_perm(r1));
   for(;;)
