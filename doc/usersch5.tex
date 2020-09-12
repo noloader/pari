@@ -4941,7 +4941,8 @@ order of the factors is deterministic (the computation is not).
 
 \fun{GEN}{FpX_factor_squarefree}{GEN f, GEN p} returns the squarefree
 factorization of $f$ modulo $p$. This is a vector $[u_1,\dots,u_k]$
-of pairwise coprime \kbd{FpX} such that $u_k \neq 1$ and $f = \prod u_i^i$.
+of squarefree and pairwise coprime \kbd{FpX} such that $u_k \neq 1$ and $f =
+\prod u_i^i$. The other~$u_i$ may equal~$1$.
 Shallow function.
 
 \fun{GEN}{FpX_ddf}{GEN f, GEN p} assuming that $f$ is squarefree,
