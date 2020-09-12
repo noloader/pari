@@ -40,7 +40,7 @@ bnflog(K, 5)
 K = bnfinit(y^5+2*y^4+18*y^3+34*y^2+17*y+3^10, 1); K.cyc
 bnflog(K, 2)
 bnflog(K, 3)
-K = bnfinit(polcompositum(polcyclo(5,y),y^2-5029,2)); K.cyc
+K = bnfinit(polcompositum(polcyclo(5,y),y^2-5029,2), 1); K.cyc
 bnflog(K, 2)
 bnflog(K, 3)
 bnflog(K, 5)
