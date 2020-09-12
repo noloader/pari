@@ -4097,12 +4097,12 @@ START:
 
     /* fundamental units */
     {
-      GEN R2, AU, CU, U, v = extract_full_lattice(L); /* L may be very large */
+      GEN R2, AU, CU, U, v = extract_full_lattice(L); /* L may be large */
       CU = NULL;
       if (v) { A = vecpermute(A, v); L = vecpermute(L, v); }
       /* arch. components of fund. units */
       U = ZM_lll(L, 0.99, LLL_IM);
-      U = ZM_lll(U, 0.99, LLL_INPLACE);
+      U = ZM_mul(U, lll(RgM_ZM_mul(real_i(A), U)));
       AU = RgM_ZM_mul(A, U);
       A = cleanarch(AU, N, PREC);
       if (DEBUGLEVEL) timer_printf(&T, "units LLL + cleanarch");
