@@ -2944,10 +2944,13 @@ compute_multiple_of_R(GEN Ar, long RU, long N, long *pneed, long *bit, GEN *ptL)
     if (DEBUGLEVEL) err_printf("Regulator is zero.\n");
     *pneed = 0; return gc_NULL(av);
   }
-  setabssign(kR); L = RgM_inv(Im_mdet);
+  d = det2(rowslice(vecslice(Im_mdet, 2, RU), 2, RU));
+  setabssign(d); setabssign(kR);
+  if (gexpo(gsub(d,kR)) - gexpo(d) > -20) { *ptL = NULL; return gc_NULL(av); }
+  L = RgM_inv(Im_mdet);
   /* estimate # of correct bits in result */
   if (!L || (*bit = - gexpo(RgM_Rg_sub(RgM_mul(L,Im_mdet), gen_1))) < 16)
-  { *ptL = NULL; return gerepilecopy(av,kR); }
+  { *ptL = NULL; return gc_NULL(av); }
 
   L = RgM_mul(rowslice(L,2,RU), Ar); /* approximate rational entries */
   gerepileall(av,2, &L, &kR);
@@ -3015,7 +3018,7 @@ compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
       if (RU > 5) bit -= 64;
       else if (RU > 3) bit -= 32;
     }
-    if (gexpo(L) + expi(den) > bit)
+    if (gexpo(L) + expi(den) > bit - 32)
     {
       if (DEBUGLEVEL) err_printf("dubious bestappr; den = %Ps\n", i2print(den));
       return fupb_PRECI;
@@ -4097,7 +4100,7 @@ START:
 
     /* fundamental units */
     {
-      GEN R2, AU, CU, U, v = extract_full_lattice(L); /* L may be large */
+      GEN AU, CU, U, v = extract_full_lattice(L); /* L may be large */
       CU = NULL;
       if (v) { A = vecpermute(A, v); L = vecpermute(L, v); }
       /* arch. components of fund. units */
@@ -4110,15 +4113,6 @@ START:
       {
         long add = nbits2extraprec( gexpo(AU) + 64 ) - gprecision(AU);
         precpb = "cleanarch"; PREC += maxss(add, 1); continue;
-      }
-      if (lg(A) > 1)
-      { /* last check: recompute directly the regulator from A */
-        R2 = det(real_i(rowsplice(AU,1))); setsigne(R2,1);
-        if (gexpo(gsub(R,R2)) - gexpo(R) > -20)
-        {
-          if ((precdouble&7) == 7 && LIMC<=LIMCMAX/6) goto START;
-          precpb = "compute_R2"; PREC = precdbl(PREC);
-        }
       }
       if (flag)
       {
