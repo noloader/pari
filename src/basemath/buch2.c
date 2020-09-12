@@ -2984,7 +2984,7 @@ bad_check(GEN c)
  *
  * Output: *ptkR = R, *ptU = basis of fundamental units (in terms lambda) */
 static long
-compute_R(GEN Ar, GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
+compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
 {
   pari_sp av = avma;
   long r, reason, RU = lg(lambda) == 1? 1: lgcols(lambda);
@@ -4069,7 +4069,7 @@ START:
     }
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
-    i = compute_R(Ar, lambda, mulir(h,invhr), flag? 0: RgM_bit(C, bit), &L, &R);
+    i = compute_R(lambda, mulir(h,invhr), flag? 0: RgM_bit(C, bit), &L, &R);
     if (DEBUGLEVEL)
     {
       err_printf("\n");
