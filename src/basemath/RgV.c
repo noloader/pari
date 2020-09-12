@@ -103,6 +103,40 @@ RgM_zm_mul(GEN x, GEN y)
   return z;
 }
 
+/* x[i,]*y, l = lg(y) > 1 */
+static GEN
+RgMrow_ZC_mul_i(GEN x, GEN y, long i, long l)
+{
+  pari_sp av = avma;
+  GEN t = gmul(gcoeff(x,i,1), gel(y,1)); /* l > 1 ! */
+  long j;
+  for (j=2; j<l; j++)
+    if (signe(gel(y,j))) t = gadd(t, gmul(gcoeff(x,i,j), gel(y,j)));
+  return gerepileupto(av,t);
+}
+
+/* compatible t_MAT * t_COL, lx = lg(x) = lg(y) > 1, l = lgcols(x) */
+static GEN
+RgM_ZC_mul_i(GEN x, GEN y, long lx, long l)
+{
+  GEN z = cgetg(l,t_COL);
+  long i;
+  for (i=1; i<l; i++) gel(z,i) = RgMrow_ZC_mul_i(x,y,i,lx);
+  return z;
+}
+
+/* mostly useful when y is sparse */
+GEN
+RgM_ZM_mul(GEN x, GEN y)
+{
+  long j, c, l = lg(x), ly = lg(y);
+  GEN z = cgetg(ly, t_MAT);
+  if (l == 1) return z;
+  c = lgcols(x);
+  for (j = 1; j < ly; j++) gel(z,j) = RgM_ZC_mul_i(x, gel(y,j), l,c);
+  return z;
+}
+
 static GEN
 RgV_zc_mul_i(GEN x, GEN y, long l)
 {

@@ -515,7 +515,7 @@ END2: /* clean up mat: remove everything to the right of the 1s on diagonal */
       gel(p1,k) = (i <= k0)? gel(y,i): gel(z,i);
     }
   }
-  if (T) C = typ(C)==t_MAT? RgM_mul(C,T): RgV_RgM_mul(C,T);
+  if (T) C = typ(C)==t_MAT? RgM_ZM_mul(C,T): RgV_RgM_mul(C,T);
   gerepileall(av, 4, &matbnew, &B, &dep, &C);
   *ptdep = dep;
   *ptB = B;

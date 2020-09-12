@@ -1111,8 +1111,8 @@ getfu(GEN nf, GEN *ptA, GEN *ptU, long prec)
   }
   U = lll(real_i(matep));
   if (lg(U) < RU) return not_given(fupb_PRECI);
-  if (ptU) { *ptU = U; *ptA = A = RgM_mul(A,U); }
-  y = RgM_mul(matep,U);
+  if (ptU) { *ptU = U; *ptA = A = RgM_ZM_mul(A,U); }
+  y = RgM_ZM_mul(matep,U);
   e = RgM_expbitprec(y);
   if (e >= 0) return not_given(e == LONG_MAX? fupb_LARGE: fupb_PRECI);
   if (prec <= 0) prec = gprecision(A);
@@ -1121,7 +1121,7 @@ getfu(GEN nf, GEN *ptA, GEN *ptU, long prec)
   y = grndtoi(y, &e); if (e >= 0) return not_given(fupb_PRECI);
   settyp(y, t_VEC);
 
-  if (!ptU) *ptA = A = RgM_mul(A, U);
+  if (!ptU) *ptA = A = RgM_ZM_mul(A, U);
   for (j = 1; j < RU; j++)
   { /* y[i] are hopefully unit generators. Normalize: smallest T2 norm */
     GEN u = gel(y,j), v = zk_inv(nf, u);
@@ -3287,8 +3287,8 @@ Sunits_archclean(GEN nf, GEN Sunits, GEN *pmun, GEN *pC, long prec)
   M = cgetg(l, t_MAT);
   for (k = 1; k < l; k++)
     if (!(gel(M,k) = nf_cxlog(nf, gel(X,k), prec))) return;
-  *pmun = cleanarch(RgM_mul(M, U), N, prec);
-  if (*pmun) *pC = cleanarch(RgM_mul(M, G), N, prec);
+  *pmun = cleanarch(RgM_ZM_mul(M, U), N, prec);
+  if (*pmun) *pC = cleanarch(RgM_ZM_mul(M, G), N, prec);
 }
 
 GEN
@@ -3939,7 +3939,7 @@ START:
           set_avma(av4);
           for (rel = cache.base+1, i = 1; i < le; i++,rel++)
             gel(embs,i) = rel_embed(rel, &F, embs, i, M, RU, R1, PREC);
-          E = RgM_mul(embs, rowslice(C, RU+1, nbrows(C)));
+          E = RgM_ZM_mul(embs, rowslice(C, RU+1, nbrows(C)));
           for (j = 1; j < lC; j++)
             for (i = 1; i <= RU; i++) gcoeff(C,i,j) = gcoeff(E,i,j);
           av4 = avma;
@@ -3977,7 +3977,7 @@ START:
             PREC += nbits2extraprec(gexpo(C));
             if (nf_get_prec(nf) < PREC) nf = _nfnewprec(nf, PREC, &nfisclone);
             embs = get_embs(&F, &cache, nf, embs, PREC);
-            C = vconcat(RgM_mul(embs, C), C);
+            C = vconcat(RgM_ZM_mul(embs, C), C);
           }
           if (DEBUGLEVEL)
             timer_printf(&T, "hnfspec floating points");
@@ -4102,7 +4102,8 @@ START:
       if (v) { A = vecpermute(A, v); L = vecpermute(L, v); }
       /* arch. components of fund. units */
       U = ZM_lll(L, 0.99, LLL_IM);
-      AU = RgM_mul(A, U);
+      U = ZM_lll(U, 0.99, LLL_INPLACE);
+      AU = RgM_ZM_mul(A, U);
       A = cleanarch(AU, N, PREC);
       if (DEBUGLEVEL) timer_printf(&T, "units LLL + cleanarch");
       if (!A || (lg(A) > 1 && gprecision(A) <= 2))

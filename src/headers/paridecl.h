@@ -1096,6 +1096,7 @@ GEN     RgM_Rg_sub(GEN x, GEN y);
 GEN     RgM_Rg_sub_shallow(GEN x, GEN y);
 GEN     RgM_RgC_mul(GEN x, GEN y);
 GEN     RgM_RgV_mul(GEN x, GEN y);
+GEN     RgM_ZM_mul(GEN x, GEN y);
 GEN     RgM_add(GEN x, GEN y);
 GEN     RgM_det_triangular(GEN x);
 int     RgM_is_QM(GEN x);
