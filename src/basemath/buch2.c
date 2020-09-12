@@ -4069,8 +4069,13 @@ START:
     }
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
-    switch (compute_R(Ar, lambda, mulir(h,invhr), flag? 0: RgM_bit(C, bit),
-                      &L, &R))
+    i = compute_R(Ar, lambda, mulir(h,invhr), flag? 0: RgM_bit(C, bit), &L, &R);
+    if (DEBUGLEVEL)
+    {
+      err_printf("\n");
+      timer_printf(&T, "computing regulator and check");
+    }
+    switch(i)
     {
       case fupb_RELAT:
         need = 1; /* not enough relations */
