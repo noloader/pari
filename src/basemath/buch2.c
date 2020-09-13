@@ -3744,8 +3744,8 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   if (DEBUGLEVEL)
   {
     timer_printf(&T, "nfinit & nfrootsof1");
-    err_printf("%sR1 = %ld, R2 = %ld\nD = %Ps\n",
-               flag? "Algebraic bnf: ":"Floating point bnf: ", R1,R2, D);
+    err_printf("%s bnf: R1 = %ld, R2 = %ld\nD = %Ps\n",
+               flag? "Algebraic": "Floating point", R1,R2, D);
   }
   if (LOGD < 20.)
   { /* tiny disc, Minkowski may be smaller than Bach */
