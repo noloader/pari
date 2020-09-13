@@ -3655,7 +3655,7 @@ matbotid(RELCACHE_t *cache)
 static long
 myprecdbl(long prec, GEN C)
 {
-  long p = precdbl(prec);
+  long p = prec2nbits(prec) < 1280? precdbl(prec): (long)(prec * 1.5);
   if (C) p = maxss(p, minss(3*p, prec + nbits2extraprec(gexpo(C))));
   return p;
 }
@@ -4085,7 +4085,7 @@ START:
         continue;
       case fupb_PRECI: /* prec problem unless we cheat on Bach constant */
         if ((precdouble&7) == 7 && LIMC<=LIMCMAX/6) goto START;
-        precpb = "compute_R"; PREC = precdbl(PREC);
+        precpb = "compute_R"; PREC = myprecdbl(PREC, flag? C: NULL);
         continue;
     }
     /* DONE */
