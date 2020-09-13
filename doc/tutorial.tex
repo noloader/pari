@@ -286,21 +286,33 @@ how to compute numerical values of \kbd{log}. This is annoying. Maybe it
 knows the exponential function? Let's give it a try. Type \kbd{exp(x)}.
 What's this? If you had any experience with other computer algebra systems,
 the answer should have simply been \kbd{exp(x)} again. But here the answer is
-the Taylor expansion of the function around $\kbd{x}=0$, to 16 terms. 16 is
-the default \kbd{seriesprecision}, which can be changed by typing \kbd{\b{ps}
-$n$} or \kbd{default(seriesprecision, $n$)} where $n$ is the number of terms
-that you want in your power series. Note the \kbd{O(x\pow16)} which ends the
-series, and which is trademark of this type of object in \kbd{gp}. It is the
-familiar ``big--oh'' notation of analysis.
+the Taylor expansion of the function around $\kbd{x}=0$, to 17 terms. Note
+the \kbd{O(x\pow17)} which ends the series, and which is trademark of power
+series in \kbd{gp}. It is the familiar ``big--oh'' notation of analysis.
+Why 17 terms? This is governed by the \kbd{seriesprecision}, which
+can be changed by typing \kbd{\b{ps} $n$} or \kbd{default(seriesprecision,
+$n$)} where $n$ is the number of terms that you want in your power series
+and is $16$ by default. Converting a polynomial or rational function to a
+power series will yield 16 significant terms: so $x$ gets converted to $x +
+O(x^{17})$; this is completely analogous to \kbd{realprecision} when an eact
+integer or rational number is converted to a floating point real number.
+Then we take the exponential of this new object and, since it has positive
+valuation, we can actually deduce $17$ significant terms from the given $16$.
+This is in keeping with PARI's philosophy of always returning a result which
+is as precise as possible from a given input.
 
 You thus automatically get the Taylor expansion of any function that can be
 expanded around $0$, and incidentally this explains why we weren't able to do
 anything with \kbd{log(x)} which is not defined at $0$. (In fact \kbd{gp}
 knows about Laurent series, but \kbd{log(x)} is not meromorphic either at
-$0$.) If we try \kbd{log(1+x)}, then it works. But what if we wanted the
-expansion around a point different from 0? Well, you're able to change $x$
-into $x-a$, aren't you? So for instance you can type \kbd{log(x+2)} to have
-the expansion of \kbd{log} around $\kbd{x}=2$. As exercises you can try
+$0$.) If we try \kbd{log(1+x)}, then it works, but this time we \emph{lose}
+one significant term: the result is $x - 1/2*x^2 + \dots + 1/15*x^15 +
+O(x^16))$. (Do you understand why ?)
+
+But what if we wanted the expansion around a point different from 0? Well,
+you're able to change $x$ into $x+a$, aren't you? So for instance you can
+type \kbd{log(x+2)} to have the expansion of \kbd{log} around $\kbd{x}=2$. As
+exercises you can try
 \bprog
   cos(x)
   cos(x)^2 + sin(x)^2
@@ -323,7 +335,7 @@ that \kbd{1 / 7} just gave you $1/7$: the result being exact, PARI doesn't see
 any reason to make it non-exact.
 
 But I still want that power series. To obtain it, you can do as in the $1/7$
-example and type
+example and force a conversion using the $O(x^n)$ notation:
 \bprog
   (1 + x)^(-3) + O(x^16)
   (1 + x)^(-3) * (1 + O(x^16))
@@ -383,15 +395,13 @@ if you type \kbd{type(\%)} instead of \kbd{type(n)} the answer is
 \typ{INT}, adding to the confusion.
 
 3) As already stated, power series expansions are always implicitly around
-$\kbd{x} = 0$. When we wanted them around $\kbd{x} = \kbd{a}$, we replaced
-\kbd{x} by \kbd{z + a} in the function we wanted to expand. For complicated
+$\kbd{x} = 0$. When we wante them around $\kbd{x} = \kbd{a}$, we replace
+\kbd{x} by \kbd{z + a} in the function we want to expand. For complicated
 functions, it may be simpler to use the substitution function \kbd{subst}.
 For example, if \kbd{p~= 1 / (x\pow 4 + 3*x\pow 3 + 5*x\pow 2 - 6*x + 7)},
 you may not want to retype this, replacing \kbd{x} by \kbd{z~+ a}, so you can
 write \kbd{subst(p, x, z+a)} (look up the exact description of the
 \kbd{subst} function).
-
-Now type \kbd{subst(1 + O(x), x, z+1)}. Do you understand the error message?
 
 4) The valuation at $\kbd{x} = 0$ for a power series \kbd{p} is obtained
 as \kbd{valuation(p, x)}.
@@ -400,12 +410,13 @@ as \kbd{valuation(p, x)}.
 Let's talk some more about the basic PARI types.
 
 Type \kbd{p = x * exp(-x)}. As expected, you get the power series expansion
-to 16 terms (if you have not changed the default). Now type
+to 17 terms (if you have not changed the default). Now type
 \kbd{pr = serreverse(p)}. You are asking here for the \emph{reversion} of the
-power series \kbd{p}, in other words the inverse function. This is possible
-only for power series whose first non-zero coefficient is that of $x^1$.  To
-check the correctness of the result, you can type \kbd{subst(p, x, pr)} or
-\kbd{ subst(pr, x, p)} and you should get back \kbd{x + O(x\pow 17)}.
+power series \kbd{p}, in other words the expansion of the inverse function.
+This is possible only for power series whose first non-zero coefficient is
+that of $x^1$.  To check the correctness of the result, you can type
+\kbd{subst(p, x, pr)} or \kbd{ subst(pr, x, p)} and you should get back
+\kbd{x + O(x\pow 18)}.
 
 Now the coefficients of \kbd{pr} obey a very simple formula. First, we would
 like to multiply the coefficient of \kbd{x\pow n} by \kbd{n!} (in the case of
@@ -425,8 +436,8 @@ though mathematically there is no difference) and matrices. Type for example
 \kbd{[1,2,3,4]}. This gives the row vector whose coordinates are 1, 2, 3 and
 4.  If you want a column vector, type \kbd{[1,2,3,4]\til}, the tilde meaning
 of course transpose. You don't see much difference in the output, except for
-the tilde at the end. However, now type \b{b}: lo and behold, the column
-vector appears as a proper vertical thingy now. The \b{b} command is used
+the tilde at the end. However, now type \b{B}: lo and behold, the column
+vector appears as a proper vertical thingy now. The \b{B} command is used
 mainly for this purpose. The length of a vector is given by, well
 \kbd{length} of course. The shorthand ``cardinality'' notation \kbd{\#v} for
 \kbd{length(v)} is also available, for instance \kbd{v[\#v]} is the last
@@ -750,7 +761,7 @@ $\F_{5^6} = \F_5[t]/(\kbd{g.mod})$.
 
 Since PARI is aimed at number theorists, it is not surprising that there
 exists a large number of arithmetic functions; see the list by typing
-\kbd{?4}. We have already seen several, such as \kbd{factor}. Note that
+\kbd{?5}. We have already seen several, such as \kbd{factor}. Note that
 \kbd{factor} handles not only integers, but also univariate polynomials.
 Type for example \kbd{factor(x\pow 200 - 1)}. You can also ask to factor a
 polynomial modulo a finite field or a number field !
@@ -820,7 +831,7 @@ The standard linear algebra routines are available: \kbd{matdet},
 \kbd{matsolve} (to solve a linear system), \kbd{charpoly} (characteristic
 polynomial), to name a few. Bilinear algebra over $\R$ is also there:
 \kbd{qfgaussred} (Gauss reduction), \kbd{qfsign} (signature). You may also
-type \kbd{?8}. Can you guess what each of these do?
+type \kbd{?7}. Can you guess what each of these do?
 
 Let us see how this works. First, a vector space (or module) is given by a
 generating set of vectors (often a basis) which are represented as
@@ -964,7 +975,7 @@ substantially higher value, for example by typing \kbd{\b{p} 100}. Then type
 \kbd{e}, then \kbd{exp(1)} once again. This last value is the correct value
 of the mathematical constant $e$ to 100 decimals, while the variable \kbd{e}
 shows the value that was computed to 38 decimals. Clearly they coincide to
-exactly 29 significant digits.
+exactly 38 significant digits.
 
 So 38 digits are printed, but how many significant digits are actually
 contained in the variable \kbd{e}? Type \kbd{\#e} which indicates we have
@@ -979,7 +990,7 @@ you can check using the method above that we have in fact 96 significant
 digits! The reason is that \kbd{1 + 1E-40} is computed according to the PARI
 philosophy, i.e.~to the best possible precision. Since \kbd{1E-40} has 39
 significant digits and 1 has ``infinite'' precision, the number \kbd{1 +
-1E-30} will have $79=39+40$ significant digits, hence \kbd{f} also.
+1E-40} will have at least $79=39+40$ significant digits, hence \kbd{f} also.
 
 Now type \kbd{cos(1E-19)}. The result is printed as $1.0000\dots$, but
 is of course not exactly equal to 1. Using \kbd{\#\%}, we see that the
@@ -1101,7 +1112,7 @@ when $p=2$, the congruence restriction is that \kbd{agm(a,b)} can be computed
 only when \kbd{a/b} is congruent to 1 modulo $16$, and not 8 as could be
 expected.\smallskip
 %
-Now type \kbd{?3}. This gives you the list of all transcendental functions.
+Now type \kbd{?8}. This gives you the list of all transcendental functions.
 Instead of continuing with more examples, we suggest that you experiment
 yourself with this list. Try integer, real, complex and $p$-adic arguments.
 You will notice that some have not been implemented (or do not have a
@@ -1276,20 +1287,21 @@ which is of degree $\varphi(15)=8$. Now, type
 \bprog
   r = polroots(pol)
 @eprog\noindent We obtain the 8 complex roots of \kbd{pol}, given to 38
-significant digits. To see them better, type \b{b}: they are given as pairs
-of complex conjugate roots, in a random order. The only ordering done by the
-function \kbd{polroots} concerns the real roots, which are given first, and
-in increasing order.
+significant digits. To see them better, type \b{B}: they are given as pairs
+of complex conjugate roots, in some order. In fact, the
+function \kbd{polroots} returns the real roots first, in increasing order,
+then the other roots by increasing absolute value of their imaginary parts
+(so that pairs of complex conjugate roots appear together).
 
 The roots of \kbd{pol} are by definition the primitive $15$-th roots of unity.
 To check this, simply type \kbd{rc = r\pow 15}. Why, we get an error message!
 Fair enough, vectors cannot be multiplied, even less raised to a power.
 However, type
 \bprog
-  rc = r^15.
+  rc = r^15.0
 @eprog\noindent without forgetting the `\kbd{.}' at the end. Now it works,
 because powering to a non-integer exponent is a transcendental function and
-hence is applied termwise. Note that the fact that $15.$ is a real number
+hence is applied termwise. Note that the fact that $15.0$ is a real number
 which is representable exactly as an integer has nothing to do with the
 problem.
 
@@ -1298,17 +1310,14 @@ tedious to look at all these real and imaginary parts. It would be impossible
 if we had many more. Let's do it automatically. Type
 \bprog
   rr = round(rc)
-  sqrt( norml2(rc - rr) )
+  exponent(rc - rr)
 @eprog\noindent We see that \kbd{rr} is indeed all 1's, and that the
-$L^2$-norm of \kbd{rc - rr} is around $2.10^{-37}$, reasonable enough when we
-work with 38 significant digits! Note that the function \kbd{norml2},
-contrary to what its name implies, does not give the $L^2$ norm but its
-square, hence we must take the square root. Well, this is not absolutely
-necessary in the present case! In fact, \kbd{round} itself already provides
+sup-norm of \kbd{rc - rr} is around $2^{-125}$, reasonable enough when we
+work with 128 bits of accuracy! In fact, \kbd{round} itself already provides
 a built-in rough approximation of the error:
 \bprog
   rr = round(rc, &e)
-@eprog\noindent Now \kbd{e} contains the number of error bits when rounding
+@eprog\noindent Again, \kbd{e} contains the number of error bits when rounding
 \kbd{rc} to \kbd{rr}; in other words the sup norm of $\kbd{rc} - \kbd{rr}$
 is bounded by $2^{-\kbd{e}}$.
 %
@@ -1318,7 +1327,7 @@ Now type
   pol = x^5 + x^4 + 2*x^3 - 2*x^2 - 4*x - 3
   factor(pol)
   factor( poldisc(pol) )
-  fun(p) = factorpadic(pol,p,10);
+  fun(p) = factor(pol, O(p^10));
 @eprog\noindent The polynomial \kbd{pol} factors over $\Q$ (or $\Z$) as a
 product of two factors, and the primes dividing its discriminant are
 $11$, $23$ and $37$. We also created a function \kbd{fun(p)} which factors
@@ -1328,11 +1337,12 @@ $11$, $23$ and $37$. We also created a function \kbd{fun(p)} which factors
   fun(11)
   fun(23)
   fun(37)
-@eprog\noindent to see different splittings.
+@eprog\noindent to see different splittings. You can use \kbd{lift} to
+convert $p$-adic numbers to neighbouring rational numbers.
 
 Similarly, type
 \bprog
-  lf(p) = lift( factormod(pol,p) );
+  lf(p) = lift( factor(pol, p) );
   lf(2)
   lf(11)
   lf(23)
@@ -1340,47 +1350,36 @@ Similarly, type
 @eprog\noindent which show the different factorizations, this time over
 $\F_p$. In fact, even better: type successively
 \bprog
-  T = ffinit(3,3, 't) \\@com we want \kbd{t} to be a free variable
-  fq = factormod(pol, [T,3])
-  liftall(fq)
+  T = ffgen(3^3, 't) \\@com we want \kbd{t} to be a free variable
+  factor(pol, t)
 @eprog\noindent
-\kbd{T}, which is actually \kbd{t\pow 3 + t\pow 2 + t + 2} (with intmod
-coefficients), is defined above to be an irreducible polynomial of degree $3$
-over $\F_3$. This code snippet factors the polynomial \kbd{pol} over the
-finite field $\F_3[t]/(T)$. This is of course a form of the field $\F_{27}$.
-Note that we introduced a new variable $t$ to express elements in
-this non-prime field. There is a crucial rule in all routines involving
-relative extensions: the variable attached to the base field is required to
-have lower priority than the variables of polynomials whose coefficients are
-taken in that base field. Have a look at the section on \emph{Variable
-priorities} in the user's manual (see ``The GP programming language''). A
-simpler way to accomplish the above, using \typ{FFELT}s is
-\bprog
-  g = ffgen(3^3, 't);
-  factormod(pol, g)
-@eprog\noindent It is also possible to use \kbd{factor}:
-\bprog
-  factormod(pol * g^0)
-@eprog\noindent Multiplying by $g^0 = 1$ seems to do ``nothing'', but it has
-the interesting effect of mapping all coefficients to $\F_{27}$. The
-generic function \kbd{factor} then does the right thing. (Typing
-\kbd{factor(pol)} directly would factor it over $\Q$, not what we wanted.)
+The element $T$ is printed as \kbd{t} but is actually defined modulo the
+irreducible polynomial \kbd{t\pow 3 + 2t + 2} over $\F_{3}$ (see
+\kbd{t.mod}): it defines the finite field $\F_{27}$. Note that we introduced
+a new variable $t$ to express elements in this non-prime field.
+More generally, the generic \kbd{factor} function allows a second argument
+which describes the domain over which we want to factor, here $\F_{27}$
+(and, above, $\Q_p$ to $10$ digits of accuracy and $\F_p$).
+Typing \kbd{factor(pol)} directly would factor it over $\Q$, not what we
+wanted.
 
 Similarly, type
 \bprog
   pol2 = x^4 - 4*x^2 + 16
-  fn = lift( factornf(pol2, t^2 + 1) )
+  fn = lift( factor(pol2, t^2 + 1) )
 @eprog\noindent and we get the factorization of the polynomial \kbd{pol2}
-over the number field defined by $t^2+1$, i.e.~over $\Q(i)$. Without the
+over the number field $\Q[t]/(t^2+1)$, i.e.~over $\Q(i)$. Without the
 \kbd{lift}, the result would involve number field elements as \typ{POLMOD}s
-of the form \kbd{Mod(1+t, t\pow2+1)}, which are more explicit but much less
+of the form \kbd{Mod(1+t, t\pow2+1)}, which are more explicit but less
 readable.
 \smallskip
 
 To summarize, in addition to being able to factor integers, you can factor
-polynomials over $\C$ and $\R$ using \kbd{polroots}, over finite fields using
-\kbd{factormod}, over $\Q_p$ using \kbd{factorpadic}, over $\Q$ using
-\kbd{factor}, and over number fields using \kbd{factornf} or \kbd{nffactor}.
+polynomials over $\C$ using \kbd{polroots}, over $\R$ using
+\kbd{factor(,1.0)}, over finite fields using
+\kbd{factor(, p)}, over $\Q_p$ using \kbd{factor(, O(p\pow $n$))},
+over $\Q$ using \kbd{factor}, and over the number field $\Q[t]/(T)$ using
+\kbd{factor(, T)}.
 Note however that \kbd{factor} itself will guess intelligently over
 which ring you want to factor: try
 \bprog
