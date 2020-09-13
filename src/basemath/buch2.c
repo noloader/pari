@@ -3694,13 +3694,9 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   if (DEBUGLEVEL) timer_start(&T);
   P = get_nfpol(P, &nf);
   if (nf)
-  {
-    PREC = maxss(nf_get_prec(nf), MEDDEFAULTPREC);
     D = nf_get_disc(nf);
-  }
   else
   {
-    PREC = maxss(prec, MEDDEFAULTPREC);
     nfinit_basic(&nfT, P);
     D = nfT.dK;
     if (!ZX_is_monic(nfT.T0))
@@ -3712,7 +3708,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   N = degpol(P);
   if (N <= 1)
   {
-    if (!nf) nf = nfinit_complete(&nfT, flag_nfinit, PREC);
+    if (!nf) nf = nfinit_complete(&nfT, flag_nfinit, DEFAULTPREC);
     return gerepilecopy(av0, Buchall_deg1(nf));
   }
   D = absi_shallow(D);
@@ -3724,6 +3720,10 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
    * We consider v with T2(v) <= BMULT * T2(v0)
    * Hence Nv <= ((4/3)^((n-1)/2) * BMULT / n)^(n/2) NI sqrt(disc(K)).
    * NI <= LIMCMAX^2 */
+  PREC = maxss(DEFAULTPREC, prec);
+  if (nf) PREC = maxss(PREC, nf_get_prec(nf));
+  PREC = maxss(PREC, nbits2prec((long)(LOGD2 * 0.02) + N*N));
+  if (DEBUGLEVEL) err_printf("PREC = %ld\n", PREC);
   small_norm_prec = nbits2prec( BITS_IN_LONG +
     (N/2. * ((N-1)/2.*log(4./3) + log(BMULT/(double)N))
      + 2*log((double) LIMCMAX) + LOGD/2) / M_LN2 ); /*enough to compute norms*/
