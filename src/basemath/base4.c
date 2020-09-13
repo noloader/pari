@@ -1403,8 +1403,7 @@ matreduce(GEN f)
   {
     case t_VEC: case t_COL:
     {
-      GEN e = RgV_count(&f);
-      if (typ(f) == t_VEC) settyp(f, t_COL);
+      GEN e; f = RgV_reduce(f, &e);
       return gerepilecopy(av, mkmat2(f, zc_to_ZC(e)));
     }
     case t_MAT:

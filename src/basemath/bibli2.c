@@ -1794,12 +1794,12 @@ RgV_equiv(GEN F)
 }
 
 GEN
-RgV_count(GEN *pv)
+RgV_reduce(GEN v, GEN *pE)
 {
-  GEN E, F, v = *pv, P = gen_indexsort(v, (void*)cmp_universal, cmp_nodata);
-  long i, m, l = lg(v);
-  *pv = F = cgetg(l, t_VEC);
-  E = cgetg(l, t_VECSMALL);
+  GEN E, F, P = gen_indexsort(v, (void*)cmp_universal, cmp_nodata);
+  long i, m, l;
+  F = cgetg_copy(v, &l);
+  *pE = E = cgetg(l, t_VECSMALL);
   for (i = m = 1; i < l;)
   {
     GEN u = gel(v, P[i]);
@@ -1809,7 +1809,7 @@ RgV_count(GEN *pv)
     E[m] = k - i; gel(F, m) = u; i = k; m++;
   }
   setlg(F, m);
-  setlg(E, m); return E;
+  setlg(E, m); return F;
 }
 
 /********************************************************************/

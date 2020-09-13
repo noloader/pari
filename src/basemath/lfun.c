@@ -314,7 +314,7 @@ gammafactor(GEN Vga)
     gel(F,i) = gadd(r, imag_i(a)); /* 2{Re a/2} + Im a/2 */
     if (q) R = gmul(R, gammafrac(gel(F,i), q));
   }
-  E = RgV_count(&F); l = lg(E);
+  F = RgV_reduce(F, &E); l = lg(E);
   v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(v,i) = mkvec2(gfrac(gel(F,i)), stoi(E[i]));
   gen_sort_inplace(v, (void*)cmp_universal, cmp_nodata, &P);

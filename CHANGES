@@ -1,4 +1,5 @@
 Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
+
 Done for version 2.12.1 (released 14/09/2020):
   Fixed
 BA   1- plotlines flag was ignored
@@ -270,7 +271,7 @@ BA  51- [libpari] factorial_Fl, factorial_Fp, FpV_prod
 BA  52- [libpari] ZX_compositum
 BA  53- [libpari] FlxXn_red, FlxqXn_mul, FlxqXn_sqr, FlxqXn_inv, FlxqXn_expint
 BA  54- [libpari] FlxX_Laplace, FlxX_invLaplace, FlxqX_Newton, FlxqX_fromNewton
-    55- [libpari] RgV_count, RgV_equiv
+    55- [libpari] RgV_reduce, RgV_equiv
     56- lfuncreate(znstar or bnr,): allow a vector of characters =>
         vector-valued L-function
     57- [libpari] gc_const
