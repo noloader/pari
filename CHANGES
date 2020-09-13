@@ -206,6 +206,7 @@ AP  60- improve bnfisprincipal in fields of large degree (test more small
         (from bnrinit(,1)). Added flag 4 analogous to bnfisprincipal (compact
         representation of principal part)
     63- added sanity checks when parsing default args in 'install' prototypes
+    64- improved zetahurwitz: faster & use less memory
 
   Added
      1- new GP function rootsof1

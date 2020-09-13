@@ -2237,7 +2237,7 @@ binsplit(GEN *pP, GEN *pR, GEN aN2, GEN isqaN, GEN s, long j, long k, long prec)
 GEN
 zetahurwitz(GEN s, GEN x, long der, long bitprec)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   GEN al, ral, ral0, Nx, S1, S2, S3, N2, rx, sch = NULL, s0 = s, y;
   long j, k, m, N, precinit = nbits2prec(bitprec), prec = precinit;
   long fli = 0, v, prpr;
@@ -2306,7 +2306,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   }
   else
   {
-    const double D = (typ(s) == t_INT)? 0.24: 0.4;
+    double c;
     GEN C, rs = real_i(gsubsg(1, s0));
     long ebit = 0;
     if (fli) al = gadd(al, ghalf); /* hack */
@@ -2319,8 +2319,9 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       al = gprec_w(al, prec);
       if (sch) sch = gprec_w(sch, prec);
     }
-    k = maxss(itos(gceil(gadd(ral, ghalf))) + 1, 50);
-    k = maxss(k, (long)(D*bitprec));
+    c = (typ(s) == t_INT)? 1: 20 * log((double)bitprec);
+    k = bitprec * M_LN2 / (1 + dbllambertW0(M_PI / c));
+    k = maxss(itos(gceil(gadd(ral, ghalf))) + 1, k);
     if (odd(k)) k++;
     C = gmulsg(2, gmul(binomial(al, k+1), gdivgs(bernfrac(k+2), k+2)));
     C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
@@ -2328,7 +2329,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
              gabs(gsubsg(1,rx), LOWDEFAULTPREC));
     C = gceil(polcoef_i(C, 0, -1));
     if (typ(C) != t_INT) pari_err_TYPE("zetahurwitz",s);
-    N = itos(gceil(C));
+    N = itos(C);
     if (N < 1) N = 1;
   }
   N = maxss(N, 1 - itos(rx));
@@ -2337,7 +2338,12 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   incrprec(prec);
   Nx = gmul(real_1(prec), gaddsg(N - 1, x));
   S1 = S3 = gpow(Nx, al, prec);
-  for (m = N - 2; m >= 0; m--) S1 = gadd(S1, gpow(gaddsg(m,x), al, prec));
+  av2 = avma;
+  for (m = N - 2; m >= 0; m--)
+  {
+    S1 = gadd(S1, gpow(gaddsg(m,x), al, prec));
+    if ((m & 0xff) == 0) S1 = gerepileupto(av2, S1);
+  }
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
   constbern(k >> 1);
   N2 = ginv(gsqr(Nx));

@@ -1,7 +1,7 @@
 -39
 -oo
 -38
--oo
+-38
 -38
 -38
 -39
@@ -71,4 +71,4 @@ x^14 - 15.999999999999999936177684699023112054*x^15 + O(x^16)
   ***   at top-level: zetahurwitz([],[])
   ***                 ^------------------
   *** zetahurwitz: incorrect type in zetahurwitz (t_VEC).
-Total time spent: 25
+Total time spent: 36
