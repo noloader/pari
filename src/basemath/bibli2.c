@@ -1775,7 +1775,7 @@ void
 ZV_sort_inplace(GEN L) { gen_sort_inplace(L, (void*)&cmpii, &cmp_nodata,NULL); }
 
 GEN
-RgV_equiv(GEN F)
+vec_equiv(GEN F)
 {
   pari_sp av = avma;
   long j, k, L = lg(F);
@@ -1794,7 +1794,7 @@ RgV_equiv(GEN F)
 }
 
 GEN
-RgV_reduce(GEN v, GEN *pE)
+vec_reduce(GEN v, GEN *pE)
 {
   GEN E, F, P = gen_indexsort(v, (void*)cmp_universal, cmp_nodata);
   long i, m, l;

@@ -601,7 +601,7 @@ zetamultevec(GEN evec, long prec)
   hashtable *H;
 
   if (k == 0) return gen_1;
-  v = RgV_equiv(evec); l = lg(v);
+  v = vec_equiv(evec); l = lg(v);
   Evec = cgetg(k+1, t_VECSMALL);
   X = cgetg(l + 2, t_VEC); /* our alphabet */
   for (i = lH = 1; i < l; i++)

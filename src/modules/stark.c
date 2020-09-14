@@ -787,7 +787,7 @@ sortChars(GEN ch)
   long j, l = lg(ch);
   GEN F = cgetg(l, t_VEC);
   for (j = 1; j < l; j++) gel(F, j) = gmael(ch,j,2);
-  return RgV_equiv(F);
+  return vec_equiv(F);
 }
 
 /* Given a list [chi, F = cond(chi)] of characters over Cl(bnr), return

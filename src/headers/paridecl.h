@@ -2609,9 +2609,9 @@ GEN     zncoppersmith(GEN P0, GEN N, GEN X, GEN B) ;
 /* bibli2.c */
 
 GEN     QXQ_reverse(GEN a, GEN T);
-GEN     RgV_equiv(GEN F);
+GEN     vec_equiv(GEN F);
 GEN     RgV_polint(GEN X, GEN Y, long v);
-GEN     RgV_reduce(GEN v, GEN *pE);
+GEN     vec_reduce(GEN v, GEN *pE);
 GEN     RgXQ_reverse(GEN a, GEN T);
 GEN     ZC_union_shallow(GEN x, GEN y);
 GEN     ZV_indexsort(GEN L);
