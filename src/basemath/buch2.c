@@ -4058,9 +4058,11 @@ START:
     Ar = real_i(A);
     R = compute_multiple_of_R(Ar, RU, N, &need, &bit, &lambda);
     if (need < old_need) small_fail = 0;
+#if 0 /* A good idea if we are indeed stuck but needs tuning */
     /* we have computed way more relations than should be necessary */
     if (TRIES < 3 && LIMC < LIMCMAX / 24 &&
                      cache.last - cache.base > 10 * F.KC) goto START;
+#endif
     old_need = need;
     if (!lambda)
     { precpb = "bestappr"; PREC = myprecdbl(PREC, flag? C: NULL); continue; }
