@@ -75,7 +75,8 @@ setrand(1);bnfinit(x^28+2*x^27-23*x^26-70*x^25+137*x^24+741*x^23+247*x^22-2779*x
 setrand(1);bnfinit(x^8-4*x^7-42*x^6+140*x^5+361*x^4-960*x^3-540*x^2+1044*x+603,1).cyc
 
 setrand(1);bnfinit(x^4-25*x^2+25,1).cyc
-setrand(1);bnfinit(x^6-x^5-26*x^4+57*x^3+98*x^2-345*x+225,1).cyc
+\\ FIXME: takes 18s without [0.3]
+setrand(1);bnfinit(x^6-x^5-26*x^4+57*x^3+98*x^2-345*x+225,1,[0.3]).cyc
 
 \\overflow when h>>1
 setrand(1); D = 2^60+33; bnf = bnfinit(x^2+D);
