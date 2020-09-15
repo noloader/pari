@@ -2738,9 +2738,9 @@ For our second example, let us take the field $K$ defined by the polynomial
   P = x^18 - 3*x^15 + 115*x^12 + 104*x^9 + 511*x^6 + 196*x^3 + 343;
   G = galoisinit(P);
 @eprog\noindent Since \kbd{galoisinit} succeeds,
-the extension $K/\Q$ is Galois. This time \kbd{galoisisabelian(G)} return
-$0$, so the extension is not abelian, however we can still put a name on the
-underlying abstract group. Use \kbd{galoisidentify(G)}, which return $[18,
+the extension $K/\Q$ is Galois. This time \kbd{galoisisabelian(G)} returns
+$0$, so the extension is not abelian; however we can still put a name on the
+underlying abstract group. Use \kbd{galoisidentify(G)}, which returns $[18,
 3]$. By looking at the GAP4 classification we find that $[18, 3]$ is
 $S_3\times\Z/3\Z$. This time, the subgroups of $G$ are not obvious,
 fortunately we can ask PARI : \kbd{galoissubgroups(G)}.
@@ -2753,14 +2753,14 @@ $K^\sigma$:
 F = galoisfixedfield(G, G.gen[3], 2);
 @eprog\noindent
 So $K$ is a quadratic extension of $K^\sigma$ defined by the polynomial
-\kbd{R=F[3][1]}. It is well-known that $K$ is also defined by $x^2-D$
+\kbd{R=F[3][1]}. It is well-known that $K$ is also defined by $x^2-D$,
 where $D$ is the discriminant of $R$ (over $K^\sigma$).
-To compute $D$ we issue:
+To compute $D$, we issue:
 \bprog
 D = poldisc(F[3][1]) * Mod(1,subst(F[1],x,y));
 @eprog\noindent
 Note that since \kbd{y} in \kbd{F[3][1]} denotes a root of \kbd{F[1]}, we
-have to use \kbd{subst(,x,y)}.  Now we hope that $D$ generate $K^\sigma$ and
+have to use \kbd{subst(,x,y)}.  Now we hope that $D$ generates $K^\sigma$ and
 compute \kbd{Q=charpoly(D)}. We check that $Q=x^9+270\*x^6+12393\*x^3+19683$ is
 irreducible with \kbd{polisirreducible(Q)}. (Were it not the case, we would
 multiply $D$ by a random square.) So $D$ is a generator of $K^\sigma$ and
