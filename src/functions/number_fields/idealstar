@@ -24,7 +24,7 @@ Doc: outputs a \kbd{bid} structure,
  If the positive integer \kbd{cycmod} is present,  only compute the group
  modulo \kbd{cycmod}-th powers,  which may save a lot of time when some
  maximal ideals in the modulus have a huge residue field. Whereas you might
- only be intersted in quadratic or cubic residuosity; see also \kbd{bnrinit}
+ only be interested in quadratic or cubic residuosity; see also \kbd{bnrinit}
  for applications in class field theory.
 
  This \var{bid} is used in \tet{ideallog} to compute discrete logarithms. It
