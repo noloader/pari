@@ -27,15 +27,15 @@ Doc:
  G0(N) = mspolygon(N);
 
  \\ Gamma_1(N): direct construction, slow
- G1(N) = msfarey(mspolygon(1), (g-> my(a = g[1,1]%N, c = g[2,1]%N);\
-                               c == 0 && (a == 1 || a == N-1)));
+ G1(N) = msfarey(mspolygon(1), g -> my(a = g[1,1]%N, c = g[2,1]%N);\
+                               c == 0 && (a == 1 || a == N-1));
  \\ Gamma_1(N) via Gamma_0(N): much faster
- G1(N) = msfarey(G0(N), (g->my(a=g[1,1]%N); a==1 || a==N-1));
+ G1(N) = msfarey(G0(N), g -> my(a=g[1,1]%N); a==1 || a==N-1);
 
  \\ Gamma(N)
- G(N) = msfarey(G1(N), g->g[1,2]%N==0);
+ G(N) = msfarey(G1(N), g -> g[1,2]%N==0);
 
- G_00(N) = msfarey(G0(N),x->x[1,2]%N==0);
+ G_00(N) = msfarey(G0(N), x -> x[1,2]%N==0);
  G1_0(N1,N2) = msfarey(G0(1), x -> x[2,1]%N1==0 && x[1,2]%N2==0);
 
  \\ Gamma_0(91) has 4 elliptic points of order 3, Gamma_1(91) has none
