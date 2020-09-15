@@ -3893,6 +3893,7 @@ forpath_next(forpath_t *T)
   if (!dir) return NULL; /* done */
   /* room for dir + '/' + s + '\0' */
   t = (char*)pari_malloc(strlen(dir) + T->ls + 2);
+  if (!t) return NULL; /* can't happen but kills a warning */
   sprintf(t,"%s/%s", dir, T->s);
   T->dir++; return t;
 }
