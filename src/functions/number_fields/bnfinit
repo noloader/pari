@@ -21,23 +21,36 @@ Doc: initializes a
  This implements \idx{Buchmann}'s sub-exponential algorithm for computing the
  class group, the regulator and a system of \idx{fundamental units} of the
  general algebraic number field $K$ defined by the irreducible polynomial $P$
- with integer coefficients.
+ with integer coefficients. The meaning of \fl is as follows:
 
- The computation involves floating point computation and, if the precision is
- insufficient, \kbd{gp} does not strive to compute the units by default
- ($\fl=0$). If may be possible to increase the precision of the \kbd{bnf}
+ \item $\fl = 0$ (default). This is the historical behavior, kept for
+ compatibility reasons and speed. It has severe drawbacks but is likely to be
+ a little faster than the alternative, twice faster say, so only use it if
+ speed is paramount, you obtain a useful speed gain for the fields
+ under consideration, and you are only interested in the field invariants
+ such as the classgroup structure or its regulator. The computations involve
+ exact algebraic numbers which are replaced by floating point embeddings for
+ the sake of speed. If the precision is insufficient, \kbd{gp} may not be able
+ to compute fundamental units, nor to solve some discrete logarithm problems.
+ It \emph{may} be possible to increase the precision of the \kbd{bnf}
  structure using \kbd{nfnewprec} but this may fail, in particular when
- fundamental units are large.
+ fundamental units are large. In short, the resulting \kbd{bnf}
+ structure is correct and contains useful information but later
+ function calls to \kbd{bnfisprincpal} or \kbd{bnrclassfield} may fail.
 
  When $\fl=1$, we keep an exact algebraic version of all floating point data
- and this allows to guarantee that \kbd{nfnewprec} will always succeed
- as well as to compute the fundamental units exactly but in factored form,
- as small product of small $S$-units, possibly with huge exponents (compact
- representation). This flag also allows \kbd{bnfisprincipal} to compute
+ and this allows to guarantee that functions using the structure will always
+ succeed, as well as to compute the fundamental units exactly. The units are
+ computed in compact form, as a product of small $S$-units, possibly with
+ huge exponents. This flag also allows \kbd{bnfisprincipal} to compute
  generators of principal ideals in factored form as well. Be warned that
  expanding such products explicitly can take a very long time, but they can
  easily be mapped to floating point or $\ell$-adic embeddings of bounded
- accuracy, or to $K^*/(K^*)^\ell$, and this is usually enough for applications.
+ accuracy, or to $K^*/(K^*)^\ell$, and this is enough for applications. In
+ short, this flag should be used by default, unless you have a very good
+ reason for it, for instance building massive tables of class numbers, and
+ you do not care about units or the effect large units would have on your
+ computation.
 
  $\var{tech}$ is a technical vector (empty by default, see \ref{se:GRHbnf}).
  Careful use of this parameter may speed up your computations,
@@ -45,8 +58,8 @@ Doc: initializes a
 
  \smallskip
 
- The components of a \var{bnf} are technical and never used by
- the casual user. In fact: \emph{never access a component directly, always use
+ The components of a \var{bnf} are technical.
+ In fact: \emph{never access a component directly, always use
  a proper member function.} However, for the sake of completeness and internal
  documentation, their description is as follows. We use the notations
  explained in the book by H. Cohen, \emph{A Course in Computational Algebraic
