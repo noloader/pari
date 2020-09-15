@@ -43,7 +43,7 @@ Doc: let \var{bnr} be the ray class group data output by
  @eprog It may be surprising that the generator $\alpha$ is different
  although the underlying \var{bnf} and \var{bid} are the same. This defines
  unique generators for the ray class group as ideal \emph{classes}, whether
- we use \kbd{bnrinit(,0)} or \kbd{bnrinit,1}. But the actual ideal
+ we use \kbd{bnrinit(,0)} or \kbd{bnrinit(,1)}. But the actual ideal
  representatives (implicit if the flag is $0$, computed and stored in the
  \var{bnr} if the flag is $1$) are in general different and this is what
  happens here. Indeed, the implicit generators are naturally expressed
