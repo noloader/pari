@@ -27,7 +27,7 @@ Doc: given a \var{bnf} structure attached to a number field $K$, as produced
  before since it contains the $N$-th powers. This is useful when $f$ contains
  a maximal ideal with huge residue field, since the corresponding tough
  discrete logarithms are trivialized: in the quotient group, all elements have
- small order dividing $N$: this allows to work in $\text{Cl}_f/H$ but no longer
+ small order dividing $N$. This allows to work in $\text{Cl}_f/H$ but no longer
  in $\text{Cl}_f$.
 
  \misctitle{Huge discriminants, helping rnfdisc} The format $[T,B]$ is
