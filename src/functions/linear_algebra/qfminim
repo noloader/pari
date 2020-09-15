@@ -55,7 +55,7 @@ Doc: $x$ being a square and symmetric matrix of dimension $N$ representing
  ? x = matid(2);
  ? qfminim(x)  \\@com 4 minimal vectors of norm 1: $\pm[0,1]$, $\pm[1,0]$
  %2 = [4, 1, [0, 1; 1, 0]]
- ? { x =
+ ? { x = \\ The Leech lattice
  [4, 2, 0, 0, 0,-2, 0, 0, 0, 0, 0, 0, 1,-1, 0, 0, 0, 1, 0,-1, 0, 0, 0,-2;
   2, 4,-2,-2, 0,-2, 0, 0, 0, 0, 0, 0, 0,-1, 0, 0, 0, 0, 0,-1, 0, 1,-1,-1;
   0,-2, 4, 0,-2, 0, 0, 0, 0, 0, 0, 0,-1, 1, 0, 0, 1, 0, 0, 1,-1,-1, 0, 0;
@@ -80,16 +80,21 @@ Doc: $x$ being a square and symmetric matrix of dimension $N$ representing
   0, 1,-1,-1, 1,-1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 4, 0, 1;
   0,-1, 0, 1, 0, 1,-1, 1, 0, 1, 0,-1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 4, 1;
  -2,-1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,-1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 4]; }
- ? qfminim(x,,0)  \\ the Leech lattice has 196560 minimal vectors of norm 4
- time = 648 ms.
- %4 = [196560, 4, [;]]
+ ? qfminim(x,,0)  \\ 0: don't store minimal vectors
+ time = 121 ms.
+ %4 = [196560, 4, [;]] \\ 196560 minimal vectors of norm 4
+ ? qfminim(x)  \\ store all minimal vectors !
+ time = 821 ms.
  ? qfminim(x,,0,2); \\ safe algorithm. Slower and unnecessary here.
- time = 18,161 ms.
- %5 = [196560, 4.000061035156250000, [;]]
+ time = 5,540 ms.
+ %6 = [196560, 4.000061035156250000, [;]]
+ ? qfminim(x,,,2); \\ safe algorithm; store all minimal vectors
+ time = 6,602 ms.
  @eprog\noindent\sidx{Leech lattice}\sidx{minimal vector}
- In the last example, we store 0 vectors to limit memory use. All minimal
- vectors are nevertheless enumerated. Provided \kbd{parisize} is about 50MB,
- \kbd{qfminim(x)} succeeds in 2.5 seconds.
+ In this example, storing 0 vectors limits memory use; storing all of them
+ requires a \kbd{parisize} about 50MB. All minimal vectors are nevertheless
+ enumerated in both cases of course, which means the speedup is likely to be
+ marginal.
 
 Variant: Also available are
  \fun{GEN}{minim}{GEN x, GEN b = NULL, GEN m = NULL} ($\fl=0$),
