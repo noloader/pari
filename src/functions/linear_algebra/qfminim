@@ -14,36 +14,37 @@ Help: qfminim(x,{b},{m},{flag=0}): x being a square and symmetric
  ignores m and returns the first vector whose norm is less than b. 2: as 0
  but uses a more robust, slower implementation, valid for non integral
  quadratic forms.
-Doc: $x$ being a square and symmetric matrix representing a positive definite
- quadratic form, this function deals with the vectors of $x$ whose norm is
- less than or equal to $b$, enumerated using the Fincke-Pohst algorithm,
- storing at most $m$ vectors (no limit if $m$ is omitted). The function
- searches for the minimal non-zero vectors if $b$ is omitted. The behavior is
- undefined if $x$ is not positive definite (a ``precision too low'' error is
- most likely, although more precise error messages are possible). The precise
- behavior depends on $\fl$.
+Doc: $x$ being a square and symmetric matrix of dimension $N$ representing
+ a positive definite quadratic form, this function deals with the vectors of
+ $x$ whose norm is less than or equal to $b$, enumerated using the
+ Fincke-Pohst algorithm, storing at most $m$ vectors (no limit if $m$ is
+ omitted). The function searches for the minimal non-zero vectors if $b$ is
+ omitted. The behavior is undefined if $x$ is not positive definite (a
+ ``precision too low'' error is most likely, although more precise error
+ messages are possible). The precise behavior depends on $\fl$.
 
  If $\fl=0$ (default), returns at most $2m$ vectors. The result is a
  three-component vector, the first component being the number of vectors
- enumerated (which may be larger than $2m$), the second being the maximum
- norm found, and the last vector
- is a matrix whose columns are found vectors, only one being given for each
- pair $\pm v$ (at most $m$ such pairs, unless $m$ was omitted). The vectors
- are returned in no particular order.
+ enumerated (which may be larger than $2m$), the second being the maximum norm
+ found, and the last vector is a matrix whose columns are found vectors, only
+ one being given for each pair $\pm v$ (at most $m$ such pairs, unless $m$ was
+ omitted). The vectors are returned in no particular order.
 
- If $\fl=1$, ignores $m$ and returns $[N,v]$, where $v$ is a non-zero vector
- of length $N \leq b$, or $[]$ if no non-zero vector has length $\leq b$.
+ If $\fl=1$, ignores $m$ and returns $[M,v]$, where $v$ is a non-zero vector
+ of length $M \leq b$, or $[]$ if no non-zero vector has length $\leq b$.
  If no explicit $b$ is provided, return a vector of smallish norm
  (smallest vector in an LLL-reduced basis).
 
- In these two cases, $x$ must have \emph{integral} entries. The
- implementation uses low precision floating point computations for maximal
- speed, which gives incorrect result when $x$ has large entries. (The
- condition is checked in the code and the routine raises an error if
- large rounding errors occur.) A more robust, but much slower,
- implementation is chosen if the following flag is used:
+ In these two cases, $x$ must have integral \emph{small} entries: more
+ precisely, we definitely we must have $N\cdot \|x\|_\infty^2 < 2^{53}$ but
+ even that may not be enough. The implementation uses low precision floating
+ point computations for maximal speed, which give incorrect results when $x$
+ has large entries. That condition is checked in the code and the routine
+ raises an error if large rounding errors occur. A more robust, but much
+ slower, implementation is chosen if the following flag is used:
 
- If $\fl=2$, $x$ can have non integral real entries. In this case, if $b$
+ If $\fl=2$, $x$ can have non integral real entries, but this is also useful
+ when $x$ has large integral entries. In this case, if $b$
  is omitted, the ``minimal'' vectors only have approximately the same norm.
  If $b$ is omitted, $m$ is an upper bound for the number of vectors that
  will be stored and returned, but all minimal vectors are nevertheless
