@@ -2638,17 +2638,16 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: minim(x,bound,maxnum) ===> qfminim(x,bound,maxnum)
 
-qfminim(x,{b},{m},{flag=0}): x being a square and symmetric matrix representing 
+qfminim(x,{B},{m},{flag=0}): x being a square and symmetric matrix representing 
 a positive definite quadratic form, this function deals with the vectors of x 
-whose norm is less than or equal to b, enumerated using the Fincke-Pohst 
+whose norm is less than or equal to B, enumerated using the Fincke-Pohst 
 algorithm, storing at most m vectors (no limit if m is omitted). The function 
-searches for the minimal non-zero vectors if b is omitted. The precise behavior 
+searches for the minimal non-zero vectors if B is omitted. The precise behavior 
 depends on flag. 0: returns at most 2m vectors (unless m omitted), returns 
-[N,M,mat] where N is the number of vectors enumerated, M the maximum norm among 
-these, and mat lists half the vectors (the other half is given by -mat). 1: 
-ignores m and returns the first vector whose norm is less than b. 2: as 0 but 
-uses a more robust, slower implementation, valid for non integral quadratic 
-forms.
+[N,M,V] where N is the number of vectors enumerated, M the maximum norm among 
+these, and V lists half the vectors (the other half is given by -V). 1: ignores 
+m and returns the first vector whose norm is less than B. 2: as 0 but uses a 
+more robust, slower implementation
 
 
   ***   at top-level: minim2()
@@ -2658,17 +2657,16 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: minim2(x,bound) ===> qfminim(x,bound,,1)
 
-qfminim(x,{b},{m},{flag=0}): x being a square and symmetric matrix representing 
+qfminim(x,{B},{m},{flag=0}): x being a square and symmetric matrix representing 
 a positive definite quadratic form, this function deals with the vectors of x 
-whose norm is less than or equal to b, enumerated using the Fincke-Pohst 
+whose norm is less than or equal to B, enumerated using the Fincke-Pohst 
 algorithm, storing at most m vectors (no limit if m is omitted). The function 
-searches for the minimal non-zero vectors if b is omitted. The precise behavior 
+searches for the minimal non-zero vectors if B is omitted. The precise behavior 
 depends on flag. 0: returns at most 2m vectors (unless m omitted), returns 
-[N,M,mat] where N is the number of vectors enumerated, M the maximum norm among 
-these, and mat lists half the vectors (the other half is given by -mat). 1: 
-ignores m and returns the first vector whose norm is less than b. 2: as 0 but 
-uses a more robust, slower implementation, valid for non integral quadratic 
-forms.
+[N,M,V] where N is the number of vectors enumerated, M the maximum norm among 
+these, and V lists half the vectors (the other half is given by -V). 1: ignores 
+m and returns the first vector whose norm is less than B. 2: as 0 but uses a 
+more robust, slower implementation
 
 
   ***   at top-level: mod()
