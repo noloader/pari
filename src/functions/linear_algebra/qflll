@@ -71,7 +71,7 @@ Doc: \idx{LLL} algorithm applied to the
     time = 4,470 ms.
  ? exponent(v * p / C)
  %5 = -1418
- ? p3 = qflll(b,3)[,1]; \\ compute in place), faster
+ ? p3 = qflll(b,3)[,1]; \\ compute in place, faster
     time = 3,790 ms.
  ? p3 == p \\ same result
  %7 = 1
