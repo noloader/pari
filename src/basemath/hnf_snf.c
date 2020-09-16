@@ -1994,12 +1994,12 @@ ZM_hnfall_i(GEN A, GEN *ptB, long remove)
         /* zero a = Aij  using  Aik */
         if (signe(a)) ZC_elem(a,gcoeff(A,i,k), A,B,j,k);
         ZM_reduce(A,B, i,k); /* ensure reduced entries even if a = 0 */
-        if (gc_needed(av,1))
-        {
-          if (DEBUGMEM>1)
-            pari_warn(warnmem,"ZM_hnfall[1], li = %ld, j = %ld", li, j);
-          gerepileall(av, B? 2: 1, &A, &B);
-        }
+      }
+      if (gc_needed(av,1) && (j & 0x7f) == 0)
+      {
+        if (DEBUGMEM>1)
+          pari_warn(warnmem,"ZM_hnfall[1], li = %ld, j = %ld", li, j);
+        gerepileall(av, B? 2: 1, &A, &B);
       }
       if (signe( gcoeff(A,li,j) )) break;
       h[j] = li-1;
@@ -2028,18 +2028,20 @@ ZM_hnfall_i(GEN A, GEN *ptB, long remove)
   if (DEBUGLEVEL>5) err_printf("\nhnfall, final phase: ");
   r--; /* first r cols are in the image the n-r (independent) last ones */
   for (j=1; j<=r; j++)
+  {
     for (i=h[j]; i; i--)
     {
       a = gcoeff(A,i,j);
       k = c[i];
       if (signe(a)) ZC_elem(a,gcoeff(A,i,k), A,B, j,k);
       ZM_reduce(A,B, i,k); /* ensure reduced entries, even if a = 0 */
-      if (gc_needed(av,1))
-      {
-        if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfall[3], j = %ld", j);
-        gerepileall(av, B? 2: 1, &A, &B);
-      }
     }
+    if (gc_needed(av,1) && (j & 0x7f) == 0)
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfall[3], j = %ld", j);
+      gerepileall(av, B? 2: 1, &A, &B);
+    }
+  }
   if (DEBUGLEVEL>5) err_printf("\n");
   if (remove) remove_0cols(r, &A, &B, remove);
   if (ptB) *ptB = B;
