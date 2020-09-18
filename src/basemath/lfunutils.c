@@ -862,7 +862,6 @@ lfunchigen(GEN bnr, GEN CHI)
   long r1, r2, n1;
   int real;
 
-  if (nftyp(bnr) == typ_BIDZ) return lfunchiZ(bnr, CHI);
   if (typ(CHI) == t_VEC && !RgV_is_ZV(CHI))
   {
     long map, i, l = lg(CHI);
@@ -2689,7 +2688,6 @@ enum { t_LFUNMISC_POL, t_LFUNMISC_CHIQUAD, t_LFUNMISC_CHICONREY,
 static long
 lfundatatype(GEN data)
 {
-  long l;
   switch(typ(data))
   {
     case t_INT: return t_LFUNMISC_CHIQUAD;
@@ -2697,9 +2695,11 @@ lfundatatype(GEN data)
     case t_POL: return t_LFUNMISC_POL;
     case t_VEC:
       if (checknf_i(data)) return t_LFUNMISC_POL;
-      l = lg(data);
-      if (l == 17) return t_LFUNMISC_ELLINIT;
-      if (l == 3 && typ(gel(data,1)) == t_VEC) return t_LFUNMISC_CHIGEN;
+      switch(lg(data))
+      {
+        case 17: return t_LFUNMISC_ELLINIT;
+        case 3:  return t_LFUNMISC_CHIGEN;
+      }
       break;
   }
   return -1;
@@ -2724,7 +2724,17 @@ lfunmisc_to_ldata_i(GEN ldata, long shallow)
       GEN G = znstar0(gel(ldata,1), 1);
       return lfunchiZ(G, gel(ldata,2));
     }
-    case t_LFUNMISC_CHIGEN: return lfunchigen(gel(ldata,1), gel(ldata,2));
+    case t_LFUNMISC_CHIGEN:
+    {
+      GEN G = gel(ldata,1), chi = gel(ldata,2);
+      switch(nftyp(G))
+      {
+        case typ_BIDZ: return lfunchiZ(G, chi);
+        case typ_BNR: return lfunchigen(G, chi);
+      }
+    }
+    break;
+
     case t_LFUNMISC_ELLINIT: return lfunell(ldata);
   }
   if (shallow != 2) pari_err_TYPE("lfunmisc_to_ldata",ldata);

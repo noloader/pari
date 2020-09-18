@@ -360,4 +360,7 @@ zeta(s)*zeta(s-a)
 -126
 -124
 -125
-Total time spent: 6330
+  ***   at top-level: lfun([[],[""]],1)
+  ***                 ^-----------------
+  *** lfun: incorrect type in lfunmisc_to_ldata (t_VEC).
+Total time spent: 4870
