@@ -26,6 +26,9 @@ OpenMP version, as described in Appendix D of the users' manual.
 This requires that PARI is Configured with --enable-tls. To build it, run
 make TARGET=openmp EXTRACFLAGS=-fopenmp
 
+* the FORTRAN90 program pari.f90 that shows how to write PARI bindings to
+use libpari in a FORTRAN program.
+
 * Several examples of complete GP programs. The rest of this file gives a
 brief description of these programs. They should be read into GP
 by the command \r file.
