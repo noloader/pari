@@ -1,5 +1,10 @@
 Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
+Done for version 2.13.0 (released ??/10/2020):
+
+  Added
+     1- examples/pari.f90: example FORTRAN binding
+
 Done for version 2.12.1 (released 16/09/2020):
   Fixed
 BA   1- plotlines flag was ignored
