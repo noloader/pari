@@ -291,6 +291,12 @@ zeta(s)*zeta(s-a)
 1.6449321944727952165464885195862083681
 0.97075234252284168437606085418663108405 + 0.0794201340278726639136259197680
 22884149*I
+-125
+-123
+-122
+-126
+-124
+-125
   ***   at top-level: lfuntheta(1,0)
   ***                 ^--------------
   *** lfuntheta: domain error in lfunthetainit: t = 0
@@ -354,13 +360,7 @@ zeta(s)*zeta(s-a)
   ***   at top-level: ...[2,""]]],0,[0],1,1,1,1]);lfunan(L,5)
   ***                                             ^-----------
   *** lfunan: incorrect type in direuler (t_STR).
--125
--123
--122
--126
--124
--125
   ***   at top-level: lfun([[],[""]],1)
   ***                 ^-----------------
   *** lfun: incorrect type in lfunmisc_to_ldata (t_VEC).
-Total time spent: 4870
+Total time spent: 8142
