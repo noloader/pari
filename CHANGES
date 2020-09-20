@@ -1,6 +1,8 @@
 Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
 Done for version 2.13.0 (released ??/10/2020):
+  Fixed
+     1- sizebyte(objects containing t_LIST): would assign size 3 to all lists
 
   Added
      1- examples/pari.f90: example FORTRAN binding

@@ -2269,11 +2269,23 @@ gsizeclone(GEN x) { return (typ(x) == t_INT)? lgefint(x): gsizeclone_i(x); }
 long
 gsizeword(GEN x)
 {
-  GEN L;
-  if (typ(x) != t_LIST) return gsizeclone(x);
-  /* For t_LIST, return the actual list size, gsizeclone() is always 3 */
-  L = list_data(x);
-  return L? 3 + gsizeclone(L): 3;
+  long i, n, lx, tx = typ(x);
+  switch(tx)
+  { /* non recursive types */
+    case t_INT:
+    case t_REAL:
+    case t_STR:
+    case t_VECSMALL: return lg(x);
+
+    case t_LIST:
+      x = list_data(x);
+      return x? 3 + gsizeword(x): 3;
+
+    default:
+      n = lx = lg(x);
+      for (i=lontyp[tx]; i<lx; i++) n += gsizeword(gel(x,i));
+      return n;
+  }
 }
 long
 gsizebyte(GEN x) { return gsizeword(x) * sizeof(long); }
