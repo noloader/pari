@@ -1,5 +1,5 @@
-f(i)=i^2+1;
-export(f);
+export(f=i->i^2+1);
+parsum(i=1,1,f(i))
 parsum(i=1,10,f(i))
 
 \\ errors
