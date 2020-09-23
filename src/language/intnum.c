@@ -1425,6 +1425,7 @@ contfrac_Euler(GEN C)
   long i, n = lg(C) - 1, a = n/2, b = (n - 1)/2;
   GEN A = cgetg(a+1, t_VEC), B = cgetg(b+1, t_VEC);
   gel(A,1) = gel(C,2);
+  if (!b) return mkvec2(A, B);
   gel(B,1) = gneg(gmul(gel(C,3), gel(C,2)));
   for (i = 2; i <= b; i++)
   {
@@ -1472,26 +1473,26 @@ QD(GEN M, long lim)
 }
 
 static GEN
-quodif_i(GEN M, long lim)
+quodif_i(GEN M, long n)
 {
   switch(typ(M))
   {
     case t_RFRAC:
-      if (lim < 0) pari_err_TYPE("contfracinit",M);
-      M = gtoser(M, varn(gel(M,2)), lim+3); /*fall through*/
+      if (n < 0) pari_err_TYPE("contfracinit",M);
+      M = gtoser(M, varn(gel(M,2)), n+3); /*fall through*/
     case t_SER: M = gtovec(M); break;
     case t_POL: M = RgX_to_RgC(M, degpol(M)+1); break;
     case t_VEC: case t_COL: break;
     default: pari_err_TYPE("contfracinit", M);
   }
-  if (lim < 0)
+  if (n < 0)
   {
-    lim = lg(M)-2;
-    if (lim < 0) retmkvec2(cgetg(1,t_VEC),cgetg(1,t_VEC));
+    n = lg(M)-2;
+    if (n < 0) return cgetg(1,t_VEC);
   }
-  else if (lg(M)-1 <= lim)
-    pari_err_COMPONENT("contfracinit", "<", stoi(lg(M)-1), stoi(lim));
-  return QD(M, lim);
+  else if (lg(M)-1 <= n)
+    pari_err_COMPONENT("contfracinit", "<", stoi(lg(M)-1), stoi(n));
+  return QD(M, n);
 }
 GEN
 quodif(GEN M, long n)
@@ -1500,10 +1501,12 @@ quodif(GEN M, long n)
   return gerepilecopy(av, quodif_i(M, n));
 }
 GEN
-contfracinit(GEN M, long lim)
+contfracinit(GEN M, long n)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, contfrac_Euler(quodif_i(M, lim)));
+  GEN C = quodif_i(M, n);
+  if (lg(C) < 3) { set_avma(av); retmkvec2(cgetg(1,t_VEC), cgetg(1,t_VEC)); }
+  return gerepilecopy(av, contfrac_Euler(C));
 }
 
 /* Evaluate at 1/tinv the nlim first terms of the continued fraction output by
