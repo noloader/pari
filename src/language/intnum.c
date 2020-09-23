@@ -1415,36 +1415,34 @@ intnumdoub0(GEN a, GEN b, int nc, int nd, int nf, GEN tabext, GEN tabint, long p
 }
 #endif
 
-/* The quotient-difference algorithm. Given a vector M, convert the series
- * S = \sum_{n >= 0} M[n+1]z^n into a continued fraction.
- * Compute the c[n] such that
- * S = c[1] / (1 + c[2]z / (1+c[3]z/(1+...c[lim]z))),
- * Compute A[n] and B[n] such that
- * S = M[1]/ (1+A[1]*z+B[1]*z^2 / (1+A[2]*z+B[2]*z^2/ (1+...1/(1+A[lim\2]*z)))),
- * Assume lim <= #M.
- * Does not work for certain M. */
-
-/* Given a continued fraction CF output by the quodif program,
-convert it into an Euler continued fraction A(n), B(n), where
-$1/(1+c[2]z/(1+c[3]z/(1+..c[lim]z)))
-=1/(1+A[1]*z+B[1]*z^2/(1+A[2]*z+B[2]*z^2/(1+...1/(1+A[lim\2]*z)))). */
+/* Given a continued fraction C output by QD convert it into an Euler
+ * continued fraction A(n), B(n), where
+ * 1 / (1 + C[2]z / (1+C[3]z / (1+..C[lim]z)))
+ * = 1 / (1+A[1]*z+B[1]*z^2/(1+A[2]*z+B[2]*z^2/(1+...1/(1+A[lim\2]*z)))). */
 static GEN
-contfrac_Euler(GEN CF)
+contfrac_Euler(GEN C)
 {
-  long lima, limb, i, lim = lg(CF)-1;
-  GEN A, B;
-  lima = lim/2;
-  limb = (lim - 1)/2;
-  A = cgetg(lima+1, t_VEC);
-  B = cgetg(limb+1, t_VEC);
-  gel (A, 1) = gel(CF, 2);
-  for (i=2; i <= lima; ++i) gel(A,i) = gadd(gel(CF, 2*i), gel(CF, 2*i-1));
-  for (i=1; i <= limb; ++i) gel(B,i) = gneg(gmul(gel(CF, 2*i+1), gel(CF, 2*i)));
+  long i, n = lg(C) - 1, a = n/2, b = (n - 1)/2;
+  GEN A = cgetg(a+1, t_VEC), B = cgetg(b+1, t_VEC);
+  gel(A,1) = gel(C,2);
+  gel(B,1) = gneg(gmul(gel(C,3), gel(C,2)));
+  for (i = 2; i <= b; i++)
+  {
+    GEN u = gel(C,2*i);
+    gel(A,i) = gadd(u, gel(C, 2*i-1));
+    gel(B,i) = gneg(gmul(gel(C, 2*i+1), u));
+  }
+  if (a != b) gel(A,a) = gadd(gel(C, 2*a), gel(C, 2*a-1));
   return mkvec2(A, B);
 }
 
+/* The quotient-difference algorithm. Given a vector M, convert the series
+ * S = sum_{n >= 0} M[n+1] z^n into a continued fraction.
+ * Compute the c[n] such that
+ * S = c[1] / (1 + c[2]z / (1+c[3]z/(1+...c[lim]z))),
+ * Assume lim <= #M. Does not work for certain M. */
 static GEN
-contfracinit_i(GEN M, long lim)
+QD(GEN M, long lim)
 {
   pari_sp av;
   GEN e, q, c;
@@ -1473,11 +1471,9 @@ contfracinit_i(GEN M, long lim)
   return c;
 }
 
-GEN
-contfracinit(GEN M, long lim)
+static GEN
+quodif_i(GEN M, long lim)
 {
-  pari_sp ltop = avma;
-  GEN c;
   switch(typ(M))
   {
     case t_RFRAC:
@@ -1495,17 +1491,27 @@ contfracinit(GEN M, long lim)
   }
   else if (lg(M)-1 <= lim)
     pari_err_COMPONENT("contfracinit", "<", stoi(lg(M)-1), stoi(lim));
-  c = contfracinit_i(M, lim);
-  return gerepilecopy(ltop, contfrac_Euler(c));
+  return QD(M, lim);
+}
+GEN
+quodif(GEN M, long n)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, quodif_i(M, n));
+}
+GEN
+contfracinit(GEN M, long lim)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, contfrac_Euler(quodif_i(M, lim)));
 }
 
 /* Evaluate at 1/tinv the nlim first terms of the continued fraction output by
- * contfracinit. */
-/* Not stack clean */
+ * contfracinit. Shallow. */
 GEN
 contfraceval_inv(GEN CF, GEN tinv, long nlim)
 {
-  pari_sp btop;
+  pari_sp av;
   long j;
   GEN S = gen_0, S1, S2, A, B;
   if (typ(CF) != t_VEC || lg(CF) != 3) pari_err_TYPE("contfraceval", CF);
@@ -1517,7 +1523,7 @@ contfraceval_inv(GEN CF, GEN tinv, long nlim)
     pari_err_COMPONENT("contfraceval", ">", stoi(lg(A)-1), stoi(nlim));
   if (lg(B)+1 <= nlim)
     pari_err_COMPONENT("contfraceval", ">", stoi(lg(B)), stoi(nlim));
-  btop = avma;
+  av = avma;
   if (nlim <= 1) return lg(A)==1? gen_0: gdiv(tinv, gadd(gel(A, 1), tinv));
   switch(nlim % 3)
   {
@@ -1539,7 +1545,7 @@ contfraceval_inv(GEN CF, GEN tinv, long nlim)
     S2 = gadd(gmul(gadd(gel(A, j-1), tinv), S1), gel(B, j-1));
     S3 = gadd(gmul(gadd(gel(A, j-2), tinv), S2), gmul(gel(B, j-2), S1));
     S = gdiv(gmul(gel(B, j-3), S2), S3);
-    if (gc_needed(btop, 3)) S = gerepilecopy(btop, S);
+    if (gc_needed(av, 3)) S = gerepilecopy(av, S);
   }
   return gdiv(tinv, gadd(gadd(gel(A, 1), tinv), S));
 }
@@ -1547,8 +1553,8 @@ contfraceval_inv(GEN CF, GEN tinv, long nlim)
 GEN
 contfraceval(GEN CF, GEN t, long nlim)
 {
-  pari_sp ltop = avma;
-  return gerepileupto(ltop, contfraceval_inv(CF, ginv(t), nlim));
+  pari_sp av = avma;
+  return gerepileupto(av, contfraceval_inv(CF, ginv(t), nlim));
 }
 
 /* MONIEN SUMMATION */
@@ -1594,7 +1600,7 @@ Pade(GEN M, GEN *pP, GEN *pQ)
 {
   pari_sp av = avma;
   long n = lg(M)-2, i;
-  GEN v = contfracinit_i(M, n), P = pol_0(0), Q = pol_1(0);
+  GEN v = QD(M, n), P = pol_0(0), Q = pol_1(0);
   /* evaluate continued fraction => Pade approximants */
   for (i = n-1; i >= 1; i--)
   { /* S = P/Q: S -> v[i]*x / (1+S) */

@@ -4086,6 +4086,7 @@ GEN     intnumromb(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, l
 GEN     intnumromb_bitprec(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long bit);
 GEN     prodeulerrat(GEN F, GEN s, long a, long prec);
 GEN     prodnumrat(GEN F, long a, long prec);
+GEN     quodif(GEN M, long n);
 GEN     sumeulerrat(GEN F, GEN s, long a, long prec);
 GEN     sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
 GEN     sumnumap(void *E, GEN (*eval)(void*,GEN), GEN a, GEN tab, long prec);
