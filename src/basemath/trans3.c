@@ -1744,10 +1744,10 @@ czeta(GEN s0, long prec)
   }
   optim_zeta(s, prec, &lim, &nn);
   if (DEBUGLEVEL>2) err_printf("lim, nn: [%ld, %ld]\n", lim, nn);
-  incrprec(prec); /* one extra word of precision */
 
   ms = gneg(s);
   Ns = dirpowerssum(nn, ms, prec);
+  incrprec(prec); /* one extra word of precision */
   ns = gpow(utor(nn, prec), ms, prec);
   y = gsub(Ns, gmul2n(ns, -1));
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 1 to N-1");
