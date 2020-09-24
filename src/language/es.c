@@ -2858,11 +2858,9 @@ bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
         }
         str_puts(S, "])"); break;
       case t_LIST_MAP:
-        {
-          str_puts(S, "Map(");
-          bruti(maptomat_shallow(g),T,S);
-          str_puts(S, ")"); break;
-        }
+        str_puts(S, "Map(");
+        bruti(maptomat_shallow(g),T,S);
+        str_puts(S, ")"); break;
       }
       break;
     case t_STR:
