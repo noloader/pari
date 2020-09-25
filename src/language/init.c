@@ -852,11 +852,14 @@ pari_add_defaults_module(entree *ep)
 static void *
 pari_mainstack_malloc(size_t size)
 {
+  void *b;
   /* Check that the system allows reserving "size" bytes. This is just
    * a check, we immediately free the memory. */
-  void *b = mmap(NULL, size, PROT_READ|PROT_WRITE,
-                             MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  BLOCK_SIGINT_START;
+  b = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  BLOCK_SIGINT_END;
   if (b == MAP_FAILED) return NULL;
+  BLOCK_SIGINT_START;
   munmap(b, size);
 
   /* Map again, this time with MAP_NORESERVE. On some operating systems
@@ -864,6 +867,7 @@ pari_mainstack_malloc(size_t size)
    * MAP_NORESERVE does not work as expected. */
   b = mmap(NULL, size, PROT_READ|PROT_WRITE,
                        MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+  BLOCK_SIGINT_END;
   if (b == MAP_FAILED) return NULL;
   return b;
 }
@@ -871,7 +875,9 @@ pari_mainstack_malloc(size_t size)
 static void
 pari_mainstack_mfree(void *s, size_t size)
 {
+  BLOCK_SIGINT_START;
   munmap(s, size);
+  BLOCK_SIGINT_END;
 }
 
 /* Completely discard the memory mapped between the addresses "from"
@@ -895,8 +901,10 @@ pari_mainstack_mreset(pari_sp from, pari_sp to)
   if (!s) return;
 
   addr = (void*)from;
+  BLOCK_SIGINT_START;
   res = mmap(addr, s, PROT_NONE,
              MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+  BLOCK_SIGINT_END;
   if (res != addr) pari_err(e_MEM);
 }
 
@@ -907,7 +915,11 @@ static int
 pari_mainstack_mextend(pari_sp from, pari_sp to)
 {
   size_t s = to - from;
-  return mprotect((void*)from, s, PROT_READ|PROT_WRITE);
+  int ret;
+  BLOCK_SIGINT_START;
+  ret = mprotect((void*)from, s, PROT_READ|PROT_WRITE);
+  BLOCK_SIGINT_END;
+  return ret;
 }
 
 /* Set actual stack size to the given size. This sets st->size and
@@ -939,11 +951,15 @@ pari_mainstack_setsize(struct pari_mainstack *st, size_t size)
 static void *
 pari_mainstack_malloc(size_t s)
 {
-  return malloc(s); /* NOT pari_malloc, e_MEM would be deadly */
+  char * tmp;
+  BLOCK_SIGINT_START;
+  tmp = malloc(s); /* NOT pari_malloc, e_MEM would be deadly */
+  BLOCK_SIGINT_END;
+  return tmp;
 }
 
 static void
-pari_mainstack_mfree(void *s, size_t size) { (void) size; free(s); }
+pari_mainstack_mfree(void *s, size_t size) { (void) size; pari_free(s); }
 
 static int
 pari_mainstack_setsize(struct pari_mainstack *st, size_t size)
