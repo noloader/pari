@@ -380,7 +380,7 @@ gtomap(GEN x)
       if (lg(p) != l)
         pari_err_DOMAIN("Map","x","is not",strtoGENstr("one-to-one"),x);
       M = cgetg(3, t_LIST);
-      M[1] = evaltyp(t_LIST_MAP)|evallg(l-1);
+      M[1] = evaltyp(t_LIST_MAP); /* do not set list_nmax! */
       list_data(M) = cgetg(l, t_VEC);
       treemap_i(list_data(M), p, x);
       return M;
