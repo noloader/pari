@@ -1398,6 +1398,20 @@ gtodouble(GEN x)
   }
   return rtodbl(x);
 }
+
+INLINE int
+gisdouble(GEN x, double *g)
+{
+  if (typ(x)!=t_REAL) {
+    pari_sp av = avma;
+    x = gtofp(x, DEFAULTPREC);
+    if (typ(x)!=t_REAL) pari_err_TYPE("gisdouble [t_REAL expected]", x);
+    set_avma(av);
+  }
+  if (expo(x) >= 0x3ff) return 0;
+  *g = rtodbl(x); return 1;
+}
+
 INLINE long
 gtos(GEN x) {
   if (typ(x) != t_INT) pari_err_TYPE("gtos [integer expected]",x);

@@ -6006,6 +6006,7 @@ INLINE int    gequalgs(GEN y, long s);
 INLINE GEN    gerepileupto(pari_sp av, GEN q);
 INLINE GEN    gerepileuptoint(pari_sp av, GEN q);
 INLINE GEN    gerepileuptoleaf(pari_sp av, GEN q);
+INLINE int    gisdouble(GEN x, double *g);
 INLINE GEN    gmax_shallow(GEN x, GEN y);
 INLINE GEN    gmaxsg(long s, GEN y);
 INLINE GEN    gmin_shallow(GEN x, GEN y);

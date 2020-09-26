@@ -2397,8 +2397,8 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN I,
 
   for (k=1; k<=N; k++)
   {
-    fp->v[k] = gtodouble(gcoeff(r,k,k));
-    for (j=1; j<k; j++) fp->q[j][k] = gtodouble(gcoeff(r,j,k));
+    if (!gisdouble(gcoeff(r,k,k),&(fp->v[k]))) return 0;
+    for (j=1; j<k; j++) if (!gisdouble(gcoeff(r,j,k),&(fp->q[j][k]))) return 0;
     if (DEBUGLEVEL>3) err_printf("v[%ld]=%.4g ",k,fp->v[k]);
   }
   B1 = fp->v[1]; /* T2(ideal[1]) */
