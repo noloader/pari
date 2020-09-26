@@ -271,15 +271,35 @@ vecpowuu(long N, ulong B)
   long p, i;
   forprime_t T;
 
-  if (B <= 2)
+  if (B <= 8000)
   {
     if (!B) return const_vec(N,gen_1);
     v = cgetg(N+1, t_VEC); if (N == 0) return v;
     gel(v,1) = gen_1;
     if (B == 1)
       for (i = 2; i <= N; i++) gel(v,i) = utoipos(i);
+    else if (B == 2)
+    {
+      ulong o, s;
+      if (N & HIGHMASK)
+        for (i = 2, o = 3; i <= N; i++, o += 2)
+          gel(v,i) = addiu(gel(v,i-1), o);
+      else
+        for (i = 2, s = 1, o = 3; i <= N; i++, s += o, o += 2)
+          gel(v,i) = utoipos(s + o);
+    }
+    else if (B == 3)
+      for (i = 2; i <= N; i++) gel(v,i) = powuu(i, B);
     else
-      for (i = 2; i <= N; i++) gel(v,i) = sqru(i);
+    {
+      long k, Bk, e = expu(N);
+      for (i = 3; i <= N; i += 2) gel(v,i) = powuu(i, B);
+      for (k = 1; k <= e; k++)
+      {
+        N >>= 1; Bk = B * k;
+        for (i = 1; i <= N; i += 2) gel(v, i << k) = shifti(gel(v, i), Bk);
+      }
+    }
     return v;
   }
   v = const_vec(N, NULL);

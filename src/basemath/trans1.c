@@ -536,22 +536,21 @@ powis(GEN a, long n)
 GEN
 powuu(ulong p, ulong N)
 {
-  pari_sp av = avma;
-  long P[] = {evaltyp(t_INT)|_evallg(3), evalsigne(1)|evallgefint(3),0};
+  pari_sp av;
   ulong pN;
   GEN y;
+  if (!p) return gen_0;
   if (N <= 2)
   {
     if (N == 2) return sqru(p);
-    if (N == 1) return utoi(p);
+    if (N == 1) return utoipos(p);
     return gen_1;
   }
-  if (!p) return gen_0;
   pN = upowuu(p, N);
   if (pN) return utoipos(pN);
   if (p == 2) return int2u(N);
-  P[2] = p; av = avma;
-  y = gen_powu_i(P, N, NULL, &_sqri, &_muli);
+  av = avma;
+  y = gen_powu_i(utoipos(p), N, NULL, &_sqri, &_muli);
   return gerepileuptoint(av, y);
 }
 
