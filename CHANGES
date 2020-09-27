@@ -4,6 +4,7 @@ Done for version 2.13.0 (released ??/10/2020):
   Fixed
      1- sizebyte(objects containing t_LIST): would assign size 3 to all lists
      2- [Map(Mat([0, 0])), [0, 0, 1]] -> SEGV
+     3- zeta(I+2^(-64)) -> SEGV
 
   Added
      1- examples/pari.f90: example FORTRAN binding
