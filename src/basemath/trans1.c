@@ -1152,7 +1152,8 @@ powcx(GEN x, GEN logx, GEN n, long prec)
   switch(typ(a))
   {
     case t_INT: xa = powgi(x, a); break;
-    case t_FRAC: xa = powfrac(x, a, prec); break;
+    case t_FRAC: xa = powfrac(x, a, prec);
+                 if (xa) break;
     default:
       xa = modlog2(gmul(gel(n,1), logx), &sh);
       if (!xa) xa = real2n(sh, prec);
