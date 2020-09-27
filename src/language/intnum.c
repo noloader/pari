@@ -204,81 +204,95 @@ intnumromb0_bitprec(GEN a, GEN b, GEN code, long flag, long bit)
 /********************************************************************/
 /**             NUMERICAL INTEGRATION (Gauss-Legendre)             **/
 /********************************************************************/
-/* P_N(z) / P'_N(z) if flag = 0, else N! P_N(z) */
+/* N > 1; S[n] = n^2. If !last, Newton step z - P_N(z) / P'_N(z),
+* else [z, (N-1)!P_{N-1}(z)]. */
 static GEN
-Legendreeval(long N, GEN z, GEN z2, long flag)
+Legendrenext(long N, GEN z, GEN S, int last)
 {
-  GEN u0 = z, u1 = subrs(mulur(3, z2), 1), u2;
-  long n;
-  for (n = 2; n < N; n++)
+  GEN q, Z, a, b, z2 = sqrr(z);
+  long n, n0, u;
+
+  q = subrs(mulur(3, z2), 1);
+  if (odd(N))
   {
-    u2 = subrr(mulrr(mulur(2*n+1, z), u1), mulir(sqru(n), u0));
-    u0 = u1; u1 = u2;
+    n0 = 3;
+    a = mulrr(z2, subrs(mulur(5, q), 4));
+    b = q;
   }
-  if (flag) return u1;
-  return divrr(mulrr(subrs(z2, 1), u1),
-               mulur(N, subrr(mulrr(z, u1), mulur(N, u0))));
+  else
+  {
+    n0 = 2;
+    a = mulrr(q, z);
+    b = z;
+  }
+  for (n = n0, u = 2*n0 + 1; n < N; n += 2, u += 4)
+  {
+    b = subrr(mulur(u, a), mulir(gel(S,n), b));
+    a = subrr(mulur(u + 2, mulrr(z2, b)), mulir(gel(S,n+1), a));
+  }
+  q = divrr(a, subrr(a, mulur(N, b)));
+  Z = subrr(z, divrr(mulrr(subrs(z2, 1), q), mulur(N, z)));
+  return last? mkvec2(Z, mulrr(b, addrs(q, 1))): Z;
 }
-
-/* Roots of Legendre Polynomials. */
+/* root ~ dz of Legendre polynomial P_N */
 static GEN
-Legendreroot(long N, double dz, long bit)
+Legendreroot(long N, double dz, GEN S, long bit)
 {
-  GEN Z = cgetr(nbits2prec(bit)), z = dbltor(dz), z2;
-  pari_sp av = avma;
-  long pr, j, e = - dblexpo(1 - dz*dz), n = 1 + expu(bit + 32 - e);
-
-  pr = 1 + e + ((bit - e) >> n);
+  GEN z = dbltor(dz);
+  long e = - dblexpo(1 - dz*dz), n = expu(bit + 32 - e) - 2;
+  long j, pr = 1 + e + ((bit - e) >> n);
   for (j = 1; j <= n; j++)
   {
     pr = 2 * pr - e;
-    z = rtor(z, nbits2prec(pr));
-    z2 = sqrr(z);
-    z = subrr(z, Legendreeval(N, z, z2, 0));
+    z = Legendrenext(N, rtor(z, nbits2prec(pr)), S, j == n);
   }
-  affrr(z, Z); return gc_const(av, Z);
+  return z;
 }
 GEN
 intnumgaussinit(long N, long prec)
 {
-  pari_sp av = avma;
+  pari_sp av;
   long N2, j, k, l, bit;
-  GEN V, W, F;
+  GEN res, V, W, F, S;
 
   prec += EXTRAPREC64;
   bit = prec2nbits(prec);
-  if (N <= 0)
-  {
-    N = (long)(bit * 0.2258);
-    if (odd(N)) N++;
-  }
+  if (N <= 0) { N = bit >> 2; if (odd(N)) N++; }
   if (N == 1) retmkvec2(mkvec(gen_0), mkvec(gen_2));
+  res = cgetg(3, t_VEC);
   if (N == 2)
   {
-    V = mkvec(divru(sqrtr(utor(3,prec)), 3));
-    W = mkvec(gen_1); return gerepilecopy(av, mkvec2(V, W));
+    GEN z = cgetr(prec);
+    gel(res,1) = mkvec(z);
+    gel(res,2) = mkvec(gen_1);
+    av = avma; affrr(divru(sqrtr(utor(3,prec)), 3), z);
+    return gc_const(av, res);
   }
   N2 = N >> 1; l = (N+3)>> 1;
-  V = cgetg(l, t_VEC);
-  W = cgetg(l, t_VEC); F = sqrr(mpfactr(N-1, prec));
+  gel(res,1) = V = cgetg(l, t_VEC);
+  gel(res,2) = W = cgetg(l, t_VEC);
+  gel(V,1) = odd(N)? gen_0: cgetr(prec);
+  gel(W,1) = cgetr(prec);
+  for (k = 2; k < l; k++) { gel(V,k) = cgetr(prec); gel(W,k) = cgetr(prec); }
+  av = avma; S = vecpowuu(N, 2); F = sqrr(mpfactr(N-1, prec));
   if (!odd(N)) k = 1;
   else
   {
-    GEN c = sqrr(divrr(sqrr(mpfactr(N2, prec)), F));
-    shiftr_inplace(c, 2*(N-1));
-    gel(V, 1) = gen_0;
-    gel(W, 1) = c; k = 2;
+    GEN c = divrr(sqrr(sqrr(mpfactr(N2, prec))), mulri(F, gel(S,N)));
+    shiftr_inplace(c, 2*N-1);
+    affrr(c, gel(W,1)); k = 2;
   }
+  F = divri(shiftr(F, 1), gel(S,N));
   for (j = 4*N2-1; j >= 3; k++, j -= 4)
   {
-    GEN w, z2, z = Legendreroot(N, cos(M_PI * j / (4*N+2)), bit);
-    pari_sp av = avma;
-    gel(V, k) = z; z2 = sqrr(z);
-    w = divrr(subsr(1, z2), sqrr(Legendreeval(N-1, z, z2, 1)));
-    gel(W, k) = gerepileuptoleaf(av, w);
+    pari_sp av2 = avma;
+    GEN zw = Legendreroot(N, cos(M_PI * j / (4*N+2)), S, bit);
+    GEN z = gel(zw,1), w = gel(zw,2);
+    affrr(z, gel(V,k));
+    w = mulrr(F, divrr(subsr(1, sqrr(z)), sqrr(w)));
+    affrr(w, gel(W,k)); set_avma(av2);
   }
-  W = RgV_Rg_mul(W, divri(shiftr(F, 1), sqru(N)));
-  return gerepilecopy(av, mkvec2(V, W));
+  return gc_const(av, res);
 }
 
 GEN

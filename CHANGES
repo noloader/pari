@@ -9,6 +9,10 @@ Done for version 2.13.0 (released ??/10/2020):
      1- examples/pari.f90: example FORTRAN binding
      2- [libpari] quodif
 
+  Changed
+     1- faster intnumgaussinit + change default number of points to B/4,
+        suitable when b - a ~ distance to the nearest pole
+
 Done for version 2.12.1 (released 16/09/2020):
   Fixed
 BA   1- plotlines flag was ignored
