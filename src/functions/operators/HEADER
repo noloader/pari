@@ -318,7 +318,21 @@ Doc:
  @eprog
 
  \item Finally, if the exponent $n$ is not an rational number, powering is
- treated as the transcendental function $\exp(n\log x)$, and in particular acts
+ treated as the transcendental function $\exp(n\log x)$, although it will be
+ more precise than the latter when $n$ and $x$ are exact:
+ \bprog
+ ? s = 1/2 + 10^14 * I
+ ? localprec(200); z = 2^s  \\ for reference
+ ? exponent(2^s - z)
+ %3 = -127  \\ perfect
+ ? exponent(exp(s * log(2)) - z)
+ %4 = -84 \\ not so good
+ @eprog\noindent The second computation is less precise because $\log(2)$ is
+ first computed to $38$ decimal digits, then multiplied by $s$, which has a
+ huge imaginary part amplifying the error.
+ 
+ In this case, $x \mapsto x^n$ is treated as a transcendental function and
+ and in particular acts
  componentwise on vector or matrices, even square matrices ! (See
  \secref{se:trans}.) If $x$ is $0$ and $n$ is an inexact $0$, this will raise
  an exception:
