@@ -10,9 +10,9 @@ Help: cos(x): cosine of x.
 Doc: cosine of $x$.
  Note that, for real $x$, cosine and sine can be obtained simultaneously as
  \bprog
- sincos(x) = my(z = exp(I*x)); [real(z), imag(z)];
+ cs(x) = my(z = exp(I*x)); [real(z), imag(z)];
  @eprog and for general complex $x$ as
  \bprog
- sincos(x) = my(z = exp(I*x), u = 1/z); [(z+u)/2, (z-u)/2];
+ cs2(x) = my(z = exp(I*x), u = 1/z); [(z+u)/2, (z-u)/2];
  @eprog Note that the latter function suffers from catastrophic cancellation
  when $z^2 \approx \pm1$.
