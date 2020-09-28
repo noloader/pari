@@ -8,3 +8,7 @@ Description:
  (gen):gen:prec      gsin($1, $prec)
 Help: sin(x): sine of x.
 Doc: sine of $x$.
+ Note that cosine and sine can be obtained simultaneously as
+ \bprog
+ sincos(x) = my(z = exp(I*x)); [real(z), imag(z)];
+ @eprog
