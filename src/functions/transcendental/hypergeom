@@ -39,6 +39,15 @@ Doc: general hypergeometric function, where \kbd{N} and \kbd{D} are
  \kbd{F01}: \kbd{hypergeom(,a,z)} (or \kbd{[a]}).
  This is essentially a Bessel function and computed as such. $R=\infty$.
 
+ \kbd{F10}: \kbd{hypergeom(a,,z)}
+  This is $(1-z)^{-a}$.
+
+ \kbd{F11}: \kbd{hypergeom(a,b,z)} is the Kummer confluent hypergeometric
+ function, computed by summing the series. $R=\infty$
+
+ \kbd{F20}: \kbd{hypergeom([a,b],,z)}. $R=0$, computed as
+ $$\dfrac{1}{\Gamma(a)}\int_0^\infty t^{a-1}(1-zt)^{-b}e^{-t}\,dt\;.$$
+
  \kbd{F21}: \kbd{hypergeom([a,b],c,z)} (or \kbd{[c]}).
  $R=1$, extended by
  $$\dfrac{\Gamma(c)}{\Gamma(b)\Gamma(c-b)}
@@ -46,15 +55,12 @@ Doc: general hypergeometric function, where \kbd{N} and \kbd{D} are
  This is Gauss's Hypergeometric function, and almost all of the implementation
  work is done for this function.
 
+ \kbd{F31}: \kbd{hypergeom([a,b,c],d,z)} (or \kbd{[d]}). $R=0$, computed as
+ $$\dfrac{1}{\Gamma(a)}\int_0^\infty t^{a-1}e^{-t}{}_2F_1(b,c;d;tz)\,dt\;.$$
+
  \kbd{F32}: \kbd{hypergeom([a,b,c],[d,e],z)}. $R=1$, extended by
  $$\dfrac{\Gamma(e)}{\Gamma(c)\Gamma(e-c)}
     \int_0^1t^{c-1}(1-t)^{e-c-1}{}_2F_1(a,b;d;tz)\,dt\;.$$
-
- \kbd{F20}: \kbd{hypergeom([a,b],,z)}. $R=0$, computed as
- $$\dfrac{1}{\Gamma(a)}\int_0^\infty t^{a-1}(1-zt)^{-b}e^{-t}\,dt\;.$$
-
- \kbd{F31}: \kbd{hypergeom([a,b,c],d,z)} (or \kbd{[d]}). $R=0$, computed as
- $$\dfrac{1}{\Gamma(a)}\int_0^\infty t^{a-1}e^{-t}{}_2F_1(b,c;d;tz)\,dt\;.$$
 
  For other inputs: if $R=\infty$ or $R=1$ and $|z| < 1- \varepsilon$ is not
  too close to the circle of convergence, we simply sum the series.
