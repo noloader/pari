@@ -254,6 +254,7 @@ intnumgaussinit(long N, long prec)
   pari_sp av;
   long N2, j, k, l, bit;
   GEN res, V, W, F, S;
+  double d;
 
   prec += EXTRAPREC64;
   bit = prec2nbits(prec);
@@ -283,10 +284,11 @@ intnumgaussinit(long N, long prec)
     affrr(c, gel(W,1)); k = 2;
   }
   F = divri(shiftr(F, 1), gel(S,N));
+  d = 1 - (N-1) / pow((double)(2*N),3);
   for (j = 4*N2-1; j >= 3; k++, j -= 4)
   {
     pari_sp av2 = avma;
-    GEN zw = Legendreroot(N, cos(M_PI * j / (4*N+2)), S, bit);
+    GEN zw = Legendreroot(N, d * cos(M_PI * j / (4*N+2)), S, bit);
     GEN z = gel(zw,1), w = gel(zw,2);
     affrr(z, gel(V,k));
     w = mulrr(F, divrr(subsr(1, sqrr(z)), sqrr(w)));

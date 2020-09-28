@@ -93,6 +93,7 @@ check(intnumgauss(t=1,2,t,4),3/2)
 bestappr(intnumgauss(t=1,2,t,1), 100)
 bestappr(intnumgauss(t=1,2,t,2), 100)
 bestappr(intnumgauss(t=1,2,t,3), 100)
+localprec(115); intnumgauss(x=1,2,1/x)-log(2)
 
 \\ Power series
 checkps(a,b) = my(t = norml2(Vec(b-a))); if (t, ceil(log(t)/log(10)), -oo);

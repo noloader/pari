@@ -129,6 +129,8 @@
 3/2
 ? bestappr(intnumgauss(t=1,2,t,3),100)
 3/2
+? localprec(115);intnumgauss(x=1,2,1/x)-log(2)
+0.E-115
 ? checkps(a,b)=my(t=norml2(Vec(b-a)));if(t,ceil(log(t)/log(10)),-oo);
 ? checkps(intnum(t=0,x,exp(t)),exp(x)-1)
 -oo
@@ -212,4 +214,4 @@
   ***                                             ^--
   ***   sorry, intfuncinit with hard endpoint behavior is not yet implemented.
 ? print("Total time spent: ",gettime);
-Total time spent: 2055
+Total time spent: 2544
