@@ -74,8 +74,7 @@ galoisfixedfield(G,G.group[2])
 galoisfixedfield(G,G.group[2],2,y)
 \\ #2253
 G=galoisinit(x^9-5*x^8-70*x^7+269*x^6+1591*x^5-4531*x^4-11255*x^3+29326*x^2+7688*x-29791);
-H=[Vecsmall([9,3,5,7,2,1,8,4,6]),Vecsmall([3,8,4,1,7,2,9,6,5])];
-galoisfixedfield(G,H,2)
+galoisfixedfield(G,G.gen,2)
 
 galoissubcyclo(17,2)
 galoissubcyclo(1,1)
