@@ -106,7 +106,7 @@ Doc:
  This will be generalized to more general abelian groups in later sections
  (Hecke characters), but in the present case of $(\Z/N\Z)^*$, there is a useful
  alternate convention : namely, it is not necessary to impose the SNF
- condition and we can use Chinese reminders instead. If $N = \prod p^{e_p}$ is
+ condition and we can use Chinese remainders instead. If $N = \prod p^{e_p}$ is
  the factorization of $N$ into primes, the so-called \tev{Conrey generators}
  of $G$ are the generators of the $(\Z/p^{e_p}\Z)^*$ lifted to $(\Z/N\Z)^*$ by
  requesting that they be congruent to $1$ modulo $N/p^{e_p}$ (for $p$ odd we

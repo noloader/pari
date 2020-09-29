@@ -90,11 +90,11 @@ Doc:
  \misctitle{Warning} As for the orientation of the basis of the period lattice,
  beware that many sources use the inverse convention where $\omega_2/\omega_1$
  has positive imaginary part and our $\omega_2$ is the negative of theirs. Our
- convention $\tau = \omega_1/\omega_2$  ensures that the action of $\text{PSL}_2$ is the natural
- one:
+ convention $\tau = \omega_1/\omega_2$  ensures that the action of
+ $\text{PSL}_2$ is the natural one:
  $$[a,b;c,d]\cdot\tau = (a\tau+b)/(c\tau+d)
    = (a \omega_1 + b\omega_2)/(c\omega_1 + d\omega_2),$$
- instead of a twisted one. (Our $tau$ is $-1/\tau$ in the above inverse
+ instead of a twisted one. (Our $\tau$ is $-1/\tau$ in the above inverse
  convention.)
 
  \misctitle{Curves over $\Q_p$} %GPHELPskip
@@ -118,13 +118,13 @@ Doc:
  = g(x)$. The point $(e_1,0)$ corresponds to $-1 \in \bar{\Q}_p^*/q^\Z$
  under the Tate parametrization.
 
- \item \tet{tate} returns $[u^2,u,q,[a,b],L, Ei]$ in the notation of Henniart-Mestre
- (CRAS t. 308, p.~391--395, 1989): $q$ is as above, $u\in \Q_p(\sqrt{-c_6})$
- is such that $\phi^* dx/(2y + a_1x+a3) = u dt/t$, where $\phi: E_q\to E$
- is an isomorphism (well defined up to sign) and $dt/t$ is the canonical
- invariant differential on the Tate curve; $u^2\in\Q_p$ does not depend on
- $\phi$. (Technicality: if $u\not\in\Q_p$, it is stored as a quadratic
- \typ{POLMOD}.)
+ \item \tet{tate} returns $[u^2,u,q,[a,b],Ei,L]$ in the notation of
+ Henniart-Mestre (CRAS t. 308, p.~391--395, 1989): $q$ is as above,
+ $u\in \Q_p(\sqrt{-c_6})$ is such that $\phi^* dx/(2y + a_1x+a3) = u dt/t$,
+ where $\phi: E_q\to E$ is an isomorphism (well defined up to sign) and
+ $dt/t$ is the canonical invariant differential on the Tate curve; $u^2\in\Q_p$
+ does not depend on $\phi$. (Technicality: if $u\not\in\Q_p$, it is stored as a
+ quadratic \typ{POLMOD}.)
  The parameters $[a,b]$ satisfy $4u^2 b \cdot \text{agm}(\sqrt{a/b},1)^2 = 1$
  as in Theorem~2 (\emph{loc.~cit.}).
  \kbd{Ei} describes the sequence of 2-isogenous curves (with kernel generated
