@@ -294,8 +294,8 @@ galoisborne(GEN T, GEN dn, struct galois_borne *gb, long d)
   if (DEBUGLEVEL>=4) timer_printf(&ti,"vandermondeinverse");
   borne = matrixnorm(M, prec);
   borneroots = gsupnorm(L, prec); /*t_REAL*/
-  bornetrace = gmulsg((2*step)*degpol(T)/d,
-                      powru(borneroots, minss(degpol(T), step)));
+  bornetrace = mulur((2*step)*degpol(T)/d,
+                     powru(borneroots, minss(degpol(T), step)));
   borneroots = ceil_safe(gmul(borne, borneroots));
   borneabs = ceil_safe(gmax_shallow(gmul(borne, bornetrace),
                                     powru(bornetrace, d)));
