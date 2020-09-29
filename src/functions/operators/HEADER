@@ -330,7 +330,7 @@ Doc:
  @eprog\noindent The second computation is less precise because $\log(2)$ is
  first computed to $38$ decimal digits, then multiplied by $s$, which has a
  huge imaginary part amplifying the error.
- 
+
  In this case, $x \mapsto x^n$ is treated as a transcendental function and
  and in particular acts
  componentwise on vector or matrices, even square matrices ! (See
