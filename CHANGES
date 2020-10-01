@@ -9,6 +9,7 @@ Done for version 2.13.0 (released ??/10/2020):
   Added
      1- examples/pari.f90: example FORTRAN binding
      2- [libpari] quodif
+BA   3- [libpari] perm_sqr
 
   Changed
      1- faster intnumgaussinit + change default number of points to B/4,

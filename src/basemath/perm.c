@@ -1066,7 +1066,7 @@ group_subgroups(GEN G)
   t = group_isA4S4(G);
   if (t == 3)
   {
-    GEN H = mkvec2(mkvec3(gel(gen,1), gel(gen,2), perm_pow(gel(gen,3),2)),
+    GEN H = mkvec2(mkvec3(gel(gen,1), gel(gen,2), perm_sqr(gel(gen,3))),
                    mkvecsmall3(3, 3, 2));
     GEN S = group_subgroups(H);
     GEN V = cgetg(11,t_VEC);
@@ -1092,11 +1092,11 @@ group_subgroups(GEN G)
       GEN u = gel(gen,3);
       GEN v = gel(gen,4), w, u2;
       if (zv_equal(perm_conj(u,s), t)) /*u=(2,3,4)*/
-        u2 = perm_mul(u,u);
+        u2 = perm_sqr(u);
       else
       {
         u2 = u;
-        u = perm_mul(u,u);
+        u = perm_sqr(u);
       }
       if (perm_order(v)==2)
       {
@@ -1110,10 +1110,10 @@ group_subgroups(GEN G)
       else
       {
         w = v;
-        if (!zv_equal(perm_mul(w,w), s)) /*w=(1,4,2,3)*/
+        if (!zv_equal(perm_sqr(w), s)) /*w=(1,4,2,3)*/
         {
           w = perm_conj(u,w);
-          if (!zv_equal(perm_mul(w,w), s)) w = perm_conj(u,w);
+          if (!zv_equal(perm_sqr(w), s)) w = perm_conj(u,w);
         }
         v = perm_mul(w,t); /*v=(1,2)*/
       }
@@ -1517,8 +1517,8 @@ groupelts_to_group(GEN G)
       mkvec2(mkvec3(gel(cyc,2), gel(cyc,3), gel(cyc,5)), mkvecsmall3(2,2,3)));
   if (n==24 && l==18 && ord[11]==3 && ord[15]==4 && ord[16]==4)
   {
-    GEN t21 = perm_pow(gel(cyc,15),2);
-    GEN t22 = perm_pow(gel(cyc,16),2);
+    GEN t21 = perm_sqr(gel(cyc,15));
+    GEN t22 = perm_sqr(gel(cyc,16));
     return gerepilecopy(av,
       mkvec2(mkvec4(t21,t22, gel(cyc,11), gel(cyc,15)), mkvecsmall4(2,2,3,2)));
   }

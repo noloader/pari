@@ -1111,6 +1111,10 @@ INLINE GEN
 perm_mul(GEN s, GEN x)
 { pari_APPLY_long(s[x[i]]) }
 
+INLINE GEN
+perm_sqr(GEN x)
+{ pari_APPLY_long(x[x[i]]) }
+
 /* Compute the inverse (reciprocal) of a permutation. */
 INLINE GEN
 perm_inv(GEN x)

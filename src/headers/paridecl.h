@@ -6129,6 +6129,7 @@ INLINE void   pari_realloc_ip(void **pointer,size_t size);
 INLINE GEN    perm_conj(GEN s, GEN t);
 INLINE GEN    perm_inv(GEN x);
 INLINE GEN    perm_mul(GEN s, GEN t);
+INLINE GEN    perm_sqr(GEN s);
 INLINE GEN    pol_0(long v);
 INLINE GEN    pol_1(long v);
 INLINE GEN    pol_x(long v);
