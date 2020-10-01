@@ -77,6 +77,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     (reducing a Gram matrix in place without returning the base change
     matrix is not useful; supporting it would complicate the code)
   - the global C variable logstyle was renamed to pari_logstyle
+  - perm_pow prototype was changed to take a GEN exponent.
 
 * Specific to the pthread interface
 ===================================

@@ -3828,7 +3828,7 @@ genefrob(GEN nf, GEN gal, GEN r)
     pr = idealprimedec(nf, p);
     pr = gel(pr,1);
     frob = idealfrobenius(nf, gal, pr);
-    g = perm_mul(g, perm_pow(frob, itos(gcoeff(fa,i,2))));
+    g = perm_mul(g, perm_pow(frob, gcoeff(fa,i,2)));
   }
   return g;
 }

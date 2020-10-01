@@ -14,6 +14,7 @@ BA   3- [libpari] perm_sqr, perm_powu
   Changed
      1- faster intnumgaussinit + change default number of points to B/4,
         suitable when b - a ~ distance to the nearest pole
+BA   2- [libpari] perm_pow now take a t_INT exponent
 
 Done for version 2.12.1 (released 16/09/2020):
   Fixed

@@ -4621,7 +4621,7 @@ GEN     numtoperm(long n, GEN x);
 int     perm_commute(GEN p, GEN q);
 GEN     perm_cycles(GEN v);
 long    perm_order(GEN perm);
-GEN     perm_pow(GEN perm, long exp);
+GEN     perm_pow(GEN perm, GEN exp);
 GEN     perm_powu(GEN perm, ulong exp);
 long    perm_sign(GEN perm);
 GEN     perm_to_GAP(GEN v);

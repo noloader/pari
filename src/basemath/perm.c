@@ -588,7 +588,7 @@ cyc_pow_perm(GEN cyc, long exp)
 }
 
 GEN
-perm_pow(GEN perm, long exp)
+perm_pow(GEN perm, GEN exp)
 {
   long i, r = lg(perm)-1;
   GEN p = zero_zv(r);
@@ -600,7 +600,7 @@ perm_pow(GEN perm, long exp)
     if (p[i]) continue;
     v[1] = i;
     for (n=1, k=perm[i]; k!=i; k=perm[k], n++) v[n+1] = k;
-    e = umodsu(exp, n);
+    e = umodiu(exp, n);
     for (k = 1, l = e; k <= n; k++)
     {
       p[v[k]] = v[l+1];
@@ -1211,7 +1211,7 @@ group_abelianHNF(GEN G, GEN S)
     GEN P, C = cgetg(n,t_COL);
     pari_sp av = avma;
     gel(M,i) = C;
-    P = perm_pow(gel(g,i), -o[i]);
+    P = perm_inv(perm_powu(gel(g,i), o[i]));
     for(j=1; j<lg(S); j++)
       if (zv_equal(P, gel(S,j))) break;
     set_avma(av);
