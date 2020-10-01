@@ -611,6 +611,29 @@ perm_pow(GEN perm, long exp)
 }
 
 GEN
+perm_powu(GEN perm, ulong exp)
+{
+  ulong i, r = lg(perm)-1;
+  GEN p = zero_zv(r);
+  pari_sp av = avma;
+  GEN v = cgetg(r+1, t_VECSMALL);
+  for (i=1; i<=r; i++)
+  {
+    ulong e, n, k, l;
+    if (p[i]) continue;
+    v[1] = i;
+    for (n=1, k=perm[i]; k!=i; k=perm[k], n++) v[n+1] = k;
+    e = exp % n;
+    for (k = 1, l = e; k <= n; k++)
+    {
+      p[v[k]] = v[l+1];
+      if (++l == n) l = 0;
+    }
+  }
+  set_avma(av); return p;
+}
+
+GEN
 perm_to_GAP(GEN p)
 {
   pari_sp ltop=avma;
@@ -1127,8 +1150,8 @@ group_subgroups(GEN G)
   }
   else
   {
-    long osig = mael(factoru(ord[1]), 1, 1);
-    GEN sig = perm_pow(gel(gen,1), ord[1]/osig);
+    ulong osig = mael(factoru(ord[1]), 1, 1);
+    GEN sig = perm_powu(gel(gen,1), ord[1]/osig);
     H = cyclicgroup(sig,osig);
     sg3 = NULL;
   }

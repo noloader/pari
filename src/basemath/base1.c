@@ -836,7 +836,7 @@ idealfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN aut)
     a = Fq_pow(a, p, T, p);
     if (ZX_equal(a, b)) break;
   }
-  g = perm_pow(g, Fl_inv(s, f));
+  g = perm_powu(g, Fl_inv(s, f));
   return gerepileupto(av, g);
 }
 
@@ -870,7 +870,7 @@ idealramfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN ram, GEN aut)
   b = nf_to_Fq(nf, zk_galoisapplymod(nf, modpr_genFq(modpr), S, p), modpr);
   for (s=0; !ZX_equal(a, b); s++)
     a = Fq_pow(a, p, T, p);
-  g = perm_pow(g, Fl_inv(s, f));
+  g = perm_powu(g, Fl_inv(s, f));
   return gerepileupto(av, g);
 }
 

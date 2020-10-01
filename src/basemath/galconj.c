@@ -2074,8 +2074,8 @@ galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden,
   else
   {
     /* Normalize result so that psi[g]=1 */
-    long im = Fl_inv(gf->psi[g], deg);
-    GEN cp = perm_pow(res, im);
+    ulong im = Fl_inv(gf->psi[g], deg);
+    GEN cp = perm_powu(res, im);
     for(i=1;i<lg(res);i++) res[i] = cp[i];
     for(i=1;i<lg(gf->psi);i++) gf->psi[i] = Fl_mul(im, gf->psi[i], deg);
     set_avma(av2); gf->deg = deg; return res;
@@ -2338,7 +2338,7 @@ galoisgenliftauto(GEN O, GEN gj, long s, long n, struct galois_test *td)
       for (i=1; i<lg(O); i++) oX[i] = X[i];
       osel = sel; a = (a+t*w[f])%deg;
     }
-    pf = perm_mul(pf, perm_pow(pf1, el));
+    pf = perm_mul(pf, perm_powu(pf1, el));
   }
   return gerepileuptoleaf(av, pf);
 }
@@ -2547,10 +2547,10 @@ getfr(GEN f, GEN h)
 }
 
 static long
-get_pow(GEN pf, long o, GEN pw, GEN gen)
+get_pow(GEN pf, ulong o, GEN pw, GEN gen)
 {
   long i, n  = lg(pf)-1;
-  GEN p1 = perm_pow(pf, o);
+  GEN p1 = perm_powu(pf, o);
   GEN p2 = pc_to_perm(pw, gen, n);
   for(i = 0; ; i++)
   {
@@ -2811,7 +2811,7 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne *gb,
   struct galois_frobenius gf, ogf;
   pari_sp ltop = avma;
   long x, n = degpol(T), is_central;
-  long po;
+  ulong po;
   GEN sigma, res, frob, O, PG, V, ofrob = NULL;
 
   if (!ga->deg) return NULL;
@@ -2850,14 +2850,14 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne *gb,
   frob = galoisfindfrobenius(T, L, den, bad, &gf, gb, ga);
   if (!frob) return gc_NULL(ltop);
   po = psi_order(gf.psi, gf.deg);
-  if (!(ga->group&ga_easy) && po < gf.deg && gf.deg/radicalu(gf.deg)%po == 0)
+  if (!(ga->group&ga_easy) && po < (ulong) gf.deg && gf.deg/radicalu(gf.deg)%po == 0)
   {
     is_central = 1;
     if (!bad) bad = gb->dis;
     if (po > 1)
     {
       ofrob = frob; ogf = gf;
-      frob = perm_pow(frob, po);
+      frob = perm_powu(frob, po);
       gf.deg /= po;
     }
   } else is_central = 0;
