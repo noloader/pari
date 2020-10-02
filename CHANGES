@@ -5,6 +5,7 @@ Done for version 2.13.0 (released ??/10/2020):
      1- sizebyte(objects containing t_LIST): would assign size 3 to all lists
      2- [Map(Mat([0, 0])), [0, 0, 1]] -> SEGV
      3- zeta(I+2^(-64)) -> SEGV
+BA   4- permorder returned incorrect results for large orders
 
   Added
      1- examples/pari.f90: example FORTRAN binding
@@ -15,6 +16,7 @@ BA   3- [libpari] perm_sqr, perm_powu, perm_orderu
      1- faster intnumgaussinit + change default number of points to B/4,
         suitable when b - a ~ distance to the nearest pole
 BA   2- [libpari] perm_pow now take a t_INT exponent
+BA   3- [libpari] permorder and perm_order now return a t_INT.
 
 Done for version 2.12.1 (released 16/09/2020):
   Fixed

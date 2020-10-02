@@ -440,11 +440,31 @@ perm_orderu(GEN v)
   return gc_ulong(av,d);
 }
 
-long
+static GEN
+_domul(void *data, GEN x, GEN y)
+{
+  GEN (*mul)(GEN,GEN)=(GEN (*)(GEN,GEN)) data;
+  return mul(x,y);
+}
+
+/* Output the order of p */
+GEN
+perm_order(GEN v)
+{
+  pari_sp av = avma;
+  GEN c = vecperm_orbits_i(mkvec(v), lg(v)-1);
+  long i, l = lg(c);
+  GEN V = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+    gel(V,i) = utoi(lg(gel(c,i))-1);
+  return gerepileuptoint(av, gen_product(V, (void *)lcmii, _domul));
+}
+
+GEN
 permorder(GEN v)
 {
   if (!isperm(v)) pari_err_TYPE("permorder",v);
-  return perm_orderu(v);
+  return perm_order(v);
 }
 
 /* sign of a permutation */

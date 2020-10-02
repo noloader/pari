@@ -78,6 +78,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     matrix is not useful; supporting it would complicate the code)
   - the global C variable logstyle was renamed to pari_logstyle
   - perm_pow prototype was changed to take a GEN exponent.
+  - perm_order and permorder prototypes were changed to return a GEN.
 
 * Specific to the pthread interface
 ===================================
