@@ -18,7 +18,7 @@ static long
 groupelts_sumorders(GEN S)
 {
   long i, s = 0;
-  for(i=1; i < lg(S); i++) s += perm_order(gel(S,i));
+  for(i=1; i < lg(S); i++) s += perm_orderu(gel(S,i));
   return s;
 }
 
@@ -56,7 +56,7 @@ indexgroupcentre(GEN G, GEN Z, const long *good, const long *bad)
   for(i=1;i<lg(Z);i++)
   {
     GEN z=gel(Z,i);
-    if (perm_order(z)==2)
+    if (perm_orderu(z)==2)
     {
       pari_sp btop=avma;
       GEN H = cyclicgroup(z,2);

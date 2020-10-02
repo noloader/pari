@@ -2502,7 +2502,7 @@ makescind(GEN nf, GEN P)
     /* roo[k] is a root of the other polynomial */
     if (k != is_P)
     {
-      ulong o = perm_order(perm);
+      ulong o = perm_orderu(perm);
       if (o != 2) perm = perm_powu(perm, o >> 1);
       /* perm has order two and doesn't belong to Gal(H_k/k) */
       return galoisfixedfield(G, perm, 1, varn(P));

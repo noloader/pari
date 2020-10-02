@@ -784,7 +784,7 @@ idealquasifrob(GEN nf, GEN gal, GEN grp, GEN pr, GEN subg, GEN *S, GEN aut)
   for (i=1; i<=n; i++)
   {
     GEN g = gel(grp,i);
-    if ((!subg && perm_order(g)==f)
+    if ((!subg && perm_orderu(g)==f)
       || (subg && perm_relorder(g, subg)==f))
     {
       *S = get_aut(nf, gal, aut, g);
@@ -892,7 +892,7 @@ idealinertiagroup(GEN nf, GEN gal, GEN aut, GEN pr)
   for (i=1; i<=n; i++)
   {
     GEN iso = gel(grp,i);
-    if (perm_order(iso) == e)
+    if (perm_orderu(iso) == e)
     {
       GEN S = get_aut(nf, gal, aut, iso);
       if (ZC_prdvd(ZC_galoisapply(nf, S, pi), pr)
@@ -987,7 +987,7 @@ idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
   {
     GEN S, Spi, piso, iso = gel(grp, i);
     long j, o, ix = iso[1];
-    if (idx[ix] >= 0 || rorder % (o = perm_order(iso))) continue;
+    if (idx[ix] >= 0 || rorder % (o = perm_orderu(iso))) continue;
 
     piso = iso;
     S = get_aut(nf, gal, aut, iso);

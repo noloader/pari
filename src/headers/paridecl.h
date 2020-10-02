@@ -4620,7 +4620,7 @@ GEN     groupelts_to_group(GEN G);
 GEN     numtoperm(long n, GEN x);
 int     perm_commute(GEN p, GEN q);
 GEN     perm_cycles(GEN v);
-long    perm_order(GEN perm);
+ulong   perm_orderu(GEN perm);
 GEN     perm_pow(GEN perm, GEN exp);
 GEN     perm_powu(GEN perm, ulong exp);
 long    perm_sign(GEN perm);

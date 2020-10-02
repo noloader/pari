@@ -430,21 +430,21 @@ permcycles(GEN v)
 }
 
 /* Output the order of p */
-long
-perm_order(GEN v)
+ulong
+perm_orderu(GEN v)
 {
   pari_sp av = avma;
   GEN c = vecperm_orbits_i(mkvec(v), lg(v)-1);
   long i, d;
   for(i=1, d=1; i<lg(c); i++) d = ulcm(d, lg(gel(c,i))-1);
-  return gc_long(av,d);
+  return gc_ulong(av,d);
 }
 
 long
 permorder(GEN v)
 {
   if (!isperm(v)) pari_err_TYPE("permorder",v);
-  return perm_order(v);
+  return perm_orderu(v);
 }
 
 /* sign of a permutation */
@@ -1121,7 +1121,7 @@ group_subgroups(GEN G)
         u2 = u;
         u = perm_sqr(u);
       }
-      if (perm_order(v)==2)
+      if (perm_orderu(v)==2)
       {
         if (!perm_commute(s,v)) /*v=(1,2)*/
         {
@@ -1318,7 +1318,7 @@ long
 groupelts_exponent(GEN elts)
 {
   long i, n = lg(elts)-1, expo = 1;
-  for(i=1; i<=n; i++) expo = ulcm(expo, perm_order(gel(elts,i)));
+  for(i=1; i<=n; i++) expo = ulcm(expo, perm_orderu(gel(elts,i)));
   return expo;
 }
 
@@ -1497,7 +1497,7 @@ groupelts_cyclic_subgroups(GEN G)
     long k = 1, o, c = 0;
     GEN p = gel(G, i);
     if (F2v_coeff(elts, p[1])) continue;
-    o = perm_order(p);
+    o = perm_orderu(p);
     ord[j] = o;
     gel(V,j++) = p;
     do
