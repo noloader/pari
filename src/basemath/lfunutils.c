@@ -2482,7 +2482,7 @@ idealfrobenius_easy(GEN nf, GEN gal, GEN aut, GEN T, GEN p)
   for(i=1; i < l; i++)
   {
     GEN g = gel(grp,i);
-    if (perm_orderu(g)==f)
+    if (perm_orderu(g) == (ulong)f)
     {
       GEN A = FpM_FpC_mul(DzkT, gel(aut,g[1]), p);
       if (ZV_equal(A, DXp)) {set_avma(av); return g; }
@@ -2507,7 +2507,7 @@ idealfrobenius_hard(GEN nf, GEN gal, GEN aut, GEN pr)
   for (i = 1; i < l; i++)
   {
     GEN g = gel(grp,i);
-    if (perm_orderu(g)==f)
+    if (perm_orderu(g) == (ulong)f)
     {
       GEN S = gel(aut,g[1]);
       GEN A = nf_to_Fq(nf, zk_galoisapplymod(nf,X,S,p), modpr);
