@@ -7556,7 +7556,7 @@ START:
   }
   else
   {
-    D = mffrickeeigen(mf, vE, DEFAULTPREC);
+    D = mffrickeeigen(mf, vE, prec);
     c = mfcharmodulus(CHIP); if (odd(k)) c = -Q/c;
   }
   D = shallowconcat1(D);
