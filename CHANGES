@@ -7,6 +7,7 @@ Done for version 2.13.0 (released ??/10/2020):
      3- zeta(I+2^(-64)) -> SEGV
 BA   4- permorder returned incorrect results for large orders
      5- p=[4,54]; lfunmf(mfinit(p,0), mftraceform(p,0)) -> oo loop
+BA   6- printf("%5.2f",M) transposed M [#2252]
 
   Added
      1- examples/pari.f90: example FORTRAN binding

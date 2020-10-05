@@ -68,6 +68,8 @@ printf("%1.0f",0)
 printf("%.6f",5e-5)
 printf("%10.6f",1/2510629980073882876067348736); \\#2198
 
+my(M=[1,2,3;4,5,6;7,8,9]); printf("%5d",M); printf("%5.2f",1.0*M);
+
 \\ conversions using gtolong()
 printf("%c",97.5)
 printf("%c",97+1/2)

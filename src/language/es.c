@@ -1228,18 +1228,18 @@ fmtreal(pari_str *S, GEN gvalue, int space, int signvalue, int FORMAT,
         else
         {
           h = lgcols(gvalue);
-          for (i=1; i<l; i++)
+          for (j=1; j<h; j++)
           {
             str_putc(S, '[');
-            for (j=1; j<h; j++)
+            for (i=1; i<l; i++)
             {
               fmtreal(S, gcoeff(gvalue,j,i), space, signvalue, FORMAT, maxwidth,
                       ljust,len,zpad);
-              if (j<h-1) str_putc(S, ' ');
+              if (i<l-1) str_putc(S, ' ');
             }
             str_putc(S, ']');
             str_putc(S, '\n');
-            if (i<l-1) str_putc(S, '\n');
+            if (j<h-1) str_putc(S, '\n');
           }
         }
         return;
