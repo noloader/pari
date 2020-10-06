@@ -40,6 +40,5 @@
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]~
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]~
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]~
-   realbitprecision = 10240 significant bits (3082 decimal digits displayed)
 [0, 7, 68, -59, 0, 0]~
-Total time spent: 6297
+Total time spent: 1340
