@@ -13,7 +13,7 @@ Doc:
  $$\sum_i (x_i~\kbd{and}~y_i) 2^i$$
 
  Negative numbers behave $2$-adically, i.e.~the result is the $2$-adic limit
- of \kbd{bitand}$(x_n,y_n)$, where $x_n$ and $y_n$ are non-negative integers
+ of \kbd{bitand}$(x_n,y_n)$, where $x_n$ and $y_n$ are nonnegative integers
  tending to $x$ and $y$ respectively. (The result is an ordinary integer,
  possibly negative.)
 

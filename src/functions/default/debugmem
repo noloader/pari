@@ -4,7 +4,7 @@ Section: default
 C-Name: sd_debugmem
 Prototype:
 Help:
-Doc: memory debugging level (see \b{gm}). If this is non-zero, \kbd{gp} will
+Doc: memory debugging level (see \b{gm}). If this is nonzero, \kbd{gp} will
  print increasingly precise notifications about memory use:
 
  \item $\kbd{debugmem} > 0$, notify when \kbd{parisize} changes (within the

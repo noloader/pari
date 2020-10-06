@@ -51,7 +51,7 @@ F2v_to_ZV_inplace(GEN v)
   for (i = 1; i < l; i++) gel(v,i) = v[i]? gen_1: gen_0;
   return v;
 }
-/* "vector" of l bits (possibly no code word) to non-negative t_INT */
+/* "vector" of l bits (possibly no code word) to nonnegative t_INT */
 GEN
 bits_to_int(GEN x, long l)
 {
@@ -70,7 +70,7 @@ bits_to_int(GEN x, long l)
   }
   return int_normalize(z, 0);
 }
-/* "vector" of l < BITS_IN_LONG bits (possibly no code word) to non-negative
+/* "vector" of l < BITS_IN_LONG bits (possibly no code word) to nonnegative
  * ulong */
 ulong
 bits_to_u(GEN v, long l)
@@ -368,7 +368,7 @@ gbittest(GEN x, long n) { return map_proto_lGL(bittest,x,n); }
 /** x & y (and), x | y (or), x ^ y (xor), ~x (neg), x & ~y (negimply) **/
 /**                                                                   **/
 /***********************************************************************/
-/* Truncate a non-negative integer to a number of bits.  */
+/* Truncate a nonnegative integer to a number of bits.  */
 static GEN
 ibittrunc(GEN x, long bits)
 {
@@ -693,7 +693,7 @@ hammingl(ulong w)
   return sum;
 }
 
-/* number of non-zero entries among x[a], ..., x[b] */
+/* number of nonzero entries among x[a], ..., x[b] */
 static long
 hamming_slice(GEN x, long a, long b)
 {

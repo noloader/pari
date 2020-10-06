@@ -80,7 +80,7 @@ RgMrow_zc_mul_i(GEN x, GEN y, long c, long i)
 }
 GEN
 RgMrow_zc_mul(GEN x, GEN y, long i) { return RgMrow_zc_mul_i(x,y,lg(y),i); }
-/* x non-empty t_MAT, y a compatible zc (dimension > 0). */
+/* x nonempty t_MAT, y a compatible zc (dimension > 0). */
 static GEN
 RgM_zc_mul_i(GEN x, GEN y, long c, long l)
 {

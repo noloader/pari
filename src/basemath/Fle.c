@@ -125,7 +125,7 @@ Flj_neg(GEN Q, ulong p)
 
 typedef struct {
   ulong pbits, nbits;  /* Positive bits and negative bits */
-  ulong lnzb; /* Leading non-zero bit */
+  ulong lnzb; /* Leading nonzero bit */
 } naf_t;
 
 /* Return the signed binary representation (i.e. the Non-Adjacent Form
@@ -457,7 +457,7 @@ Fle_mul(GEN P, GEN n, ulong a4, ulong p)
   return _Fle_mul(&E, P, n);
 }
 
-/* Finds a random non-singular point on E */
+/* Finds a random nonsingular point on E */
 GEN
 random_Fle_pre(ulong a4, ulong a6, ulong p, ulong pi)
 {

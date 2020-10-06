@@ -21,6 +21,6 @@ Doc: This default is specific to the \emph{parallel} version of PARI and gp
   *** Warning: not enough memory, new thread stack 10000002048
  @eprog (Meaning that \kbd{threadsize} had to be temporarily increased.)
  On the other hand we strongly recommend to set \kbd{parisizemax} and
- \kbd{threadsizemax} to a non-zero value.
+ \kbd{threadsizemax} to a nonzero value.
 
  The default value is $0$.

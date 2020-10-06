@@ -244,7 +244,7 @@ F2xqE_mul(GEN P, GEN n, GEN a2, GEN T)
   return _F2xqE_mul(&E, P, n);
 }
 
-/* Finds a random non-singular point on E */
+/* Finds a random nonsingular point on E */
 GEN
 random_F2xqE(GEN a, GEN a6, GEN T)
 {

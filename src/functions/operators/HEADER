@@ -6,14 +6,14 @@ Doc:
 
  \subsec{Boolean operators}\sidx{Boolean operators}
 
- Any non-zero value is interpreted as \var{true} and any zero as \var{false}
+ Any nonzero value is interpreted as \var{true} and any zero as \var{false}
  (this includes empty vectors or matrices). The standard boolean operators
  \kbd{||} (\idx{inclusive or}), \kbd{\&\&} (\idx{and})\sidx{or} and \kbd{!}
  in prefix notation (\idx{not}) are available.
  Their value is $1$ (true) or $0$ (false):
  \bprog
- ? a && b  \\ 1 iff a and b are non-zero
- ? a || b  \\ 1 iff a or b is non-zero
+ ? a && b  \\ 1 iff a and b are nonzero
+ ? a || b  \\ 1 iff a or b is nonzero
  ? !a      \\ 1 iff a is zero
  @eprog
 
@@ -47,7 +47,7 @@ Doc:
  ? 4 === Mod(1,3) \\ but not identical
  %2 = 0
 
- ? 'x == 'y   \\ not equal (non-constant and different variables)
+ ? 'x == 'y   \\ not equal (nonconstant and different variables)
  %3 = 0
  ? Pol(0,'x) == Pol(0,'y)  \\ equal (constant: ignore variable)
  %4 = 1
@@ -163,10 +163,10 @@ Doc:
 
  \subseckbd{\%} The expression \kbd{$x$ \% $y$} evaluates to the modular
  \idx{Euclidean remainder} of $x$ and $y$, which we now define. When $x$ or $y$
- is a non-integral real number, \kbd{$x$\%$y$} is defined as
+ is a nonintegral real number, \kbd{$x$\%$y$} is defined as
  \kbd{$x$ - ($x$\bs$y$)*$y$}. Otherwise, if $y$ is an integer, this is
  the smallest
- non-negative integer congruent to $x$ modulo $y$. (This actually coincides
+ nonnegative integer congruent to $x$ modulo $y$. (This actually coincides
  with the previous definition if and only if $x$ is an integer.) If $y$ is a
  polynomial, this is the polynomial of smallest degree congruent to
  $x$ modulo $y$. For instance:
@@ -255,7 +255,7 @@ Doc:
  @eprog
 
  \item If the exponent is a negative integer or rational number,
- an \idx{inverse} must be computed. For non-invertible \typ{INTMOD} $x$, this
+ an \idx{inverse} must be computed. For noninvertible \typ{INTMOD} $x$, this
  will fail and (for $n$ an integer) implicitly exhibit a factor of the modulus:
  \bprog
  ? Mod(4,6)^(-1)
@@ -269,7 +269,7 @@ Doc:
  unknown. Either the computation succeeds and all is well, or a factor $d$
  is discovered and the computation may be restarted modulo $d$ or $N/d$.
 
- For non-invertible \typ{POLMOD} $x$, the behavior is the same:
+ For noninvertible \typ{POLMOD} $x$, the behavior is the same:
  \bprog
  ? Mod(x^2, x^3-x)^(-1)
    ***   at top-level: Mod(x^2,x^3-x)^(-1)

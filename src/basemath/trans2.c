@@ -1106,7 +1106,7 @@ cxgamma(GEN s0, int dolog, long prec)
     ulong ss = itou_or_0(s0);
     if (signe(s0) <= 0)
       pari_err_DOMAIN("gamma","argument", "=",
-                       strtoGENstr("non-positive integer"), s0);
+                       strtoGENstr("nonpositive integer"), s0);
     if (!ss || ss + (ulong)N < ss) {
       for (i=1; i < N; i++)
       {
@@ -1658,7 +1658,7 @@ ggamma(GEN x, long prec)
     case t_INT:
       if (signe(x) <= 0)
         pari_err_DOMAIN("gamma","argument", "=",
-                         strtoGENstr("non-positive integer"), x);
+                         strtoGENstr("nonpositive integer"), x);
       return mpfactr(itos(x) - 1, prec);
 
     case t_REAL: case t_COMPLEX:
@@ -1791,7 +1791,7 @@ glngamma(GEN x, long prec)
       ulong n;
       if (signe(x) <= 0)
         pari_err_DOMAIN("lngamma","argument", "=",
-                         strtoGENstr("non-positive integer"), x);
+                         strtoGENstr("nonpositive integer"), x);
       n = itou_or_0(x);
       if (!n || n > lngamma_n(prec)) return cxgamma(x, 1, prec);
       return gerepileuptoleaf(av, logr_abs( mpfactr_small(n-1, prec) ));
@@ -1851,7 +1851,7 @@ static void
 err_psi(GEN s)
 {
   pari_err_DOMAIN("psi","argument", "=",
-                  strtoGENstr("non-positive integer"), s);
+                  strtoGENstr("nonpositive integer"), s);
 }
 static GEN
 cxpsi(GEN s0, long prec)

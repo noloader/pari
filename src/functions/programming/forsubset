@@ -23,7 +23,7 @@ Help: forsubset(nk, s, seq): if nk is an integer n, the sequence is evaluated,
   of integers s goes through k-subsets of {1, 2, ..., n}.
   The order is lexicographic among subsets of the same size and smaller
   subsets come first.
-Doc: if \var{nk} is a non-negative integer $n$, evaluates \kbd{seq}, where
+Doc: if \var{nk} is a nonnegative integer $n$, evaluates \kbd{seq}, where
  the formal variable $s$ goes through all subsets of $\{1, 2, \ldots, n\}$;
  if \var{nk} is a pair $[n,k]$ of integers, $s$ goes through subsets
  of size $k$ of $\{1, 2, \ldots, n\}$. In both cases $s$ goes through subsets

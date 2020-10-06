@@ -12,7 +12,7 @@ Description:
   (gen,gen,1):vecsmall  genindexselect(${1 cookie}, ${1 wrapper}, $2)
 Doc: We first describe the default behavior, when $\fl$ is 0 or omitted.
  Given a vector or list \kbd{A} and a \typ{CLOSURE} \kbd{f}, \kbd{select}
- returns the elements $x$ of \kbd{A} such that $f(x)$ is non-zero. In other
+ returns the elements $x$ of \kbd{A} such that $f(x)$ is nonzero. In other
  words, \kbd{f} is seen as a selection function returning a boolean value.
  \bprog
  ? select(x->isprime(x), vector(50,i,i^2+1))
@@ -60,8 +60,8 @@ Doc: We first describe the default behavior, when $\fl$ is 0 or omitted.
  \noindent Finally
  \bprog
  ? select(x->x, M)
- @eprog\noindent selects the non-0 entries in \kbd{M}. If the latter is a
- \typ{MAT}, we extract the matrix of non-0 columns. Note that \emph{removing}
+ @eprog\noindent selects the nonzero entries in \kbd{M}. If the latter is a
+ \typ{MAT}, we extract the matrix of nonzero columns. Note that \emph{removing}
  entries instead of selecting them just involves replacing the selection
  function \kbd{f} with its negation:
  \bprog

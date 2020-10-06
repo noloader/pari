@@ -18,7 +18,7 @@ Description:
  (gen, 5):gen:prec       nfinit0($1, 5, $prec)
  (gen, #small):void      $"incorrect flag in nfinit"
  (gen, small):gen:prec   nfinit0($1, $2, $prec)
-Doc: \var{pol} being a non-constant irreducible polynomial in $\Q[X]$,
+Doc: \var{pol} being a nonconstant irreducible polynomial in $\Q[X]$,
  preferably monic and integral, initializes a
  \emph{number field} structure (\kbd{nf}) attached to the field $K$ defined
  by \var{pol}. As such, it's a technical object passed as the first argument

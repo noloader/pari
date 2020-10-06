@@ -67,14 +67,14 @@ is defined, one of
   \tet{t_ELL_Fp} a prime finite field, base field elements are represented as
   \kbd{Fp}, i.e.~a \typ{INT} reduced modulo~$p$;
 
-  \tet{t_ELL_Fq} a non-prime finite field (a prime finite field can also be
+  \tet{t_ELL_Fq} a nonprime finite field (a prime finite field can also be
   represented by this subtype, but this is inefficient), base field elements
   are represented as \typ{FFELT};
 
   \tet{t_ELL_Rg} none of the above.
 
 \fun{void}{checkell_Fq}{GEN e} checks whether $e$ is an \kbd{ell}, defined
-over a finite field (either prime or non-prime). Otherwise the function
+over a finite field (either prime or nonprime). Otherwise the function
 raises a \tet{pari_err_TYPE} exception.
 
 \fun{void}{checkell_Q}{GEN e} checks whether $e$ is an \kbd{ell}, defined
@@ -400,11 +400,11 @@ $3\*x^4 + b_2\*x^2 + 3\*b_4\*x^2 + 3\*b_6\*x + b_8$.
 \fun{GEN}{ellap}{GEN E, GEN p} given a prime number $p$ and an elliptic curve
 defined over $\Q$ or $\Q_p$ (assumed integral and minimal at $p$), computes
 the  trace of  Frobenius  $a_p = p+1 - \#E(\F_p)$. If $E$ is defined over
-a non-prime finite field $\F_q$, ignore $p$ and return $q+1 - \#E(\F_q)$.
+a nonprime finite field $\F_q$, ignore $p$ and return $q+1 - \#E(\F_q)$.
 When $p$ is implied ($E$ defined over $\Q_p$ or a finite field), $p$ can be
 omitted (set to \kbd{NULL}).
 
-\subsubsec{Curves defined a non-prime finite field}
+\subsubsec{Curves defined a nonprime finite field}
 In this subsection, we assume that \tet{ell_get_type}$(E)$ is \tet{t_ELL_Fq}.
 (As noted above, a curve defined over $\Z/p\Z$ can be represented as a
 \tet{t_ELL_Fq}.)
@@ -479,7 +479,7 @@ group $E(\F_p)$.
 This function returns $\#E(\F_p)$, using the Schoof-Elkies-Atkin algorithm.
 If the \kbd{seadata} package is installed, the function will be faster.
 
-The extra flag \kbd{s}, if set to a non-zero value, causes the computation to
+The extra flag \kbd{s}, if set to a nonzero value, causes the computation to
 return \kbd{gen\_0} (an impossible cardinality) if one of the small primes
 $\ell$ divides the curve order but does not divide $s$.
 For cryptographic applications, where one is usually interested in curves of
@@ -625,7 +625,7 @@ equation $E:y^2=x^3+a_4\*x+a_6$, where $a_4$ and $a_6$ are \typ{INT}.
 A \kbd{FpJ} is a \kbd{FpV} with three components $[x,y,z]$, representing
 the affine point $[x/z^2,y/z^3]$ in Jacobian coordinates, the point at
 infinity being represented by $[1, 1, 0]$. The following must holds:
-$y^2=x^3+a_4\*x\*z^4+a_6\*z^6$. For all non-zero $u$, the points
+$y^2=x^3+a_4\*x\*z^4+a_6\*z^6$. For all nonzero $u$, the points
 $[u^2\*x,u^3\*y,u\*z]$ and $[x,y,z]$ are representing the same affine point.
 
 \fun{GEN}{FpJ_add}{GEN P, GEN Q, GEN a4, GEN p}
@@ -899,7 +899,7 @@ returns a bivariate polynomial in variables \kbd{xvar} and
 
 \fun{GEN}{Fp_polmodular_evalx}{long L, long inv, GEN J, GEN p, long v,
 int derivs} returns the modular polynomial evaluated
-at $J$ modulo the prime $p$ in the variable $v$ (if \kbd{derivs} is non-zero,
+at $J$ modulo the prime $p$ in the variable $v$ (if \kbd{derivs} is nonzero,
 returns a vector containing the modular polynomial and its first and second
 derivatives, all evaluated at $J$ modulo~$p$).
 

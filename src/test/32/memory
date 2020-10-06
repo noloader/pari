@@ -3,6 +3,6 @@
   ***                                 ^--
   ***   the PARI stack overflows !
   current stack size: 1048576 (1.000 Mbytes)
-  [hint] set 'parisizemax' to a non-zero value in your GPRC
+  [hint] set 'parisizemax' to a nonzero value in your GPRC
 
-Total time spent: 10
+Total time spent: 1

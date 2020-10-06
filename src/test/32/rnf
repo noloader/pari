@@ -104,10 +104,10 @@ at(1), Mat(16), Mat(1), 1, Mat(1), [1, 0], []], [0.E-38], [1], Mat(1), Mat(1
 1
 1
 1
-  *** rnfisabelian: Warning: non-monic polynomial. Result of the form [nf,c].
-  *** rnfisabelian: Warning: non-monic polynomial. Result of the form [nf,c].
+  *** rnfisabelian: Warning: nonmonic polynomial. Result of the form [nf,c].
+  *** rnfisabelian: Warning: nonmonic polynomial. Result of the form [nf,c].
 0
-  *** rnfisabelian: Warning: non-monic polynomial. Result of the form [nf,c].
+  *** rnfisabelian: Warning: nonmonic polynomial. Result of the form [nf,c].
 1
 1
 [(9*y^2 + 6*y - 12)*x^2 + 10*x + (6*y^2 + 6*y - 6), 1]
@@ -868,7 +868,7 @@ error("inconsistent dimensions in idealtwoelt.")
   *** rnfdedekind: sorry, Dedekind in the difficult case is not yet implemented.
   ***   at top-level: rnfpseudobasis(nf,x^2/2+1)
   ***                 ^--------------------------
-  *** rnfpseudobasis: sorry, non-monic relative polynomials in rnfallbase is not yet implemented.
+  *** rnfpseudobasis: sorry, nonmonic relative polynomials in rnfallbase is not yet implemented.
   ***   at top-level: rnfpseudobasis(nf,x^2+1/2)
   ***                 ^--------------------------
   *** rnfpseudobasis: impossible inverse in Fl_inv: Mod(0, 2).
@@ -877,8 +877,8 @@ error("inconsistent dimensions in idealtwoelt.")
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
   ***   at top-level: rnfidealtwoelt(L,[[1;0],[1/104]])
   ***                 ^---------------------------------
-  *** rnfidealtwoelt: incorrect type in idealtyp [non-square t_MAT] (t_MAT).
+  *** rnfidealtwoelt: incorrect type in idealtyp [nonsquare t_MAT] (t_MAT).
   ***   at top-level: bnfinit(rnf)
   ***                 ^------------
   *** bnfinit: incorrect type in checknf [please apply nfinit()] (t_VEC).
-Total time spent: 587
+Total time spent: 513

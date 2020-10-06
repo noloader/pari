@@ -21,7 +21,7 @@ Iterator:
  (gen,gen,?gen) (forcomposite, _forcomposite_init, _forcomposite_next)
 Doc: evaluates \var{seq},
  where the formal variable $n$ ranges over the composite numbers between the
- non-negative real numbers $a$ to $b$, including $a$ and $b$ if they are
+ nonnegative real numbers $a$ to $b$, including $a$ and $b$ if they are
  composite. Nothing is done if $a>b$.
  \bprog
  ? forcomposite(n = 0, 10, print(n))

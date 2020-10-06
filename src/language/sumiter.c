@@ -441,7 +441,7 @@ _next(forvec_t *d)
   }
 }
 
-/* non-decreasing order [over integers] */
+/* nondecreasing order [over integers] */
 static GEN
 _next_le_i(forvec_t *d)
 {
@@ -467,7 +467,7 @@ _next_le_i(forvec_t *d)
     if (--i <= 0) return NULL;
   }
 }
-/* non-decreasing order [generic] */
+/* nondecreasing order [generic] */
 static GEN
 _next_le(forvec_t *d)
 {

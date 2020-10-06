@@ -365,7 +365,7 @@ FpE_mul(GEN P, GEN n, GEN a4, GEN p)
   return _FpE_mul(&E, P, n);
 }
 
-/* Finds a random non-singular point on E */
+/* Finds a random nonsingular point on E */
 
 GEN
 random_FpE(GEN a4, GEN a6, GEN p)
@@ -1609,7 +1609,7 @@ FpXQE_mul(GEN P, GEN n, GEN a4, GEN T, GEN p)
   return _FpXQE_mul(&E, P, n);
 }
 
-/* Finds a random non-singular point on E */
+/* Finds a random nonsingular point on E */
 
 GEN
 random_FpXQE(GEN a4, GEN a6, GEN T, GEN p)

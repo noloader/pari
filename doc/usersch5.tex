@@ -298,7 +298,7 @@ initialized to \kbd{NULL}.
 \doc{cb_pari_handle_exception}{int (*cb_pari_handle_exception)(long)}
 initialized to \kbd{NULL}. If not \kbd{NULL}, this routine is called with
 argument $-1$ on \kbd{SIGINT}, and argument \kbd{err} on error \kbd{err}. If
-it returns a non-zero value, the error or signal handler returns, in effect
+it returns a nonzero value, the error or signal handler returns, in effect
 further ignoring the error or signal, otherwise it raises a fatal error.
 A possible simple-minded handler, used by the \kbd{gp} interpreter, is
 
@@ -309,7 +309,7 @@ result.
 
 \doc{cb_pari_err_handle}{int (*cb_pari_err_handle)(GEN)}
 If not \kbd{NULL}, this routine is called with a \typ{ERROR} argument
-from \kbd{pari\_err}. If it returns a non-zero value, the error returns, in
+from \kbd{pari\_err}. If it returns a nonzero value, the error returns, in
 effect further ignoring the error, otherwise it raises a fatal error.
 
 The default behavior is to print a descriptive error
@@ -358,7 +358,7 @@ existed in older versions of \kbd{pari} (the \kbd{gp} callback checks against
 available.
 
 \item $\fl = 1$: must return $0$ if the function did not change, and a
-non-$0$ result otherwise. May print a help message.
+nonzero result otherwise. May print a help message.
 
 \subsec{Configuration variables}
 
@@ -389,7 +389,7 @@ that GP metacommands are not recognized.
 try to interpret $s$ as a GP metacommand (e.g. starting by \kbd{\bs} or
 \kbd{?}). If successful, execute the metacommand and return $1$; otherwise
 return $0$. The \kbd{ismain} parameter modifies the way \kbd{\bs r} commands
-are handled: if non-zero, act as if the file contents were entered via
+are handled: if nonzero, act as if the file contents were entered via
 standard input (i.e. call \tet{switchin} and divert \tet{pari_infile});
 otherwise, simply call \tet{gp_read_file}.
 
@@ -547,7 +547,7 @@ for all elements of the vector $y$.
 
 \subsec{Length conversions}
 
-These routines convert a non-negative length to different units. Their
+These routines convert a nonnegative length to different units. Their
 behavior is undefined at negative integers.
 
 \fun{long}{ndec2nlong}{long x} converts a number of decimal digits to a number
@@ -675,7 +675,7 @@ polynomial ring.
 
 \fun{long}{degpol}{GEN x} is a simple macro returning \kbd{lg(x) - 3}.
 This is the degree of the \typ{POL}~\kbd{x} with respect to its main
-variable, \emph{if} its leading coefficient is non-zero (a rational $0$ is
+variable, \emph{if} its leading coefficient is nonzero (a rational $0$ is
 impossible, but an inexact $0$ is allowed, as well as an exact modular $0$,
 e.g. \kbd{Mod(0,2)}). If $x$ has no coefficients (rational $0$ polynomial),
 its length is $2$ and we return the expected $-1$.
@@ -827,9 +827,9 @@ twice; \emph{no longer}: it is not inefficient to write
 @eprog
 
 \fun{int}{is_recursive_t}{long t} \kbd{true} iff \kbd{t} is a recursive
-type (the non-recursive types are \typ{INT}, \typ{REAL},
+type (the nonrecursive types are \typ{INT}, \typ{REAL},
 \typ{STR}, \typ{VECSMALL}). Somewhat contrary to intuition, \typ{LIST} is
-also non-recursive, ; see the Developer's guide for details.
+also nonrecursive, ; see the Developer's guide for details.
 
 \fun{int}{is_intreal_t}{long t} \kbd{true} iff \kbd{t} is \typ{INT}
 or \typ{REAL}.
@@ -950,9 +950,9 @@ returning half the bits of their operand:
 \noindent Finally
 
 \fun{long}{divsBIL}{long n} returns the Euclidean quotient of $n$ by
-\kbd{BITS\_IN\_LONG} (with non-negative remainder).
+\kbd{BITS\_IN\_LONG} (with nonnegative remainder).
 
-\fun{long}{remsBIL}{n} returns the (non-negative) Euclidean remainder of $n$
+\fun{long}{remsBIL}{n} returns the (nonnegative) Euclidean remainder of $n$
 by \kbd{BITS\_IN\_LONG}
 
 \fun{long}{dvmdsBIL}{long n, long *r}
@@ -1194,7 +1194,7 @@ functions:
 
 \fun{GEN}{GENbinbase}{GENbin *p} the \kbd{GEN} data actually stored in $p$.
 All addresses are stored as offsets with respect to a common reference point,
-so the resulting \kbd{GEN} is unusable unless it is a non-recursive type;
+so the resulting \kbd{GEN} is unusable unless it is a nonrecursive type;
 private low-level routines must be called first to restore absolute addresses.
 
 \fun{void}{shiftaddress}{GEN x, long dec} converts relative addresses to
@@ -1323,7 +1323,7 @@ length and effective length of the resulting \typ{INT} are equal.
 
 \fun{GEN}{gerepileuptoleaf}{pari_sp av, GEN q} analogous to (but faster than)
 \kbd{gerepileupto}. Assumes further that \kbd{q} is a leaf, i.e a
-non-recursive type (\kbd{is\_recursive\_t(typ(q))} is non-zero). Contrary to
+nonrecursive type (\kbd{is\_recursive\_t(typ(q))} is nonzero). Contrary to
 \kbd{gerepileuptoint} and \kbd{gerepileupto}, \kbd{gerepileuptoleaf} leaves
 length and effective length of a \typ{INT} unchanged.
 
@@ -1336,7 +1336,7 @@ The stack space is not reclaimed though.
 
 More precisely, this routine assumes that \kbd{av} is recorded earlier
 than \kbd{ltop}, then marks the specified stack segment as a
-non-recursive type of the correct length. Thus gerepile will not inspect
+nonrecursive type of the correct length. Thus gerepile will not inspect
 the zone, at most copy it. To be used in the following situation:
 \bprog
   av0 = avma; z = cgetg(t_VEC, 3);
@@ -2022,7 +2022,7 @@ if the quotient cannot be represented by an \kbd{ulong}, i.e.~if initially
 $\kbd{hiremainder}\ge\kbd{y}$.
 
 \fun{long}{hammingl}{ulong x)} returns the Hamming weight of $x$, i.e.~the
-number of non-zero bits in its binary expansion.
+number of nonzero bits in its binary expansion.
 
 \misctitle{Obsolete routines} Those functions are awkward and no longer used;
 they are only provided for backward compatibility:
@@ -2054,20 +2054,20 @@ and 0 otherwise.
 positive representative of $x^{-1}$ mod $2^\B$, assuming $x$ is odd.
 
 \fun{ulong}{Fl_add}{ulong x, ulong y, ulong m} returns the smallest
-non-negative representative of $x + y$ modulo $m$.
+nonnegative representative of $x + y$ modulo $m$.
 
 \fun{ulong}{Fl_neg}{ulong x, ulong m} returns the smallest
-non-negative representative of $-x$ modulo $m$.
+nonnegative representative of $-x$ modulo $m$.
 
 \fun{ulong}{Fl_sub}{ulong x, ulong y, ulong m} returns the smallest
-non-negative representative of $x - y$ modulo $m$.
+nonnegative representative of $x - y$ modulo $m$.
 
 \fun{long}{Fl_center}{ulong x, ulong m, ulong mo2} returns the representative
 in $]-m/2,m/2]$ of $x$ modulo $m$. Assume $0 \leq x < m$ and
 $\kbd{mo2}  = m >> 1$.
 
 \fun{ulong}{Fl_mul}{ulong x, ulong y, ulong m} returns the smallest
-non-negative representative of $x y$ modulo $m$.
+nonnegative representative of $x y$ modulo $m$.
 
 \fun{ulong}{Fl_double}{ulong x, ulong m} returns $2x$ modulo $m$.
 
@@ -2076,7 +2076,7 @@ non-negative representative of $x y$ modulo $m$.
 \fun{ulong}{Fl_halve}{ulong x, ulong m} returns $z$ such that $2\*z = x$ modulo
 $m$ assuming such $z$ exists.
 
-\fun{ulong}{Fl_sqr}{ulong x, ulong m} returns the smallest non-negative
+\fun{ulong}{Fl_sqr}{ulong x, ulong m} returns the smallest nonnegative
 representative of $x^2$ modulo $m$.
 
 \fun{ulong}{Fl_inv}{ulong x, ulong m} returns the smallest
@@ -2093,17 +2093,17 @@ We have $g = 1$ if and only if $x$ is invertible, and in this case $u$
 is its inverse.
 
 \fun{ulong}{Fl_div}{ulong x, ulong y, ulong m} returns the smallest
-non-negative representative of $x y^{-1}$ modulo $m$. If $y$ is not invertible
+nonnegative representative of $x y^{-1}$ modulo $m$. If $y$ is not invertible
 mod $m$, raise an exception.
 
 \fun{ulong}{Fl_powu}{ulong x, ulong n, ulong m} returns the smallest
-non-negative representative of $x^n$ modulo $m$.
+nonnegative representative of $x^n$ modulo $m$.
 
 \fun{GEN}{Fl_powers}{ulong x, long n, ulong p} returns
 $[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ modulo $m$, as a \typ{VECSMALL}.
 
 \fun{ulong}{Fl_sqrt}{ulong x, ulong p} returns the square root of \kbd{x}
-modulo \kbd{p} (smallest non-negative representative). Assumes \kbd{p} to be
+modulo \kbd{p} (smallest nonnegative representative). Assumes \kbd{p} to be
 prime, and \kbd{x} to be a square modulo \kbd{p}.
 
 \fun{ulong}{Fl_sqrtl}{ulong x, ulong l, ulong p} returns a $l$-the root of \kbd{x}
@@ -2112,7 +2112,7 @@ modulo \kbd{p}. Assumes \kbd{p} to be prime and $p \equiv 1 \pmod{l}$, and
 
 \fun{ulong}{Fl_sqrtn}{ulong a, ulong n, ulong p, ulong *zn}
 returns \kbd{ULONG\_MAX} if $a$ is not an $n$-th power residue mod $p$.
-Otherwise, returns an $n$-th root of $a$; if \kbd{zn} is non-\kbd{NULL}
+Otherwise, returns an $n$-th root of $a$; if \kbd{zn} is not \kbd{NULL}
 set it to a primitive $m$-th root of 1, $m = \gcd(p-1,n)$ allowing to compute
 all $m$ solutions in $\F_p$ of the equation $x^n = a$.
 
@@ -2122,14 +2122,14 @@ $a^e \equiv g \pmod{p}$. If $e$ does not exist, the result is undefined.
 
 \fun{ulong}{Fl_order}{ulong a, ulong o, ulong p} returns the order of the
 \kbd{Fp} \kbd{a}. It is assumed that \kbd{o} is a multiple of the order of
-\kbd{a}, $0$ being allowed (no non-trivial information).
+\kbd{a}, $0$ being allowed (no nontrivial information).
 
 \fun{ulong}{random_Fl}{ulong p} returns a pseudo-random integer uniformly
 distributed in $0, 1, \dots p-1$.
 
-\fun{ulong}{nonsquare_Fl}{ulong p} return a quadratic non-residue modulo $p$,
+\fun{ulong}{nonsquare_Fl}{ulong p} return a quadratic nonresidue modulo $p$,
 assuming $p$ is an odd prime. If $p$ is $3$ mod $4$, return $p-1$, else
-return the smallest (prime) non-residue.
+return the smallest (prime) nonresidue.
 
 \fun{ulong}{pgener_Fl}{ulong p} returns the smallest \idx{primitive root}
 modulo \kbd{p}, assuming \kbd{p} is prime.
@@ -2326,13 +2326,13 @@ to \kbd{prec} words of accuracy.
 to \kbd{prec} words of accuracy.
 
 \fun{GEN}{strtoi}{char *s} convert the character string \kbd{s} to a
-non-negative \typ{INT}.
+nonnegative \typ{INT}.
 Decimal numbers, hexadecimal numbers prefixed by \kbd{0x} and binary numbers prefixed
 by \kbd{0b} are allowed.  The string \kbd{s} consists exclusively of digits:
 no leading sign, no whitespace. Leading zeroes are discarded.
 
 \fun{GEN}{strtor}{char *s, long prec} convert the character string \kbd{s} to
-a non-negative \typ{REAL} of precision \kbd{prec}. The string \kbd{s}
+a nonnegative \typ{REAL} of precision \kbd{prec}. The string \kbd{s}
 consists exclusively of digits and optional decimal point and exponent
 (\kbd{e} or \kbd{E}): no leading sign, no whitespace. Leading zeroes are
 discarded.
@@ -2454,10 +2454,10 @@ $\kbd{prec} > 2$.
 \fun{GEN}{utoi}{ulong s} converts the \kbd{ulong}~\kbd{s} into a \typ{INT}
 and return the latter.
 
-\fun{GEN}{utoipos}{ulong s} converts the \emph{non-zero} \kbd{ulong}~\kbd{s}
+\fun{GEN}{utoipos}{ulong s} converts the \emph{nonzero} \kbd{ulong}~\kbd{s}
 into a \typ{INT} and return the latter.
 
-\fun{GEN}{utoineg}{ulong s} converts the \emph{non-zero} \kbd{ulong}~\kbd{s}
+\fun{GEN}{utoineg}{ulong s} converts the \emph{nonzero} \kbd{ulong}~\kbd{s}
 into the \typ{INT} $-s$ and return the latter.
 
 \fun{GEN}{utor}{ulong s, long prec} converts the \kbd{ulong}~\kbd{s} into a
@@ -2838,7 +2838,7 @@ The result is $1$ if $\kbd{x} = \kbd{y}$, $0$ otherwise.
 \fun{int}{equalrr}{GEN x, GEN y} compares the \typ{REAL}s \kbd{x} and~\kbd{y}.
 The result is $1$ if $\kbd{x} = \kbd{y}$, $0$ otherwise. Equality is decided
 according to the following rules: all real zeroes are equal, and
-different from a non-zero real; two non-zero reals are equal if all their
+different from a nonzero real; two nonzero reals are equal if all their
 digits coincide up to the length of the shortest of the two, and the
 remaining words in the mantissa of the longest are all $0$.
 
@@ -2858,7 +2858,7 @@ The remaining comparison operators disregard the sign of their operands
 \fun{int}{absequaliu}{GEN x, ulong u} compare the absolute value of the
 \typ{INT} \kbd{x} and the \kbd{ulong}~\kbd{s}. The result is $1$ if
 $|\kbd{x}| = \kbd{y}$, $0$ otherwise. This is marginally more efficient
-than \kbd{equalis} even when \kbd{x} is known to be non-negative.
+than \kbd{equalis} even when \kbd{x} is known to be nonnegative.
 
 \fun{int}{absequalui}{ulong u, GEN x}
 
@@ -2877,10 +2877,10 @@ and~\kbd{y}. The result is $1$ if $|\kbd{x}| = |\kbd{y}|$, $0$ otherwise.
 \fun{int}{abscmprr}{GEN x, GEN y} compares the \typ{REAL}s \kbd{x} and~\kbd{y}.
 The result is the sign of $|\kbd{x}| - |\kbd{y}|$.
 
-\fun{int}{absrnz_equal2n}{GEN x} tests whether a non-zero \typ{REAL} \kbd{x}
+\fun{int}{absrnz_equal2n}{GEN x} tests whether a nonzero \typ{REAL} \kbd{x}
 is equal to $\pm 2^e$ for some integer $e$.
 
-\fun{int}{absrnz_equal1}{GEN x} tests whether a non-zero \typ{REAL} \kbd{x}
+\fun{int}{absrnz_equal1}{GEN x} tests whether a nonzero \typ{REAL} \kbd{x}
 is equal to $\pm 1$.
 
 \subsec{Generic binary operators}\label{se:genbinop} The operators in this
@@ -2912,7 +2912,7 @@ remainder corresponding to \kbd{div},~i.e. its sign is that of the
 dividend~\kbd{x}.
 
 \item \key{mod}: true remainder (\kbd{x \% y}). The result is the true
-Euclidean remainder, i.e.~non-negative and less than the absolute value
+Euclidean remainder, i.e.~nonnegative and less than the absolute value
 of~\kbd{y}.
 
 \misctitle{Important technical note} The rules given above fixing the output
@@ -2935,7 +2935,7 @@ sensible and as simple as possible; type specific functions are used in
 kernel programming, where we do care about types and need to maintain strict
 consistency: it is much easier to compute the types of results when they are
 determined from the types of the inputs only (without taking into account
-further arithmetic properties, like being non-0).
+further arithmetic properties, like being nonzero).
 \smallskip
 
 The names and prototypes of the low-level functions corresponding
@@ -3051,16 +3051,16 @@ $s > 0$;
 \fun{GEN}{muls_interval}{long a, long b} returns $a(a+1)\cdots b$, assuming
 that $a \leq b$.
 
-\fun{GEN}{invr}{GEN x} returns the inverse of the non-zero \typ{REAL}~$x$.
+\fun{GEN}{invr}{GEN x} returns the inverse of the nonzero \typ{REAL}~$x$.
 
 \fun{GEN}{truedivii}{GEN x, GEN y} returns the true Euclidean quotient
-(with non-negative remainder less than $|y|$).
+(with nonnegative remainder less than $|y|$).
 
 \fun{GEN}{truedivis}{GEN x, long y} returns the true Euclidean quotient
-(with non-negative remainder less than $|y|$).
+(with nonnegative remainder less than $|y|$).
 
 \fun{GEN}{truedivsi}{long x, GEN y} returns the true Euclidean quotient
-(with non-negative remainder less than $|y|$).
+(with nonnegative remainder less than $|y|$).
 
 \fun{GEN}{centermodii}{GEN x, GEN y, GEN y2}, given
 \typ{INT}s \kbd{x}, \kbd{y}, returns $z$ congruent to \kbd{x} modulo \kbd{y},
@@ -3095,7 +3095,7 @@ implemented).
 
 \fun{GEN}{diviuexact}{GEN x, ulong y} returns the Euclidean quotient
 $\kbd{x} / \kbd{y}$, assuming $\kbd{y}$ divides
-$\kbd{x}$ and $\kbd{y}$ is non-zero.
+$\kbd{x}$ and $\kbd{y}$ is nonzero.
 
 \fun{GEN}{diviuuexact}{GEN x, ulong y, ulong z} returns the Euclidean
 quotient $x/(yz)$, assuming $yz$ divides $x$ and $yz \neq 0$.
@@ -3147,7 +3147,7 @@ precision \kbd{prec}.
 unless specifically asked for only one of them~--- a quotient and a remainder.
 The quotient is returned and the remainder is returned through the variable
 whose address is passed as the \kbd{r} argument. The term \emph{true
-Euclidean remainder} refers to the non-negative one (\kbd{mod}), and
+Euclidean remainder} refers to the nonnegative one (\kbd{mod}), and
 \emph{Euclidean remainder} by itself to the one with the same sign as the
 dividend (\kbd{rem}). All \kbd{GEN}s, whether returned directly or through a
 pointer, are created on the stack.
@@ -3211,20 +3211,20 @@ and remainder of the \kbd{long}~\kbd{x} by the \kbd{long}~\kbd{y}. As
 \kbd{sdivss\_rem} otherwise.
 \smallskip
 \fun{GEN}{truedvmdii}{GEN x, GEN y, GEN *r}, as \kbd{dvmdii} but with a
-non-negative remainder.
+nonnegative remainder.
 
 \fun{GEN}{truedvmdis}{GEN x, long y, GEN *z}, as \kbd{dvmdis} but with a
-non-negative remainder.
+nonnegative remainder.
 
 \fun{GEN}{truedvmdsi}{long x, GEN y, GEN *z}, as \kbd{dvmdsi} but with a
-non-negative remainder.
+nonnegative remainder.
 
 \subsec{Modulo to longs} The following variants of \kbd{modii} do not
 clutter the stack:
 
 \fun{long}{smodis}{GEN x, long y} computes the true Euclidean
 remainder of the \typ{INT}~\kbd{x} by the \kbd{long}~\kbd{y}. This is the
-non-negative remainder, not the one whose sign is the sign of \kbd{x}
+nonnegative remainder, not the one whose sign is the sign of \kbd{x}
 as in the \kbd{div} functions.
 
 \fun{long}{smodss}{long x, long y} computes the true Euclidean
@@ -3279,7 +3279,7 @@ sign of $x$. There are about $10\%$ faster than the safer variants above:
 \fun{long}{mod32}{GEN x}
 
 \fun{long}{mod64}{GEN x} give the residue class of $|x|$ modulo the
-corresponding power of 2, for \emph{non-zero}~\kbd{x}. As well,
+corresponding power of 2, for \emph{nonzero}~\kbd{x}. As well,
 
 \fun{ulong}{mod2BIL}{GEN x} returns the least significant word of $|x|$, still
 assuming that $x\neq 0$.
@@ -3327,7 +3327,7 @@ otherwise (overflow).
 \typ{VECSMALL}. Assume there is no overflow.
 
 \fun{GEN}{sqrtremi}{GEN N, GEN *r}, returns the integer square root $S$ of
-the non-negative \typ{INT}~\kbd{N} (rounded towards 0) and puts the remainder
+the nonnegative \typ{INT}~\kbd{N} (rounded towards 0) and puts the remainder
 $R$ into~\kbd{*r}. Precisely, $N = S^2 + R$ with $0\leq R \leq 2S$. If
 \kbd{r} is equal to \kbd{NULL}, the remainder is not created. In the generic
 case, the remainder is created after the quotient and can be disposed of
@@ -3338,7 +3338,7 @@ due to Paul Zimmermann (``Karatsuba Square Root'', INRIA Research Report 3805
 (1999)).
 
 \fun{GEN}{sqrti}{GEN N}, returns the integer square root $S$ of
-the non-negative \typ{INT}~\kbd{N} (rounded towards 0). This is identical
+the nonnegative \typ{INT}~\kbd{N} (rounded towards 0). This is identical
 to \kbd{sqrtremi(N, NULL)}.
 
 \fun{long}{logintall}{GEN B, GEN y, GEN *ptq}
@@ -3457,16 +3457,16 @@ precision \kbd{prec}.
 \typ{INT}.
 
 \fun{GEN}{Fp_red}{GEN a, GEN m} returns \kbd{a} modulo \kbd{m} (smallest
-non-negative residue). (This is identical to modii).
+nonnegative residue). (This is identical to modii).
 
 \fun{GEN}{Fp_neg}{GEN a, GEN m} returns $-$\kbd{a} modulo \kbd{m} (smallest
-non-negative residue).
+nonnegative residue).
 
 \fun{GEN}{Fp_add}{GEN a, GEN b, GEN m} returns the sum of \kbd{a} and
-\kbd{b} modulo \kbd{m} (smallest non-negative residue).
+\kbd{b} modulo \kbd{m} (smallest nonnegative residue).
 
 \fun{GEN}{Fp_sub}{GEN a, GEN b, GEN m} returns the difference of \kbd{a} and
-\kbd{b} modulo \kbd{m} (smallest non-negative residue).
+\kbd{b} modulo \kbd{m} (smallest nonnegative residue).
 
 \fun{GEN}{Fp_center}{GEN a, GEN p, GEN pov2} assuming that \kbd{pov2} is
 \kbd{shifti(p,-1)} and that $-p/2 < a < p$, returns the representative of
@@ -3477,32 +3477,32 @@ non-negative residue).
 proper interval, it is returned as is, without a copy.
 
 \fun{GEN}{Fp_mul}{GEN a, GEN b, GEN m} returns the product of \kbd{a} by
-\kbd{b} modulo \kbd{m} (smallest non-negative residue).
+\kbd{b} modulo \kbd{m} (smallest nonnegative residue).
 
 \fun{GEN}{Fp_addmul}{GEN x, GEN y, GEN z, GEN p} returns $x + y\*z$.
 
 \fun{GEN}{Fp_mulu}{GEN a, ulong b, GEN m} returns the product of \kbd{a} by
-\kbd{b} modulo \kbd{m} (smallest non-negative residue).
+\kbd{b} modulo \kbd{m} (smallest nonnegative residue).
 
 \fun{GEN}{Fp_muls}{GEN a, long b, GEN m} returns the product of \kbd{a} by
-\kbd{b} modulo \kbd{m} (smallest non-negative residue).
+\kbd{b} modulo \kbd{m} (smallest nonnegative residue).
 
 \fun{GEN}{Fp_halve}{GEN x, GEN m} returns $z$ such that $2\*z = x$ modulo
 $m$ assuming such $z$ exists.
 
 \fun{GEN}{Fp_sqr}{GEN a, GEN m} returns $\kbd{a}^2$ modulo \kbd{m} (smallest
-non-negative residue).
+nonnegative residue).
 
 \fun{ulong}{Fp_powu}{GEN x, ulong n, GEN m} raises \kbd{x} to the \kbd{n}-th
-power modulo \kbd{m} (smallest non-negative residue). Not memory-clean, but
+power modulo \kbd{m} (smallest nonnegative residue). Not memory-clean, but
 suitable for \kbd{gerepileupto}.
 
 \fun{ulong}{Fp_pows}{GEN x, long n, GEN m} raises \kbd{x} to the \kbd{n}-th
-power modulo \kbd{m} (smallest non-negative residue). A negative \kbd{n} is
+power modulo \kbd{m} (smallest nonnegative residue). A negative \kbd{n} is
 allowed Not memory-clean, but suitable for \kbd{gerepileupto}.
 
 \fun{GEN}{Fp_pow}{GEN x, GEN n, GEN m} returns $\kbd{x}^\kbd{n}$
-modulo \kbd{m} (smallest non-negative residue).
+modulo \kbd{m} (smallest nonnegative residue).
 
 \fun{GEN}{Fp_pow_init}{GEN x, GEN n, long k, GEN p}
 Return a table \kbd{R} that can be used with
@@ -3515,10 +3515,10 @@ for some integer $m\geq n$.
 
 \fun{GEN}{Fp_powers}{GEN x, long n, GEN m} returns
 $[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ modulo \kbd{m} as a \typ{VEC}
- (smallest non-negative residue).
+ (smallest nonnegative residue).
 
 \fun{GEN}{Fp_inv}{GEN a, GEN m} returns an inverse of \kbd{a} modulo \kbd{m}
-(smallest non-negative residue). Raise an error if \kbd{a} is not invertible.
+(smallest nonnegative residue). Raise an error if \kbd{a} is not invertible.
 
 \fun{GEN}{Fp_invsafe}{GEN a, GEN m} as \kbd{Fp\_inv}, but return
 \kbd{NULL} if \kbd{a} is not invertible.
@@ -3538,11 +3538,11 @@ for $N$ entries. The routine is not stack-clean: $2N$ integers mod $m$
 are left on stack, besides the $N$ in the result.
 
 \fun{GEN}{Fp_div}{GEN a, GEN b, GEN m} returns the quotient of \kbd{a} by
-\kbd{b} modulo \kbd{m} (smallest non-negative residue). Raise an error if
+\kbd{b} modulo \kbd{m} (smallest nonnegative residue). Raise an error if
 \kbd{b} is not invertible.
 
 \fun{GEN}{Fp_divu}{GEN a, ulong b, GEN m} returns the quotient of \kbd{a} by
-\kbd{b} modulo \kbd{m} (smallest non-negative residue). Raise an error if
+\kbd{b} modulo \kbd{m} (smallest nonnegative residue). Raise an error if
 \kbd{b} is not invertible.
 
 \fun{int}{invmod}{GEN a, GEN m, GEN *g},  return $1$ if \kbd{a}
@@ -3574,7 +3574,7 @@ modulo \kbd{p}, and $0$ otherwise.
 $n$-th power modulo \kbd{p}, and $0$ otherwise.
 
 \fun{GEN}{Fp_sqrt}{GEN x, GEN p} returns a square root of \kbd{x} modulo
-\kbd{p} (the smallest non-negative residue), where \kbd{x}, \kbd{p} are
+\kbd{p} (the smallest nonnegative residue), where \kbd{x}, \kbd{p} are
 \typ{INT}s, and \kbd{p} is assumed to be prime. Return \kbd{NULL}
 if \kbd{x} is not a quadratic residue modulo \kbd{p}.
 
@@ -3587,7 +3587,7 @@ as \kbd{Fp\_sqrt} where \kbd{s2} is the element returned by
 
 \fun{GEN}{Fp_sqrtn}{GEN a, GEN n, GEN p, GEN *zn}
 returns \kbd{NULL} if $a$ is not an $n$-th power residue mod $p$.
-Otherwise, returns an $n$-th root of $a$; if \kbd{zn} is non-\kbd{NULL}
+Otherwise, returns an $n$-th root of $a$; if \kbd{zn} is not \kbd{NULL}
 set it to a primitive $m$-th root of 1, $m = \gcd(p-1,n)$ allowing to compute
 all $m$ solutions in $\F_p$ of the equation $x^n = a$.
 
@@ -3609,14 +3609,14 @@ i.e.$-1$, $0$ or $1$. If \kbd{y} is an odd prime, this is the \idx{Legendre
 symbol}. (Contrary to \kbd{krouu}, \kbd{kross} also supports $\kbd{y} = 0$)
 
 \fun{long}{krouu}{ulong x, ulong y} returns the \idx{Kronecker symbol}
-$(x|y)$, i.e.~$-1$, $0$ or $1$. Assumes \kbd{y} is non-zero. If \kbd{y} is an
+$(x|y)$, i.e.~$-1$, $0$ or $1$. Assumes \kbd{y} is nonzero. If \kbd{y} is an
 odd prime, this is the \idx{Legendre symbol}.
 
 \fun{long}{krois}{GEN x, long y} returns the \idx{Kronecker symbol} $(x|y)$
 of \typ{INT}~x and \kbd{long}~\kbd{y}. As \kbd{kross} otherwise.
 
 \fun{long}{kroiu}{GEN x, ulong y} returns the \idx{Kronecker symbol} $(x|y)$
-of \typ{INT}~x and non-zero \kbd{ulong}~\kbd{y}. As \kbd{krouu} otherwise.
+of \typ{INT}~x and nonzero \kbd{ulong}~\kbd{y}. As \kbd{krouu} otherwise.
 
 \fun{long}{krosi}{long x, GEN y} returns the \idx{Kronecker symbol} $(x|y)$
 of \kbd{long}~x and \typ{INT}~\kbd{y}. As \kbd{kross} otherwise.
@@ -4203,7 +4203,7 @@ modulo $p$.
 \subsubsec{\kbd{Fp}-linear algebra} The implementations are not
 asymptotically efficient ($O(n^3)$ standard algorithms).
 
-\fun{GEN}{FpM_deplin}{GEN x, GEN p} returns a non-trivial kernel vector,
+\fun{GEN}{FpM_deplin}{GEN x, GEN p} returns a nontrivial kernel vector,
 or \kbd{NULL} if none exist.
 
 \fun{GEN}{FpM_det}{GEN x, GEN p} as \kbd{det}
@@ -4267,7 +4267,7 @@ as \kbd{gauss}, where $b$ is a \kbd{FqC}.
 
 \fun{GEN}{FqM_FqC_mul}{GEN a, GEN b, GEN T, GEN p}
 
-\fun{GEN}{FqM_deplin}{GEN x, GEN T, GEN p} returns a non-trivial
+\fun{GEN}{FqM_deplin}{GEN x, GEN T, GEN p} returns a nontrivial
 kernel vector, or \kbd{NULL} if none exist.
 
 \fun{GEN}{FqM_det}{GEN x, GEN T, GEN p} as \kbd{det}
@@ -4623,7 +4623,7 @@ logical \kbd{or} of $x$ and $y$. It is allowed for $y$ to be
 shorter than $x$.
 
 \fun{ulong}{F2v_hamming}{GEN x} returns the Hamming weight of \kbd{x}, that is
-the number of non-zero entries.
+the number of nonzero entries.
 
 \fun{ulong}{F2m_det}{GEN x}
 
@@ -4759,7 +4759,7 @@ remainder $\kbd{A}(\kbd{a})$.
 \kbd{y}.
 
 \fun{long}{FpX_valrem}{GEN x, GEN t, GEN p, GEN *r} The arguments \kbd{x} and
-\kbd{e} being non-zero \kbd{FpX} returns the highest exponent $e$ such that
+\kbd{e} being nonzero \kbd{FpX} returns the highest exponent $e$ such that
 $\kbd{t}^{e}$ divides~\kbd{x}. The quotient $\kbd{x}/\kbd{t}^{e}$ is returned
 in~\kbd{*r}. In particular, if \kbd{t} is irreducible, this returns the
 valuation at \kbd{t} of~\kbd{x}, and \kbd{*r} is the prime-to-\kbd{t} part
@@ -4860,8 +4860,8 @@ $M$ of $T$ defined by $M(x)\*x^n\*T(1/x)\equiv 1\pmod{x^{n-1}}$ where $n$ is
 the degree of $T$.
 
 \fun{GEN}{FpX_rescale}{GEN P, GEN h, GEN p} returns $h^{\deg(P)} P(x/h)$.
-\kbd{P} is an \kbd{FpX} and \kbd{h} is a non-zero \kbd{Fp} (the routine would
-work with any non-zero \typ{INT} but is not efficient in this case).
+\kbd{P} is an \kbd{FpX} and \kbd{h} is a nonzero \kbd{Fp} (the routine would
+work with any nonzero \typ{INT} but is not efficient in this case).
 Neither memory-clean nor suitable for \kbd{gerepileupto}.
 
 \fun{GEN}{FpX_eval}{GEN x, GEN y, GEN p} evaluates the \kbd{FpX}~\kbd{x}
@@ -4873,7 +4873,7 @@ $[P(v[1]),\ldots,P(v[n])]$ as a \kbd{FpV}.
 \fun{GEN}{FpX_dotproduct}{GEN x, GEN y, GEN p} return the scalar product
 $\sum_{i\geq 0} x_i\*y_i$ of the coefficients of $x$ and $y$.
 
-\fun{GEN}{FpXV_FpC_mul}{GEN V, GEN W, GEN p} multiplies a non-empty line
+\fun{GEN}{FpXV_FpC_mul}{GEN V, GEN W, GEN p} multiplies a nonempty line
 vector of\kbd{FpX} by a column vector of \kbd{Fp} of compatible dimensions.
 The result is an~\kbd{FpX}.
 
@@ -5056,7 +5056,7 @@ accessors are defined:
 a prime number $p$ or a \typ{VEC} with 2 entries $T$ (an irreducible
 polynomial mod $p$) and $p$ (a prime number). Sets \kbd{*p} and \kbd{*T}
 to the corresponding \kbd{GEN}s (\kbd{NULL} if undefined). If \kbd{red}
-is non-zero, normalize \kbd{*T} as an \kbd{FpX}; on the other hand,
+is nonzero, normalize \kbd{*T} as an \kbd{FpX}; on the other hand,
 to initialize a $p$-adic function, set \kbd{red} to $0$ and \kbd{*T} is left
 as is and must be a \kbd{ZX} to start with. Return $1$ on success, and $0$ on
 failure. This helper routine is used by GP functions such as \kbd{factormod}
@@ -5161,7 +5161,7 @@ Return \kbd{NULL} if \kbd{x} is not a square.
 \fun{GEN}{FpXQ_sqrtn}{GEN x, GEN n, GEN T, GEN p, GEN *zn}
 Let $T$be irreducible mod $p$ and $q = p^{\deg T}$; returns \kbd{NULL} if $a$
 is not an $n$-th power residue mod $p$. Otherwise, returns an $n$-th root of
-$a$; if \kbd{zn} is non-\kbd{NULL} set it to a primitive $m$-th root of $1$
+$a$; if \kbd{zn} is not \kbd{NULL} set it to a primitive $m$-th root of $1$
 in $\F_q$, $m = \gcd(q-1,n)$ allowing to compute all $m$ solutions in $\F_q$
 of the equation $x^n = a$.
 
@@ -5852,7 +5852,7 @@ a \kbd{FpX} to an extended modulus for the corresponding \kbd{Flx}.
 \kbd{ulong} (return $0$ for the zero polynomial).
 
 \fun{GEN}{Flx_red}{GEN z, ulong p} converts from \kbd{zx} with
-non-negative coefficients to \kbd{Flx} (by reducing them mod \kbd{p}).
+nonnegative coefficients to \kbd{Flx} (by reducing them mod \kbd{p}).
 
 \fun{int}{Flx_equal1}{GEN x} returns 1 (true) if the \kbd{Flx} $x$ is equal
 to~1, 0~(false) otherwise.
@@ -6011,7 +6011,7 @@ polynomial of degree $\kbd{n} > 0$ over $\F_p$, in variable \kbd{v}.
 \fun{GEN}{Flx_normalize}{GEN z, ulong p}, as \kbd{FpX\_normalize}.
 
 \fun{GEN}{Flx_rescale}{GEN P, ulong h, ulong p} returns $h^{\deg(P)} P(x/h)$,
-\kbd{P} is a \kbd{Flx} and \kbd{h} is a non-zero integer.
+\kbd{P} is a \kbd{Flx} and \kbd{h} is a nonzero integer.
 
 \fun{GEN}{random_Flx}{long d, long sv, ulong p} returns a random \kbd{Flx}
 in variable \kbd{v}, of degree less than~\kbd{d}.
@@ -6465,7 +6465,7 @@ greatest common divisor of $x$  and $y$.
 \fun{GEN}{FlxqX_saferesultant}{GEN P, GEN Q, GEN T, ulong p} Returns the
 resultant of $P$ and $Q$ if Euclid's algorithm succeeds and \kbd{NULL} otherwise.
 In particular, if $p$ is not prime or $T$ is not irreducible over $\F_p[X]$, the
-routine may still be used (but will fail if non-invertible leading terms
+routine may still be used (but will fail if noninvertible leading terms
 occur).
 
 \fun{GEN}{FlxqX_disc}{GEN x, GEN T, ulong p}
@@ -6475,7 +6475,7 @@ occur).
 \fun{GEN}{FlxqX_safegcd}{GEN P, GEN Q, GEN T, ulong p} Returns the \emph{monic}
 GCD of $P$ and $Q$ if Euclid's algorithm succeeds and \kbd{NULL} otherwise. In
 particular, if $p$ is not prime or $T$ is not irreducible over $\F_p[X]$, the
-routine may still be used (but will fail if non-invertible leading terms
+routine may still be used (but will fail if noninvertible leading terms
 occur).
 
 \fun{GEN}{FlxqX_dotproduct}{GEN x, GEN y, GEN T, ulong p} returns the scalar
@@ -7011,7 +7011,7 @@ already reduced. Shallow function.
 \fun{GEN}{QXQV_to_mod}{GEN V, GEN T} $V$ a vector of \kbd{QXQ}, which
 are lifted representatives of elements of $\Q[X]/(T)$ (number field elements
 in most applications) and $T$ is in $\Z[X]$. Return a vector where all
-non-rational entries are converted to \typ{POLMOD} modulo $T$; no reduction
+nonrational entries are converted to \typ{POLMOD} modulo $T$; no reduction
 mod $T$ is attempted: the representatives should be already reduced. Used to
 normalize the output of \kbd{nfroots}.
 
@@ -7310,7 +7310,7 @@ and $b$ such that
 unchanged; otherwise it returns $1$ and sets $a$ and $b$.
 
 In almost all applications, we actually know that a solution exists, as well
-as a non-zero multiple $B$ of $b$, and $m = p^\ell$ is a prime power, for a
+as a nonzero multiple $B$ of $b$, and $m = p^\ell$ is a prime power, for a
 prime $p$ chosen coprime to $B$ hence to $b$. Under the single assumption
 $\gcd(m,b) = 1$, if a solution $a,b$ exists satisfying the three conditions
 above, then it is unique.
@@ -7393,7 +7393,7 @@ $S[i]$ mod $p$.
 \fun{GEN}{ZpX_liftfact}{GEN A, GEN B, GEN pe, GEN p, long e} is
 the routine underlying \tet{polhensellift}. Here, $p$ is prime
 defines a finite field $\F_p$. $A$ is a polynomial in
-$\Z[X]$, whose leading coefficient is non-zero in $\F_q$. $B$ is a vector of
+$\Z[X]$, whose leading coefficient is nonzero in $\F_q$. $B$ is a vector of
 monic \kbd{FpX}, pairwise coprime in $\F_p[X]$, whose product is congruent to
 $A/\text{lc}(A)$ in $\F_p[X]$. Lifts the elements of $B$ mod $\kbd{pe} = p^e$.
 
@@ -7432,7 +7432,7 @@ Return the reduced resultant modulo $p^m$.
 a monic \kbd{ZX}, $g$ a \kbd{ZX}, $p$ a prime. Returns
 the $p$-adic reduced resultant of $f$ and $g$ modulo $p^M$. This function
 computes resultants for a sequence of increasing $p$-adic accuracies
-(up to $M$ $p$-adic digits), returning as soon as it obtains a non-zero
+(up to $M$ $p$-adic digits), returning as soon as it obtains a nonzero
 result. It is very inefficient when the resultant is $0$, but otherwise
 usually more efficient than computations using a priori bounds.
 
@@ -7505,7 +7505,7 @@ over $\Z_p[X]/(T)$ and $n$ is the degree of $T$.
 \fun{GEN}{ZpXQX_liftfact}{GEN A, GEN B, GEN T, GEN pe, GEN p, long e} is the
 routine underlying \tet{polhensellift}. Here, $p$ is prime, $T(Y)$ defines a
 finite field $\F_q$. $A$ is a polynomial in $\Z[X,Y]$, whose leading
-coefficient is non-zero in $\F_q$. $B$ is a vector of monic or \kbd{FqX},
+coefficient is nonzero in $\F_q$. $B$ is a vector of monic or \kbd{FqX},
 pairwise coprime in $\F_q[X]$, whose product is congruent to $A/\text{lc}(A)$
 in $\F_q[X]$. Lifts the elements of $B$ mod $\kbd{pe} = p^e$, such that the
 congruence now holds mod $(T,p^e)$.
@@ -7544,7 +7544,7 @@ As \kbd{FpXQX\_digits}. The parameter $q$ must be equal to $p^e$.
 \kbd{ZM} $M$, a prime $p$ and $\kbd{pm} = p^m$, returns an echelon form
 $E$ for $M$ mod $p^m$. I.e. there exist a square integral matrix $U$ with
 $\det U$ coprime to $p$ such that $E = MU$ modulo $p^m$. I
-\kbd{early\_abort} is non-zero, return NULL as soon as one pivot in
+\kbd{early\_abort} is nonzero, return NULL as soon as one pivot in
 the echelon form is divisible by $p^m$. The echelon form is an upper
 triangular HNF, we do not waste time to reduce it to Gauss-Jordan form.
 
@@ -7567,7 +7567,7 @@ to reduce $a$ and $b$ mod $p^e$ first.
 
 \fun{long}{padicprec}{GEN x, GEN p} returns the absolute $p$-adic precision of
 the object $x$, by definition the minimum precision of the components of $x$.
-For a non-zero \typ{PADIC}, this returns \kbd{valp(x) + precp(x)}.
+For a nonzero \typ{PADIC}, this returns \kbd{valp(x) + precp(x)}.
 
 \fun{long}{padicprec_relative}{GEN x} returns the relative $p$-adic
 precision of the \typ{INT}, \typ{FRAC}, or \typ{PADIC} $x$ (minimum precision
@@ -7719,7 +7719,7 @@ to coefficient in Flx.
 
 \subsubsec{From single precision}
 
-\fun{GEN}{Flx_to_ZX}{GEN z}, converts to \kbd{ZX} (\typ{POL} of non-negative
+\fun{GEN}{Flx_to_ZX}{GEN z}, converts to \kbd{ZX} (\typ{POL} of nonnegative
 \typ{INT}s in this case)
 
 \fun{GEN}{Flx_to_FlxX}{GEN z}, converts to \kbd{FlxX} (\typ{POL} of constant
@@ -7753,34 +7753,34 @@ vector of polynomials with \typ{INT} coefficients (repeated calls to
 polynomials with \typ{INT} coefficients (repeated calls to \kbd{Flx\_to\_ZX}).
 
 \fun{GEN}{zx_to_ZX}{GEN z}, as \kbd{Flx\_to\_ZX}, without assuming
-the coefficients to be non-negative.
+the coefficients to be nonnegative.
 
 \fun{GEN}{zx_to_Flx}{GEN z, ulong p} as \kbd{Flx\_red} without assuming
-the coefficients to be non-negative.
+the coefficients to be nonnegative.
 
-\fun{GEN}{Flc_to_ZC}{GEN z}, converts to \kbd{ZC} (\typ{COL} of non-negative
+\fun{GEN}{Flc_to_ZC}{GEN z}, converts to \kbd{ZC} (\typ{COL} of nonnegative
 \typ{INT}s in this case)
 
 \fun{GEN}{Flc_to_ZC_inplace}{GEN z}, same as \kbd{Flc\_to\_ZC}, in place
 (\kbd{z} is destroyed).
 
-\fun{GEN}{Flv_to_ZV}{GEN z}, converts to \kbd{ZV} (\typ{VEC} of non-negative
+\fun{GEN}{Flv_to_ZV}{GEN z}, converts to \kbd{ZV} (\typ{VEC} of nonnegative
 \typ{INT}s in this case)
 
 \fun{GEN}{Flm_to_ZM}{GEN z}, converts to \kbd{ZM} (\typ{MAT} with
-non-negative \typ{INT}s coefficients in this case)
+nonnegative \typ{INT}s coefficients in this case)
 
 \fun{GEN}{Flm_to_ZM_inplace}{GEN z}, same as \kbd{Flm\_to\_ZM}, in place
 (\kbd{z} is destroyed).
 
 \fun{GEN}{zc_to_ZC}{GEN z} as \kbd{Flc\_to\_ZC}, without assuming
-coefficients are non-negative.
+coefficients are nonnegative.
 
 \fun{GEN}{zv_to_ZV}{GEN z} as \kbd{Flv\_to\_ZV}, without assuming
-coefficients are non-negative.
+coefficients are nonnegative.
 
 \fun{GEN}{zm_to_ZM}{GEN z} as \kbd{Flm\_to\_ZM}, without assuming
-coefficients are non-negative.
+coefficients are nonnegative.
 
 \fun{GEN}{zv_to_Flv}{GEN z, ulong p}
 
@@ -7945,7 +7945,7 @@ not a $7$-th power),
 or $7$
 ($7$-th power); if an $i$-th power bit is initially set to $0$, we take it
 at face value and assume $x$ is not an $i$-th power without performing any
-test. If the return value $k$ is non-zero, set \kbd{*ptn} to $n$ such that $x
+test. If the return value $k$ is nonzero, set \kbd{*ptn} to $n$ such that $x
 = n^k$.
 
 \fun{int}{is_pth_power}{GEN x, GEN *ptn, forprime_t *T, ulong cutoff}
@@ -8038,7 +8038,7 @@ of $\phi_n(p)$, assuming $p$ prime and an Aurifeuillian factor exists
 ($p \zeta_n$ is a square in $\Q(\zeta_n)$).
 
 \fun{GEN}{factor_Aurifeuille}{GEN a, long d} an Aurifeuillian factor of
-$\phi_n(a)$, assuming $a$ is a non-zero integer and $n > 2$. Returns $1$
+$\phi_n(a)$, assuming $a$ is a nonzero integer and $n > 2$. Returns $1$
 if no Aurifeuillian factor exists.
 
 \fun{GEN}{odd_prime_divisors}{GEN a} \typ{VEC} of all prime divisors of the
@@ -8113,7 +8113,7 @@ curves: we compute $[k]P$ for some point in $E(\Z/N\Z)$ and $k = q \prod
 p^{e_p}$ where $p^{e_p} \leq B_1$ and $q \leq B_2 := 110 B_1$; a higher value
 of $B_1$ means higher chances of hitting a factor and more time spent.
 The computation is deterministic for a given set of parameters. Returns
-\kbd{NULL} on failure, else a non trivial factor or \kbd{N}.
+\kbd{NULL} on failure, else a nontrivial factor or \kbd{N}.
 
 \fun{GEN}{Q_factor}{GEN x} as \tet{Z_factor}, where $x$ is a \typ{INT} or
 a \typ{FRAC}.
@@ -8123,7 +8123,7 @@ $x$ is a \typ{INT} or a \typ{FRAC}.
 
 \subsec{Coprime factorization}
 
-Given $a$ and $b$ two non-zero integers, let \teb{ppi}$(a,b)$, \teb{ppo}$(a,b)$,
+Given $a$ and $b$ two nonzero integers, let \teb{ppi}$(a,b)$, \teb{ppo}$(a,b)$,
 \teb{ppg}$(a,b)$, \teb{pple}$(a,b)$ (powers in $a$ of primes inside $b$,
 outside $b$, greater than those in $b$, less than or equal to those in $b$) be
 the integers defined by
@@ -8155,7 +8155,7 @@ use \tet{Z_isanypower} if needed; shallow function.
 integer $b$, the result being a coprime basis for $P\cup \{b\}$.
 Perfect powers are not removed; shallow function.
 
-\fun{GEN}{ZV_cba}{GEN v} given a vector of non-zero integers $v$, return
+\fun{GEN}{ZV_cba}{GEN v} given a vector of nonzero integers $v$, return
 a coprime basis for $v$. Perfect powers are not removed; shallow function.
 
 \subsec{Checks attached to arithmetic functions}
@@ -8163,7 +8163,7 @@ a coprime basis for $v$. Perfect powers are not removed; shallow function.
 Arithmetic functions accept arguments of the following kind: a plain positive
 integer $N$ (\typ{INT}), the factorization \var{fa} of a positive integer (a
 \typ{MAT} with two columns containing respectively primes and exponents), or
-a vector $[N,\var{fa}]$. A few functions accept non-zero
+a vector $[N,\var{fa}]$. A few functions accept nonzero
 integers (e.g.~\tet{omega}), and some others arbitrary integers
 (e.g.~\tet{factorint}, \dots).
 
@@ -8175,9 +8175,9 @@ a two-column matrix all of whose entries are positive integers. It does
 or even pairwise coprime, nor that they are stricly increasing.
 
 \fun{int}{is_Z_factornon0}{GEN f} returns $1$ if $f$ looks like the
-factorization of a non-zero integer, and $0$ otherwise. Useful for sanity
+factorization of a nonzero integer, and $0$ otherwise. Useful for sanity
 checks but not 100\% foolproof, analogous to \tet{is_Z_factorpos}. (Entries
-in the first column need only be non-zero integers.)
+in the first column need only be nonzero integers.)
 
 \fun{int}{is_Z_factor}{GEN f} returns $1$ if $f$ looks like the
 factorization of an integer, and $0$ otherwise. Useful for sanity
@@ -8185,7 +8185,7 @@ checks but not 100\% foolproof. Specifically, this routine checks that $f$ is
 a two-column matrix all of whose entries are integers. Entries in the second
 column (``exponents'') are all positive. Either it encodes the
 ``factorization'' $0^e$, $e > 0$, or entries in the first column (``primes'')
-are all non-zero.
+are all nonzero.
 
 \fun{GEN}{clean_Z_factor}{GEN f} assuming $f$ is the factorization of an
 integer $n$, return the factorization of $|n|$, i.e.~remove $-1$ from the
@@ -8209,7 +8209,7 @@ May raise an \tet{e_DOMAIN} ($n \leq 0$) or an \tet{e_TYPE} exception (other
 failures).
 
 \fun{GEN}{check_arith_non0}{GEN n, const char *f} check whether $n$
-is attached to the factorization of a non-$0$ integer, and return
+is attached to the factorization of a nonzero integer, and return
 \kbd{NULL} (plain \typ{INT}) or a factorization extracted from $n$ otherwise.
 May raise an \tet{e_TYPE} exception.
 
@@ -8228,7 +8228,7 @@ taken place. In any case, the functions below assume that no prime $< 2^{14}$
 divides $n$.
 
 \fun{GEN}{ifac_start}{GEN n, int moebius} schedules a new factorization
-attempt for the integer $n$. If \kbd{moebius} is non-zero, the factorization
+attempt for the integer $n$. If \kbd{moebius} is nonzero, the factorization
 will be aborted as soon as a repeated factor is detected (Moebius mode).
 The function assumes that $n > 1$ is a \emph{composite} \typ{INT} whose prime
 divisors satisfy $p > 2^{14}$ \emph{and} that one can write to $n$ in place.
@@ -8347,7 +8347,7 @@ $0$ otherwise.
 \fun{long}{isprimeAPRCL}{GEN n}, returns $1$ if the \typ{INT} \kbd{n} is a
 prime number and $0$ otherwise, using only the APRCL test --- not even trial
 division or compositeness tests. The workhorse \kbd{isprime} should be
-faster on average, especially if non-primes are included!
+faster on average, especially if nonprimes are included!
 
 \fun{long}{isprimeECPP}{GEN n}, returns $1$ if the \typ{INT} \kbd{n} is a
 prime number and $0$ otherwise, using only the ECPP test. The workhorse
@@ -8435,7 +8435,7 @@ or \typ{COL} return $1$ if it is a \kbd{ZV} with positive entries, and $0$
 otherwise.
 
 \fun{int}{RgV_is_ZVnon0}{GEN x} Assuming \kbd{x} is a \typ{VEC}
-or \typ{COL} return $1$ if it is a \kbd{ZV} with non-zero entries, and $0$
+or \typ{COL} return $1$ if it is a \kbd{ZV} with nonzero entries, and $0$
 otherwise.
 
 \fun{int}{RgV_is_QV}{GEN P} return 1 if the \kbd{RgV}~$P$ has only
@@ -8623,7 +8623,7 @@ and a \kbd{ZM} $m$ of compatible dimensions, return \kbd{diagonal(d) * m}.
 
 \fun{GEN}{ZMrow_ZC_mul}{GEN x, GEN y, long i} multiplies the $i$-th row
 of \kbd{ZM}~\kbd{x} by the \kbd{ZC}~\kbd{y} (seen as a column vector, assumed
-to have compatible dimensions). Assumes that $x$ is non-empty and
+to have compatible dimensions). Assumes that $x$ is nonempty and
 $0 < i < \kbd{lg(x[1])}$.
 
 \fun{int}{ZMrow_equal0}{GEN V, long i} returns $1$ if the $i$-th row of
@@ -8696,7 +8696,7 @@ denominator of $M^{-1}$ is much smaller than $\det M$ else use \kbd{ZM\_inv}.
 \fun{GEN}{SL2_inv_shallow}{GEN M} return the inverse of $M \in
 \text{SL}_2(\Z)$. Not gerepile-safe.
 
-\fun{GEN}{ZM_pseudoinv}{GEN M, GEN *pv, GEN *pd} if \kbd{M} is a non-empty
+\fun{GEN}{ZM_pseudoinv}{GEN M, GEN *pv, GEN *pd} if \kbd{M} is a nonempty
 \kbd{ZM}, let $v = [y,z]$ returned by \kbd{indexrank} and
 let $M_1$ be the corresponding square invertible matrix.
 Return a primitive left-inverse $H$ such that $H M_1$ is
@@ -8918,13 +8918,13 @@ and $y$ a scalar, returns the square matrix $x - y*\text{Id}$.
 \fun{GEN}{RgM_Rg_sub_shallow}{GEN x, GEN y} as \kbd{RgM\_Rg\_sub} with much
 fewer copies. Not suitable for \kbd{gerepileupto}.
 
-\fun{GEN}{RgC_Rg_add}{GEN x, GEN y} assuming $x$ is a non-empty column vector
+\fun{GEN}{RgC_Rg_add}{GEN x, GEN y} assuming $x$ is a nonempty column vector
 and $y$ a scalar, returns the vector $[x_1 + y, x_2,\dots,x_n]$.
 
-\fun{GEN}{RgC_Rg_sub}{GEN x, GEN y} assuming $x$ is a non-empty column vector
+\fun{GEN}{RgC_Rg_sub}{GEN x, GEN y} assuming $x$ is a nonempty column vector
 and $y$ a scalar, returns the vector $[x_1 - y, x_2,\dots,x_n]$.
 
-\fun{GEN}{Rg_RgC_sub}{GEN a, GEN x} assuming $x$ is a non-empty column vector
+\fun{GEN}{Rg_RgC_sub}{GEN a, GEN x} assuming $x$ is a nonempty column vector
 and $a$ a scalar, returns the vector $[a - x_1, -x_2,\dots,-x_n]$.
 
 \fun{GEN}{RgC_Rg_div}{GEN x, GEN y}
@@ -8964,7 +8964,7 @@ multiplication).
 
 \fun{GEN}{RgMrow_RgC_mul}{GEN x, GEN y, long i} multiplies the $i$-th row of
 \kbd{RgM}~\kbd{x} by the \kbd{RgC}~\kbd{y} (seen as a column vector, assumed
-to have compatible dimensions). Assumes that $x$ is non-empty and $0 < i <
+to have compatible dimensions). Assumes that $x$ is nonempty and $0 < i <
 \kbd{lg(x[1])}$.
 
 \fun{GEN}{RgM_mulreal}{GEN x, GEN y} returns the real part of $x\times y$
@@ -9121,7 +9121,7 @@ happens when the matrix does not have maximal rank (or when rounding errors
 make it appear so).
 
 \fun{GEN}{RgM_inv_upper}{GEN a} as \kbd{RgM\_inv}, assuming that $a$ is a
-non-empty invertible upper triangular matrix, hence a little faster.
+nonempty invertible upper triangular matrix, hence a little faster.
 
 \fun{GEN}{RgM_RgC_invimage}{GEN A, GEN B} returns a \typ{COL} $X$ such that
 $A X = B$ if one such exists, and \kbd{NULL} otherwise.
@@ -9272,7 +9272,7 @@ of $E$ is now unspecified. Functions handling those later objects
 must not depend on the type of those components.
 
 \kbd{F2Ms} are \typ{VEC} of \kbd{F2Cs}. \kbd{F2Cs} are \typ{VECSMALL} whoses
-entries are the non-zero coefficients ($1$).
+entries are the nonzero coefficients ($1$).
 
 It is not possible to derive the space dimension (number of rows) from the
 above data. Thus most functions take an argument \kbd{nbrow} which is the
@@ -9320,7 +9320,7 @@ kernel of the matrix is preserved. The subset is not guaranteed to be minimal.
 using block Lanczos algorithm.
 
 \fun{GEN}{FpMs_leftkernel_elt}{GEN M, long nbrow, GEN p}
-$M$ being a sparse matrix over $\F_p$, return a non-zero kbd{FpV} $X$ such
+$M$ being a sparse matrix over $\F_p$, return a nonzero kbd{FpV} $X$ such
 that $X\*M$ components are almost all $0$.
 
 \fun{GEN}{FpMs_FpCs_solve}{GEN M, GEN B, long nbrow, GEN p}
@@ -9456,7 +9456,7 @@ If $r$ is not \kbd{NULL} set it to $T(1)$.
 Not memory-clean, but suitable for \kbd{gerepileupto}.
 
 \fun{GEN}{ZX_gcd_all}{GEN x, GEN y, GEN *pX} returns a gcd $d$ of $x$ and
-$y$. If \kbd{pX} is not \kbd{NULL}, set $\kbd{*pX}$ to a (non-zero) integer
+$y$. If \kbd{pX} is not \kbd{NULL}, set $\kbd{*pX}$ to a (nonzero) integer
 multiple of $x/d$. If $x$ and $y$ are both monic, then $d$ is monic and
 \kbd{*pX} is exactly $x/d$. Not memory clean.
 
@@ -9471,7 +9471,7 @@ coefficients.
 \fun{long}{ZX_valrem}{GEN P, GEN *z} as \kbd{RgX\_valrem}, but assumes
 \kbd{P} has \typ{INT} coefficients.
 
-\fun{GEN}{ZX_to_monic}{GEN q GEN *L} given $q$ a non-zero \kbd{ZX},
+\fun{GEN}{ZX_to_monic}{GEN q GEN *L} given $q$ a nonzero \kbd{ZX},
 returns a monic integral polynomial $Q$ such that $Q(x) = C q(x/L)$, for some
 rational $C$ and positive integer $L > 0$. If $\kbd{L}$ is not \kbd{NULL},
 set \kbd{*L} to $L$; if $L = 1$, \kbd{*L} is set to \kbd{gen\_1}. Shallow
@@ -9496,23 +9496,23 @@ smaller coefficients. Shallow function.
 \fun{GEN}{ZX_Q_mul}{GEN x, GEN y} returns $x*y$, where $y$ is a rational number
 and the resulting \typ{POL} has rational entries.
 
-\fun{long}{ZX_deflate_order}{GEN P} given a non-constant \kbd{ZX}
+\fun{long}{ZX_deflate_order}{GEN P} given a nonconstant \kbd{ZX}
 $P$, returns the largest exponent $d$ such that $P$ is of the form $P(x^d)$.
 
-\fun{long}{ZX_deflate_max}{GEN P, long *d}. Given a non-constant
+\fun{long}{ZX_deflate_max}{GEN P, long *d}. Given a nonconstant
 polynomial with integer coefficients $P$, sets \kbd{d} to
 \kbd{ZX\_deflate\_order(P)} and returns \kbd{RgX\_deflate(P,d)}. Shallow
 function.
 
 \fun{GEN}{ZX_rescale}{GEN P, GEN h} returns $h^{\deg(P)} P(x/h)$.
-\kbd{P} is a \kbd{ZX} and \kbd{h} is a non-zero integer. Neither memory-clean
+\kbd{P} is a \kbd{ZX} and \kbd{h} is a nonzero integer. Neither memory-clean
 nor suitable for \kbd{gerepileupto}.
 
 \fun{GEN}{ZX_rescale2n}{GEN P, long n} returns $2^{n\deg(P)} P(x>>n)$ where
 \kbd{P} is a \kbd{ZX}.
 
 \fun{GEN}{ZX_rescale_lt}{GEN P} returns the monic integral polynomial
-$h^{\deg(P)-1} P(x/h)$, where \kbd{P} is a non-zero \kbd{ZX} and \kbd{h} is
+$h^{\deg(P)-1} P(x/h)$, where \kbd{P} is a nonzero \kbd{ZX} and \kbd{h} is
 its leading coefficient. Neither memory-clean nor suitable for
 \kbd{gerepileupto}.
 
@@ -9568,7 +9568,7 @@ this case as well.
 \item If \kbd{flag} is 0 returns a list of intervals that isolate the real
 roots of \kbd{P}. The return value is a column of elements which are either
 vectors \kbd{[a,b]} of rational numbers meaning that there is a single
-non-rational root in the open interval \kbd{(a,b)} or elements \kbd{x0} such
+nonrational root in the open interval \kbd{(a,b)} or elements \kbd{x0} such
 that \kbd{x0} is a rational root of \kbd{P}. Beware that the limits of the
 open intervals can be roots of the polynomial.
 
@@ -9582,12 +9582,12 @@ integer or fraction $a$ then the interval is $[a,\infty)$. If \kbd{ab} is
 a vector $[a,b]$, where \typ{INT}, \typ{FRAC} or \typ{INFINITY} are allowed
 for $a$ and $b$, the interval is $[a,b]$.
 
-\fun{long}{ZX_sturm}{GEN P} number of real roots of the non-constant
+\fun{long}{ZX_sturm}{GEN P} number of real roots of the nonconstant
 squarefree \kbd{ZX} $P$. For efficiency, it is advised to make $P$ primitive
 first.
 
 \fun{long}{ZX_sturmpart}{GEN P, GEN ab} number of real roots of the
-non-constant squarefree \kbd{ZX} $P$ in the interval specified by \kbd{ab}:
+nonconstant squarefree \kbd{ZX} $P$ in the interval specified by \kbd{ab}:
 either \kbd{NULL} (no restriction) or a \typ{VEC} $[a,b]$ with two real
 components (of type \typ{INT}, \typ{FRAC} or \typ{INFINITY}). For efficiency,
 it is advised to make $P$ primitive first.
@@ -9882,7 +9882,7 @@ $\Q[Y]/(T)$. If not \kbd{NULL}, \kbd{den} is a multiple of the integral
 denominator of the (monic) gcd of $P,Q$ in $K[X]$.
 
 \fun{GEN}{nfgcd_all}{GEN P, GEN Q, GEN T, GEN den, GEN *Pnew} as \kbd{nfgcd}.
-If \kbd{Pnew} is not \kbd{NULL}, set \kbd{*Pnew} to a non-zero integer
+If \kbd{Pnew} is not \kbd{NULL}, set \kbd{*Pnew} to a nonzero integer
 multiple of $P/d$. If $P$ and $Q$ are both monic, then $d$ is monic and
 \kbd{*Pnew} is exactly $P/d$. Not memory clean if the gcd is $1$
 (in that case \kbd{*Pnew} is set to $P$).
@@ -9936,7 +9936,7 @@ rational coefficients (\typ{INT} and \typ{FRAC}), and 0 otherwise.
 \fun{int}{RgX_is_ZX}{GEN P} return 1 if the \kbd{RgX}~$P$ has only
 \typ{INT} coefficients, and 0 otherwise.
 
-\fun{int}{RgX_is_monomial}{GEN x} returns 1 (true) if \kbd{x} is a non-zero
+\fun{int}{RgX_is_monomial}{GEN x} returns 1 (true) if \kbd{x} is a nonzero
 monomial in its main variable, 0~otherwise.
 
 \fun{long}{RgX_equal}{GEN x, GEN y} returns $1$ if the \typ{POL}s $x$ and $y$
@@ -9993,19 +9993,19 @@ where $A$ and $B$ are coprime to $X$ and $v$ in $\Z$. Set \kbd{*a} to A,
 form $Q(X^d)$, return $Q$. Shallow function, not suitable for
 \kbd{gerepileupto}.
 
-\fun{long}{RgX_deflate_order}{GEN P} given a non-constant polynomial
+\fun{long}{RgX_deflate_order}{GEN P} given a nonconstant polynomial
 $P$, returns the largest exponent $d$ such that $P$ is of the form $P(x^d)$
 (use \kbd{gequal0} to check whether coefficients are 0).
 
-\fun{long}{RgX_deflate_max}{GEN P, long *d} given a non-constant polynomial
+\fun{long}{RgX_deflate_max}{GEN P, long *d} given a nonconstant polynomial
 $P$, sets \kbd{d} to \kbd{RgX\_deflate\_order(P)} and
 returns \kbd{RgX\_deflate(P,d)}. Shallow function.
 
 \fun{long}{rfrac_deflate_order}{GEN F}
-as \kbd{RgX\_deflate\_order} where $F$ is a non-constant \typ{RFRAC}.
+as \kbd{RgX\_deflate\_order} where $F$ is a nonconstant \typ{RFRAC}.
 
 \fun{long}{rfrac_deflate_max}{GEN F, long *d}
-as \kbd{RgX\_deflate\_max} where $F$ is a non-constant \typ{RFRAC}.
+as \kbd{RgX\_deflate\_max} where $F$ is a nonconstant \typ{RFRAC}.
 
 \fun{GEN}{rfrac_deflate}{GEN F, long m}
 as \kbd{RgX\_deflate} where $F$ is a \typ{RFRAC}.
@@ -10234,7 +10234,7 @@ with respect to its main variable.
 
 \fun{GEN}{RgX_resultant_all}{GEN x, GEN y, GEN *sol} returns
 \kbd{resultant(x,y)}. If \kbd{sol} is not \kbd{NULL}, sets it to the last
-non-constant remainder in the polynomial remainder sequence if it exists and to
+nonconstant remainder in the polynomial remainder sequence if it exists and to
 \kbd{gen\_0} otherwise (e.g. one polynomial has degree 0).
 
 \subsubsec{Other operations}
@@ -10257,7 +10257,7 @@ its main variable.
 $0$, with respect to its main variable.
 
 \fun{GEN}{RgX_rescale}{GEN P, GEN h} returns $h^{\deg(P)} P(x/h)$.
-\kbd{P} is an \kbd{RgX} and \kbd{h} is non-zero. (Leaves small objects on the
+\kbd{P} is an \kbd{RgX} and \kbd{h} is nonzero. (Leaves small objects on the
 stack. Suitable but inefficient for \kbd{gerepileupto}.)
 
 \fun{GEN}{RgX_unscale}{GEN P, GEN h} returns $P(h x)$. (Leaves small objects
@@ -10932,7 +10932,7 @@ a~\typ{REAL}), converts \kbd{x} into a \kbd{double} if possible.
 integer if possible, otherwise raise an exception. This function
 is similar to \tet{itos}, slightly slower since it checks the type of \kbd{x}.
 
-\fun{double}{dbllog2r}{GEN x} assuming that \kbd{x} is a non-zero \typ{REAL},
+\fun{double}{dbllog2r}{GEN x} assuming that \kbd{x} is a nonzero \typ{REAL},
 returns an approximation to \kbd{log2(|x|)}.
 
 \fun{double}{dblmodulus}{GEN x} return an approximation to \kbd{|x|}.
@@ -10989,7 +10989,7 @@ if $x$ is a \typ{INT}: we return $x$ itself and not a copy.
 \fun{GEN}{gcvtop}{GEN x, GEN p, long l} converts $x$ into a \typ{PADIC}
 of precision~$l$. Works componentwise on recursive objects,
 e.g.~\typ{POL} or \typ{VEC}. Converting $0$ yields $O(p^l)$; converting a
-non-zero number yield a result well defined modulo $p^{v_p(x) + l}$.
+nonzero number yield a result well defined modulo $p^{v_p(x) + l}$.
 
 \fun{GEN}{cvtop}{GEN x, GEN p, long l} as \kbd{gcvtop}, assuming that $x$
 is a scalar.
@@ -11070,7 +11070,7 @@ the vector represents a polynomial in the basis $(1,v,v^2,v^3,\dots)$.
 be zero), normalizes \kbd{x} correctly in place and returns~\kbd{x}. For
 internal use. Normalizing means deleting all leading \emph{exact} zeroes
 (as per \kbd{isexactzero}), except if the polynomial turns out to be $0$,
-in which case we try to find a coefficient $c$ which is a non-rational zero,
+in which case we try to find a coefficient $c$ which is a nonrational zero,
 and return the constant polynomial $c$. (We do this so that information
 about the base ring is not lost.)
 
@@ -11582,7 +11582,7 @@ returns the \typ{POLMOD} \kbd{Mod(x, y)}.
 
 \smallskip
 
-\fun{GEN}{mkintn}{long n, ...} returns the non-negative \typ{INT} whose
+\fun{GEN}{mkintn}{long n, ...} returns the nonnegative \typ{INT} whose
 development in base $2^{32}$ is given by the following $n$ 32bit-words
 (\kbd{unsigned int}).
 \bprog
@@ -11687,7 +11687,7 @@ componentwise for vector or matrix inputs; otherwise, sets \kbd{*e} to
 \section{Valuation and shift}
 
 \fun{GEN}{gshift[z]}{GEN x, long n[, GEN z]} yields the result of shifting
-(the components of) \kbd{x} left by \kbd{n} (if \kbd{n} is non-negative)
+(the components of) \kbd{x} left by \kbd{n} (if \kbd{n} is nonnegative)
 or right by $-\kbd{n}$ (if \kbd{n} is negative). Applies only to \typ{INT}
 and vectors/matrices of such. For other types, it is simply multiplication
 by~$2^{\kbd{n}}$.
@@ -11792,7 +11792,7 @@ Assuming that \kbd{x} is a \typ{INT}, return 1 (true) if \kbd{x} is equal to
 $-1$, and return 0~(false) otherwise.
 
 \fun{int}{is_pm1}{GEN x}. Assuming that \kbd{x} is a
-\emph{non-zero} \typ{INT}, return 1 (true) if \kbd{x} is equal to $-1$ or
+\emph{nonzero} \typ{INT}, return 1 (true) if \kbd{x} is equal to $-1$ or
 $1$, and return 0~(false) otherwise.
 
 \fun{int}{gequal0}{GEN x} returns 1 (true) if \kbd{x} is equal to~0, 0~(false)
@@ -11942,7 +11942,7 @@ as \kbd{indexsort}, removing duplicate entries.
 
 \fun{void}{gen_sort_inplace}{GEN x, void *data, int (*cmp)(void*,GEN,GEN), GEN
 *perm} sort \kbd{x} in place, without copying its components. If
-\kbd{perm} is non-\kbd{NULL}, it is set to the permutation that would sort
+\kbd{perm} is not \kbd{NULL}, it is set to the permutation that would sort
 the original \kbd{x}.
 
 \fun{GEN}{gen_setminus}{GEN A, GEN B, int (*cmp)(GEN,GEN)} given two sorted
@@ -11975,7 +11975,7 @@ sorted with respect to the comparison function \kbd{cmp} (see
 Let \kbd{v} be a vector sorted according to \kbd{cmp(data,a,b)}; look for an
 index $i$ such that  \kbd{v[$i$]} is equal to \kbd{y}. \kbd{flag} has the
 same meaning as in \kbd{setsearch}: if \kbd{flag} is 0, return $i$ if it
-exists and 0 otherwise; if \kbd{flag} is non-zero, return $0$ if $i$ exists
+exists and 0 otherwise; if \kbd{flag} is nonzero, return $0$ if $i$ exists
 and the index where \kbd{y} should be inserted otherwise.
 
 \fun{long}{tablesearch}{GEN T, GEN x, int (*cmp)(GEN,GEN)} is a faster
@@ -12622,7 +12622,7 @@ Allow \typ{POL}, \typ{SER}, \typ{RFRAC} and scalars.
 
 \fun{long}{degree}{GEN x} returns \kbd{poldegree(x, -1)}, the degree of
 \kbd{x} with respect to its main variable, with the usual meaning if the
-leading coefficient of $x$ is non-zero. If the sign of $x$ is $0$, this
+leading coefficient of $x$ is nonzero. If the sign of $x$ is $0$, this
 function always returns $-1$. Otherwise, we return the index of the leading
 coefficient of $x$, i.e. the coefficient of largest index stored in $x$.
 For instance the ``degrees'' of
@@ -12633,7 +12633,7 @@ For instance the ``degrees'' of
 
 \fun{long}{degpol}{GEN x} is a simple macro returning \kbd{lg(x) - 3}.
 This is the degree of the \typ{POL}~\kbd{x} with respect to its main
-variable, \emph{if} its leading coefficient is non-zero (a rational $0$ is
+variable, \emph{if} its leading coefficient is nonzero (a rational $0$ is
 impossible, but an inexact $0$ is allowed, as well as an exact modular $0$,
 e.g. \kbd{Mod(0,2)}). If $x$ has no coefficients (rational $0$ polynomial),
 its length is $2$ and we return the expected $-1$.
@@ -12663,7 +12663,7 @@ of Sylvester's matrix.
 the complex polynomial $x$ (with coefficients \typ{INT}, \typ{FRAC},
 \typ{REAL} or \typ{COMPLEX} of the above). The roots are returned
 as \typ{REAL} or \typ{COMPLEX} of \typ{REAL}s of precision \kbd{prec}
-(guaranteeing a non-$0$ imaginary part). See \tet{QX_complex_roots}.
+(guaranteeing a nonzero imaginary part). See \tet{QX_complex_roots}.
 
 \fun{double}{fujiwara_bound}{GEN x} return a quick upper bound for the
 logarithm in base $2$ of the modulus of the largest complex roots of
@@ -13020,7 +13020,7 @@ finite field given by \kbd{ff} (\typ{FFELT}), return a column vector
 the matrix~\kbd{M} (\typ{MAT}) and the column vector~\kbd{C}
 (\typ{COL}) over the finite field given by \kbd{ff} (\typ{FFELT}).
 
-\fun{GEN}{FFM_deplin}{GEN M, GEN ff} returns a non-zero vector
+\fun{GEN}{FFM_deplin}{GEN M, GEN ff} returns a nonzero vector
 (\typ{COL}) in the kernel of the matrix~\kbd{M} over the finite field
 given by \kbd{ff}, or \kbd{NULL} if no such vector exists.
 
@@ -13466,7 +13466,7 @@ with generators \var{g1}, \var{g2} with respecting relative orders \var{s1},
 a small abelian group, return its regular representation.
 
 \fun{long}{group_domain}{GEN grp} returns the \kbd{domain} of the
-\emph{non-trivial} small group \var{grp}. Return an error if \var{grp} is
+\emph{nontrivial} small group \var{grp}. Return an error if \var{grp} is
 trivial.
 
 \fun{GEN}{group_elts}{GEN grp, long n} returns the list of elements of the
@@ -13764,7 +13764,7 @@ was a \kbd{\bs n}.
 \noindent N.B. The function \kbd{out\_flush} does not exist since it would be
 identical to \kbd{out->flush()}
 
-\fun{int}{pari_last_was_newline}{void} returns a non-zero value if the last
+\fun{int}{pari_last_was_newline}{void} returns a nonzero value if the last
 character printed via \tet{out_putc} or \tet{out_puts} was \kbd{\bs
 n}, and $0$ otherwise.
 
@@ -13774,7 +13774,7 @@ to be returned by the function \tet{pari_last_was_newline} to \var{last}.
 \subsec{Default output context} They are defined by the global variables
 \tet{pariOut} and \tet{pariErr} for normal outputs and warnings/errors, and you
 probably do not want to change them. If you \emph{do} change them, diverting
-output in non-trivial ways, this probably means that you are rewriting
+output in nontrivial ways, this probably means that you are rewriting
 \kbd{gp}. For completeness, we document in this section what the default
 output contexts do.
 
@@ -13815,7 +13815,7 @@ names are attached to gp's output strings:
 
 \item \tet{c_NONE} everything else
 
-\emph{If} the \tet{colors} default is set to a non-empty value, before gp
+\emph{If} the \tet{colors} default is set to a nonempty value, before gp
 outputs a string, it first outputs an ANSI colors escape sequence ---
 understood by most terminals ---, according to the \kbd{colors}
 specifications. As long as this is in effect, the following strings are
@@ -13941,7 +13941,7 @@ returned is \tet{malloc}'ed.
 
 \fun{char*}{pari_unique_filename_suffix}{const char *s, const char *suf}
 analogous to above \tet{pari_unique_filename}, creating a (previously
-non-existent) tempfile whose name ends with suffix \kbd{suf}.
+nonexistent) tempfile whose name ends with suffix \kbd{suf}.
 
 \section{Errors}\label{se:errors}
 
@@ -14011,7 +14011,7 @@ please install it}
 
 \subsubsec{e\_DIM} arguments submitted to function $s$ have inconsistent
 dimensions. E.g., when solving a linear system, or trying to compute the
-determinant of a non-square matrix.
+determinant of a nonsquare matrix.
 \bprog
   pari_err(e_DIM, const char *s)
   pari_err_DIM(const char *s)
@@ -14108,10 +14108,10 @@ than the allowed length.
 \bprog
   pari_err(e_COMPONENT, const char *f, const char *op, GEN lim, GEN x)
   pari_err_COMPONENT(const char *f, const char *op, GEN lim, GEN x)
-@eprog\noindent prints the error message: \kbd{non-existent component in $f$:
+@eprog\noindent prints the error message: \kbd{nonexistent component in $f$:
 index \var{op} \var{lim}}. Special case: if $f$ is the empty string (no
 meaningful public function name can be used), we ignore it and print the
-message: \kbd{non-existent component: index \var{op} \var{lim}}.
+message: \kbd{nonexistent component: index \var{op} \var{lim}}.
 
 \subsubsec{e\_DOMAIN} An argument $x$ is not in the function's domain (as in
 \kbd{moebius(0)} or \kbd{zeta(1)}).
@@ -14129,7 +14129,7 @@ ran out of primes.
   pari_err(e_MAXPRIME, ulong c)
   pari_err_MAXPRIME(ulong c)
 @eprog\noindent prints the error message: \kbd{not enough precomputed primes,
-need primelimit \til $c$} if $c$ is non-zero. And simply \kbd{not enough
+need primelimit \til $c$} if $c$ is nonzero. And simply \kbd{not enough
 precomputed primes} otherwise.
 
 \subsubsec{e\_MEM} A call to \tet{pari_malloc} or \tet{pari_realloc} failed.
@@ -14189,13 +14189,13 @@ receive $x$, $y$ which were not.
 @eprog\noindent prints the error message: \kbd{elements not coprime in $s$:
 $x, y$}.
 
-\subsubsec{e\_INV} Tried to invert a non-invertible object $x$.
+\subsubsec{e\_INV} Tried to invert a noninvertible object $x$.
 \bprog
   pari_err(e_INV, const char *s, GEN x)
   pari_err_INV(const char *s, GEN x)
 @eprog\noindent prints the error message: \kbd{impossible inverse in $s$: $x$}.
 If $x = \kbd{Mod}(a,b)$ is a \typ{INTMOD} and $a$ is not $0$ mod $b$, this
-allows to factor the modulus, as \kbd{gcd}$(a,b)$ is a non-trivial divisor of
+allows to factor the modulus, as \kbd{gcd}$(a,b)$ is a nontrivial divisor of
 $b$.
 
 \subsubsec{e\_IRREDPOL} Function $s$ expected an irreducible polynomial,
@@ -14366,7 +14366,7 @@ otherwise returns 0.
 \fun{hashentry *}{hash_select}{hashtable *h, void *k, void *E, int (*select)(void *, hashentry *)} variant of \tet{hash_search}, useful when entries
 with identical keys are inserted: among the entries attached to
 key $k$, return one satisfying the selection criterion (such that
-\kbd{select(E,e)} is non-zero), or \kbd{NULL} if none exist.
+\kbd{select(E,e)} is nonzero), or \kbd{NULL} if none exist.
 
 \fun{hashentry*}{hash_remove}{hashtable *h, void *k} deletes an entry $(k,v)$
 with key $k$ from $h$ and return it. (Return \kbd{NULL} if none was found.)
@@ -14376,7 +14376,7 @@ is not reclaimed.
 \fun{hashentry*}{hash_remove_select}{hashtable *h, void *k, void *E, int(*select)(void*, hashentry *)}
 a variant of \tet{hash_remove}, useful when entries with identical keys are
 inserted: among the entries attached to key $k$, return one satisfying the
-selection criterion (such that \kbd{select(E,e)} is non-zero) and delete it,
+selection criterion (such that \kbd{select(E,e)} is nonzero) and delete it,
 or \kbd{NULL} if none exist. Only the linking structures are freed, memory
 attached to $k$ and $v$ is not reclaimed.
 
@@ -14510,7 +14510,7 @@ place without destroying $x$. This is essentially equivalent to
   return y;
 @eprog\noindent
 except that \typ{MAT} is treated specially since shallow copies of all columns
-are made. The function also works for non-recursive types, but is useless
+are made. The function also works for nonrecursive types, but is useless
 in that case since it makes a deep copy. If $x$ is known to be a \typ{MAT}, you
 may call \tet{RgM_shallowcopy} directly; if $x$ is known not to be a \typ{MAT},
 you may call \tet{leafcopy} directly.
@@ -14732,16 +14732,16 @@ components of the \typ{VECSMALL} \kbd{x} and return a permutation stored in a
 \kbd{v}.
 
 \fun{long}{vecsmall_max}{GEN v} returns the maximum of the elements of
-\typ{VECSMALL} \kbd{v}, assumed non-empty.
+\typ{VECSMALL} \kbd{v}, assumed nonempty.
 
 \fun{long}{vecsmall_indexmax}{GEN v} returns the index of the largest
-element of \typ{VECSMALL} \kbd{v}, assumed non-empty.
+element of \typ{VECSMALL} \kbd{v}, assumed nonempty.
 
 \fun{long}{vecsmall_min}{GEN v} returns the minimum of the elements of
-\typ{VECSMALL} \kbd{v}, assumed non-empty.
+\typ{VECSMALL} \kbd{v}, assumed nonempty.
 
 \fun{long}{vecsmall_indexmin}{GEN v} returns the index of the smallest
-element of \typ{VECSMALL} \kbd{v}, assumed non-empty.
+element of \typ{VECSMALL} \kbd{v}, assumed nonempty.
 
 \fun{int}{vecsmall_isconst}{GEN v} Returns 1 if all the components of \kbd{v}
 are equal, else returns 0.
@@ -14802,7 +14802,7 @@ the vector \kbd{x}.
 
 \fun{void}{vecvecsmall_sort_inplace}{GEN x, GEN *perm} sort lexicographically
 \kbd{x} in place, without copying its components. If
-\kbd{perm} is non-\kbd{NULL}, it is set to the permutation that would sort
+\kbd{perm} is not \kbd{NULL}, it is set to the permutation that would sort
 the original \kbd{x}.
 
 \fun{GEN}{vecvecsmall_sort_uniq}{GEN x} sorts lexicographically the components of
@@ -14817,7 +14817,7 @@ vecvecsmall and \kbd{y} a \typ{VECSMALL}, search \kbd{y} inside \kbd{x}.
 \kbd{flag} has the same meaning as for \kbd{setsearch}.
 
 \fun{GEN}{vecvecsmall_max}{GEN x} returns the largest entry in all $x[i]$,
-assumed non-empty. Shallow function.
+assumed nonempty. Shallow function.
 
 \newpage
 \chapter{Functions related to the GP interpreter}
@@ -14897,7 +14897,7 @@ The difference with \kbd{closure\_evalgen} being that, if the flow end by a
 \kbd{NULL}. Used by the main GP loop.
 
 \fun{GEN}{closure_evalbrk}{GEN code, long *status} as \kbd{closure\_evalres}
-but set \kbd{status} to a non-zero value if a flow change occurred. This
+but set \kbd{status} to a nonzero value if a flow change occurred. This
 variant is not stack clean. Used by the break loop.
 
 \fun{GEN}{closure_trapgen}{long numerr, GEN code} evaluates closure, while
@@ -14991,11 +14991,11 @@ with the lexical variable number $-1$ set to $x$.
 set the precision locally to \kbd{prec}.
 
 \fun{long}{gp_evalvoid}{void *E, GEN x} is used for the prototype code
-\kbd{`I'}. The resulting value is discarded.  Return a non-zero value if a
+\kbd{`I'}. The resulting value is discarded.  Return a nonzero value if a
 control-flow instruction request the iterator to terminate immediately.
 
 \fun{long}{gp_evalbool}{void *E, GEN x} returns the boolean
-\kbd{gp\_eval(E, x)} evaluates to (i.e. true iff the value is non-zero).
+\kbd{gp\_eval(E, x)} evaluates to (i.e. true iff the value is nonzero).
 
 \fun{GEN}{gp_evalupto}{void *E, GEN x} memory-safe version of \kbd{gp\_eval},
 \kbd{gcopy}-ing the result, when the evaluator returns components of
@@ -15014,10 +15014,10 @@ but set the precision locally to \kbd{prec}.
 on $(x,y)$.
 
 \fun{long}{gp_callbool}{void *E, GEN x} evaluates the closure \kbd{(GEN)E} on
-$x$, returns \kbd{1} if its result is non-zero, and \kbd{0} otherwise.
+$x$, returns \kbd{1} if its result is nonzero, and \kbd{0} otherwise.
 
 \fun{long}{gp_callvoid}{void *E, GEN x} evaluates the closure \kbd{(GEN)E} on
-$x$, discarding the result. Return a non-zero value if a control-flow
+$x$, discarding the result. Return a nonzero value if a control-flow
 instruction request the iterator to terminate immediately.
 
 \section{Defaults}
@@ -15161,7 +15161,7 @@ messages or acknowledgements.
 \tet{pari_err}.
 
 \item \kbd{ptn} points to the current numerical value of the toggle (1 or 0),
-and is set to the new value (when \kbd{v} is non-empty).
+and is set to the new value (when \kbd{v} is nonempty).
 
 For instance, here is how the timer default is implemented internally:
 \bprog
@@ -15184,7 +15184,7 @@ and return \kbd{gnil}.
 ulong Min, ulong Max, const char **msg}\hbadness 10000
 
 \item \kbd{ptn} points to the current numerical value of the toggle, and is set
-to the new value (when \kbd{v} is non-empty).
+to the new value (when \kbd{v} is nonempty).
 
 \item \kbd{Min} and \kbd{Max} point to the minimum and maximum values allowed
 for the default.
@@ -15213,10 +15213,10 @@ possibly a message attached to it via the \kbd{msg} argument, and return
 
 \fun{GEN}{sd_intarray}{const char *v, long flag, const char *s, GEN *pz}
 
-\item records a \typ{VECSMALL} array of non-negative integers.
+\item records a \typ{VECSMALL} array of nonnegative integers.
 
 \item \kbd{pz} points to the current \typ{VECSMALL} value, and is set to the
-new value (when \kbd{v} is non-empty).
+new value (when \kbd{v} is nonempty).
 
 The exact return value depends on \kbd{flag}:
 
@@ -15232,7 +15232,7 @@ The exact return value depends on \kbd{flag}:
 \item \kbd{v} is subjet to environment expansion, then time expansion.
 
 \item \kbd{pstr} points to the current string value, and is set to the new
-value (when \kbd{v} is non-empty).
+value (when \kbd{v} is nonempty).
 
 \section{Records and Lazy vectors}
 The functions in this section are used to implement \kbd{ell} structures and
@@ -15243,7 +15243,7 @@ structure:
 \fun{GEN}{obj_init}{long d, long n} returns an \tev{obj} $S$, a \typ{VEC}
 with $d$ regular components, accessed as \kbd{gel(S,1)}, \dots,
 \kbd{gel(S,d)}; together with a record of $n$ members, all initialized to
-$0$. The arguments $d$ and $n$ must be non-negative.
+$0$. The arguments $d$ and $n$ must be nonnegative.
 
 After \kbd{S = obj\_init(d, n)}, the prototype of our other functions are of
 the form

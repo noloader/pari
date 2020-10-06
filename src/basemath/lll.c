@@ -506,7 +506,7 @@ fplll(GEN *pG, GEN *pB, GEN *pU, GEN *pr, double DELTA, double ETA,
  * - flag & LLL_INPLACE: x a lattice basis, return x*U
  * - flag & LLL_GRAM: x a Gram matrix / else x a lattice basis; return
  *     LLL base change matrix U [LLL_IM]
- *     kernel basis [LLL_KER, non-reduced]
+ *     kernel basis [LLL_KER, nonreduced]
  *     both [LLL_ALL] */
 GEN
 ZM_lll_norms(GEN x, double DELTA, long flag, GEN *pN)

@@ -879,7 +879,7 @@ dvmdii(GEN x, GEN y, GEN *z)
     if (z) *z = icopy(x);
     return gen_0;
   }
-DIVIDE: /* quotient is non-zero */
+DIVIDE: /* quotient is nonzero */
   av=avma; if (sx<0) sy = -sy;
   if (ly==3)
   {
@@ -1356,7 +1356,7 @@ sqrtr_abs(GEN a)
   return gc_const((pari_sp)res, res);
 }
 
-/* Normalize a non-negative integer */
+/* Normalize a nonnegative integer */
 GEN
 int_normalize(GEN x, long known_zero_words)
 {

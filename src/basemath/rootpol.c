@@ -2668,7 +2668,7 @@ ZX_sturm_i(GEN P, long flag)
     r = 2*itou(ZX_Uspensky(P, gen_0, flag, 0));
   return gc_long(av,r);
 }
-/* P non-constant, squarefree ZX */
+/* P nonconstant, squarefree ZX */
 long
 ZX_sturmpart(GEN P, GEN ab)
 {
@@ -2676,7 +2676,7 @@ ZX_sturmpart(GEN P, GEN ab)
   if (!check_ab(ab)) return ZX_sturm(P);
   return gc_long(av, itou(ZX_Uspensky(P, ab, 2, 0)));
 }
-/* P non-constant, squarefree ZX */
+/* P nonconstant, squarefree ZX */
 long
 ZX_sturm(GEN P) { return ZX_sturm_i(P, 2); }
 /* P irreducible ZX */

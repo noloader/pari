@@ -77,7 +77,7 @@ New syntax: apell(e,n) ===> ellap(e,n)
 ellap(E,{p}): given an elliptic curve E defined over a finite field Fq, return 
 the trace of Frobenius a_p = q+1-#E(Fq); for other fields of definition K, p 
 must define a finite residue field, (p prime for K = Qp or Q; p a maximal ideal 
-for K a number field), return the order of the (non-singular) reduction of E.
+for K a number field), return the order of the (nonsingular) reduction of E.
 
 
   ***   at top-level: apell2()
@@ -90,7 +90,7 @@ New syntax: apell2(e,n) ===> ellap(e,n)
 ellap(E,{p}): given an elliptic curve E defined over a finite field Fq, return 
 the trace of Frobenius a_p = q+1-#E(Fq); for other fields of definition K, p 
 must define a finite residue field, (p prime for K = Qp or Q; p a maximal ideal 
-for K a number field), return the order of the (non-singular) reduction of E.
+for K a number field), return the order of the (nonsingular) reduction of E.
 
 
   ***   at top-level: apprpadic()
@@ -609,7 +609,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: core2(x) ===> core(x,1)
 
 core(n,{flag=0}): unique squarefree integer d dividing n such that n/d is a 
-square. If (optional) flag is non-null, output the two-component row vector 
+square. If (optional) flag is nonzero, output the two-component row vector 
 [d,f], where d is the unique squarefree integer dividing n such that n/d=f^2 is 
 a square.
 
@@ -622,9 +622,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: coredisc2(x) ===> coredisc(x,1)
 
 coredisc(n,{flag=0}): discriminant of the quadratic field Q(sqrt(n)). If 
-(optional) flag is non-null, output a two-component row vector [d,f], where d 
-is the discriminant of the quadratic field Q(sqrt(n)) and n=df^2. f may be a 
-half integer.
+(optional) flag is nonzero, output a two-component row vector [d,f], where d is 
+the discriminant of the quadratic field Q(sqrt(n)) and n=df^2. f may be a half 
+integer.
 
 
   ***   at top-level: cvtoi()
@@ -681,7 +681,7 @@ New syntax: degree(x) ===> poldegree(x)
 
 poldegree(x,{v}): degree of the polynomial or rational function x with respect 
 to main variable if v is omitted, with respect to v otherwise. For scalar x, 
-return 0 if x is non-zero and -oo otherwise.
+return 0 if x is nonzero and -oo otherwise.
 
 
   ***   at top-level: denom()
@@ -1200,7 +1200,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: gaussmodulo(M,D,Y) ===> matsolvemod(M,D,Y)
 
 matsolvemod(M,D,B,{flag=0}): one solution of system of congruences MX=B mod D 
-(M matrix, B and D column vectors). If (optional) flag is non-null return all 
+(M matrix, B and D column vectors). If (optional) flag is nonzero return all 
 solutions.
 
 
@@ -1212,7 +1212,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: gaussmodulo2(M,D,Y) ===> matsolvemod(M,D,Y,1)
 
 matsolvemod(M,D,B,{flag=0}): one solution of system of congruences MX=B mod D 
-(M matrix, B and D column vectors). If (optional) flag is non-null return all 
+(M matrix, B and D column vectors). If (optional) flag is nonzero return all 
 solutions.
 
 
@@ -1323,7 +1323,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: hermitemod(x,d) ===> mathnfmod(x,d)
 
 mathnfmod(x,d): (upper triangular) Hermite normal form of x, basis for the 
-lattice formed by the columns of x, where d is a multiple of the non-zero 
+lattice formed by the columns of x, where d is a multiple of the nonzero 
 determinant of this lattice.
 
 
@@ -1456,7 +1456,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: idealdivexact(nf,x,y) ===> idealdiv(nf,x,y,1)
 
 idealdiv(nf,x,y,{flag=0}): quotient x/y of two ideals x and y in HNF in the 
-number field nf. If (optional) flag is non-null, the quotient is supposed to be 
+number field nf. If (optional) flag is nonzero, the quotient is supposed to be 
 an integral ideal (slightly faster).
 
 
@@ -1607,7 +1607,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: idealmulred(nf,x,y) ===> idealmul(nf,x,y,1)
 
 idealmul(nf,x,y,{flag=0}): product of the two ideals x and y in the number 
-field nf. If (optional) flag is non-nul, reduce the result.
+field nf. If (optional) flag is nonzero, reduce the result.
 
 
   ***   at top-level: idealpowred()
@@ -1618,7 +1618,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: idealpowred(nf,x,y) ===> idealpow(nf,x,y,1)
 
 idealpow(nf,x,k,{flag=0}): k-th power of the ideal x in HNF in the number field 
-nf. If (optional) flag is non-null, reduce the result.
+nf. If (optional) flag is nonzero, reduce the result.
 
 
   ***   at top-level: idealtwoelt2()
@@ -1629,7 +1629,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: idealtwoelt2(nf,x,a) ===> idealtwoelt(nf,x,a)
 
 idealtwoelt(nf,x,{a}): two-element representation of an ideal x in the number 
-field nf. If (optional) a is non-zero, first element will be equal to a.
+field nf. If (optional) a is nonzero, first element will be equal to a.
 
 
   ***   at top-level: idmat()
@@ -1837,7 +1837,7 @@ New syntax: intgen(x=a,b,s) ===> intnum(x=a,b,s,1)
 
 intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with 
 respect to X. Plus/minus infinity is coded as +oo/-oo. Finally tab is either 
-omitted (let the program choose the integration step), a non-negative integer m 
+omitted (let the program choose the integration step), a nonnegative integer m 
 (divide integration step by 2^m), or data precomputed with intnuminit.
 
 
@@ -1850,7 +1850,7 @@ New syntax: intinf(x=a,b,s) ===> intnum(x=a,b,s,2)
 
 intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with 
 respect to X. Plus/minus infinity is coded as +oo/-oo. Finally tab is either 
-omitted (let the program choose the integration step), a non-negative integer m 
+omitted (let the program choose the integration step), a nonnegative integer m 
 (divide integration step by 2^m), or data precomputed with intnuminit.
 
 
@@ -1863,7 +1863,7 @@ New syntax: intopen(x=a,b,s) ===> intnum(x=a,b,s,3)
 
 intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with 
 respect to X. Plus/minus infinity is coded as +oo/-oo. Finally tab is either 
-omitted (let the program choose the integration step), a non-negative integer m 
+omitted (let the program choose the integration step), a nonnegative integer m 
 (divide integration step by 2^m), or data precomputed with intnuminit.
 
 
@@ -1943,8 +1943,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isirreducible(x) ===> polisirreducible(x)
 
-polisirreducible(pol): true(1) if pol is an irreducible non-constant 
-polynomial, false(0) if pol is reducible or constant.
+polisirreducible(pol): true(1) if pol is an irreducible nonconstant polynomial, 
+false(0) if pol is reducible or constant.
 
 
   ***   at top-level: isisom()
@@ -2076,7 +2076,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isqrt(x) ===> sqrtint(x)
 
-sqrtint(x,{&r}): integer square root y of x, where x is a non-negative integer. 
+sqrtint(x,{&r}): integer square root y of x, where x is a nonnegative integer. 
 If r is present, set it to the remainder x^2 - y.
 
 
@@ -2133,7 +2133,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: jbesselh(n,x) ===> besseljh(n,x)
 
 besseljh(n,x): J-bessel function of index n+1/2 and argument x, where n is a 
-non-negative integer.
+nonnegative integer.
 
 
   ***   at top-level: jell()
@@ -2182,7 +2182,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: ker(x) ===> matker(x)
 
 matker(x,{flag=0}): basis of the kernel of the matrix x. flag is optional, and 
-may be set to 0: default; non-zero: x is known to have integral entries.
+may be set to 0: default; nonzero: x is known to have integral entries.
 
 
   ***   at top-level: keri()
@@ -2193,7 +2193,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: keri(x) ===> matker(x,1)
 
 matker(x,{flag=0}): basis of the kernel of the matrix x. flag is optional, and 
-may be set to 0: default; non-zero: x is known to have integral entries.
+may be set to 0: default; nonzero: x is known to have integral entries.
 
 
   ***   at top-level: kerint()
@@ -2642,7 +2642,7 @@ qfminim(x,{B},{m},{flag=0}): x being a square and symmetric matrix representing
 a positive definite quadratic form, this function deals with the vectors of x 
 whose norm is less than or equal to B, enumerated using the Fincke-Pohst 
 algorithm, storing at most m vectors (no limit if m is omitted). The function 
-searches for the minimal non-zero vectors if B is omitted. The precise behavior 
+searches for the minimal nonzero vectors if B is omitted. The precise behavior 
 depends on flag. 0: returns at most 2m vectors (unless m omitted), returns 
 [N,M,V] where N is the number of vectors enumerated, M the maximum norm among 
 these, and V lists half the vectors (the other half is given by -V). 1: ignores 
@@ -2661,7 +2661,7 @@ qfminim(x,{B},{m},{flag=0}): x being a square and symmetric matrix representing
 a positive definite quadratic form, this function deals with the vectors of x 
 whose norm is less than or equal to B, enumerated using the Fincke-Pohst 
 algorithm, storing at most m vectors (no limit if m is omitted). The function 
-searches for the minimal non-zero vectors if B is omitted. The precise behavior 
+searches for the minimal nonzero vectors if B is omitted. The precise behavior 
 depends on flag. 0: returns at most 2m vectors (unless m omitted), returns 
 [N,M,V] where N is the number of vectors enumerated, M the maximum norm among 
 these, and V lists half the vectors (the other half is given by -V). 1: ignores 
@@ -2747,7 +2747,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: nfhermite(nf,x) ===> nfhnf(nf,x)
 
 nfhnf(nf,x,{flag=0}): if x=[A,I], gives a pseudo-basis [B,J] of the module sum 
-A_jI_j. If flag is non-zero, return [[B,J], U], where U is the transformation 
+A_jI_j. If flag is nonzero, return [[B,J], U], where U is the transformation 
 matrix such that AU = [0|B].
 
 
@@ -2810,7 +2810,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: nfsmith(nf,x) ===> nfsnf(nf,x)
 
 nfsnf(nf,x,{flag=0}): if x=[A,I,J], outputs D=[d_1,...d_n] Smith normal form of 
-x. If flag is non-zero return [D,U,V], where UAV = Id.
+x. If flag is nonzero return [D,U,V], where UAV = Id.
 
 
   ***   at top-level: nfval()
@@ -2896,8 +2896,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: orderell(e,x) ===> ellorder(e,x)
 
 ellorder(E,z,{o}): order of the point z on the elliptic curve E over a number 
-field or a finite field, 0 if non-torsion. The parameter o, if present, 
-represents a non-zero multiple of the order of z.
+field or a finite field, 0 if nontorsion. The parameter o, if present, 
+represents a nonzero multiple of the order of z.
 
 
   ***   at top-level: ordred()
@@ -3207,7 +3207,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: primedec(nf,p) ===> idealprimedec(nf,p)
 
 idealprimedec(nf,p,{f=0}): prime ideal decomposition of the prime number p in 
-the number field nf as a vector of prime ideals. If f is present and non-zero, 
+the number field nf as a vector of prime ideals. If f is present and nonzero, 
 restrict the result to primes of residue degree <= f.
 
 
@@ -3498,7 +3498,7 @@ New syntax: rnfequation2(nf,pol) ===> rnfequation(nf,pol,1)
 
 rnfequation(nf,pol,{flag=0}): given a pol with coefficients in nf, gives an 
 absolute equation z of the number field defined by pol. flag is optional, and 
-can be 0: default, or non-zero, gives [z,al,k], where z defines the absolute 
+can be 0: default, or nonzero, gives [z,al,k], where z defines the absolute 
 equation L/Q as in the default behavior, al expresses as an element of L a root 
 of the polynomial defining the base field nf, and k is a small integer such 
 that t = b + k al is a root of z, for b a root of pol.
@@ -4269,7 +4269,7 @@ New syntax: line(w,x2,y2) ===> plotlines(w,x2,y2)
 plotlines(w,X,Y,{flag=0}): draws an open polygon in rectwindow w where X and Y 
 contain the x (resp. y) coordinates of the vertices. If X and Y are both single 
 values (i.e not vectors), draw the corresponding line (and move cursor). If 
-(optional) flag is non-zero, close the polygon.
+(optional) flag is nonzero, close the polygon.
 
 
   ***   at top-level: lines()
@@ -4282,7 +4282,7 @@ New syntax: lines(w,x2,y2) ===> plotlines(w,x2,y2)
 plotlines(w,X,Y,{flag=0}): draws an open polygon in rectwindow w where X and Y 
 contain the x (resp. y) coordinates of the vertices. If X and Y are both single 
 values (i.e not vectors), draw the corresponding line (and move cursor). If 
-(optional) flag is non-zero, close the polygon.
+(optional) flag is nonzero, close the polygon.
 
 
   ***   at top-level: move()
@@ -4524,4 +4524,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 5
+Total time spent: 6

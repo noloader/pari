@@ -26,7 +26,7 @@ Doc: extraction of components of the vector or matrix $x$ according to $y$.
 
  If $y$ is a string, it can be
 
- \item a single (non-zero) index giving a component number (a negative
+ \item a single (nonzero) index giving a component number (a negative
  index means we start counting from the end).
 
  \item a range of the form \kbd{"$a$..$b$"}, where $a$ and $b$ are

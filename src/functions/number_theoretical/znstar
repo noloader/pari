@@ -19,7 +19,7 @@ Doc: gives the structure of the multiplicative group $(\Z/n\Z)^*$.
 
  \item $\fl = 1$ the result is a \kbd{bid} structure;
  this allows computing discrete logarithms using \tet{znlog} (also in the
- non-cyclic case!).
+ noncyclic case!).
 
  \bprog
  ? G = znstar(40)

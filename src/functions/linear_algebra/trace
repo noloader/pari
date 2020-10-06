@@ -8,4 +8,4 @@ Doc: this applies to quite general $x$. If $x$ is not a
  where it is the trace as an algebraic number.
 
  For $x$ a square matrix, it is the ordinary trace. If $x$ is a
- non-square matrix (but not a vector), an error occurs.
+ nonsquare matrix (but not a vector), an error occurs.

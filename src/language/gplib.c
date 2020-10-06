@@ -131,9 +131,7 @@ static int
 compare_str(char **s1, char **s2) { return strcmp(*s1, *s2); }
 
 /* Print all elements of list in columns, pausing every nbli lines
- * if nbli is non-zero.
- * list is a NULL terminated list of function names
- */
+ * if nbli is nonzero. list is a NULL terminated list of function names */
 void
 print_fun_list(char **list, long nbli)
 {
@@ -1212,7 +1210,7 @@ gp_read_line(filtre_t *F, const char *PROMPT)
     BLOCK_EH_END
   }
   else
-  { /* in case UI fakes non-interactivity, e.g. TeXmacs */
+  { /* in case UI fakes noninteractivity, e.g. TeXmacs */
     if (cb_pari_start_output && cb_pari_get_line_interactive)
       res = cb_pari_get_line_interactive(p, GP_DATA->prompt_cont, F);
     else

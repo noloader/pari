@@ -6,7 +6,7 @@ Description:
  (gen, small):vec  gpowers($1, $2)
 Help: powers(x,n,{x0}): return the vector [1,x,...,x^n] if x0 is omitted,
  and [x0, x0*x, ..., x0*x^n] otherwise.
-Doc: for non-negative $n$, return the vector with $n+1$ components
+Doc: for nonnegative $n$, return the vector with $n+1$ components
  $[1,x,\dots,x^n]$ if \kbd{x0} is omitted, and $[x_0, x_0*x, ..., x_0*x^n]$
  otherwise.
  \bprog

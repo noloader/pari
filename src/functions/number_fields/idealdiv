@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: idealdiv0
 Prototype: GGGD0,L,
 Help: idealdiv(nf,x,y,{flag=0}): quotient x/y of two ideals x and y in HNF
- in the number field nf. If (optional) flag is non-null, the quotient is
+ in the number field nf. If (optional) flag is nonzero, the quotient is
  supposed to be an integral ideal (slightly faster).
 Description:
  (gen, gen, gen, ?0):gen        idealdiv($1, $2, $3)
@@ -13,7 +13,7 @@ Description:
 Doc: quotient $x\cdot y^{-1}$ of the two ideals $x$ and $y$ in the number
  field $\var{nf}$. The result is given in HNF.
 
- If $\fl$ is non-zero, the quotient $x \cdot y^{-1}$ is assumed to be an
+ If $\fl$ is nonzero, the quotient $x \cdot y^{-1}$ is assumed to be an
  integral ideal. This can be much faster when the norm of the quotient is
  small even though the norms of $x$ and $y$ are large. More precisely,
  the algorithm cheaply removes all maximal ideals above rational

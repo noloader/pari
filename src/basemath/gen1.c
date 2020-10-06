@@ -660,7 +660,7 @@ addsub_pp(GEN x, GEN y, GEN (*op)(GEN,GEN))
 static GEN
 Q_to_Fp(GEN x, GEN p)
 { return mulii(gel(x,1), Fp_inv(gel(x,2),p)); }
-/* return x + y, where y t_PADIC and x is a non-zero t_INT or t_FRAC */
+/* return x + y, where y t_PADIC and x is a nonzero t_INT or t_FRAC */
 static GEN
 addQp(GEN x, GEN y)
 {
@@ -818,7 +818,7 @@ add_rfrac_scal(GEN y, GEN x)
   return gerepileupto(av, gred_rfrac_simple(n, gel(y,2)));
 }
 
-/* x "scalar", ty != t_MAT and non-scalar */
+/* x "scalar", ty != t_MAT and nonscalar */
 static GEN
 add_scal(GEN y, GEN x, long ty)
 {
@@ -886,7 +886,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
   }
   /* delta = gcd(x2,y2) */
   if (equali1(delta))
-  { /* numerator is non-zero */
+  { /* numerator is nonzero */
     gel(z,1) = gerepileuptoint((pari_sp)z, op(mulii(x1,y2), mulii(y1,x2)));
     gel(z,2) = mulii(x2,y2); return z;
   }
@@ -2085,7 +2085,7 @@ gmul(GEN x, GEN y)
   return NULL; /* LCOV_EXCL_LINE */
 }
 
-/* return a non-normalized result */
+/* return a nonnormalized result */
 GEN
 sqr_ser_part(GEN x, long l1, long l2)
 {

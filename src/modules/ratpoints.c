@@ -275,7 +275,7 @@ gen_squares(GEN listprime)
     ulong i, p = uel(listprime,n);
     GEN w = zero_zv(p), work = w+1;
     work[0] = 1;
-    /* record non-zero squares mod p, p odd */
+    /* record nonzero squares mod p, p odd */
     for (i = 1; i < p; i += 2) work[(i*i) % p] = 1;
     gel(sq, n) = w;
   }
@@ -1024,7 +1024,7 @@ sieving_info(ratpoints_args *args,
           }
         }
       }
-      else /* leading coefficient is a non-square mod p */
+      else /* leading coefficient is a nonsquare mod p */
       { /* denominator divisible by p is excluded */
         forb_ba[fba].p     = p;
         forb_ba[fba].start = sieves0[pn];

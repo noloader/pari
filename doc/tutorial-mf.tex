@@ -172,7 +172,7 @@ can use \kbd{Ser(V,q)} (convert a vector into a power series).
 \end{verbatim}
 (This simple-minded recipe only works when the form has rational
 coefficients. Make sure to use \kbd{q = varhigher("q")} first if the form has
-non-rational algebraic coefficients to avoid problems with variable priorities.)
+nonrational algebraic coefficients to avoid problems with variable priorities.)
 Similarly
 
 \begin{verbatim}
@@ -422,7 +422,7 @@ restricting to characters with complex values:
 \item A quadratic character $(D/.)$ (Kronecker symbol) is described by
 the integer $D$. For instance $1$ is the trivial character.
 
-\item There is a (non-canonical but fixed) bijection between $(\Z/N\Z)^\times$
+\item There is a (noncanonical but fixed) bijection between $(\Z/N\Z)^\times$
 and its character group, via \emph{Conrey labels}. So \kbd{Mod}$(a,N)$
 represents a character whenever $a$ is coprime to $N$. This makes it easy
 to loop on all characters without worrying too much about which is which.
@@ -1367,7 +1367,7 @@ Several remarks are in order.
   \kbd{mfTheta()}), the result is
   the value at the cusp, but is in general \emph{not} equal
   to the limit of the value of the modular form when the argument tends to
-  the cusp, since this limit is often infinite for a non-cusp form.
+  the cusp, since this limit is often infinite for a noncuspidal form.
 \end{enumerate}
 
 Note that when dealing with \emph{eigenforms}, which may have several

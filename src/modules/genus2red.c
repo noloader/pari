@@ -250,7 +250,7 @@ discpart(GEN H, GEN p, long prec)
   for(i = 1; i < lg(list); i++)
   {
     GEN t = gel(list,i);
-    for(j = 3; j < lg(t); j++) /* include if non-constant mod p */
+    for(j = 3; j < lg(t); j++) /* include if nonconstant mod p */
       if (!valp(gel(t,j))) { prod = RgX_mul(prod,t); break; }
   }
   if (degpol(prod) != 3) pari_err_BUG("discpart [prod degree]");

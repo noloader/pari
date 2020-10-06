@@ -51,7 +51,7 @@ typedef struct subFB_t {
   struct subFB_t *old;
 } subFB_t;
 
-/* a factor base contains only non-inert primes
+/* a factor base contains only noninert primes
  * KC = # of P in factor base (p <= n, NP <= n2)
  * KC2= # of P assumed to generate class group (NP <= n2)
  *
@@ -83,7 +83,7 @@ enum { sfb_CHANGE = 1, sfb_INCREASE = 2 };
 
 typedef struct REL_t {
   GEN R; /* relation vector as t_VECSMALL; clone */
-  long nz; /* index of first non-zero elt in R (hash) */
+  long nz; /* index of first nonzero elt in R (hash) */
   GEN m; /* pseudo-minimum yielding the relation; clone */
   long relorig; /* relation this one is an image of */
   long relaut; /* automorphim used to compute this relation from the original */
@@ -687,7 +687,7 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
       continue;
     }
     prim[2] = p; LP = idealprimedec_limit_f(nf,prim, l);
-    /* keep non-inert ideals with Norm <= C2 */
+    /* keep noninert ideals with Norm <= C2 */
     if (m == lg(f)) setisclone(LP); /* flag it: all prime divisors in FB */
     F->FB[++i]= p;
     F->LV[p]  = LP;
@@ -1218,7 +1218,7 @@ makeunits(GEN bnf)
 /*                                                                 */
 /*******************************************************************/
 
-/* G: prime ideals, E: vector of non-negative exponents.
+/* G: prime ideals, E: vector of nonnegative exponents.
  * C = possible extra prime (^1) or NULL
  * Return Norm (product) */
 static GEN
@@ -2850,7 +2850,7 @@ bnftestprimes(GEN bnf, GEN BOUND)
 }
 
 /* A t_MAT of complex floats, in fact reals. Extract a submatrix B
- * whose columns are definitely non-0, i.e. gexpo(A[j]) >= -2
+ * whose columns are definitely nonzero, i.e. gexpo(A[j]) >= -2
  *
  * If possible precision problem (t_REAL 0 with large exponent), set
  * *precpb to 1 */
@@ -3682,7 +3682,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
     D = nfT.dK;
     if (!ZX_is_monic(nfT.T0))
     {
-      pari_warn(warner,"non-monic polynomial in bnfinit, using polredbest");
+      pari_warn(warner,"nonmonic polynomial in bnfinit, using polredbest");
       flag_nfinit = nf_RED;
     }
   }

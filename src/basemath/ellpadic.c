@@ -622,7 +622,7 @@ FpE_issingular(GEN E, GEN P, GEN d, GEN p)
   return gc_bool(av, dvdii(t,p));
 }
 /* E/Q, P on E(Q). Let g > 0 minimal such that the image of R = [g]P in a
- * minimal model is everywhere non-singular; return [R,g] */
+ * minimal model is everywhere nonsingular; return [R,g] */
 GEN
 ellnonsingularmultiple(GEN e, GEN P)
 {

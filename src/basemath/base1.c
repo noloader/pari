@@ -1957,7 +1957,7 @@ nfinit_complete(nfmaxord_t *S, long flag, long prec)
   if (!ZX_is_irred(S->T)) pari_err_IRREDPOL("nfinit",S->T);
   if (!(flag & nf_RED) && !ZX_is_monic(S->T0))
   {
-    pari_warn(warner,"non-monic polynomial. Result of the form [nf,c]");
+    pari_warn(warner,"nonmonic polynomial. Result of the form [nf,c]");
     flag |= nf_RED | nf_ORIG;
   }
   unscale = S->unscale;
@@ -2093,7 +2093,7 @@ embednorm_T2(GEN x, long r1)
   return avma == av? gcopy(p): gerepileupto(av, p);
 }
 
-/* simplified version of gnorm for scalar, non-complex inputs, without GC */
+/* simplified version of gnorm for scalar, noncomplex inputs, without GC */
 static GEN
 real_norm(GEN x)
 {
@@ -2316,7 +2316,7 @@ findmindisc(GEN y)
   return x;
 }
 /* filter [y,b] from polred_aux: keep a single polynomial of degree n in y
- * [ the best wrt discriminant ordering ], but keep all non-primitive
+ * [ the best wrt discriminant ordering ], but keep all imprimitive
  * polynomials */
 static void
 filter(GEN y, GEN b, long n)

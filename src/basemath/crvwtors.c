@@ -370,7 +370,7 @@ random_curves_with_11_torsion(
     } while (ell_is_inf(Q));
 #endif
     /* FIXME: Thing is, if I'm going to do it this way *anyway*, I
-     * might as well use the non-elliptic version of X1(11), since the
+     * might as well use the nonelliptic version of X1(11), since the
      * formulae are much nicer. */
     Q = random_Fle_pre(A4, A6, p, pi);
 
@@ -408,7 +408,7 @@ random_curves_with_elliptic_X1(
     /*random_curves_with_14_torsion(a4, a6, tx, ty, ncurves, p, pi);
       break;*/
     /* FIXME: random_curves_with_elliptic_X1() currently uses the
-     * alternative (but nevertheless very efficient) non-elliptic
+     * alternative (but nevertheless very efficient) nonelliptic
      * implementation for levels 14 and 15. */
     random_curves_with_general_X1(a4, a6, tx, ty, ncurves, m, p, pi);
     break;
@@ -424,8 +424,8 @@ random_curves_with_2_torsion(
 {
   const ulong m1 = p - 1, inv3 = Fl_inv(3L, p);
   while (ncurves--) {
-    ulong A2 = random_Fl(m1) + 1;  /* non-zero */
-    ulong A4 = random_Fl(m1) + 1;  /* non-zero */
+    ulong A2 = random_Fl(m1) + 1;  /* nonzero */
+    ulong A4 = random_Fl(m1) + 1;  /* nonzero */
 
     a2a4_to_a4a6(a4++, a6++, A2, A4, inv3, p, pi);
 
@@ -446,8 +446,8 @@ random_curves_with_3_torsion(
   const ulong inv9 = Fl_sqr_pre(inv3, p, pi);
 
   while (ncurves--) {
-    ulong a1 = random_Fl(m1) + 1;  /* non-zero */
-    ulong a3 = random_Fl(m1) + 1;  /* non-zero */
+    ulong a1 = random_Fl(m1) + 1;  /* nonzero */
+    ulong a3 = random_Fl(m1) + 1;  /* nonzero */
 
     a1a3_to_a4a6(a4++, a6++, a1, a3, inv3, inv4, inv9, p, pi);
 
@@ -465,7 +465,7 @@ random_curves_with_4_torsion(
 {
   const ulong m1 = p - 1;
   while (ncurves--) {
-    ulong b = random_Fl(m1) + 1;  /* non-zero */
+    ulong b = random_Fl(m1) + 1;  /* nonzero */
     bc_to_a4a6_and_tors(a4++, a6++, tx++, ty++, b, 0L, p, pi);
   }
 }
@@ -477,7 +477,7 @@ random_curves_with_5_torsion(
 {
   const ulong m1 = p - 1;
   while (ncurves--) {
-    ulong b = random_Fl(m1) + 1;  /* non-zero */
+    ulong b = random_Fl(m1) + 1;  /* nonzero */
     bc_to_a4a6_and_tors(a4++, a6++, tx++, ty++, b, b, p, pi);
   }
 }
@@ -516,7 +516,7 @@ random_curves_with_8_torsion(
 {
   const ulong m1 = p - 1;
   while (ncurves--) {
-    ulong d = random_Fl(m1) + 1;  /* non-zero */
+    ulong d = random_Fl(m1) + 1;  /* nonzero */
     /* b = (2d - 1)(d - 1) */
     ulong b = Fl_mul_pre(Fl_sub(Fl_double(d, p), 1, p),
                          Fl_sub(d, 1, p), p, pi);
@@ -680,7 +680,7 @@ torsion_compatible_with_characteristic(long m, ulong p)
 
 /*
  * Input: pointers a4, a6, t{x,y} where t{x,y} is allowed to be
- * zero, each (non-zero one) pointing to space for at least ncurves
+ * zero, each (nonzero one) pointing to space for at least ncurves
  * elements; an integer m <= 50; a prime p > 3; a flag in {0, 1}.
  *
  * The flag indicates that we should generate curves faster at the
@@ -690,7 +690,7 @@ torsion_compatible_with_characteristic(long m, ulong p)
  * Output: Put the coefficients of ncurves elliptic curves with
  * m-torsion into a4 and a6.  The actual number of *unique* curves
  * generated is *not* guaranteed to be ncurves, but will be close
- * whenever p is big relative to ncurves.  When non-zero, (torx[i],
+ * whenever p is big relative to ncurves.  When nonzero, (torx[i],
  * tory[i]) will contain the m-torsion point on [a4[i], a6[i]].
  */
 void

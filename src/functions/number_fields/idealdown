@@ -4,7 +4,7 @@ C-Name: idealdown
 Prototype: GG
 Help: idealdown(nf,x): finds the intersection of the ideal x with Q.
 Doc: let $\var{nf}$ be a number field as output by \kbd{nfinit}, and $x$ a
- fractional ideal. This function returns the non-negative rational generator
+ fractional ideal. This function returns the nonnegative rational generator
  of $x \cap \Q$. If $x$ is an extended ideal, the extended part is ignored.
  \bprog
  ? nf = nfinit(y^2+1);

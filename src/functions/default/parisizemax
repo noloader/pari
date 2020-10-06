@@ -5,7 +5,7 @@ C-Name: sd_parisizemax
 Prototype:
 Help:
 Doc: \kbd{gp}, and in fact any program using the PARI library, needs a
- \tev{stack} in which to do its computations.  If non-zero,  \tet{parisizemax}
+ \tev{stack} in which to do its computations.  If nonzero,  \tet{parisizemax}
  is the maximum size the stack can grow to, in bytes.  If zero, the stack will
  not automatically grow, and will be limited to the value of \kbd{parisize}.
 
@@ -18,7 +18,7 @@ Doc: \kbd{gp}, and in fact any program using the PARI library, needs a
  without printing further messages.
 
  We \emph{strongly} recommend to set \tet{parisizemax} permanently to a large
- non-zero value in your \tet{gprc}, about what you believe your machine can
+ nonzero value in your \tet{gprc}, about what you believe your machine can
  stand. It is possible to increase or decrease \kbd{parisizemax} inside a
  running \kbd{gp} session, just use \kbd{default} as usual.
 

@@ -139,14 +139,14 @@ GEN
 alg_get_auts(GEN al)
 {
   if (alg_type(al) != al_CYCLIC)
-    pari_err_TYPE("alg_get_auts [non-cyclic algebra]", al);
+    pari_err_TYPE("alg_get_auts [noncyclic algebra]", al);
   return gel(al,2);
 }
 GEN
 alg_get_aut(GEN al)
 {
   if (alg_type(al) != al_CYCLIC)
-    pari_err_TYPE("alg_get_aut [non-cyclic algebra]", al);
+    pari_err_TYPE("alg_get_aut [noncyclic algebra]", al);
   return gel(alg_get_auts(al),1);
 }
 GEN
@@ -155,7 +155,7 @@ GEN
 alg_get_b(GEN al)
 {
   if (alg_type(al) != al_CYCLIC)
-    pari_err_TYPE("alg_get_b [non-cyclic algebra]", al);
+    pari_err_TYPE("alg_get_b [noncyclic algebra]", al);
   return gel(al,3);
 }
 GEN
@@ -418,7 +418,7 @@ algtensor(GEN al1, GEN al2, long maxord) {
   checkalg(al1);
   checkalg(al2);
   if (alg_type(al1) != al_CYCLIC  || alg_type(al2) != al_CYCLIC)
-    pari_err_IMPL("tensor of non-cyclic algebras"); /* TODO: do it. */
+    pari_err_IMPL("tensor of noncyclic algebras"); /* TODO: do it. */
 
   nf=alg_get_center(al1);
   if (!gequal(alg_get_center(al2),nf))
@@ -431,7 +431,7 @@ algtensor(GEN al1, GEN al2, long maxord) {
   d1=alg_get_degree(al1);
   d2=alg_get_degree(al2);
   if (ugcd(d1,d2) != 1)
-    pari_err_IMPL("tensor of cylic algebras of non-coprime degrees"); /* TODO */
+    pari_err_IMPL("tensor of cylic algebras of noncoprime degrees"); /* TODO */
 
   if (d1==1) return gcopy(al2);
   if (d2==1) return gcopy(al1);
@@ -3329,7 +3329,7 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
     if (!bnf) bnf = Buchall(nf,0,0);
     return gerepileupto(av,bnfgwgeneric(bnf,Lpr,Ld,pl,var));
   }
-  pari_err_IMPL("nfgrunwaldwang for non-prime degree");
+  pari_err_IMPL("nfgrunwaldwang for nonprime degree");
   return NULL; /*LCOV_EXCL_LINE*/
 }
 
@@ -4773,7 +4773,7 @@ alg_pmaximal(GEN al, GEN p)
   id = matid(n);
   al2 = al;
 
-  dbg_printf(0)("Round 2 (non-commutative) at p=%Ps, dim=%d\n", p, n);
+  dbg_printf(0)("Round 2 (noncommutative) at p=%Ps, dim=%d\n", p, n);
 
   pre = algcenter_precompute(al,p);
 

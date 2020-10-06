@@ -36,9 +36,9 @@ Doc: \idx{Coppersmith}'s algorithm. $N$ being an integer and $P\in \Z[t]$,
  \tet{polrootsmod} or \tet{polrootspadic} will be much faster.
 
  We shall now present two simple applications. The first one is
- finding non-trivial factors of $N$, given some partial information on the
+ finding nontrivial factors of $N$, given some partial information on the
  factors; in that case $B$ must obviously be smaller than the largest
- non-trivial divisor of $N$.
+ nontrivial divisor of $N$.
  \bprog
  setrand(1); \\ to make the example reproducible
  [a,b] = [10^30, 10^31]; D = 20;

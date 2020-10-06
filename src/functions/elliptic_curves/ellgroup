@@ -6,7 +6,7 @@ Help: ellgroup(E,{p},{flag}): given an elliptic curve E defined over
  a finite field Fq, return the structure of the group E(Fq); for other fields
  of definition K, p must define a finite residue field
  (p prime for K = Qp or Q; p a maximal ideal for K a number field) and we
- return the structure of the (non-singular) reduction of E.
+ return the structure of the (nonsingular) reduction of E.
  If flag is 1, return also generators, the curve equation must be minimal at p.
 Doc:
  Let \kbd{E} be an \kbd{ell} structure as output by \kbd{ellinit}, attached
@@ -15,7 +15,7 @@ Doc:
  $E(\F_q)$:
 
  \item if $\fl = 0$, return the structure $[]$ (trivial group) or $[d_1]$
- (non-trivial cyclic group) or $[d_1,d_2]$ (non-cyclic group) of
+ (nontrivial cyclic group) or $[d_1,d_2]$ (noncyclic group) of
  $E(\F_q) \sim \Z/d_1\Z \times \Z/d_2\Z$, with $d_2\mid d_1$.
 
  \item if $\fl = 1$, return a triple $[h,\var{cyc},\var{gen}]$, where
@@ -33,7 +33,7 @@ Doc:
  must be a prime number ($K = \Q$) or prime ideal ($K$ a general number field)
  with residue field $\F_q$ otherwise. The curve is allowed to have bad
  reduction at $p$ and in this case we consider the (cyclic) group of
- non-singular points for the reduction of a minimal model at $p$.
+ nonsingular points for the reduction of a minimal model at $p$.
 
  If $\fl = 0$, the equation not be minimal or even integral at $p$; of course,
  a minimal model will be more efficient.
@@ -45,7 +45,7 @@ Doc:
  \bprog
  ? E = ellinit([0,1]);  \\ y^2 = x^3 + 0.x + 1, defined over Q
  ? ellgroup(E, 7)
- %2 = [6, 2] \\ Z/6 x Z/2, non-cyclic
+ %2 = [6, 2] \\ Z/6 x Z/2, noncyclic
  ? E = ellinit([0,1] * Mod(1,11));  \\ defined over F_11
  ? ellgroup(E)   \\ no need to repeat 11
  %4 = [12]
@@ -61,7 +61,7 @@ Doc:
  %6 = [12, [6, 2], [[Mod(2, 7), Mod(4, 7)], [Mod(4, 7), Mod(4, 7)]]]
  @eprog\noindent
  Let us now consider curves of bad reduction, in this case we return the
- structure of the (cyclic) group of non-singular points, satisfying
+ structure of the (cyclic) group of nonsingular points, satisfying
  $\#E_{ns}(\F_p) = p - a_p$:
  \bprog
  ? E = ellinit([0,5]);
@@ -77,7 +77,7 @@ Doc:
  ? ellgroup(E, 7, 1)
  %7 = [8, [8], [[Mod(3, 7), Mod(5, 7)]]]
  ? ellap(E, 7)
- %8 = -1 \\ non-split multiplicative reduction at 7
+ %8 = -1 \\ nonsplit multiplicative reduction at 7
  @eprog
 
 Variant: Also available is \fun{GEN}{ellgroup}{GEN E, GEN p}, corresponding

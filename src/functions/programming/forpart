@@ -52,7 +52,7 @@ Doc: evaluate \var{seq} over the partitions $X=[x_1,\dots x_n]$ of the
  By default, parts are positive and we remove zero entries unless $amin\leq0$,
  in which case we fix the size $\#X = \var{nmax}$:
  \bprog
- \\ at most 3 non-zero parts, all <= 4
+ \\ at most 3 nonzero parts, all <= 4
  ? forpart(v=5,print(Vec(v)), 4, 3)
  [1, 4]
  [2, 3]
@@ -67,7 +67,7 @@ Doc: evaluate \var{seq} over the partitions $X=[x_1,\dots x_n]$ of the
  [0, 1, 2, 2]
  [1, 1, 1, 2]
 
- \\ no partitions of 1 with 2 to 4 non-zero parts
+ \\ no partitions of 1 with 2 to 4 nonzero parts
  ? forpart(v=1,print(v),[0,5],[2,4])
  ?
  @eprog\noindent

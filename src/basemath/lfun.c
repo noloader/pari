@@ -233,7 +233,7 @@ theta_get_isqrtN(GEN tdata)  { return gel(tdata, 7);}
 /*  Helper functions related to Gamma products                     */
 /*******************************************************************/
 
-/* return -itos(s) >= 0 if s is (approximately) equal to a non-positive
+/* return -itos(s) >= 0 if s is (approximately) equal to a nonpositive
  * integer, and -1 otherwise */
 static long
 isnegint(GEN s)

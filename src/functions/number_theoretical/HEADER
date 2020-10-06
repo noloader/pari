@@ -59,7 +59,7 @@ Doc:
 
  All such functions allow an optional argument specifying an integer
  $N$, representing the order of the group. (The \emph{order} functions also
- allows any non-zero multiple of the order, with a minor loss of efficiency.)
+ allows any nonzero multiple of the order, with a minor loss of efficiency.)
  That optional argument follows the same format as given above:
 
  \item \typ{INT}: the integer $N$,

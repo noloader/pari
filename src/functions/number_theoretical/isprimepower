@@ -3,7 +3,7 @@ Section: number_theoretical
 C-Name: isprimepower
 Prototype: lGD&
 Help: isprimepower(x,{&n}): if x = p^k is a prime power (p prime, k > 0),
- return k, else return 0. If n is present, and the function returns a non-zero
+ return k, else return 0. If n is present, and the function returns a nonzero
  result, set n to p, the k-th root of x.
 Doc: if $x = p^k$ is a prime power ($p$ prime, $k > 0$), return $k$, else
  return 0. If a second argument $\&n$ is given and $x$ is indeed

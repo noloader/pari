@@ -75,7 +75,7 @@
 1/324, 1/484, 1/676, 1/900]]
   ***   at top-level: contfraceval(e,1,10)
   ***                 ^--------------------
-  *** contfraceval: non-existent component in contfraceval: index > 8
+  *** contfraceval: nonexistent component in contfraceval: index > 8
 410105312/150869313
 517656/190435
 410105312/150869313

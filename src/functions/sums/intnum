@@ -4,7 +4,7 @@ C-Name: intnum0
 Prototype: V=GGEDGp
 Help: intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with
  respect to X. Plus/minus infinity is coded as +oo/-oo. Finally tab is
- either omitted (let the program choose the integration step), a non-negative
+ either omitted (let the program choose the integration step), a nonnegative
  integer m (divide integration step by 2^m), or data precomputed with
  intnuminit.
 Wrapper: (,,G)
@@ -46,7 +46,7 @@ Doc: numerical integration
  being integrated, evaluated at many sampling points $x_i$ and
  approximates the integral by $\sum w_i f(x_i)$. If \var{tab} is
 
- \item a non-negative integer $m$, we multiply the number of sampling points
+ \item a nonnegative integer $m$, we multiply the number of sampling points
  by $2^m$, hopefully increasing accuracy. Note that the running time
  increases roughly by a factor $2^m$. One may try consecutive values of $m$
  until they give the same value up to an accepted error.
@@ -118,7 +118,7 @@ Doc: numerical integration
  @eprog
 
  \smallskip The last two codes are reserved for oscillating functions.
- Let $k > 0$ real, and $g(x)$ a non-oscillating function tending slowly to $0$
+ Let $k > 0$ real, and $g(x)$ a nonoscillating function tending slowly to $0$
  (e.g. like a negative power of $x$), then
 
  \item $\alpha=k * I$ assumes that the function behaves like $\cos(kx)g(x)$.
@@ -149,7 +149,7 @@ Doc: numerical integration
  recomputations. See \kbd{intfuncinit} for more explanations.
 
  \misctitle{Power series limits}
- The limits $a$ and $b$ can be power series of non-negative valuation,
+ The limits $a$ and $b$ can be power series of nonnegative valuation,
  giving a power series expansion for the integral -- provided it exists.
  \bprog
  ? intnum(t=0,X + O(X^3), exp(t))

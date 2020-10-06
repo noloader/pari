@@ -59,7 +59,7 @@ Doc: evaluates in parallel the expression \kbd{expr1} in the formal
  @eprog
  The sequentiality of the evaluation of \kbd{expr2} ensures that the
  variable \kbd{s} is not modified concurrently by two different additions,
- although the order in which the terms are added is non-deterministic.
+ although the order in which the terms are added is nondeterministic.
 
  It is allowed for \kbd{expr2} to exit the loop using
  \kbd{break}/\kbd{next}/\kbd{return}. If that happens for $i=c$,
@@ -69,7 +69,7 @@ Doc: evaluates in parallel the expression \kbd{expr1} in the formal
  undefined if this is a \kbd{break}/\kbd{next}).
  In that case, using side-effects
  in \kbd{expr2} may lead to undefined behavior, as the exact
- number of values of $i$ for which it is executed is non-deterministic.
+ number of values of $i$ for which it is executed is nondeterministic.
  The following example computes \kbd{nextprime(1000)} in parallel:
  \bprog
  ? parfor (i=1000, , isprime (i), r, if (r, return (i)))

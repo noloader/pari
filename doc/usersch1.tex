@@ -224,7 +224,7 @@ precision of real numbers is also at most 161614219 significant decimal
 digits, and the binary exponent must be in absolute value less than
 $2^{29}$, resp. $2^{61}$, on 32-bit, resp.~64-bit machines.
 
-Integers and real numbers are non-recursive types.
+Integers and real numbers are nonrecursive types.
 
 \subsec{Intmods, rational numbers, $p$-adic numbers, polmods, and rational
 functions} These are recursive, but in a restricted way.
@@ -276,7 +276,7 @@ They are completely recursive, over a commutative base ring: their components
 can be of any type, and types can be mixed (however beware when doing
 operations). Note in particular that a polynomial in two variables is simply
 a polynomial with polynomial coefficients. Polynomials or matrices over
-non-commutative rings are not supported.
+noncommutative rings are not supported.
 
 In the present version \vers{} of PARI, it is not possible to handle
 conveniently power series of power series, i.e.~power series in several
@@ -291,7 +291,7 @@ and it is not easy to design an intuitive generic interface for such beasts.
 \subsec{Zero} What is zero? This is a crucial question in all computer
 systems. The answer we give in PARI is the following. For exact types, all
 zeros are equivalent and are exact, and thus are usually represented as an
-integer \idx{zero}. The problem becomes non-trivial for imprecise types:
+integer \idx{zero}. The problem becomes nontrivial for imprecise types:
 there are infinitely many distinct zeros of each of these types! For
 $p$-adics and power series the answer is as follows: every such object,
 including 0, has an exponent $e$. This $p$-adic or $X$-adic zero is

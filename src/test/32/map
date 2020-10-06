@@ -32,10 +32,10 @@ Map(Mat([2, 3]))
 
   ***   at top-level: mapget(M,7)
   ***                 ^-----------
-  *** mapget: non-existent component in mapget: index not in map
+  *** mapget: nonexistent component in mapget: index not in map
   ***   at top-level: mapdelete(~M,7)
   ***                 ^---------------
-  *** mapdelete: non-existent component in mapdelete: index not in map
+  *** mapdelete: nonexistent component in mapdelete: index not in map
   ***   at top-level: Vec(M,1)
   ***                 ^--------
   *** Vec: incorrect type in gtovec (t_LIST).
@@ -70,4 +70,4 @@ Map(Mat([2, 3]))
   ***   at top-level: Map(1)
   ***                 ^------
   *** Map: incorrect type in Map (t_INT).
-Total time spent: 19
+Total time spent: 20

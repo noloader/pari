@@ -716,7 +716,7 @@ PL_isvalid(GEN v)
 }
 
 /* Assume N is a strong BPSW pseudoprime, Pocklington-Lehmer primality proof.
- * Return gen_0 (non-prime), N (small prime), matrix (large prime)
+ * Return gen_0 (nonprime), N (small prime), matrix (large prime)
  *
  * The matrix has 3 columns, [a,b,c] with
  * a[i] prime factor of N-1,

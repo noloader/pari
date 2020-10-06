@@ -19,7 +19,7 @@ Doc: determinant of the square matrix $x$.
  \item real or $p$-adic entries: classical Gaussian elimination using maximal
  pivot.
 
- \item intmod entries: classical Gaussian elimination using first non-zero
+ \item intmod entries: classical Gaussian elimination using first nonzero
  pivot.
 
  \item other cases: Gauss-Bareiss.

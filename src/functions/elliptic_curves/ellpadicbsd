@@ -22,7 +22,7 @@ Doc: Given an elliptic curve $E$ over $\Q$, its quadratic twist $E_D$
  \item $r$ is an upper bound for the analytic rank of the $p$-adic
  $L$-function attached to $E_D$: we know for sure that the $i$-th
  derivative of $L_p(E_D,.)$ at $\chi^0$ is $O(p^N)$ for all $i < r$
- and that its $r$-th derivative is non-zero; it is expected that the true
+ and that its $r$-th derivative is nonzero; it is expected that the true
  analytic rank is equal to the rank of the Mordell-Weil group $E_D(\Q)$,
  plus $1$ if the reduction of $E_D$ at $p$ is split multiplicative;
  if $r = 0$, then both the analytic rank and the Mordell-Weil rank are

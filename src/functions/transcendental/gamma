@@ -6,7 +6,7 @@ Help: gamma(s): gamma function at s, a complex or p-adic number, or a series.
 Doc: For $s$ a complex number, evaluates Euler's gamma
  function \sidx{gamma-function}
  $$\Gamma(s)=\int_0^\infty t^{s-1}\exp(-t)\,dt.$$
- Error if $s$ is a non-positive integer, where $\Gamma$ has a pole.
+ Error if $s$ is a nonpositive integer, where $\Gamma$ has a pole.
 
  For $s$ a \typ{PADIC}, evaluates the Morita gamma function at $s$, that
  is the unique continuous $p$-adic function on the $p$-adic integers

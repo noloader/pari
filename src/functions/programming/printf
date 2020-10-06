@@ -57,7 +57,7 @@ Doc: This function is based on the C library command of the same name.
  signed conversion. A \kbd{+} overrides a space if both are used.
 
  \misctitle{The field width} An optional decimal digit string (whose first
- digit is non-zero) specifying a \emph{minimum} field width. If the value has
+ digit is nonzero) specifying a \emph{minimum} field width. If the value has
  fewer characters than the field width, it is padded with spaces on the left
  (or right, if the left-adjustment flag has been given). In no case does a
  small field width cause truncation of a field; if the value is wider than

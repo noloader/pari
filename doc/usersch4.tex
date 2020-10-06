@@ -358,7 +358,7 @@ concrete examples in the next subsection.
 First, PARI routines do their own garbage collecting, which means that
 whenever a documented function from the library returns, only its result(s)
 have been added to the stack, possibly up to a very small overhead
-(non-documented ones may not do this). In
+(undocumented ones may not do this). In
 particular, a PARI function that does not return a \kbd{GEN} does not clutter
 the stack. Thus, if your computation is small enough (e.g.~you call few PARI
 routines, or most of them return \kbd{long} integers), then you do not need
@@ -840,7 +840,7 @@ Finally, to facilitate input of constant objects when speed is not paramount,
 there are four \tet{varargs} functions:
 
 \fun{GEN}{mkintn}{long n, ...}
-returns the non-negative \typ{INT} whose development in base $2^{32}$
+returns the nonnegative \typ{INT} whose development in base $2^{32}$
 is given by the following $n$ 32bit-words (\kbd{unsigned int}).
 \bprog
   mkintn(3, a2, a1, a0);
@@ -930,7 +930,7 @@ e.g.\kbd{mpfloor}.
 It can also happen that \kbd{y} is not large enough or does not have the proper
 tree structure to receive the object \kbd{x}. For instance, let \kbd{y} the zero
 integer with length equal to 2; then \kbd{y} is too small to accommodate any
-non-zero \typ{INT}. In general common sense tells you what is possible,
+nonzero \typ{INT}. In general common sense tells you what is possible,
 keeping in mind the PARI philosophy which says that if it makes sense it is
 valid. For instance, the assignment of an imprecise object into a precise one
 does \emph{not} make sense. However, a change in precision of imprecise
@@ -1034,7 +1034,7 @@ constantly mix two points of view: on the one hand, \kbd{z} is treated as the
 C pointer it is, on the other, as PARI's handle on some mathematical entity,
 so we will shamelessly write $\kbd{z} \ne 0$ to indicate that the
 \emph{value} thus represented is nonzero (in which case the
-\emph{pointer}~\kbd{z} is certainly non-\kbd{NULL}). We offer no apologies
+\emph{pointer}~\kbd{z} is certainly not \kbd{NULL}). We offer no apologies
 for this style. In fact, you had better feel comfortable juggling both views
 simultaneously in your mind if you want to write correct PARI programs.
 
@@ -1099,7 +1099,7 @@ $\kbd{z} < 0$ respectively.
 the \emph{effective length} of \kbd{z}, i.e.~the total number of significant
 longwords. This means the following: apart from the integer 0, every integer
 is ``normalized'', meaning that the most significant mantissa longword is
-non-zero. However, the integer may have been created with a longer length.
+nonzero. However, the integer may have been created with a longer length.
 Hence the ``length'' which is in \kbd{z[0]} can be larger than the
 ``effective length'' which is in \kbd{z[1]}.
 
@@ -1148,7 +1148,7 @@ forbidden. To enforce this, one may write an arbitrary mantissa then call
 
 \fun{void}{int_normalize}{GEN z, long known0}
 
-\noindent normalizes in place a non-negative integer (such that $z_n$ is
+\noindent normalizes in place a nonnegative integer (such that $z_n$ is
 possibly $0$), assuming at least the first \kbd{known0} words are zero.
 
 \noindent For instance a binary \kbd{and} could be implemented in the
@@ -1350,7 +1350,7 @@ The components \kbd{z[2]}, \kbd{z[3]},\dots \kbd{z[lg(z)-1]} point to the
 coefficients of the polynomial \emph{in ascending order}, with \kbd{z[2]}
 being the constant term and so on.
 
-For a \typ{POL} of non-zero sign, \tet{degpol}, \tet{leading_coeff},
+For a \typ{POL} of nonzero sign, \tet{degpol}, \tet{leading_coeff},
 \tet{constant_coeff}, return its degree, and a pointer to the leading,
 resp. constant, coefficient with respect to the main variable. Note that no
 copy is made on the PARI stack so the returned value is not safe for a basic
@@ -1367,7 +1367,7 @@ The leading coefficient of a \typ{POL} may be equal to zero:
 
 \item it is not allowed to be an exact rational $0$, such as \tet{gen_0};
 
-\item an exact non-rational $0$, like \kbd{Mod(0,2)}, is possible for
+\item an exact nonrational $0$, like \kbd{Mod(0,2)}, is possible for
 constant polynomials, i.e. of length $3$ and no other coefficient: this
 carries information about the base ring for the polynomial;
 
@@ -1499,7 +1499,7 @@ memory, as well as many unnecessary copies). Hence we do not describe it
 here and refer to the Developer's Guide.
 
 \misctitle{Implementation note} For the types including an exponent (or a
-valuation), we actually store a biased non-negative exponent (bit-ORing the
+valuation), we actually store a biased nonnegative exponent (bit-ORing the
 biased exponent to the codeword), obtained by adding a constant to the true
 exponent: either \kbd{HIGHEXPOBIT} (for \typ{REAL}) or \kbd{HIGHVALPBIT} (for
 \typ{PADIC} and \typ{SER}). Of course, this is encapsulated by the
@@ -1711,9 +1711,9 @@ expression and returns the result of this expression.
 The function \kbd{gp\_read\_str\_multiline} processes the text in the
 same way as the GP command \tet{read}: newlines are significant and can
 be used to separate expressions.
-The return value is that of the last non-empty expression evaluated.
+The return value is that of the last nonempty expression evaluated.
 
-In \kbd{gp\_read\_str\_multiline}, if \kbd{last} is non-\kbd{NULL},
+In \kbd{gp\_read\_str\_multiline}, if \kbd{last} is not \kbd{NULL},
 then \kbd{*last} receives the last character from the \emph{filtered}
 input: this can be used to check if the last character was a semi-colon
 (to hide the output in interactive usage). If (and only if) the
@@ -1751,7 +1751,7 @@ Finally, you can read in a whole file, as in GP's \tet{read} statement
 
 \fun{GEN}{gp_read_file}{char *name}
 
-\noindent As usual, the return value is that of the last non-empty expression
+\noindent As usual, the return value is that of the last nonempty expression
 evaluated. There is one technical exception: if \kbd{name} is a \emph{binary}
 file (from \tet{writebin}) containing more than one object, a \typ{VEC}
 containing them all is returned. This is because binary objects bypass the
@@ -1923,7 +1923,7 @@ tree} attached to an object:
 
 \fun{void}{dbgGEN}{GEN x, long nb = -1}, displays the recursive structure of
 \kbd{x}. If $\kbd{nb} = -1$, the full structure is printed, otherwise
-the leaves (non-recursive components) are truncated to \kbd{nb} words.
+the leaves (nonrecursive components) are truncated to \kbd{nb} words.
 
 \noindent The function \tet{output} is vital under debuggers, since none of
 them knows how to print PARI objects by default. Seasoned PARI developers
@@ -2003,7 +2003,7 @@ or
 @eprog
 
 The following functions provided the same functionality, in a
-non-reentrant way, and are now deprecated.
+nonreentrant way, and are now deprecated.
 
 \fun{long}{timer}{void}
 
@@ -2030,17 +2030,17 @@ implemented as an iterator but as a procedure with callbacks.
 \fun{void}{forell}{void *E, long fun(void*, GEN), GEN a, GEN b}
 goes through the same curves as \tet{forell(ell,a,b,)}, calling
 \tet{fun(E, ell)} for each curve \kbd{ell}, stopping if \kbd{fun} returns a
-non-zero value.
+nonzero value.
 
 \fun{void}{forqfvec1}{void *E, long (*fun)(void *, GEN, GEN, double), GEN A, GEN BORNE}
 goes through the same vectors as \tet{forqfvec(v,A,BORNE,)}, calling
 \tet{fun(E, v)} for each vectors \kbd{v}, stopping if \kbd{fun} returns a
-non-zero value.
+nonzero value.
 
 \fun{void}{forsubgroup}{void *E, long fun(void*, GEN), GEN G, GEN B}
 goes through the same subgroups as \tet{forsubgroup(H = G, B,)}, calling
 \tet{fun(E, H)} for each subgroup $H$, stopping if \kbd{fun} returns a
-non-zero value.
+nonzero value.
 
 \item \tet{forprime}, for which we refer you to the next subsection.
 
@@ -2364,7 +2364,7 @@ in \secref{se:errors}.
     long code = err_get_num(E);
     if (code != e_INV) pari_err(0, E); /* unexpected error, rethrow */
     x = err_get_compo(E, 2);
-    /* e_INV has two components, 1: function name 2: non-invertible x */
+    /* e_INV has two components, 1: function name 2: noninvertible x */
     if (typ(x) != t_INTMOD) pari_err(0, E); /* unexpected type, rethrow */
     pari_CATCH_reset();
     return x; /* leave ! */

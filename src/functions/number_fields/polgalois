@@ -5,7 +5,7 @@ Prototype: Gp
 Help: polgalois(T): Galois group of the polynomial T (see manual for group
  coding). Return [n, s, k, name] where n is the group order, s the signature,
  k the index and name is the GAP4 name of the transitive group.
-Doc: \idx{Galois} group of the non-constant
+Doc: \idx{Galois} group of the nonconstant
  polynomial $T\in\Q[X]$. In the present version \vers, $T$ must be irreducible
  and the degree $d$ of $T$ must be less than or equal to 7. If the
  \tet{galdata} package has been installed, degrees 8, 9, 10 and 11 are also

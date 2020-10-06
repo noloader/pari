@@ -53,10 +53,10 @@ Doc:
  PostScript or SVG file and use an external viewer to open it. The physical
  window opened by \kbd{plotdraw} or any of the \kbd{ploth*} functions is
  completely separated from \kbd{gp} (technically, a \kbd{fork} is done, and
- the non-graphical memory is immediately freed in the child process), which
- means you can go on working in the current \kbd{gp} session, without having
- to kill the window first. This window can be closed, enlarged or reduced
- using the standard window manager functions. No zooming procedure is
+ all memory unrelated to the graphics engine is immediately freed in the child
+ process), which means you can go on working in the current \kbd{gp} session,
+ without having to kill the window first. This window can be closed, enlarged
+ or reduced using the standard window manager functions. No zooming procedure is
  implemented though.
 
  \subsec{Functions for PostScript or SVG output} in the same way that

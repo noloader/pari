@@ -17,6 +17,6 @@ Doc:
 
  \item integer case: $\det M = \pm 1$ and we have
  $$a \geq \ceil{\sqrt{\max(|x|,|y|)}} > b.$$
- Assuming $x$ and $y$ are non-negative, then $M^{-1}$ has non-negative
+ Assuming $x$ and $y$ are nonnegative, then $M^{-1}$ has nonnegative
  coefficients, and $\det M$ is equal to the sign of both main diagonal terms
  $M[1,1]$ and $M[2,2]$.

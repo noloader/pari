@@ -42,7 +42,7 @@
   ***   incorrect type in matrix col assignment (t_INT).
   ***   at top-level: M[,3]=1
   ***                  ^------
-  ***   non-existent component: index > 2
+  ***   nonexistent component: index > 2
   ***   at top-level: M[,1]=[1,2]
   ***                 ^-----------
   ***   incorrect type in matrix col assignment (t_VEC).
@@ -54,7 +54,7 @@
   ***   incorrect type in matrix row assignment (t_INT).
   ***   at top-level: M[3,]=1
   ***                  ^------
-  ***   non-existent component: index > 2
+  ***   nonexistent component: index > 2
   ***   at top-level: M[1,]=[1,2]~
   ***                 ^------------
   ***   incorrect type in matrix row assignment (t_COL).
@@ -63,10 +63,10 @@
   ***   inconsistent dimensions in matrix row assignment.
   ***   at top-level: [;][1,]
   ***                    ^----
-  ***   non-existent component: index > 0
+  ***   nonexistent component: index > 0
   ***   at top-level: [;][,1]
   ***                    ^----
-  ***   non-existent component: index > 0
+  ***   nonexistent component: index > 0
   ***   at top-level: 1[1]
   ***                  ^---
   ***   incorrect type in _[_] OCcompo1 [not a vector] (t_INT).
@@ -90,7 +90,7 @@
   ***   incorrect type in &_[_,] OCcompoLptr [not a matrix] (t_POL).
   ***   at top-level: v[2]=1
   ***                  ^-----
-  ***   non-existent component: index > 1
+  ***   nonexistent component: index > 1
   ***   at top-level: v[1]=Pi
   ***                 ^-------
   ***   incorrect type in t_VECSMALL assignment (t_REAL).
@@ -132,10 +132,10 @@
   *** break: domain error in break: n < 1
   ***   at top-level: v[-1]
   ***                  ^----
-  ***   non-existent component: index < 1
+  ***   nonexistent component: index < 1
   ***   at top-level: v[#v+1]
   ***                  ^------
-  ***   non-existent component: index > 1
+  ***   nonexistent component: index > 1
   ***   variable name expected: subst(x,1,0)
   ***                                   ^----
   ***   at top-level: exp(1e40)
@@ -250,10 +250,10 @@
   *** vecmax: domain error in vecmax: empty argument = matrix(0,2)
   ***   at top-level: listput(L,x,-1)
   ***                 ^---------------
-  *** listput: non-existent component in listput: index < 0
+  *** listput: nonexistent component in listput: index < 0
   ***   at top-level: listinsert(L,x,-1)
   ***                 ^------------------
-  *** listinsert: non-existent component in listinsert: index <= 0
+  *** listinsert: nonexistent component in listinsert: index <= 0
   ***   at top-level: ellj(Mod(1,2))
   ***                 ^--------------
   *** ellj: incorrect type in modular function (t_INTMOD).
@@ -433,7 +433,7 @@
   *** galoisinit: domain error in galoisinit: issquarefree(pol) = 0
   ***   at top-level: galoisinit(2*x)
   ***                 ^---------------
-  *** galoisinit: sorry, galoisinit(non-monic) is not yet implemented.
+  *** galoisinit: sorry, galoisinit(nonmonic) is not yet implemented.
   ***   at top-level: ellL1(1,-1)
   ***                 ^-----------
   *** ellL1: domain error in ellL1: derivative order < 0
@@ -451,16 +451,16 @@
   *** intformal: domain error in intformal: residue(series, pole) != 0
   ***   at top-level: component(x,-1)
   ***                 ^---------------
-  *** component: non-existent component: index < 1
+  *** component: nonexistent component: index < 1
   ***   at top-level: component(O(x),2)
   ***                 ^-----------------
-  *** component: non-existent component: index > 0
+  *** component: nonexistent component: index > 0
   ***   at top-level: component(Vecsmall([]),1)
   ***                 ^-------------------------
-  *** component: non-existent component: index > 0
+  *** component: nonexistent component: index > 0
   ***   at top-level: component(x->x,6)
   ***                 ^-----------------
-  *** component: non-existent component: index > 5
+  *** component: nonexistent component: index > 5
   ***   at top-level: polcoef(O(x),2)
   ***                 ^---------------
   *** polcoef: domain error in polcoef: t_SER = O(x)
@@ -481,10 +481,10 @@
   *** matrixqz: domain error in QM_minors_coprime: rank(A) < 1
   ***   at top-level: vecextract([1],[-1])
   ***                 ^--------------------
-  *** vecextract: non-existent component in vecextract: index <= 0
+  *** vecextract: nonexistent component in vecextract: index <= 0
   ***   at top-level: vecextract([1],[2])
   ***                 ^-------------------
-  *** vecextract: non-existent component in vecextract: index >= 2
+  *** vecextract: nonexistent component in vecextract: index >= 2
   ***   at top-level: idealfrobenius(K,galoisinit(K),idealprimedec(K
   ***                 ^----------------------------------------------
   *** idealfrobenius: domain error in idealfrobenius: pr.e > 1
@@ -650,4 +650,4 @@ INFINITY
   ***                                   ^-
   ***   incorrect value for plothsizes: [2,
   ***                                      ^
-Total time spent: 17
+Total time spent: 11

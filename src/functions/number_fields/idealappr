@@ -9,7 +9,7 @@ Help: idealappr(nf,x,{flag}): x being a fractional ideal, gives an element
 Doc: if $x$ is a fractional ideal
  (given in any form), gives an element $\alpha$ in $\var{nf}$ such that for
  all prime ideals $\goth{p}$ such that the valuation of $x$ at $\goth{p}$ is
- non-zero, we have $v_{\goth{p}}(\alpha)=v_{\goth{p}}(x)$, and
+ nonzero, we have $v_{\goth{p}}(\alpha)=v_{\goth{p}}(x)$, and
  $v_{\goth{p}}(\alpha)\ge0$ for all other $\goth{p}$.
 
  The argument $x$ may also be given as a prime ideal factorization, as

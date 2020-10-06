@@ -18,7 +18,7 @@ Doc: Same as \tet{lift}, except that \typ{INTMOD} and \typ{PADIC} components
  $-n/2<y\le n/2$.
 
  \item  a \typ{PADIC} $x$ is lifted in the same way as above (modulo
- $p^\kbd{padicprec(x)}$) if its valuation $v$ is non-negative; if not, returns
+ $p^\kbd{padicprec(x)}$) if its valuation $v$ is nonnegative; if not, returns
  the fraction $p^v$ \kbd{centerlift}$(x p^{-v})$; in particular, rational
  reconstruction is not attempted. Use \tet{bestappr} for this.
 

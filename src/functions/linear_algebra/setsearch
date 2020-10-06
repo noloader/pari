@@ -5,7 +5,7 @@ Prototype: lGGD0,L,
 Help: setsearch(S,x,{flag=0}): determines whether x belongs to the set (or
  sorted list) S.
  If flag is 0 or omitted, returns 0 if it does not, otherwise returns the index
- j such that x==S[j]. If flag is non-zero, return 0 if x belongs to S,
+ j such that x==S[j]. If flag is nonzero, return 0 if x belongs to S,
  otherwise the index j where it should be inserted.
 Doc: determines whether $x$ belongs to the set $S$ (see \kbd{setisset}).
 
@@ -32,7 +32,7 @@ Doc: determines whether $x$ belongs to the set $S$ (see \kbd{setisset}).
  ? setsearch(L, 4)
  %3 = 4                 \\ now correct
  @eprog\noindent
- If $\fl$ is non-zero, this function returns the index $j$ where $x$ should be
+ If $\fl$ is nonzero, this function returns the index $j$ where $x$ should be
  inserted, and $0$ if it already belongs to $S$. This is meant to be used for
  dynamically growing (sorted) lists, in conjunction with \kbd{listinsert}.
  \bprog

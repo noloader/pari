@@ -21,5 +21,5 @@ Doc: reads in the file
 
  \misctitle{Variants} \kbd{readvec} allows to read a whole file at once;
  \kbd{fileopen} followed by either \kbd{fileread} (evaluated lines) or
- \kbd{filereadstr} (lines as non-evaluated strings) allows to read a file
+ \kbd{filereadstr} (lines as nonevaluated strings) allows to read a file
  one line at a time.

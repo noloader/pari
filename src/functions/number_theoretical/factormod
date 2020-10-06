@@ -22,7 +22,7 @@ Doc: factors the polynomial $f$ over the finite field defined by the domain
  The coefficients of $f$ must be operation-compatible with the corresponding
  finite field. The result is a two-column matrix, the first column being the
  irreducible polynomials dividing $f$, and the second the exponents.
- By convention, the $0$ polynomial factors as $0^1$; a non-zero constant
+ By convention, the $0$ polynomial factors as $0^1$; a nonzero constant
  polynomial has empty factorization, a $0\times 2$ matrix. The irreducible
  factors are ordered by increasing degree and the result is canonical: it will
  not change across multiple calls or sessions.
@@ -60,7 +60,7 @@ Doc: factors the polynomial $f$ over the finite field defined by the domain
  [x + 2*y 1]
  @eprog
 
- If $\fl$ is non-zero, outputs only the \emph{degrees} of the irreducible
+ If $\fl$ is nonzero, outputs only the \emph{degrees} of the irreducible
  polynomials (for example to compute an $L$-function). By convention, a
  constant polynomial (including the $0$ polynomial) has empty factorization.
  The degrees appear in increasing order but need not correspond to the

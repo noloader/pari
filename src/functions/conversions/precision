@@ -25,7 +25,7 @@ Doc: the function behaves differently according to whether $n$ is
  floating point precision $n$: $n$ is the number of desired significant
  \emph{decimal} digits. If $n$ is smaller than the precision of a \typ{REAL}
  component of $x$, it is truncated, otherwise it is extended with zeros.
- For non-floating point types, no change.
+ For non-floating-point types, no change.
 
 Variant: Also available are \fun{GEN}{gprec}{GEN x, long n} and
  \fun{long}{precision}{GEN x}. In both, the accuracy is expressed in

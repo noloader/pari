@@ -1315,7 +1315,7 @@ BD(GEN f)
   return G;
 }
 
-/* Let f be a non-zero QX, return the (squarefree) product of cyclotomic
+/* Let f be a nonzero QX, return the (squarefree) product of cyclotomic
  * divisors of f */
 GEN
 polcyclofactors(GEN f)

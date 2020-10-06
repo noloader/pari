@@ -8,7 +8,7 @@ Help: nfgaloisconj(nf,{flag=0},{d}): list of conjugates of a root of the
  use nfroots; 4: use Allombert's algorithm, complete if the field is Galois of
  degree <= 35 (see manual for details). nf can be simply a polynomial.
 Doc: $\var{nf}$ being a number field as output by \kbd{nfinit}, computes the
- conjugates of a root $r$ of the non-constant polynomial $x=\var{nf}[1]$
+ conjugates of a root $r$ of the nonconstant polynomial $x=\var{nf}[1]$
  expressed as polynomials in $r$. This also makes sense when the number field
  is not \idx{Galois} since some conjugates may lie in the field.
  $\var{nf}$ can simply be a polynomial.

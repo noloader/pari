@@ -928,7 +928,7 @@ RgX_val(GEN x)
   if (lx == 2) return LONG_MAX;
   for (i = 2; i < lx; i++)
     if (!isexactzero(gel(x,i))) break;
-  if (i == lx) return LONG_MAX;/* possible with non-rational zeros */
+  if (i == lx) return LONG_MAX;/* possible with nonrational zeros */
   return i - 2;
 }
 long
@@ -938,7 +938,7 @@ RgX_valrem(GEN x, GEN *Z)
   if (lx == 2) { *Z = pol_0(varn(x)); return LONG_MAX; }
   for (i = 2; i < lx; i++)
     if (!isexactzero(gel(x,i))) break;
-  /* possible with non-rational zeros */
+  /* possible with nonrational zeros */
   if (i == lx) { *Z = pol_0(varn(x)); return LONG_MAX; }
   v = i - 2;
   *Z = RgX_shift_shallow(x, -v);
@@ -1815,7 +1815,7 @@ RgX_divrem_i(GEN x, GEN y, GEN *pr)
     /* we always enter this loop at least once */
     for (j=0; j<=i && j<=dz; j++) p1 = gsub(p1, gmul(gel(z,j),gel(y,i-j)));
     if (mod && avma==av1) p1 = gmul(p1,mod);
-    if (!gequal0(p1)) { sx = 1; break; } /* remainder is non-zero */
+    if (!gequal0(p1)) { sx = 1; break; } /* remainder is nonzero */
     if (!isexactzero(p1)) break;
     if (!i) break;
     set_avma(av1);

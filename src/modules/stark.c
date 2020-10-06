@@ -315,8 +315,8 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   return gc_long(av,1);
 }
 
-/* compute list of non-trivial characters trivial on H, modulo complex
- * conjugation. If flag is set, impose a non-trivial conductor at infinity */
+/* compute list of nontrivial characters trivial on H, modulo complex
+ * conjugation. If flag is set, impose a nontrivial conductor at infinity */
 static GEN
 AllChars(GEN bnr, GEN dtQ, long flag)
 {
@@ -324,7 +324,7 @@ AllChars(GEN bnr, GEN dtQ, long flag)
   long n, i, hD = itos(gel(dtQ,1));
   hashtable *S;
 
-  v = cgetg(hD+1, t_VEC); /* non-conjugate chars */
+  v = cgetg(hD+1, t_VEC); /* nonconjugate chars */
   vchi = cyc2elts(gel(dtQ,2));
   S = hash_create(hD, (ulong(*)(void*))&hash_GEN,
                   (int(*)(void*,void*))&ZV_equal, 1);
@@ -337,7 +337,7 @@ AllChars(GEN bnr, GEN dtQ, long flag)
     if (flag && gequal0(gel(F,2))) continue; /* f_oo(chi) trivial ? */
 
     if (abscmpiu(charorder(cyc,lchi), 2) > 0)
-    { /* non-real chi: add its conjugate character to S */
+    { /* nonreal chi: add its conjugate character to S */
       cchi = charconj(cyc, lchi);
       hash_insert(S, cchi, (void*)1);
     }
@@ -1416,7 +1416,7 @@ GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
   return z;
 }
 
-/* return the order and the first non-zero term of L(s, chi0)
+/* return the order and the first nonzero term of L(s, chi0)
    at s = 0. If flag != 0, adjust the value to get L_S(s, chi0). */
 static GEN
 GetValue1(GEN bnr, long flag, long prec)
@@ -2381,8 +2381,8 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
 }
 
 /* For each character of Cl(bnr)/subgp, compute L(1, chi) (or equivalently
- * the first non-zero term c(chi) of the expansion at s = 0).
- * If flag & 1: compute the value at s = 1 (for non-trivial characters),
+ * the first nonzero term c(chi) of the expansion at s = 0).
+ * If flag & 1: compute the value at s = 1 (for nontrivial characters),
  * else compute the term c(chi) and return [r(chi), c(chi)] where r(chi) is
  *   the order of L(s, chi) at s = 0.
  * If flag & 2: compute the value of the L-function L_S(s, chi) where S is the
@@ -2420,7 +2420,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
       z = GetValue(gel(dataCR,i), gel(W,i), gel(S,i), gel(T,i), flag, prec);
       gel(L1,j++) = (flag & 4)? mkvec2(gel(chi,1), z): z;
       if (lg(chi) == 4)
-      { /* non-real */
+      { /* nonreal */
         z = conj_i(z);
         gel(L1, j++) = (flag & 4)? mkvec2(gel(chi,3), z): z;
       }

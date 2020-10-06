@@ -55,7 +55,7 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
 
  A \typ{INT} argument $D$ can be added, meaning that we only trial divide
  by all primes $p < D$ and the \kbd{addprimes} entries, then skip all
- expensive factorization methods. The limit $D$ must be non-negative.
+ expensive factorization methods. The limit $D$ must be nonnegative.
  In this case, one entry in the factorization may be a composite number: all
  factors less than $D^2$ and primes from the \kbd{addprimes} table
  are actual primes. But (at most) one entry may not verify this criterion,
@@ -178,7 +178,7 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  \item $K = \Q$ : $D$ a rational number (\typ{INT} or \typ{FRAC}),
 
  \item $K = \Z/p\Z$ with $p$ prime : $D$ a \typ{INTMOD} modulo $p$;
- factoring modulo a non-prime number is not supported.
+ factoring modulo a composite number is not supported.
 
  \item $K = \F_q$ : $D$ a \typ{FFELT} encoding the finite field; you can also
  use a \typ{POLMOD} of \typ{INTMOD} modulo a prime $p$ but this is usualy

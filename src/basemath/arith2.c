@@ -192,7 +192,7 @@ RgV_is_ZVpos(GEN v)
   }
   return 1;
 }
-/* check whether v is a ZV with non-0 entries */
+/* check whether v is a ZV with nonzero entries */
 int
 RgV_is_ZVnon0(GEN v)
 {
@@ -204,7 +204,7 @@ RgV_is_ZVnon0(GEN v)
   }
   return 1;
 }
-/* check whether v is a ZV with non-zero entries OR exactly [0] */
+/* check whether v is a ZV with nonzero entries OR exactly [0] */
 static int
 RgV_is_ZV0(GEN v)
 {
@@ -299,7 +299,7 @@ check_arith_pos(GEN n, const char *f) {
   pari_err_TYPE(f,n);
   return NULL;/*LCOV_EXCL_LINE*/
 }
-/* n attached to a factorization of a non-0 integer */
+/* n attached to a factorization of a nonzero integer */
 GEN
 check_arith_non0(GEN n, const char *f) {
   switch(typ(n))

@@ -1376,7 +1376,7 @@ zero_nfbezout(GEN nf,GEN bB, GEN b, GEN A,GEN B,GEN *u,GEN *v,GEN *w,GEN *di)
 
 /* Given elements a,b and ideals A, B, outputs d = a.A+b.B and gives
  * di=d^-1, w=A.B.di, u, v such that au+bv=1 and u in A.di, v in B.di.
- * Assume A, B non-zero, but a or b can be zero (not both) */
+ * Assume A, B nonzero, but a or b can be zero (not both) */
 static GEN
 nfbezout(GEN nf,GEN a,GEN b, GEN A,GEN B, GEN *pu,GEN *pv,GEN *pw,GEN *pdi,
          int red)

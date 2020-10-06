@@ -46,7 +46,7 @@ object is an ``inline closure'', a ``function'' or a ``true closure''.
 A function is a regular GP function. The GP input line is treated as a
 function of arity $0$.
 
-A true closure is a GP function defined in a non-empty lexical context.
+A true closure is a GP function defined in a nonempty lexical context.
 
 An inline closure is a closure that appears in the code without
 the preceding \kbd{->} token. They are generally attached to the prototype
@@ -231,7 +231,7 @@ assuming that $L$ is a \typ{LIST\_RAW}.
 
 \fun{GEN}{maptomat_shallow}{GEN T} shallow version of \kbd{maptomat}.
 
-\section{Protection of non-interruptible code}
+\section{Protection of noninterruptible code}
 
 GP allows the user to interrupt a computation by issuing SIGINT
 (usually by entering control-C) or SIGALRM (usually using alarm()).
@@ -240,15 +240,15 @@ reentrant (in particular \kbd{malloc} and \kbd{free})
 the following mechanism is provided:
 
 \fun{}{BLOCK_SIGINT_START}{}
-  Start a non-interruptible block code. Block both \kbd{SIGINT} and \kbd{SIGARLM}.
+  Start a noninterruptible block code. Block both \kbd{SIGINT} and \kbd{SIGARLM}.
 
 \fun{}{BLOCK_SIGALRM_START}{}
-  Start a non-interruptible block code. Block only \kbd{SIGARLM}.
+  Start a noninterruptible block code. Block only \kbd{SIGARLM}.
 This is used in the \kbd{SIGINT} handler itself to delay an eventual pending
 alarm.
 
 \fun{}{BLOCK_SIGINT_END}{}
-  End a non-interruptible block code
+  End a noninterruptible block code
 
 The above macros make use of the following global variables:
 
@@ -639,7 +639,7 @@ architecture and \kbd{sizebyte(0)==8} for 32-bit.
 
 \item \kbd{make test-fun} now runs the new test, producing a \kbd{[BUG]} error
 message and a \kbd{.dif} file in the relevant object directory \kbd{Oxxx}.
-In fact, we compared the output to a non-existing template, so this must fail.
+In fact, we compared the output to a nonexisting template, so this must fail.
 
 \item Now
 \bprog

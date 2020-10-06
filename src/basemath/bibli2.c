@@ -1049,7 +1049,7 @@ vecbinomial(long n)
 /**                  STIRLING NUMBERS                              **/
 /********************************************************************/
 /* Stirling number of the 2nd kind. The number of ways of partitioning
-   a set of n elements into m non-empty subsets. */
+   a set of n elements into m nonempty subsets. */
 GEN
 stirling2(ulong n, ulong m)
 {

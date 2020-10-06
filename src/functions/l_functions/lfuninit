@@ -6,7 +6,7 @@ Help: lfuninit(L,sdom,{der=0}): precompute data
  for evaluating the L-function given by 'L' (and its derivatives
  of order der, if set) in rectangular domain sdom = [center,w,h]
  centered on the real axis, |Re(s)-center| <= w, |Im(s)| <= h,
- where all three components of sdom are real and w,h are non-negative.
+ where all three components of sdom are real and w,h are nonnegative.
  The subdomain [k/2, 0, h] on the critical line can be encoded as [h] for
  brevity.
 Doc: initalization function for all functions linked to the
@@ -14,7 +14,7 @@ Doc: initalization function for all functions linked to the
  $s$ belongs to the rectangular domain $\kbd{sdom} = [\var{center},w,h]$
  centered on the real axis, $|\Re(s)-\var{center}| \leq w$, $|\Im(s)| \leq h$,
  where all three components of \kbd{sdom} are real and $w$, $h$ are
- non-negative. \kbd{der} is the maximum order of derivation that will be used.
+ nonnegative. \kbd{der} is the maximum order of derivation that will be used.
  The subdomain $[k/2, 0, h]$ on the critical line (up to height $h$)
  can be encoded as $[h]$ for brevity. The subdomain $[k/2, w, h]$
  centered on the critical line can be encoded as $[w, h]$ for brevity.

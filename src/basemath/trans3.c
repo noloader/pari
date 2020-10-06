@@ -808,7 +808,7 @@ expmx_xs(GEN s, GEN x, GEN logx, long prec)
 */
 
 #ifdef INCGAM_CF
-/* Is s very close to a non-positive integer ? */
+/* Is s very close to a nonpositive integer ? */
 static int
 isgammapole(GEN s, long bitprec)
 {

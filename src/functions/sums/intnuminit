@@ -17,7 +17,7 @@ Doc: initialize tables for integration from
  {\tt intnuminit([0,-1/2], [1,-1/3])} is \emph{not} equivalent to
  {\tt intnuminit([0,-1/3], [1,-1/2])} !
 
- If $m$ is present, it must be non-negative and we multiply the default
+ If $m$ is present, it must be nonnegative and we multiply the default
  number of sampling points by $2^m$ (increasing the running time by a
  similar factor).
 
@@ -45,8 +45,8 @@ Doc: initialize tables for integration from
  \item \var{wm} contains the $\phi'(nh)$, $0 < -n < N$, or is empty.
 
  The arrays \var{xm} and \var{wm} are left empty when $\phi$ is an odd
- function. In complicated situations when non-default behavior is specified at
- end points, \kbd{intnuminit} may return up to $3$ such arrays, corresponding
+ function. In complicated situations,
+ \kbd{intnuminit} may return up to $3$ such arrays, corresponding
  to a splitting of up to $3$ integrals of basic type.
 
  If the functions to be integrated later are of the form $F = f(t) k(t,z)$

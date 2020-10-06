@@ -169,10 +169,10 @@ tests with splitting field that does not descend
 degree bug
   ***   at top-level: al=alginit(nf,[4,[[p2,p3],[1/2,1/2]],[0]]);alg
   ***                    ^-------------------------------------------
-  *** alginit: sorry, nfgrunwaldwang for non-prime degree is not yet implemented.
+  *** alginit: sorry, nfgrunwaldwang for nonprime degree is not yet implemented.
 2 2 2 2 2 2 2 2 2 2 
   ***   at top-level: al=alginit(nf,[4,[[p2,p3],[0,0]],[0]]);algdegr
   ***                    ^-------------------------------------------
-  *** alginit: sorry, nfgrunwaldwang for non-prime degree is not yet implemented.
+  *** alginit: sorry, nfgrunwaldwang for nonprime degree is not yet implemented.
 2 2 2 2 2 2 2 2 2 2 
-Total time spent: 1624
+Total time spent: 1945

@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /* map from prime residue classes mod 210 to their numbers in {0...47}.
  * Subscripts into this array take the form ((k-1)%210)/2, ranging from
  * 0 to 104.  Unused entries are */
-#define NPRC 128 /* non-prime residue class */
+#define NPRC 128 /* nonprime residue class */
 
 static unsigned char prc210_no[] = {
   0, NPRC, NPRC, NPRC, NPRC, 1, 2, NPRC, 3, 4, NPRC, /* 21 */
@@ -1008,7 +1008,7 @@ ellfacteur(GEN N, int insist)
 
     dsn = (size >> 3) - 5;
     if (dsn < 0) dsn = 0; else if (dsn > 47) dsn = 47;
-    /* pick up the torch where non-insistent stage would have given up */
+    /* pick up the torch where noninsistent stage would have given up */
     nbc = dsn + (dsn >> 2) + 9; /* 8 or more curves in parallel */
     nbc &= ~3; /* 4 | nbc */
   }
@@ -2341,7 +2341,7 @@ ifac_realloc(GEN *partial, GEN *where, long new_lg)
   MOEBIUS(newpart) = MOEBIUS(*partial);
   icopyifstack(HINT(*partial), HINT(newpart));
   /* Downward sweep through the old *partial. Pick up 'where' and carry it
-   * over if we pass it. (Only useful if it pointed at a non-empty slot.)
+   * over if we pass it. (Only useful if it pointed at a nonempty slot.)
    * Factors are COPY'd so that we again have a nice object (parent older
    * than children, connected), except the one factor that may still be living
    * in a clone where n originally was; exponents are similarly copied if they
@@ -2890,7 +2890,7 @@ ifac_main(GEN *partial)
       }
       continue;
     }
-    pari_err_BUG("ifac_main [non-existent factor class]");
+    pari_err_BUG("ifac_main [nonexistent factor class]");
   } /* while */
   if (moebius_mode && EXPON(here) != gen_1)
   {
@@ -3970,7 +3970,7 @@ vecfactorsquarefreeu(ulong a, ulong b)
   for (k = 1; k <= n; k++) gel(L,k) = vecsmalltrunc_init(N);
   u_forprime_init(&T, 2, usqrt(b));
   while ((p = u_forprime_next(&T)))
-  { /* p <= sqrt(b), kill non-squarefree */
+  { /* p <= sqrt(b), kill nonsquarefree */
     ulong j, pk = p*p, t = a / pk, ap = t * pk;
     if (ap < a) ap += pk;
     for (j = ap-a+1; j <= n; j += pk) gel(L,j) = NULL;
@@ -4009,7 +4009,7 @@ vecfactorsquarefreeu_coprime(ulong a, ulong b, GEN P)
   for (k = 1; k <= n; k++) gel(L,k) = vecsmalltrunc_init(N);
   u_forprime_init(&T, 2, sqb);
   while ((p = u_forprime_next(&T)))
-  { /* p <= sqrt(b), kill non-squarefree */
+  { /* p <= sqrt(b), kill nonsquarefree */
     ulong j, t, ap, bad = zv_search(P, p), pk = bad ? p: p * p;
     t = a / pk; ap = t * pk; if (ap < a) ap += pk;
     for (j = ap-a+1; j <= n; j += pk) gel(L,j) = NULL;
@@ -4039,7 +4039,7 @@ vecsquarefreeu(ulong a, ulong b)
   forprime_t T;
   u_forprime_init(&T, 2, usqrt(b));
   while ((p = u_forprime_next(&T)))
-  { /* p <= sqrt(b), kill non-squarefree */
+  { /* p <= sqrt(b), kill nonsquarefree */
     ulong pk = p*p, t = a / pk, ap = t * pk;
     if (ap < a) { ap += pk; t++; }
     /* t = (j+a-1) \ pk */

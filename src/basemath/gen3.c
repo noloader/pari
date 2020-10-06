@@ -139,7 +139,7 @@ static long
 prec0(long e) { return (e < 0)? nbits2prec(-e): 2; }
 static long
 precREAL(GEN x) { return signe(x) ? realprec(x): prec0(expo(x)); }
-/* x t_REAL, y an exact non-complex type. Return precision(|x| + |y|) */
+/* x t_REAL, y an exact noncomplex type. Return precision(|x| + |y|) */
 static long
 precrealexact(GEN x, GEN y)
 {
@@ -1329,7 +1329,7 @@ poldeflate(GEN x, long v, long d)
   if (varncmp(vx, v) < 0) return vdeflate(x,v,d);
   if (varncmp(vx, v) > 0 || degpol(x) <= 0) return gcopy(x);
   av = avma;
-  /* x non-constant */
+  /* x nonconstant */
   if (RgX_deflate_order(x) % d != 0) return NULL;
   return gerepilecopy(av, RgX_deflate(x,d));
 }

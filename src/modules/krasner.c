@@ -366,7 +366,7 @@ FreeRootTable(GEN T)
 }
 
 /* Return the number of roots of pol congruent to alpha modulo pi working
-   modulo pp (all roots if alpha is NULL); if flag is non-zero, return 1
+   modulo pp (all roots if alpha is NULL); if flag is nonzero, return 1
    as soon as a root is found. (Note: ppp = pp*p for DivideByPi) */
 static long
 RootCongruents(KRASNER_t *data, FAD_t *fdata, GEN pol, GEN alpha, GEN pp, GEN ppp, long sl, long flag)
@@ -423,7 +423,7 @@ RootCountingAlgorithm(KRASNER_t *data, FAD_t *fdata, GEN pol, long flag)
   return RootCongruents(data, fdata, P, NULL, diviiexact(data->pr, data->p), data->pr, 0, flag);
 }
 
-/* Return non-zero if the field given by fdata defines a field isomorphic to
+/* Return nonzero if the field given by fdata defines a field isomorphic to
  * the one defined by pol */
 static long
 IsIsomorphic(KRASNER_t *data, FAD_t *fdata, GEN pol)
@@ -859,7 +859,7 @@ checkpols(GEN p, GEN EFJ, GEN pols)
   if (l == 2) return;
   if (e*f > 20) return;
 
-  /* TODO: check that (random) distinct polynomials give non-isomorphic extensions */
+  /* TODO: check that (random) distinct polynomials give nonisomorphic extensions */
   for (i = 1; i < 3*l; i++)
   {
     c1 = random_Fl(l-1)+1;

@@ -53,7 +53,7 @@ Doc:
  \kbd{idealprimedec} or \kbd{idealfactor}.
 
  \item a \typ{MAT}, square and in Hermite Normal Form (or at least
- upper triangular with non-negative coefficients), whose columns represent a
+ upper triangular with nonnegative coefficients), whose columns represent a
  $\Z$-basis of the ideal.
 
  One may use \kbd{idealhnf} to convert any ideal to the last (preferred) format.
@@ -143,7 +143,7 @@ Doc:
  \item Any \emph{projective} $\Z_K$-module\varsidx{projective module} $M$
  of finite type in $K^m$ can be given by a pseudo matrix $(A,I)$.
 
- \item An arbitrary $\Z_K$ modules of finite type in $K^m$, with non-trivial
+ \item An arbitrary $\Z_K$ modules of finite type in $K^m$, with nontrivial
  torsion, is given by an integral pseudo-matrix $(A,I,J)$
 
  \misctitle{Algebraic numbers in relative extension}
@@ -184,9 +184,9 @@ Doc:
  \misctitle{Pseudo-bases, determinant} %GPHELPskip
 
  \item The pair $(A,I)$ is a \tev{pseudo-basis} of the module it
- generates if the $\goth{a}_j$ are non-zero, and the $A_j$ are $K$-linearly
+ generates if the $\goth{a}_j$ are nonzero, and the $A_j$ are $K$-linearly
  independent. We call $n$ the \emph{size} of the pseudo-basis. If $A$ is a
- relative matrix, the latter condition means it is square with non-zero
+ relative matrix, the latter condition means it is square with nonzero
  determinant; we say that it is in Hermite Normal
  Form\sidx{Hermite normal form} (HNF) if it is upper triangular and all the
  elements of the diagonal are equal to 1.
@@ -206,7 +206,7 @@ Doc:
  \subsec{Class field theory}\label{se:CFT}
 
  A $\tev{modulus}$, in the sense of class field theory, is a divisor supported
- on the non-complex places of $K$. In PARI terms, this means either an
+ on the real and finite places of $K$. In PARI terms, this means either an
  ordinary ideal $I$ as above (no Archimedean component), or a pair $[I,a]$,
  where $a$ is a vector with $r_1$ $\{0,1\}$-components, corresponding to the
  infinite part of the divisor. More precisely, the $i$-th component of $a$
@@ -373,7 +373,7 @@ Doc:
  where the parameters are to be understood as follows:
 
  $P$ is the defining polynomial for the number field, which must be in
- $\Z[X]$, irreducible and monic. In fact, if you supply a non-monic polynomial
+ $\Z[X]$, irreducible and monic. In fact, if you supply a nonmonic polynomial
  at this point, \kbd{gp} issues a warning, then \emph{transforms your
  polynomial} so that it becomes monic. The \kbd{nfinit} routine
  will return a different result in this case: instead of \kbd{res}, you get a
@@ -392,7 +392,7 @@ Doc:
  parameters in the C code (there are many more than just those three).
  We nevertheless describe it for completeness.
 
- The numbers $c_1 \leq c_2$ are non-negative real numbers. By default they are
+ The numbers $c_1 \leq c_2$ are nonnegative real numbers. By default they are
  chosen so that the result is correct under GRH. For $i = 1,2$, let
  $B_i = c_i(\log |d_K|)^2$, and denote by $S(B)$ the set of maximal ideals of
  $K$ whose norm is less than $B$. We want $S(B_1)$ to generate $\Cl(K)$ and hope

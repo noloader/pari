@@ -1734,7 +1734,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
   cnd = gel(bnr_get_mod(bnr), 1);
   polrel = RgX_nffix("rnfnormgroup", nf_get_pol(nf),polrel,1);
   if (!gequal1(leading_coeff(polrel)))
-    pari_err_IMPL("rnfnormgroup for non-monic polynomials");
+    pari_err_IMPL("rnfnormgroup for nonmonic polynomials");
 
   degrel = degpol(polrel);
   if (umodiu(bnr_get_no(bnr), degrel)) return NULL;
@@ -1770,7 +1770,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
     {
       GEN pr = gel(fa,i), pp, T, polr, modpr;
       long f, nfac;
-      /* if pr (probably) ramified, we have to use all (non-ram) P | pr */
+      /* if pr (probably) ramified, we have to use all (unramified) P | pr */
       if (idealval(nf,cnd,pr)) { oldf = 0; continue; }
       modpr = zk_to_Fq_init(nf, &pr, &T, &pp); /* T = NULL, pp ignored */
       polr = nfX_to_FqX(polrel, nf, modpr); /* in Fp[X] */

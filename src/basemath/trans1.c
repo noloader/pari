@@ -969,7 +969,7 @@ powgi(GEN x, GEN n)
   GEN y;
 
   if (!is_bigint(n)) return gpowgs(x, itos(n));
-  /* probable overflow for non-modular types (typical exception: (X^0)^N) */
+  /* probable overflow for nonmodular types (typical exception: (X^0)^N) */
   switch(typ(x))
   {
     case t_INTMOD:

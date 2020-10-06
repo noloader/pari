@@ -33,7 +33,7 @@ Doc: $x$ being a prime ideal factorization (i.e.~a 2-columns matrix whose first
  the element $b$ returned satisfies further
  $\kbd{sign}(\sigma_i(b)) = s_i$ for all $i$ such that $s_i = \pm1$.
  In other words, the sign is fixed to $s_i$ at the $i$-th embedding whenever
- $s_i$ is non-zero.
+ $s_i$ is nonzero.
  \bprog
  ? idealchinese(K, [x, [1,1]], y)
  %5 = [16, -3]~

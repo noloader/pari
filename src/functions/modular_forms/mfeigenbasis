@@ -33,7 +33,7 @@ Doc: vector of the eigenforms for the space \kbd{mf}.
  @eprog
 
  When the eigenforms are defined over an extension field of $\Q(\chi)$ for a
- non-rational character, their coefficients are hard to read and you may want
+ nonrational character, their coefficients are hard to read and you may want
  to lift them or to express them in an absolute number field. In the
  construction below $T$ defines $\Q(f)$ over $\Q$, $a$ is the image of the
  generator \kbd{Mod}$(t, t^2+t+1)$ of $\Q(\chi)$ in $\Q(f)$

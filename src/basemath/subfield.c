@@ -132,7 +132,7 @@ calc_block(blockdata *B, GEN Z, GEN Y, GEN SB)
     }
 
     for (t = 1; t < T; t++)
-    { /* loop through all non-empty subsets of [1..lpn] */
+    { /* loop through all nonempty subsets of [1..lpn] */
       for (nn=n[1],tp=t, u=1; u<=lpn; u++,tp>>=1)
       {
         if (tp&1) { nn += pn[u]; e[u] = 1; } else e[u] = 0;

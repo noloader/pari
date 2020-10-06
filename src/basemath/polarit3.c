@@ -401,7 +401,7 @@ FpXQX_normalize(GEN z, GEN T, GEN p)
   lc = leading_coeff(z);
   if (typ(lc) == t_POL)
   {
-    if (lg(lc) > 3) /* non-constant */
+    if (lg(lc) > 3) /* nonconstant */
       return FqX_Fq_mul_to_monic(z, Fq_inv(lc,T,p), T,p);
     /* constant */
     lc = gel(lc,2);
@@ -1281,7 +1281,7 @@ Flx_resultant_all(GEN a, GEN b, long *C0, long *C1, GEN dglist, ulong p)
     }
   }
   if (da > 1) return 0; /* Failure */
-  /* last non-constant polynomial has degree 1 */
+  /* last nonconstant polynomial has degree 1 */
   *C0 = Fl_mul(ca, a[2], p);
   *C1 = Fl_mul(ca, a[3], p);
   res = Fl_mul(cb, b[2], p);
@@ -1733,7 +1733,7 @@ FpX_compositum(GEN a, GEN b, GEN p)
  * Res_Y(A, B) in Z[X]. Find a small lambda (start from *lambda, use
  * next_lambda successively) such that C(X) = Res_Y(A(Y), B(X + lambda Y))
  * is squarefree, reset *lambda to the chosen value and return C. Set LERS to
- * the Last non-constant polynomial in the Euclidean Remainder Sequence */
+ * the Last nonconstant polynomial in the Euclidean Remainder Sequence */
 static GEN
 ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
 {

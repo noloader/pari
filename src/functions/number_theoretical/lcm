@@ -11,7 +11,7 @@ Description:
 Doc: least common multiple of $x$ and $y$, i.e.~such
  that $\lcm(x,y)*\gcd(x,y) = x*y$, up to units. If $y$ is omitted and $x$
  is a vector, returns the $\text{lcm}$ of all components of $x$.
- For integer arguments, return the non-negative \text{lcm}.
+ For integer arguments, return the nonnegative \text{lcm}.
 
  When $x$ and $y$ are both given and one of them is a vector/matrix type,
  the LCM is again taken recursively on each component, but in a different way.

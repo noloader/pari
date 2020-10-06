@@ -11,8 +11,8 @@ Doc: returns a canonical defining polynomial $P$ for the number field
  $\Q[X]/(T)$ defined by $T$, such that the sum of the squares of the modulus
  of the roots (i.e.~the $T_2$-norm) is minimal. Different $T$ defining
  isomorphic number fields will yield the same $P$. All $T$ accepted by
- \tet{nfinit} are also allowed here, e.g. non-monic polynomials, or pairs
- \kbd{[T, listP]} specifying that a non-maximal order may be used. For
+ \tet{nfinit} are also allowed here, e.g. nonmonic polynomials, or pairs
+ \kbd{[T, listP]} specifying that a nonmaximal order may be used. For
  convenience, any number field structure (\var{nf}, \var{bnf},\dots) can also
  be used instead of $T$.
  \bprog

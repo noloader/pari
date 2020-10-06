@@ -7,11 +7,11 @@ Description:
  (gen, gen, ?small):vec idealprimedec_limit_f($1, $2, $3)
 Help: idealprimedec(nf,p,{f=0}): prime ideal decomposition of the prime number
  p in the number field nf as a vector of prime ideals. If f is present
- and non-zero, restrict the result to primes of residue degree <= f.
+ and nonzero, restrict the result to primes of residue degree <= f.
 Doc: computes the prime ideal
  decomposition of the (positive) prime number $p$ in the number field $K$
- represented by \var{nf}. If a non-prime $p$ is given the result is undefined.
- If $f$ is present and non-zero, restrict the result to primes of residue
+ represented by \var{nf}. If a nonprime $p$ is given the result is undefined.
+ If $f$ is present and nonzero, restrict the result to primes of residue
  degree $\leq f$.
 
  The result is a vector of \tev{prid} structures, each representing one of the

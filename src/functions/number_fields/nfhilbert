@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: nfhilbert0
 Prototype: lGGGDG
 Help: nfhilbert(nf,a,b,{pr}): if pr is omitted, global Hilbert symbol (a,b) in
- nf, that is 1 if X^2-aY^2-bZ^2 has a non-trivial solution (X,Y,Z) in nf, -1
+ nf, that is 1 if X^2-aY^2-bZ^2 has a nontrivial solution (X,Y,Z) in nf, -1
  otherwise. Otherwise compute the local symbol modulo the prime ideal pr.
 Doc: if \var{pr} is omitted,
  compute the global quadratic \idx{Hilbert symbol} $(a,b)$ in $\var{nf}$, that

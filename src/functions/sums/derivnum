@@ -39,7 +39,7 @@ Doc: numerical derivation of \var{expr} with respect to $X$ at $X=a$. The
 
  If the parameter \var{ind} is present, it can be
 
- \item a non-negative integer $m$, in which case we return $f^{(m)}(x)$;
+ \item a nonnegative integer $m$, in which case we return $f^{(m)}(x)$;
 
  \item or a vector of orders, in which case we return the vector of
  derivatives.

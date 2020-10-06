@@ -19,7 +19,7 @@ Doc: true (1) if $x$ is squarefree, false (0) if not. Here $x$ can be an
   ***                 ^--------------------------------
   *** issquarefree: impossible inverse in Fp_inv: Mod(2, 4).
  @eprog\noindent A polynomial is declared squarefree if \kbd{gcd}$(x,x')$ is
- $1$. In particular a non-zero polynomial with inexact coefficients is
+ $1$. In particular a nonzero polynomial with inexact coefficients is
  considered to be squarefree. Note that this may be inconsistent with
  \kbd{factor}, which first rounds the input to some exact approximation before
  factoring in the apropriate domain; this is correct when the input is not

@@ -16,7 +16,7 @@ Doc:
  $D = |\det B|$.
 
  This function is useful in conjunction with \kbd{mathnfmod}, which needs to
- know such a multiple. If the rank is maximal and the matrix non-square,
+ know such a multiple. If the rank is maximal but the matrix is nonsquare,
  you can obtain $D$ exactly using
  \bprog
    matdet( mathnfmod(B, matdetint(B)) )

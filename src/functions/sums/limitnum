@@ -85,7 +85,7 @@ Doc: Lagrange-Zagier numerical extrapolation of \var{expr}, corresponding to
  \bprog
  ? limitnum(vector(10,n,(1+1/n)^n))
   ***                 ^--------------------
-  *** limitnum: non-existent component in limitnum: index < 43
+  *** limitnum: nonexistent component in limitnum: index < 43
  \\ at this accuracy, we must have at least 43 values
  ? limitnum(vector(43,n,(1+1/n)^n)) - exp(1)
  %12 = 0.E-37

@@ -1106,7 +1106,7 @@ intnuminit0(GEN a, GEN b, GEN tab, long prec)
 }
 
 /* Assigns the values of the function weighted by w[k] at quadrature points x[k]
- * [replacing the weights]. Return the index of the last non-zero coeff */
+ * [replacing the weights]. Return the index of the last nonzero coeff */
 static long
 weight(void *E, GEN (*eval)(void *, GEN), GEN x, GEN w)
 {

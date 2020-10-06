@@ -6,7 +6,7 @@ Help: ellap(E,{p}): given an elliptic curve E defined over
  a finite field Fq, return the trace of Frobenius a_p = q+1-#E(Fq); for other
  fields of definition K, p must define a finite residue field,
  (p prime for K = Qp or Q; p a maximal ideal for K a number field),
- return the order of the (non-singular) reduction of E.
+ return the order of the (nonsingular) reduction of E.
 Doc:
  Let \kbd{E} be an \kbd{ell} structure as output by \kbd{ellinit}, attached
  to an elliptic curve $E/K$. If the field $K = \F_q$ is finite, return the
@@ -63,7 +63,7 @@ Doc:
 
  [[13, [5, 1]~, 1, 1, [-5, -1; 1, -5]] 2]
  ? ellap(E, fa[1,1])
- %3 = -1 \\ non-split multiplicative reduction
+ %3 = -1 \\ nonsplit multiplicative reduction
  ? ellap(E, fa[2,1])
  %4 = 1  \\ split multiplicative reduction
  ? P17 = idealprimedec(K,17)[1];
@@ -71,7 +71,7 @@ Doc:
  %6 = 6  \\ good reduction
  ? E2 = ellchangecurve(E, [17,0,0,0]);
  ? ellap(E2, P17)
- %8 = 6  \\ same, starting from a non-miminal model
+ %8 = 6  \\ same, starting from a nonmiminal model
 
  ? P3 = idealprimedec(K,3)[1];
  ? ellap(E, P3)  \\ OK: E is minimal at P3

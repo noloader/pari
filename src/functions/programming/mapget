@@ -15,5 +15,5 @@ Doc: Returns the image of $x$ by the map $M$.
  ? mapget(M,"c")
    ***   at top-level: mapget(M,"c")
    ***                 ^-------------
-   *** mapget: non-existent component in mapget: index not in map
+   *** mapget: nonexistent component in mapget: index not in map
  @eprog

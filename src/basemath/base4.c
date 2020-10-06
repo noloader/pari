@@ -61,7 +61,7 @@ idealtyp(GEN *ideal, GEN *arch)
   {
     case t_MAT: lx = lg(x);
       if (lx == 1) { t = id_PRINCIPAL; x = gen_0; break; }
-      if (lx != lgcols(x)) pari_err_TYPE("idealtyp [non-square t_MAT]",x);
+      if (lx != lgcols(x)) pari_err_TYPE("idealtyp [nonsquare t_MAT]",x);
       t = id_MAT;
       break;
 
@@ -133,7 +133,7 @@ idealhnf_shallow(GEN nf, GEN x)
 {
   long tx = typ(x), lx = lg(x), N;
 
-  /* cannot use idealtyp because here we allow non-square matrices */
+  /* cannot use idealtyp because here we allow nonsquare matrices */
   if (tx == t_VEC && lx == 3) { x = gel(x,1); tx = typ(x); lx = lg(x); }
   if (tx == t_VEC && lx == 6) return pr_hnf(nf,x); /* PRIME */
   switch(tx)
@@ -161,7 +161,7 @@ idealhnf_shallow(GEN nf, GEN x)
       GEN A = gel(x,1), B = gel(x,2);
       N = nf_get_degree(nf);
       if (N != 2)
-        pari_err_TYPE("idealhnf [Qfb for non-quadratic fields]", x);
+        pari_err_TYPE("idealhnf [Qfb for nonquadratic fields]", x);
       if (!equalii(qfb_disc(x), D))
         pari_err_DOMAIN("idealhnf [Qfb]", "disc(q)", "!=", D, x);
       /* x -> A Z + (-B + sqrt(D)) / 2 Z
@@ -874,7 +874,7 @@ idealispower(GEN nf, GEN A, long n, GEN *pB)
   return 1;
 }
 
-/* x t_INT or integral non-0 ideal in HNF */
+/* x t_INT or integral nonzero ideal in HNF */
 static GEN
 idealredmodpower_i(GEN nf, GEN x, ulong k, ulong B)
 {
@@ -1050,7 +1050,7 @@ idealaddmultoone(GEN nf, GEN list)
   L = cgetg(l, t_VEC);
   if (l == 1)
     pari_err_DOMAIN("idealaddmultoone", "sum(ideals)", "!=", gen_1, L);
-  nz = 0; /* number of non-zero ideals in L */
+  nz = 0; /* number of nonzero ideals in L */
   for (i=1; i<l; i++)
   {
     GEN I = gel(list,i);
@@ -1744,7 +1744,7 @@ idealmulelt(GEN nf, GEN x, GEN A)
   D = mulii(zkmultable_capZ(x), gcoeff(A,1,1));
   x = zkC_multable_mul(A, x);
   settyp(x, t_MAT); lx = lg(x);
-  /* x may contain scalars (at most 1 since the ideal is non-0)*/
+  /* x may contain scalars (at most 1 since the ideal is nonzero)*/
   for (i=1; i<lx; i++)
     if (typ(gel(x,i)) == t_INT)
     {
@@ -2209,7 +2209,7 @@ idealpowprime(GEN nf, GEN pr, GEN n, GEN *pc)
   return mkvec2(q, gen);
 }
 
-/* x * pr^n. Assume x in HNF or scalar (possibly non-integral) */
+/* x * pr^n. Assume x in HNF or scalar (possibly nonintegral) */
 GEN
 idealmulpowprime(GEN nf, GEN x, GEN pr, GEN n)
 {

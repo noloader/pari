@@ -1224,7 +1224,7 @@ galoisanalysis(GEN T, struct galois_analysis *ga, long calcul_l, GEN bad)
     if (DEBUGLEVEL >= 5)
       err_printf("GaloisAnalysis:Nbtest=%ld,p=%ld,o=%ld,n_o=%d,best p=%ld,ord=%ld,k=%ld\n", nbtest, p, o, norm_o, plift, order,karma);
   }
-  /* To avoid looping on non-wss group.
+  /* To avoid looping on non-WSS group.
    * TODO: check for large groups. Would it be better to disable this check if
    * we are in a good case (ga_all_normal && !(ga_ext_2) (e.g. 60)) ?*/
   ga->p = plift;
@@ -2951,7 +2951,7 @@ galoisinitfromaut(GEN T, GEN aut)
     RgX_check_ZX(T, "galoisinit");
     if (!ZX_is_squarefree(T))
       pari_err_DOMAIN("galoisinit","issquarefree(pol)","=",gen_0,T);
-    if (!gequal1(gel(T,n+2))) pari_err_IMPL("galoisinit(non-monic)");
+    if (!gequal1(gel(T,n+2))) pari_err_IMPL("galoisinit(nonmonic)");
   }
   if (!galoisanalysis(T, &ga, 1, NULL)) pari_err_IMPL("galoisinit");
   gb.l = utoipos(ga.l);
@@ -3002,7 +3002,7 @@ galoisconj4_main(GEN T, GEN den, long flag)
     RgX_check_ZX(T, "galoisinit");
     if (!ZX_is_squarefree(T))
       pari_err_DOMAIN("galoisinit","issquarefree(pol)","=",gen_0,T);
-    if (!gequal1(gel(T,n+2))) pari_err_IMPL("galoisinit(non-monic)");
+    if (!gequal1(gel(T,n+2))) pari_err_IMPL("galoisinit(nonmonic)");
   }
   if (n == 1)
   {
@@ -3120,7 +3120,7 @@ galoisconj(GEN nf, GEN d)
     GEN a = gel(T,4), b = gel(T,3);
     long v = varn(T);
     RgX_check_ZX(T, "galoisconj");
-    if (!gequal1(a)) pari_err_IMPL("galoisconj(non-monic)");
+    if (!gequal1(a)) pari_err_IMPL("galoisconj(nonmonic)");
     G = cgetg(3, t_COL);
     gel(G,1) = deg1pol_shallow(gen_m1, negi(b), v);
     gel(G,2) = pol_x(v);

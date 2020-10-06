@@ -8,12 +8,13 @@ Help: quadclassunit(D,{flag=0},{tech=[]}): compute the structure of the
 Doc: \idx{Buchmann-McCurley}'s sub-exponential algorithm for computing the
  class group of a quadratic order of discriminant $D$.
 
- This function should be used instead of \tet{qfbclassno} or \tet{quadregula}
+ This function should be used instead of \tet{qfbclassno} or
+ \tet{quadregulator}
  when $D<-10^{25}$, $D>10^{10}$, or when the \emph{structure} is wanted. It
  is a special case of \tet{bnfinit}, which is slower, but more robust.
 
- The result is a vector $v$ whose components should be accessed using member
- functions:
+ The result is a vector $v$ whose components should be accessed using
+ member functions:
 
  \item \kbd{$v$.no}: the class number
 
@@ -33,7 +34,7 @@ Doc: \idx{Buchmann-McCurley}'s sub-exponential algorithm for computing the
  work at all; use the general function \tet{bnfnarrow}.
 
  Optional parameter \var{tech} is a row vector of the form $[c_1, c_2]$,
- where $c_1 \leq c_2$ are non-negative real numbers which control the execution
+ where $c_1 \leq c_2$ are nonnegative real numbers which control the execution
  time and the stack size, see \ref{se:GRHbnf}. The parameter is used as a
  threshold to balance the relation finding phase against the final linear
  algebra. Increasing the default $c_1$ means that relations are easier

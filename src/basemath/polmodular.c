@@ -299,7 +299,7 @@ qfb_distinct_prods(long D, long p1, long p2)
 }
 
 /* By Corollary 3.1 of Enge-Schertz Constructing elliptic curves over finite
- * fields using double eta-quotients, we need p1 != p2 to both be non-inert
+ * fields using double eta-quotients, we need p1 != p2 to both be noninert
  * and prime to the conductor, and if p1=p2=p we want p split and prime to the
  * conductor. We exclude the case that p1=p2 divides the conductor, even
  * though this does yield class invariants */
@@ -1129,7 +1129,7 @@ INLINE ulong
 Fl_mul7(ulong x, ulong p)
 { return Fl_sub(Fl_mul8(x, p), x, p); }
 
-/* Given an elliptic curve E = [a4, a6] over F_p and a non-zero point
+/* Given an elliptic curve E = [a4, a6] over F_p and a nonzero point
  * pt on E, return the quotient E' = E/<P> = [a4_img, a6_img] */
 static void
 Fle_quotient_from_kernel_generator(
@@ -1170,7 +1170,7 @@ Fle_quotient_from_kernel_generator(
  */
 
 /* Given an elliptic curve [a4, a6] over FF_p, try to find a
- * non-trivial L-torsion point on the curve by considering n times a
+ * nontrivial L-torsion point on the curve by considering n times a
  * random point; val controls the maximum L-valuation expected of n
  * times a random point */
 static GEN
@@ -1566,7 +1566,7 @@ inflate_polys(GEN phi, long L, long s)
   maxr = nbrows(phi);
   for (k = 0; k <= deg; ) {
     long i, c = umodsu(L * (1 - k) + 1, s);
-    /* TODO: We actually know that the last non-zero element of gel(phi, k)
+    /* TODO: We actually know that the last nonzero element of gel(phi, k)
      * can't be later than index n+1, where n is about (L + 1)/s. */
     ++k;
     for (i = Flv_lastnonzero(gel(phi, k)); i > 0; --i) {
@@ -1915,7 +1915,7 @@ polmodular_ZM(long L, long inv)
   if (L < 2)
     pari_err_DOMAIN("polmodular_ZM", "L", "<", gen_2, stoi(L));
 
-  /* TODO: Handle non-prime L. Algorithm 1.1 and Corollary 3.4 in Sutherland,
+  /* TODO: Handle nonprime L. Algorithm 1.1 and Corollary 3.4 in Sutherland,
    * "Class polynomials for nonholomorphic modular functions" */
   if (! uisprime(L)) pari_err_IMPL("composite level");
 
@@ -3439,7 +3439,7 @@ modpoly_pickD_primes(
     /* can't get p=3mod4 if v^2D is 0 mod 16 */
     if ((pfilter & IQ_FILTER_1MOD4) && !((v*v*D) & 0xF)) continue;
     if ((pfilter & IQ_FILTER_1MOD3) && !(v%3) ) continue;
-    /* avoid L0-volcanos with non-zero height */
+    /* avoid L0-volcanos with nonzero height */
     if (L0 != 2 && ! (v % L0)) continue;
     /* ditto for L1 */
     if (L1 && !(v % L1)) continue;
@@ -3616,7 +3616,7 @@ modpoly_pickD(disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
     if (kross(D0, L) < 1
         || (modinv_p1 > 1 && kross(D0, modinv_p1) < 1)
         || (modinv_p2 > 1 && kross(D0, modinv_p2) < 1)) {
-      dbg_printf(3)("Bad D0=%ld due to non-split L or ramified level\n", D0);
+      dbg_printf(3)("Bad D0=%ld due to nonsplit L or ramified level\n", D0);
       continue;
     }
     deg = D0_entry.h; /* class poly degree */

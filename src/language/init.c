@@ -1743,8 +1743,8 @@ pari_err2str(GEN e)
       const char *op= GSTR(gel(e,3));
       GEN l = gel(e,4);
       if (!*f)
-        return pari_sprintf("non-existent component: index %s %Ps",op,l);
-      return pari_sprintf("non-existent component in %s: index %s %Ps",f,op,l);
+        return pari_sprintf("nonexistent component: index %s %Ps",op,l);
+      return pari_sprintf("nonexistent component in %s: index %s %Ps",f,op,l);
     }
   case e_DOMAIN:
     {
@@ -1798,7 +1798,7 @@ pari_err2str(GEN e)
       {
         sprintf(buf, "the %s stack overflows !\n"
             "  current stack size: %lu (%.3f Mbytes)\n"
-            "  [hint] set '%s' to a non-zero value in your GPRC\n",
+            "  [hint] set '%s' to a nonzero value in your GPRC\n",
             stack, (ulong)rsize, (double)rsize/1048576., var);
       }
       return buf;

@@ -23,7 +23,7 @@ Doc:
  %4 = [O(11^9), O(11^9)]
 
  ? E = ellinit(ellfromj(1/4), O(2^6)); x=1/2; y=ellordinate(E,x)[1];
- ? z = ellpointtoz(E,[x,y]); \\ non-split: t_POLMOD with t_PADIC coefficients
+ ? z = ellpointtoz(E,[x,y]); \\ nonsplit: t_POLMOD with t_PADIC coefficients
  ? P = ellztopoint(E, z);
  ? P[1] \\ y coordinate is analogous, more complicated
  %8 = Mod(O(2^4)*x + (2^-1 + O(2^5)), x^2 + (1 + 2^2 + 2^4 + 2^5 + O(2^7)))

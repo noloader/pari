@@ -518,7 +518,7 @@ compute_g(ulong q)
   return T;
 }
 
-/* x a non-zero VECSMALL with >= 0 entries */
+/* x a nonzero VECSMALL with >= 0 entries */
 static GEN
 zv_to_ZX(GEN x)
 {

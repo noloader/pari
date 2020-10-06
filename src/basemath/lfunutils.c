@@ -2250,7 +2250,7 @@ etaquotype(GEN *peta, GEN *pN, GEN *pk, GEN *CHI, long *pv, long *sd,
     u += umodiu(r,24) * umodiu(gel(NB,i), 24);
   }
   S = divis_rem(S, 24, &S24);
-  if (S24) return 0; /* non-integral valuation at oo */
+  if (S24) return 0; /* nonintegral valuation at oo */
   u = 24 / ugcd(24, u % 24);
   *pN = muliu(N, u); /* level */
   *pk = gmul2n(T,-1); /* weight */
@@ -2272,7 +2272,7 @@ lfunetaquo(GEN eta0)
   if (!cusp) pari_err_IMPL("noncuspidal eta quotient");
   if (v != 1) pari_err_IMPL("valuation != 1");
   if (!sd) pari_err_IMPL("non self-dual eta quotient");
-  if (typ(k) != t_INT) pari_err_TYPE("lfunetaquo [non-integral weight]", eta0);
+  if (typ(k) != t_INT) pari_err_TYPE("lfunetaquo [nonintegral weight]", eta0);
   BR = mkvec2(ZV_to_zv(gel(eta,1)), ZV_to_zv(gel(eta,2)));
   Ldata = mkvecn(6, tag(BR,t_LFUN_ETA), gen_0, mkvec2(gen_0,gen_1), k,N, gen_1);
   return gerepilecopy(ltop, Ldata);

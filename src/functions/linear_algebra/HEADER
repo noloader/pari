@@ -15,7 +15,7 @@ Doc:
  robust linear algebra routines in such a general setting. We thus
  assume that the base ring is a domain and work over its field of
  fractions. If the base ring is \emph{not} a domain, one gets an error as soon
- as a non-zero pivot turns out to be non-invertible. Some functions,
+ as a nonzero pivot turns out to be noninvertible. Some functions,
  e.g.~\kbd{mathnf} or \kbd{mathnfmod}, specifically assume that the base ring is
  $\Z$.
 

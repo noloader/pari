@@ -5,13 +5,13 @@ Prototype: GD&
 Help: ellminimalmodel(E,{&v}): determines whether the elliptic curve E defined
  over a number field admits a global minimal model. If so return it
  and sets v to the corresponding change of variable. Else return the
- (non-principal) Weierstrass class of E.
+ (nonprincipal) Weierstrass class of E.
 Doc: Let $E$ be an \kbd{ell} structure over a number field $K$. This function
  determines whether $E$ admits a global minimal integral model. If so, it
  returns it and sets $v = [u,r,s,t]$ to the corresponding change of variable:
  the return value is identical to that of \kbd{ellchangecurve(E, v)}.
 
- Else return the (non-principal) Weierstrass class of $E$, i.e. the class of
+ Else return the (nonprincipal) Weierstrass class of $E$, i.e. the class of
  $\prod \goth{p}^{(v_{\goth{p}}{\Delta} - \delta_{\goth{p}}) / 12}$ where
  $\Delta = \kbd{E.disc}$ is the model's discriminant and
  $\goth{p} ^ \delta_{\goth{p}}$ is the local minimal discriminant.
@@ -38,7 +38,7 @@ Doc: Let $E$ be an \kbd{ell} structure over a number field $K$. This function
  @eprog
 
  \bprog
- ? K = bnfinit(a^2-65);  \\ over a non-principal number field
+ ? K = bnfinit(a^2-65);  \\ over a nonprincipal number field
  ? K.cyc
  %2 = [2]
  ? u = Mod(8+a, K.pol);

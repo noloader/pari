@@ -179,7 +179,7 @@ primorial_vec(ulong x)
    Dinfo, as discussed in the comment about Dinfo
    m, as in the theorem in ??ecpp
    q, as in the theorem in ??ecpp
-   g, a quadratic non-residue modulo N
+   g, a quadratic nonresidue modulo N
    sqrt, a list of squareroots
 */
 INLINE GEN
@@ -568,7 +568,7 @@ NqE_check(GEN N, GEN q, GEN a, GEN b, GEN s)
  * the ith element of the certificate; uses N, D, m, q, J from previous steps.
  * All computations are modulo N unless stated otherwise */
 
-/* g is a quadratic and cubic non-residue modulo N */
+/* g is a quadratic and cubic nonresidue modulo N */
 static GEN
 j0_find_g(GEN N)
 {
@@ -997,7 +997,7 @@ mkNDmqg(GEN z, GEN N, GEN Dmq, GEN g, GEN sqrtlist)
 }
 /* expi(N) > 64. Return [ NDmqg, N_downrun(q) ]; NDmqg is a vector of the form
  * [N,D,m,q,g,sqrt]. For successive D, find a square root of D mod N (g is a
- * quadratic non-residue), solve U^2 + |D|V^2 = 4N, then find candidates for m.
+ * quadratic nonresidue), solve U^2 + |D|V^2 = 4N, then find candidates for m.
  * When enough m's, batch-factor them to produce the q's. If one of the q's is
  * pseudoprime, recursive call with N = q. May return gen_0 at toplevel
  * => N has a small prime divisor */

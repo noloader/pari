@@ -23,7 +23,7 @@ Doc: if the generalized modular form $f$ is a holomorphic eta quotient,
 
  [23 1]
  ? f = mffrometaquo([1,-24], 1);
- ? mfisetaquo(f) \\ non-holomorphic
+ ? mfisetaquo(f) \\ nonholomorphic
  %5 = 0
  ? mfisetaquo(f,1)
  %6 =

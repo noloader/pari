@@ -3672,7 +3672,7 @@ reduceddiscsmith(GEN x)
   if (n<=0) pari_err_CONSTPOL("poldiscreduced");
   RgX_check_ZX(x,"poldiscreduced");
   if (!gequal1(gel(x,n+2)))
-    pari_err_IMPL("non-monic polynomial in poldiscreduced");
+    pari_err_IMPL("nonmonic polynomial in poldiscreduced");
   M = cgetg(n+1,t_MAT);
   xp = ZX_deriv(x);
   for (j=1; j<=n; j++)
@@ -3866,7 +3866,7 @@ ginvmod(GEN x, GEN y)
 /**                                                                   **/
 /***********************************************************************/
 
-/* assume leading coeff of x is non-zero */
+/* assume leading coeff of x is nonzero */
 GEN
 newtonpoly(GEN x, GEN p)
 {

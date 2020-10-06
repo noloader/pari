@@ -13,7 +13,7 @@ Doc: Return the modular polynomial of prime level $L$ in variables $x$ and $y$
  If $x$ is given as \kbd{Mod(j, p)} or an element $j$ of
  a finite field (as a \typ{FFELT}), then return the modular polynomial of
  level $L$ evaluated at $j$.  If $j$ is from a finite field and
- \kbd{derivs} is non-zero, then return a triple where the
+ \kbd{derivs} is nonzero, then return a triple where the
  last two elements are the first and second derivatives of the modular
  polynomial evaluated at $j$.
  \bprog

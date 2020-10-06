@@ -4,7 +4,7 @@ C-Name: ispseudoprimepower
 Prototype: lGD&
 Help: ispseudoprimepower(x,{&n}): if x = p^k is a pseudo-prime power (p
  pseudo-prime, k > 0),
- return k, else return 0. If n is present, and the function returns a non-zero
+ return k, else return 0. If n is present, and the function returns a nonzero
  result, set n to p, the k-th root of x.
 Doc: if $x = p^k$ is a pseudo-prime power ($p$ pseudo-prime as per
  \tet{ispseudoprime}, $k > 0$), return $k$, else

@@ -11,7 +11,7 @@ Doc: given \kbd{Mp} from \kbd{mspadicinit}, lift the (classical) eigen symbol
  \kbd{phi} to a $p$-adic distribution-valued overconvergent symbol in the
  sense of Pollack and Stevens. More precisely, let $\phi$ belong to the space
  $W$ of modular symbols of level $N$, $v_p(N) \leq 1$, and weight $k$ which is
- an eigenvector for the Hecke operator $T_N(p)$ for a non-zero eigenvalue
+ an eigenvector for the Hecke operator $T_N(p)$ for a nonzero eigenvalue
  $a_p$ and let $N_0 = \text{lcm}(N,p)$.
 
  Under the action of $T_{N_0}(p)$, $\phi$ generates a subspace $W_\phi$ of

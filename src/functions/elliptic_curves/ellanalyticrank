@@ -4,11 +4,11 @@ C-Name: ellanalyticrank_bitprec
 Prototype: GDGb
 Help: ellanalyticrank(E, {eps}): returns the order of vanishing at s=1
  of the L-function of the elliptic curve E and the value of the first
- non-zero derivative. To determine this order, it is assumed that any
+ nonzero derivative. To determine this order, it is assumed that any
  value less than eps is zero. If no value of eps is given, 2^(-bitprecision/2)
  is used.
 Doc: returns the order of vanishing at $s=1$ of the $L$-function of the
- elliptic curve $E$ and the value of the first non-zero derivative. To
+ elliptic curve $E$ and the value of the first nonzero derivative. To
  determine this order, it is assumed that any value less than \kbd{eps} is
  zero. If \kbd{eps} is omitted, $2^{-b/2}$ is used, where $b$
  is the current bit precision.

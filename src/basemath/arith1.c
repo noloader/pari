@@ -2044,7 +2044,7 @@ hilbert(GEN x, GEN y, GEN p)
 static void
 checkp(ulong q, ulong p)
 { if (!q) pari_err_PRIME("Fl_nonsquare",utoipos(p)); }
-/* p = 1 (mod 4) prime, return the first quadratic non-residue, a prime */
+/* p = 1 (mod 4) prime, return the first quadratic nonresidue, a prime */
 static ulong
 nonsquare1_Fl(ulong p)
 {
@@ -5772,7 +5772,7 @@ relative_order(void *E, GEN a, GEN o, ulong N,  GEN T)
 /* h(x) for x<0 using Baby Step/Giant Step.
  * Assumes G is not too far from being cyclic.
  *
- * Compute G^2 instead of G so as to kill most of the non-cyclicity */
+ * Compute G^2 instead of G so as to kill most of the noncyclicity */
 GEN
 classno(GEN x)
 {

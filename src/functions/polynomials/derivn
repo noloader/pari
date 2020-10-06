@@ -7,7 +7,7 @@ Help: derivn(x,n,{v}): n-th derivative of x with respect to v, or to the main
 Doc:
  $n$-th derivative of $x$ with respect to the main
  variable if $v$ is omitted, and with respect to $v$ otherwise; the integer
- $n$ must be non-negative. The derivative
+ $n$ must be nonnegative. The derivative
  of a scalar type is zero, and the derivative of a vector or matrix is done
  componentwise. One can use $x'$, $x''$, etc., as a shortcut if the
  derivative is with respect to the main variable of $x$.

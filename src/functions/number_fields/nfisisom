@@ -25,7 +25,7 @@ Doc: as \tet{nfisincl}, but tests for isomorphism. More efficient if
  ? for (i=1, B, nfisisom(K,L))
  time = 3,173 ms.
  @eprog\noindent
- The function is usually very fast when the fields are non-isomorphic,
+ The function is usually very fast when the fields are nonisomorphic,
  whenever the fields can be distinguished via a simple invariant such as
  degree, signature or discriminant. It may be slower when the fields
  share all invariants, but still faster than computing actual isomorphisms:

@@ -521,7 +521,7 @@ gen_last_inv_diago(GEN A, void* data, const struct bb_hermite *R)
 static GEN
 /* remove_zerocols: 0 none, 1 until square, 2 all */
 /* early abort: if not right-invertible, abort, return NULL, and set ops to the
- * non-invertible pivot */
+ * noninvertible pivot */
 gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, long early_abort, long only_triangular, GEN* ops, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma, av1;

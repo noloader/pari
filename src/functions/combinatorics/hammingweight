@@ -6,7 +6,7 @@ Help: hammingweight(x): returns the Hamming weight of x.
 Doc:
  If $x$ is a \typ{INT}, return the binary Hamming weight of $|x|$. Otherwise
  $x$ must be of type \typ{POL}, \typ{VEC}, \typ{COL}, \typ{VECSMALL}, or
- \typ{MAT} and the function returns the number of non-zero coefficients of
+ \typ{MAT} and the function returns the number of nonzero coefficients of
  $x$.
  \bprog
  ? hammingweight(15)

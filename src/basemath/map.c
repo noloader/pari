@@ -271,7 +271,7 @@ treedelete(GEN T, GEN x)
   long dead, l, r = treedelete_r(T, x, 1, &dead);
   GEN d;
   if (r < 0) return 0;
-  d = list_data(T); /* != NULL and non-empty */
+  d = list_data(T); /* != NULL and nonempty */
   if (r > 1)
   { /* By convention we want the root to be 1 */
     swap(gel(d,1), gel(d,r));

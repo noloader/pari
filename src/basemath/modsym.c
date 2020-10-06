@@ -4888,7 +4888,7 @@ mslattice(GEN M, GEN F)
 
 /**** Petersson scalar product ****/
 /* TODO:
- * Eisspace: represent functions by coordinates of non-0 entries in matrix */
+ * Eisspace: represent functions by coordinates of nonzero entries in matrix */
 
 /* oo -> g^(-1) oo */
 static GEN

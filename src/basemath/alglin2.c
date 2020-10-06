@@ -805,7 +805,7 @@ minpoly(GEN x, long v)
 static int
 relative0(GEN a, GEN a0, long bit)
 { return gequal0(a) || (bit && gexpo(a)-gexpo(a0) < bit); }
-/* assume x a non-empty square t_MAT */
+/* assume x a nonempty square t_MAT */
 static GEN
 RgM_hess(GEN x0, long prec)
 {
@@ -1545,7 +1545,7 @@ qfgaussred_positive(GEN a)
 
 /* Maximal pivot strategy: x is a suitable pivot if it is non zero and either
  * - an exact type, or
- * - it is maximal among remaining non-zero (t_REAL) pivots */
+ * - it is maximal among remaining nonzero (t_REAL) pivots */
 static int
 suitable(GEN x, long k, GEN *pp, long *pi)
 {
@@ -1564,7 +1564,7 @@ suitable(GEN x, long k, GEN *pp, long *pi)
 }
 
 /* Gauss reduction (arbitrary symetric matrix, only the part above the
- * diagonal is considered). If signature is non-zero, return only the
+ * diagonal is considered). If signature is nonzero, return only the
  * signature, in which case gsigne() should be defined for elements of a. */
 static GEN
 gaussred(GEN a, long signature)

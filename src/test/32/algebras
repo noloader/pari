@@ -249,7 +249,7 @@ tensor of degree 2 and 3 no mo: 1
 Suite: Grunwald-Wang
 A quadratic over Q, 2 large inert, imaginary: 1
 A quartic over Q, 2 large inert, imaginary: error("sorry, nfgrunwaldwang for
- non-prime degree is not yet implemented.")
+ nonprime degree is not yet implemented.")
 A : degree 4 over Q(i), local degrees [4,1,1]: 1
 A degree 3 over Q(j), local degrees [3,3] larger primes: 1
 A : degree 3 over Q(sqrt(5)), local degrees [3,3] [0,0], larger primes: 1
@@ -1990,7 +1990,7 @@ testing simplify: quatalg csa over Q
   *** nfgrunwaldwang: incorrect type in checkprid (t_COL).
   ***   at top-level: nfgrunwaldwang(nfinit(y),[2],[9],[0])
   ***                 ^-------------------------------------
-  *** nfgrunwaldwang: sorry, nfgrunwaldwang for non-prime degree is not yet implemented.
+  *** nfgrunwaldwang: sorry, nfgrunwaldwang for nonprime degree is not yet implemented.
   ***   at top-level: algdegree(A)
   ***                 ^------------
   *** algdegree: incorrect type in alg_get_degree [use alginit] (t_VEC).
@@ -2029,7 +2029,7 @@ testing simplify: quatalg csa over Q
   *** algtensor: inconsistent tensor product [not the same center] t_VEC (11 elts) , t_VEC (11 elts).
   ***   at top-level: algtensor(alginit(nfinit(y),2),alginit(nfinit(
   ***                 ^----------------------------------------------
-  *** algtensor: sorry, tensor of cylic algebras of non-coprime degrees is not yet implemented.
+  *** algtensor: sorry, tensor of cylic algebras of noncoprime degrees is not yet implemented.
   ***   at top-level: alginit(nf,[2,[[p2,p2],[1/2,1/2]],[0]])
   ***                 ^---------------------------------------
   *** alginit: error in checkhasse [duplicate prime ideal].
@@ -2071,10 +2071,10 @@ testing simplify: quatalg csa over Q
   *** alginit: domain error in rnfequation: issquarefree(B) = 0
   ***   at top-level: algb(al)
   ***                 ^--------
-  *** algb: incorrect type in alg_get_b [non-cyclic algebra] (t_VEC).
+  *** algb: incorrect type in alg_get_b [noncyclic algebra] (t_VEC).
   ***   at top-level: algaut(al)
   ***                 ^----------
-  *** algaut: incorrect type in alg_get_aut [non-cyclic algebra] (t_VEC).
+  *** algaut: incorrect type in alg_get_aut [noncyclic algebra] (t_VEC).
   ***   at top-level: algtableinit([Mat(1)],1)
   ***                 ^------------------------
   *** algtableinit: not a prime number in algtableinit: 1.
@@ -2418,8 +2418,8 @@ GW modified arguments
 1
   ***   at top-level: al2=algtensor(al,al)
   ***                     ^----------------
-  *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
+  *** algtensor: sorry, tensor of noncyclic algebras is not yet implemented.
   ***   at top-level: al2=algtensor(al,al)
   ***                     ^----------------
-  *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-Total time spent: 1866
+  *** algtensor: sorry, tensor of noncyclic algebras is not yet implemented.
+Total time spent: 1280

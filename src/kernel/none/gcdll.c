@@ -468,7 +468,7 @@ cbezout(long a,long b,long *uu,long *vv)
  * possibly zero, or under certain conditions minus that number.  When the
  * return value is nonzero, the caller should use the returned recurrence
  * matrix to update its own copies of d,d1.  When the return value is
- * non-positive, and the latest remainder after updating turns out to be
+ * nonpositive, and the latest remainder after updating turns out to be
  * nonzero, the caller should at once attempt a full division, rather than
  * trying lgcdii() again -- this typically happens when we are about to
  * encounter a quotient larger than half a word. (This is not detected
@@ -603,7 +603,7 @@ lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1,
     hiremainder = 0;
     xv1 = 1 + divll(dd, dd1); /* xv1: alternative spelling of `q', here ;) */
     dd = hiremainder;
-    if (dd < xv1) /* !(Jebelean cond'), non-extra special case */
+    if (dd < xv1) /* !(Jebelean cond'), nonextra special case */
     { /* Attempt to complete the division using the less significant bits,
        * before skipping right past the 1st loop to the reshift stage. */
       ddlo = subll(ddlo, mulll(xv1, dd1lo));

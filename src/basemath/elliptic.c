@@ -1540,7 +1540,7 @@ safe_Z_lval(GEN n, ulong p)
 
 /* Twist by d2 = 1,-4,-8,8, to get minimal discriminant at 2 after
  * ellminimalmodel / ellQ_minimalu; assume vg = min(3*v4,2*v6,vD) >= 6.
- * If non-trivial, v(d2) = 2 or 3 and let t = [(vg+6v(d2))/12].
+ * If nontrivial, v(d2) = 2 or 3 and let t = [(vg+6v(d2))/12].
  * Good case if reduction in ellQ_minimalu i.e. t = 2 (v4 < 6 or v6 < 9 or
  * vD < 18) or 3 and "d--" does not occur. Minimal model => t = 3 iff
  * v4 = 6, v6 = 9 and vD >= 18. Total net effect is
@@ -1671,7 +1671,7 @@ ellexpo(GEN E)
   return e;
 }
 
-/* Exactness of lhs and rhs in the following depends in non-obvious ways
+/* Exactness of lhs and rhs in the following depends in nonobvious ways
  * on the coeffs of the curve as well as on the components of the point z.
  * Thus if e is exact, with a1==0, and z has exact y coordinate only, the
  * lhs will be exact but the rhs won't. */
@@ -3838,7 +3838,7 @@ nflocalred_23(GEN nf, GEN e, GEN D, GEN P, long *ap)
       long i, lE;
       nf_compose_st(nf, &ch, &e, alpha, nfmul(nf, beta, pi));
       po2 = pola2a4a6(e, nf, modP, pv, pv2, pv3);
-      if (signe(po2)) /* po2 = 0 is frequent when non-minimal */
+      if (signe(po2)) /* po2 = 0 is frequent when nonminimal */
       {
         pol = RgX_add(pol_xn(3,0), po2);
         F = FqX_factor(pol, T, p); E = gel(F,2);
@@ -3943,7 +3943,7 @@ nflocalred_p(GEN e, GEN P)
       if (Fq_issquare(z,T,p))
         c = vD;/* split */
       else
-        c = odd(vD)?1 : 2; /* non-split */
+        c = odd(vD)?1 : 2; /* nonsplit */
     }
     else
     { /* v(c4) = 2, v(c6) = 3, potentially multiplicative */
@@ -4589,7 +4589,7 @@ ellnf_minimalnormu(GEN E0)
   return P;
 }
 /* E integral model; return change of variable to miminal model (t_VEC)
- * or (non-trivial) Weierstrass class (t_COL) */
+ * or (nontrivial) Weierstrass class (t_COL) */
 static GEN
 bnf_get_v(GEN E)
 {
@@ -4712,7 +4712,7 @@ ellnfminimalmodel_i(GEN E, GEN *ptv)
   if (typ(v2) == t_COL)
   {
     obj_insert(E, NF_MINIMALMODEL, mkvec(v2));
-    return v2; /* non-trivial Weierstrass class */
+    return v2; /* nontrivial Weierstrass class */
   }
   y = coordch(y, v2);
   gcomposev(&v, v2);
@@ -5794,7 +5794,7 @@ sievep_bad(ulong p, GEN an, ulong n)
   ulong m, N;
   switch (an[p]) /* (-c6/p) */
   {
-    case -1: /* non-split */
+    case -1: /* nonsplit */
       N = n/p;
       for (m=2; m<=N; m++)
         if (an[m] != LONG_MAX) an[m*p] = -an[m];
@@ -5840,7 +5840,7 @@ sievep(ulong p, GEN an, ulong n, ulong SQRTn, int good_red)
 static long
 ellan_get_ap(ulong p, int *good_red, int CM, GEN e)
 {
-  if (!umodiu(ell_get_disc(e),p)) /* p|D, bad reduction or non-minimal model */
+  if (!umodiu(ell_get_disc(e),p)) /* p|D, bad reduction or nonminimal model */
     return ellQap_u(e, p, good_red);
   else /* good reduction */
   {
@@ -6746,7 +6746,7 @@ ellgroup_m(GEN E, GEN p, GEN *pm)
   if (equali1(N)) return cgetg(1,t_VEC);
   if (absequaliu(p, 2)) return mkvec(N);
   if (absequaliu(p, 3))
-  { /* The only possible non-cyclic group is [2,2] which happens 9 times */
+  { /* The only possible noncyclic group is [2,2] which happens 9 times */
     ulong b2, b4, b6;
     if (!absequaliu(N, 4)) return mkvec(N);
     /* If the group is not cyclic, T = 4x^3 + b2 x^2 + 2b4 x + b6

@@ -5,12 +5,12 @@ Prototype: GG
 Help: ellnonsingularmultiple(E,P): given E/Q and P in E(Q), returns the pair
  [R,n] where n is the least positive integer such that R = [n]P has
  everywhere good reduction. More precisely, its image in a minimal model
- is everywhere non-singular.
+ is everywhere nonsingular.
 Doc: given an elliptic curve $E/\Q$ (more precisely, a model defined over $\Q$
  of a curve) and a rational point $P \in E(\Q)$, returns the pair $[R,n]$,
  where $n$ is the least positive integer such that $R := [n]P$ has good
  reduction at every prime. More precisely, its image in a minimal model is
- everywhere non-singular.
+ everywhere nonsingular.
  \bprog
  ? e = ellinit("57a1"); P = [2,-2];
  ? ellnonsingularmultiple(e, P)

@@ -1684,8 +1684,8 @@ nfsetsigns(GEN nf, GEN signs, GEN x, GEN sarch)
 /* - sarch = nfarchstar(nf, F);
  * - x encodes a vector of signs at arch.archp: either a t_VECSMALL
  *   (vector of signs as {0,1}-vector), NULL (totally positive at archp),
- *   or a non-zero number field element (replaced by its signature at archp);
- * - y is a non-zero number field element
+ *   or a nonzero number field element (replaced by its signature at archp);
+ * - y is a nonzero number field element
  * Return z = y (mod F) with signs(y, archp) = signs(x) (a {0,1}-vector) */
 GEN
 set_sign_mod_divisor(GEN nf, GEN x, GEN y, GEN sarch)
@@ -1715,7 +1715,7 @@ setsigns_init(GEN nf, GEN archp, GEN F, GEN DATA)
   MI = RgM_inv(MI);
   return mkvec5(DATA, archp, MI, lambda, F);
 }
-/* F non-0 integral ideal in HNF (or NULL: Z_K), compute elements in 1+F
+/* F nonzero integral ideal in HNF (or NULL: Z_K), compute elements in 1+F
  * whose sign matrix at archp is identity; archp in 'indices' format */
 GEN
 nfarchstar(GEN nf, GEN F, GEN archp)

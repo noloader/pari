@@ -383,7 +383,7 @@ from the internal binary representation.
 
 \subsec{Intmods (\typ{INTMOD})}%
 \sidx{intmod}\kbdsidx{t_INTMOD}
-To create the image of the integer $a$ in $\Z/b\Z$ (for some non-zero
+To create the image of the integer $a$ in $\Z/b\Z$ (for some nonzero
 integer $b$), type \kbd{Mod(a,b)}; \emph{not} \kbd{a\%b}.
 Internally, all operations are done on integer representatives belonging to
 $[0,b-1]$.
@@ -472,7 +472,7 @@ parts $x$ and $y$ can be of type \typ{INT}, \typ{REAL}, \typ{INTMOD},
 \sidx{p-adic number}\label{se:padic}\kbdsidx{t_PADIC}
 Typing \kbd{O($p$\pow $k$)}, where $p$ is a prime and $k$ is an integer,
 yields a $p$-adic $0$ of accuracy~$k$, representing any $p$-adic number whose
-valuation is $\geq k$. To input a general non-0 $p$-adic number, write
+valuation is $\geq k$. To input a general nonzero $p$-adic number, write
 a suitably precise rational or integer approximation and add \kbd{O($p$\pow
 $k$)} to it. For example, you can type in the $7$-adic number
 \bprog
@@ -481,7 +481,7 @@ $k$)} to it. For example, you can type in the $7$-adic number
 
 Note that it is not checked whether $p$ is indeed prime but results are
 undefined if this is not the case: you can try to work on $10$-adics if
-you want, but disasters will happen as soon as you do something non-trivial.
+you want, but disasters will happen as soon as you do something nontrivial.
 For instance:
 \bprog
 ? t = 2 * (1/10 + O(10^5));
@@ -522,7 +522,7 @@ denominators!)
 \subsec{Quadratic numbers (\typ{QUAD})}%
 \sidx{quadratic number}\kbdsidx{t_QUAD}
 This type is used to work in the quadratic order of \emph{discriminant}
-\kbd{d}, where \kbd{d} is a non-square integer congruent to $0$ or $1$
+\kbd{d}, where \kbd{d} is a nonsquare integer congruent to $0$ or $1$
 (modulo $4$). The command
 \bprog
     w = quadgen(d,'w)
@@ -644,7 +644,7 @@ commutative base ring, with monomials sorted by decreasing degree:
 @eprog\noindent
 (Univariate polynomial in \kbd{x} whose coefficients are polynomials in
 \kbd{y}.) See \secref{se:varsymb} for valid variable names, and a discussion
-of multivariate polynomial rings. Polynomials over non-commutative rings
+of multivariate polynomial rings. Polynomials over noncommutative rings
 are not supported.
 
 \subsec{Power series (\typ{SER})}%
@@ -652,14 +652,14 @@ are not supported.
 Typing \kbd{O(X\pow $k$)}, where $k$ is an integer, yields an $X$-adic $0$ of
 accuracy~$k$, representing any power series in \kbd{X} whose valuation is
 $\geq k$. Of course, \kbd{X} can be replaced by any other variable name! To
-input a general non-0 power series, type in a polynomial or rational
+input a general nonzero power series, type in a polynomial or rational
 function (in \kbd{X}, say), and add \kbd{O(X\pow $k$)} to it. The discussion
 in the \typ{POL} section about variables remains valid; a constructor
 \tet{Ser} replaces \tet{Pol} and \tet{Polrev}. Power series over
-non-commutative rings are not supported.
+noncommutative rings are not supported.
 
 \misctitle{Caveat} Power series with inexact coefficients sometimes have a
-non-intuitive behavior: if $k$ significant terms are requested, an inexact
+nonintuitive behavior: if $k$ significant terms are requested, an inexact
 zero is counted as significant, even if it is the coefficient of lowest
 degree. This means that useful higher order terms may be disregarded.
 
@@ -1011,7 +1011,7 @@ error is printed immediately, the computation is aborted, and GP enters the
   ? 1/0; 1 + 1
     ***   at top-level: 1/0;1+1
     ***                  ^------
-    *** _/_: division by a non-invertible object
+    *** _/_: division by a noninvertible object
     ***   Break loop: type 'break' to go back to the GP prompt
 
 @eprog\noindent Here the computation is aborted as soon as we try to evaluate
@@ -1043,7 +1043,7 @@ included in any computation, i.e.~\kbd{1+oo} is an error, not kbd{oo} again.
 
 \noindent Loosely speaking, an \idx{operator} is a function, usually
 attached to basic arithmetic operations, whose name contains only
-non-alphanumeric characters. For instance \kbd{+} or \kbd{-}, but also
+nonalphanumeric characters. For instance \kbd{+} or \kbd{-}, but also
 \kbd{=} or \kbd{+=}, or even \kbd{[ ]} (the selection operator). As all
 functions, operators take arguments, and return a value; \emph{assignment}
 operators also have side effects: besides returning a value, they change the
@@ -1230,7 +1230,7 @@ does not evaluate \kbd{isprime(p)} if \kbd{p} is not an integer.
 \kbd{x~=~$y$} is the value of the expression~$y$, which is also assigned to
 the variable~\kbd{x}. This assignment operator is right-associative. This is
 \emph{not} the equality test operator; a statement like \kbd{x~=~1} is always
-true (i.e.~non-zero), and sets \kbd{x} to~1; the equality test would be
+true (i.e.~nonzero), and sets \kbd{x} to~1; the equality test would be
 \kbd{x == 1}. The right hand side of the assignment operator is evaluated
 before the left hand side.
 
@@ -1374,7 +1374,7 @@ The use of an explicit quote operator avoids the following kind of problems:
 A multivariate polynomial in PARI is just a polynomial (in one variable),
 whose coefficients are themselves polynomials, arbitrary but for the fact
 that they do not involve the main variable. (PARI currently has no sparse
-representation for polynomials, listing only non-zero monomials.) All
+representation for polynomials, listing only nonzero monomials.) All
 computations are then done formally on the coefficients as if the
 polynomial was univariate.
 
@@ -1640,7 +1640,7 @@ We strongly recommended to explicitly scope (lexically) all variables to the
 smallest possible block. Should you forget this, in expressions involving such
 ``rogue'' variables, the value used will be the one which happens to be on
 top of the value stack at the time of the call; which depends on the whole
-calling context in a non-trivial way. This is in general \emph{not} what you
+calling context in a nontrivial way. This is in general \emph{not} what you
 want.
 
 \section{User defined functions}\sidx{user defined functions}
@@ -1964,7 +1964,7 @@ than expected:
 %4 = 1.00000000000000007549266557
 ? check(-11)
 %5 = 0.9999752641047824902660847745
-? check(1/2+14.134*I)  \\@com very close to a non-trivial zero
+? check(1/2+14.134*I)  \\@com very close to a nontrivial zero
 %6 = 1.000000000000000000003747432 + 7.62329066 E-21*I
 ? check(-1+10*I)
 %7 = 1.000000000000000000000002511 + 2.989950968 E-24*I
@@ -1980,7 +1980,7 @@ formula used in \kbd{sumalt} with $n$ terms computes $(1-2^{1-s})\zeta(s)$
 with a relative error of the order of $(3+\sqrt{8})^{-n}|\Gamma(s)|^{-1}$.},
 providing very good convergence acceleration; in effect, we are computing
 the analytic continuation of our original function. To convince ourselves
-that \kbd{sumalt} is a non-trivial implementation, let us try a simpler
+that \kbd{sumalt} is a nontrivial implementation, let us try a simpler
 example:
 \bprog
 ? sum(n=1, 10^7, (-1)^n/n, 0.) / (-log(2)) \\@com approximates the well-known formula
@@ -2032,7 +2032,7 @@ prime numbers. Here is a corrected version:
 \subsec{Recursive functions} Recursive functions\sidx{recursion} can easily
 be written as long as one pays proper attention to variable scope. Here is an
 example, used to retrieve the coefficient array of a multivariate polynomial
-(a non-trivial task due to PARI's unsophisticated representation for those
+(a nontrivial task due to PARI's unsophisticated representation for those
 objects): \sidx{multivariate polynomial}
 \bprog
 coeffs(P, nbvar) =
@@ -2683,7 +2683,7 @@ can be simplified to
   \kbd{iferr(\var{statements}, ERR, \var{recovery}, \var{predicate})}
 
 \noindent only catches the exception if \var{predicate} (allowed to check
-various things about \kbd{ERR}, not only its name) is non-zero.
+various things about \kbd{ERR}, not only its name) is nonzero.
 
 Rather than trapping everything, then rethrowing whatever we do not like, we
 advise to only trap errors of a specific kind, as above. Of course,
@@ -2958,13 +2958,13 @@ previous section (shortcut for \kbd{default()}, see \secref{se:default}).
 $n$ is explicitly given, set echo to $n$.
 
 \subsec{\b{g} $\{n\}$} Sets the debugging level \tet{debug} to the
-non-negative integer $n$.
+nonnegative integer $n$.
 
 \subsec{\b{gf} $\{n\}$} Sets the file usage debugging level \tet{debugfiles}
-to the non-negative integer $n$.
+to the nonnegative integer $n$.
 
 \subsec{\b{gm} $\{n\}$} Sets the memory debugging level \tet{debugmem}
-to the non-negative integer $n$.
+to the nonnegative integer $n$.
 
 \subsec{\b{h} $\{m$\kbd{-}$n\}$} Outputs some debugging info about the
 hashtable. If the argument is a number $n$, outputs the contents of cell
@@ -3121,7 +3121,7 @@ macros.
 \\ self modifying prompt looking like @com\hbox{\rm(18:03) \key{gp}\kbd{ >}}
 prompt   = "(%H:%M) \e[1mgp\e[m > "
 
-\\ readline wants non-printing characters to be braced between ^A/^B pairs
+\\ readline wants nonprinting characters to be braced between ^A/^B pairs
 #if READL prompt = "(%H:%M) ^A\e[1m^Bgp^A\e[m^B > "
 
 \\ escape sequences not supported under emacs

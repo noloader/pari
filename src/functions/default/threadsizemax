@@ -17,6 +17,6 @@ Doc: This default is specific to the \emph{parallel} version of PARI and gp
 
  If set to $0$, the value used is the same as \kbd{threadsize}. We strongy
  recommend to set both \kbd{parisizemax} and \kbd{threadsizemax} to a
- non-zero value.
+ nonzero value.
 
  The default value is $0$.

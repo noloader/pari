@@ -12,7 +12,7 @@ Description:
 Doc: \idx{infinite product} of
  expression \var{expr}, the formal parameter $X$ starting at $a$. The evaluation
  stops when the relative error of the expression minus 1 is less than the
- default precision. In particular, non-convergent products result in infinite
+ default precision. In particular, divergent products result in infinite
  loops. The expressions must always evaluate to an element of $\C$.
 
  If $\fl=1$, do the product of the ($1+\var{expr}$) instead.

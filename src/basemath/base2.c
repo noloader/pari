@@ -766,7 +766,7 @@ ZpX_reduced_resultant(GEN x, GEN y, GEN p, GEN pm)
   set_avma(av); return gen_0;
 }
 /* Assume Res(f,g) divides p^M. Return Res(f, g), using dynamic p-adic
- * precision (until result is non-zero or p^M). */
+ * precision (until result is nonzero or p^M). */
 GEN
 ZpX_reduced_resultant_fast(GEN f, GEN g, GEN p, long M)
 {
@@ -1441,7 +1441,7 @@ testb2(decomp_t *S, long D, GEN theta)
   {
     phi = gadd(theta, random_FpX(dlim, v, S->p));
     chi = mycaract(S, S->chi, phi, S->psf, S->prc);
-    /* phi non-primary ? */
+    /* phi nonprimary ? */
     if (split_char(S, chi, phi, T0, &nu)) return 1;
     if (degpol(nu) == D) break;
   }
@@ -3006,18 +3006,18 @@ rnfdedekind_i(GEN nf, GEN P, GEN pr, long vdisc, long only_maximal)
   if (vdisc < 0) pari_err_TYPE("rnfdedekind [non integral pol]", P);
   if (vdisc == 1) return NULL; /* pr-maximal */
   if (!only_maximal && !gequal1(leading_coeff(P)))
-    pari_err_IMPL( "the full Dedekind criterion in the non-monic case");
+    pari_err_IMPL( "the full Dedekind criterion in the nonmonic case");
   /* either monic OR only_maximal = 1 */
   m = degpol(P);
   nfT = nf_get_pol(nf);
   modpr = nf_to_Fq_init(nf,&pr, &T, &p);
   Ppr = nfX_to_FqX(P, nf, modpr);
   mpr = degpol(Ppr);
-  if (mpr < m) /* non-monic => only_maximal = 1 */
+  if (mpr < m) /* nonmonic => only_maximal = 1 */
   {
     if (mpr < 0) return NULL;
     if (! RgX_valrem(Ppr, &Ppr))
-    { /* non-zero constant coefficient */
+    { /* nonzero constant coefficient */
       Ppr = RgX_shift_shallow(RgX_recip_shallow(Ppr), m - mpr);
       P = RgX_recip_shallow(P);
     }
@@ -3374,7 +3374,7 @@ rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf, GEN *pDKP)
 
   nf = checknf(nf); pol = liftpol_shallow(pol);
   if (!gequal1(leading_coeff(pol)))
-    pari_err_IMPL("non-monic relative polynomials in rnfallbase");
+    pari_err_IMPL("nonmonic relative polynomials in rnfallbase");
   disc = nf_to_scalar_or_basis(nf, nfX_disc(nf, pol));
   if (lim)
   {

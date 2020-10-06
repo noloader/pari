@@ -714,7 +714,7 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
  * prime factor will be beyond the original index2_FB point. In this way we
  * avoid re-using the same A. (The choice of the upper "flyer" prime is
  * constrained by the size of the FB, which normally should never a problem.
- * For tiny kN, we might have to live with a non-optimal choice.)
+ * For tiny kN, we might have to live with a nonoptimal choice.)
  *
  * Mathematically, we solve a quadratic (over F_p for each prime p in the FB
  * which doesn't divide A), a linear equation for each prime p | A, and

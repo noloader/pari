@@ -8,7 +8,7 @@ Help: matadjoint(M,{flag=0}): adjoint matrix of M using Leverrier-Faddeev's
 Doc:
  \idx{adjoint matrix} of $M$, i.e.~a matrix $N$
  of cofactors of $M$, satisfying $M*N=\det(M)*\Id$. $M$ must be a
- (non-necessarily invertible) square matrix of dimension $n$.
+ (not necessarily invertible) square matrix of dimension $n$.
  If $\fl$ is 0 or omitted, we try to use Leverrier-Faddeev's algorithm,
  which assumes that $n!$ invertible. If it fails or $\fl = 1$,
  compute $T = \kbd{charpoly}(M)$ independently first and return

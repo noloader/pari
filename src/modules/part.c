@@ -203,7 +203,7 @@ forpart_init(forpart_t *T, long k, GEN abound, GEN nbound)
   else T->amax = k;
   /* strip leading zeros ? */
   T->strip = (T->amin > 0) ? 1 : 0;
-  /* bound on number of non-zero coefficients */
+  /* bound on number of nonzero coefficients */
   T->nmin=0;
   if (nbound) parse_interval(nbound,&T->nmin,&T->nmax);
   else T->nmax = k;
@@ -269,7 +269,7 @@ forpart_next(forpart_t *T)
     }
     if (n==0) return NULL;
     vi = T->amin;
-    i = T->strip ? 1 : n + 1 - T->nmin; /* first non-zero index */
+    i = T->strip ? 1 : n + 1 - T->nmin; /* first nonzero index */
     if (s <= (n-i)*vi) return NULL;
   }
   /* now fill [ v[i],... v[n] ] with s, start at vi */

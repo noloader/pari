@@ -9,7 +9,7 @@ Doc:
  $$
    y^2 + a_1 xy + a_3 y = x^3 + a_2 x^2 + a_4 x + a_6,
  $$
- whose discriminant is non-zero. Affine points on \kbd{E} are represented as
+ whose discriminant is nonzero. Affine points on \kbd{E} are represented as
  two-component vectors \kbd{[x,y]}; the point at infinity, i.e.~the identity
  element of the group law, is represented by the one-component vector
  \kbd{[0]}.
@@ -39,7 +39,7 @@ Doc:
  $$ Y^2 = 4 X^3 - (c_4/12) X - (c_6/216). $$
 
  \item \tet{disc}: discriminant of the curve. This is only required to be
- non-zero, not necessarily a unit.
+ nonzero, not necessarily a unit.
 
  \item \tet{j}: $j$-invariant of the curve.
 
@@ -106,7 +106,7 @@ Doc:
  model.
 
  For the time being only curves with multiplicative reduction (split or
- non-split), i.e. $v_p(j) < 0$, are supported by non-trivial functions. In
+ nonsplit), i.e. $v_p(j) < 0$, are supported by nontrivial functions. In
  this case the curve is analytically isomorphic to $\bar{\Q}_p^*/q^\Z :=
  E_q(\bar{\Q}_p)$, for some $p$-adic integer $q$ (the Tate period). In
  particular, we have $j(q) = j(E)$.
@@ -234,5 +234,5 @@ Doc:
 
  Some functions such as \kbd{ellap}, \kbd{ellcard}, \kbd{ellgroup} and
  \kbd{ellissupersingular} even implicitly replace the given equation by
- a local minimal model and consider the group of non-singular points
+ a local minimal model and consider the group of nonsingular points
  $\tilde{E}^{ns}$ so they make sense even when the curve has bad reduction.

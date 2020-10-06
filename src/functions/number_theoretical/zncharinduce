@@ -30,7 +30,7 @@ Doc: Let $G$ be attached to $(\Z/q\Z)^*$ (as per \kbd{G = znstar(q,1)})
  ? zncharinduce(G, 1, G2)  \\ same
  %4 = [0, 0, 0]~
 
- ? chi = zncharinduce(G, 3, G2)  \\ extend the non-trivial character mod 4
+ ? chi = zncharinduce(G, 3, G2)  \\ extend the nontrivial character mod 4
  %5 = [1, 0, 0]~
  ? [G0,chi0] = znchartoprimitive(G2, chi);
  ? G0.mod

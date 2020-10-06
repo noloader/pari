@@ -14,7 +14,7 @@ Doc: loads from dynamic library \var{lib} the function \var{name}. Assigns to it
  includes the whole of \kbd{libpari.so} and possibly others (such as
  \kbd{libc.so}).
 
- Most importantly, \kbd{install} gives you access to all non-static functions
+ Most importantly, \kbd{install} gives you access to all nonstatic functions
  defined in the PARI library. For instance, the function
  \bprog
    GEN addii(GEN x, GEN y)

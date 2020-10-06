@@ -1230,7 +1230,7 @@ enum { min_ALL = 0, min_FIRST, min_VECSMALL, min_VECSMALL2 };
  *   u[2]= maximum norm found
  *   u[3]= list of vectors found (at most STOCKMAX, unless NULL)
  *
- *  If BORNE = NULL: Minimal non-zero vectors.
+ *  If BORNE = NULL: Minimal nonzero vectors.
  *  flag = min_ALL,   as above
  *  flag = min_FIRST, exits when first suitable vector is found.
  *  flag = min_VECSMALL, return a t_VECSMALL of (half) the number of vectors
@@ -1576,7 +1576,7 @@ clonefill(GEN S, long s, long t)
 
 /* increment ZV x, by incrementing cell of index k. Initial value x0[k] was
  * chosen to minimize qf(x) for given x0[1..k-1] and x0[k+1,..] = 0
- * The last non-zero entry must be positive and goes through x0[k]+1,2,3,...
+ * The last nonzero entry must be positive and goes through x0[k]+1,2,3,...
  * Others entries go through: x0[k]+1,-1,2,-2,...*/
 INLINE void
 step(GEN x, GEN y, GEN inc, long k)

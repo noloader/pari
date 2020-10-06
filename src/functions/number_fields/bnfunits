@@ -10,7 +10,7 @@ Help: bnfunits(bnf,{S}): return the fundamental units of the number field
 Doc: return the fundamental units of the number field
  bnf output by bnfinit; if $S$ is present and is a list of prime ideals,
  compute fundamental $S$-units instead. The first component of the result
- contains independent integral $S$-units generators: first non-units, then
+ contains independent integral $S$-units generators: first nonunits, then
  $r_1+r_2-1$ fundamental units, then the torsion unit. The result may be used
  as an optional argument to bnfisunit. The units are given in compact form:
  no expensive computation is attempted if the \var{bnf} does not already
@@ -39,7 +39,7 @@ Doc: return the fundamental units of the number field
   %8 = [[-1, 1, -1, 0]~, [1, -1, 0, 0]~]
   @eprog
 
-  Now an example involving $S$-units for a non-trivial $S$:
+  Now an example involving $S$-units for a nontrivial $S$:
   \bprog
   ? S = idealprimedec(bnf,5); #S
   %9 = 2

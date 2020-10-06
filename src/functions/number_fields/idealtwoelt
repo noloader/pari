@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: idealtwoelt0
 Prototype: GGDG
 Help: idealtwoelt(nf,x,{a}): two-element representation of an ideal x in the
- number field nf. If (optional) a is non-zero, first element will be equal to a.
+ number field nf. If (optional) a is nonzero, first element will be equal to a.
 Doc: computes a two-element representation of the ideal $x$ in the number
  field $\var{nf}$, combining a random search and an approximation theorem; $x$
  is an ideal in any form (possibly an extended ideal, whose principal part is
@@ -36,7 +36,7 @@ Doc: computes a two-element representation of the ideal $x$ in the number
  %4 = Mod(t^2 + 23, t^5 - 23)
  @eprog
 
- \item When called as \kbd{idealtwoelt(nf,x,a)} with an explicit non-zero $a$
+ \item When called as \kbd{idealtwoelt(nf,x,a)} with an explicit nonzero $a$
  supplied as third argument, the function assumes that $a \in x$ and returns
  $\alpha\in x$ such that $x = a\Z_K + \alpha\Z_K$. Note that we must factor
  $a$ in this case, and the algorithm is generally slower than the

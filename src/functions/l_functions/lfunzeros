@@ -8,7 +8,7 @@ Help: lfunzeros(L,lim,{divz=8}): lim being
  given interval. Use a naive algorithm which may miss some zeros.
  To use a finer search mesh, set divz to some integral value
  larger than the default (= 8).
-Doc: \kbd{lim} being either a positive upper limit or a non-empty real
+Doc: \kbd{lim} being either a positive upper limit or a nonempty real
  interval, computes an ordered list of zeros of $L(s)$ on the critical line up
  to the given upper limit or in the given interval. Use a naive algorithm
  which may miss some zeros: it assumes that two consecutive zeros at height

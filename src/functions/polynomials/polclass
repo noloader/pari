@@ -17,7 +17,7 @@ Doc:
  technical conditions ensuring they do generate the Hilbert class
  field and not a strict subfield:
 
- \item if $p\neq q$, we need them both non-inert, prime to the conductor of
+ \item if $p\neq q$, we need them both noninert, prime to the conductor of
  $\Z[\sqrt{D}]$. Let $P, Q$ be prime ideals  above $p$ and $q$; if both are
  unramified, we further require that $P^{\pm 1} Q^{\pm 1}$ be all distinct in
  the class group of $\Z[\sqrt{D}]$; if both are ramified, we require that $PQ

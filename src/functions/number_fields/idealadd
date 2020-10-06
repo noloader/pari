@@ -25,13 +25,13 @@ Doc: sum of the two ideals $x$ and $y$ in the number field $\var{nf}$. The
  \bprog
    ? b = Mat([1,0]~);
    ? idealadd(K, b, b)     \\ only square t_MATs represent ideals
-   *** idealadd: non-square t_MAT in idealtyp.
-   ? c = [2, 0; 2, 0]; idealadd(K, c, c)   \\ non-sense
+   *** idealadd: nonsquare t_MAT in idealtyp.
+   ? c = [2, 0; 2, 0]; idealadd(K, c, c)   \\ nonsense
    %6 =
    [2 0]
 
    [0 2]
-   ? d = [1, 0; 0, 2]; idealadd(K, d, d)   \\ non-sense
+   ? d = [1, 0; 0, 2]; idealadd(K, d, d)   \\ nonsense
    %7 =
    [1 0]
 

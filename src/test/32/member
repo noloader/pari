@@ -27,7 +27,7 @@ NF
 000000000000000, 553.00000000000000000000000000000000000]
 .zk: [1, 1/2*y - 1/2]
 NF chvar
-  *** nfinit: Warning: non-monic polynomial. Result of the form [nf,c].
+  *** nfinit: Warning: nonmonic polynomial. Result of the form [nf,c].
 .codiff: [1/2, 0; 0, 1/4]
 .diff: [4, 0; 0, 2]
 .disc: -8
@@ -346,4 +346,4 @@ BID (nogen)
 MF
 .mod: t^2 + t + 1
 .mod: Mod(1, t^2 + t + 1)*y^2 + Mod(-2*t, t^2 + t + 1)
-Total time spent: 48
+Total time spent: 59

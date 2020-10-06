@@ -6,7 +6,7 @@ Help: polredbest(T,{flag=0}): reduction of the polynomial T (gives minimal
  polynomials only). If flag=1, gives also elements.
 Doc: finds a polynomial with reasonably
  small coefficients defining the same number field as $T$.
- All $T$ accepted by \tet{nfinit} are also allowed here (e.g. non-monic
+ All $T$ accepted by \tet{nfinit} are also allowed here (e.g. nonmonic
  polynomials, \kbd{nf}, \kbd{bnf}, \kbd{[T,Z\_K\_basis]}). Contrary to
  \tet{polredabs}, this routine runs in polynomial time, but it offers no
  guarantee as to the minimality of its result.

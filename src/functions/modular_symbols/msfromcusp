@@ -34,7 +34,7 @@ Doc: returns the modular symbol attached to the cusp
  ? mseval(M,s)
  %7 = [-x^6, -6*x^5 - 15*x^4 - 20*x^3 - 15*x^2 - 6*x - 1]
  @eprog
- In case $M$ was initialized with a non-zero \emph{sign}, the symbol is given
+ In case $M$ was initialized with a nonzero \emph{sign}, the symbol is given
  in terms of the fixed basis of the whole symbol space, not the $+$ or $-$
  part (to which it need not belong).
  \bprog

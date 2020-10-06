@@ -5,7 +5,7 @@ Prototype: GDEDE
 Help: if(a,{seq1},{seq2}): if a is nonzero, seq1 is evaluated, otherwise seq2.
  seq1 and seq2 are optional, and if seq2 is omitted, the preceding comma can
  be omitted also.
-Doc: evaluates the expression sequence \var{seq1} if $a$ is non-zero, otherwise
+Doc: evaluates the expression sequence \var{seq1} if $a$ is nonzero, otherwise
  the expression \var{seq2}. Of course, \var{seq1} or \var{seq2} may be empty:
 
  \kbd{if ($a$,\var{seq})} evaluates \var{seq} if $a$ is not equal to zero

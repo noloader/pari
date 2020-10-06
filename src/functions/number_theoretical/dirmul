@@ -13,7 +13,7 @@ Doc: $x$ and $y$ being vectors of perhaps different lengths representing
  @eprog\noindent
  The product
  length is the minimum of $\kbd{\#}x\kbd{*}v(y)$ and $\kbd{\#}y\kbd{*}v(x)$,
- where $v(x)$ is the index of the first non-zero coefficient.
+ where $v(x)$ is the index of the first nonzero coefficient.
  \bprog
  ? dirmul([0,1], [0,1]);
  %2 = [0, 0, 0, 1]

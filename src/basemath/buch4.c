@@ -133,7 +133,7 @@ quad_char(GEN nf, GEN t, GEN pr)
   }
   return kronecker(t, p);
 }
-/* quad_char(x), x in Z, non-zero mod p */
+/* quad_char(x), x in Z, nonzero mod p */
 static long
 Z_quad_char(GEN x, GEN pr)
 {
@@ -406,7 +406,7 @@ hilb2nf(GEN nf,GEN a,GEN b,GEN p)
   return gc_long(av, nf_hyperell_locally_soluble(nf,pol,p)? 1: -1);
 }
 
-/* local quadratic Hilbert symbol (a,b)_pr, for a,b (non-zero) in nf */
+/* local quadratic Hilbert symbol (a,b)_pr, for a,b (nonzero) in nf */
 static long
 nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
 {
@@ -441,7 +441,7 @@ nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
 /* Global quadratic Hilbert symbol (a,b):
  *  =  1 if X^2 - aY^2 - bZ^2 has a point in projective plane
  *  = -1 otherwise
- * a, b should be non-zero */
+ * a, b should be nonzero */
 long
 nfhilbert(GEN nf, GEN a, GEN b)
 {

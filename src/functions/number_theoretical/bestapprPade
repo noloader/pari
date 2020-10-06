@@ -11,7 +11,7 @@ Doc: using variants of the extended Euclidean algorithm (Pad\'{e}
  by $B$, if present. If $B$ is omitted, return the best approximation
  affordable given the input accuracy; if you are looking for true rational
  functions, presumably approximated to sufficient accuracy, you should first
- try that option. Otherwise, $B$ must be a non-negative real
+ try that option. Otherwise, $B$ must be a nonnegative real
  (impose $0 \leq \text{degree}(b) \leq B$).
 
  \item If $x$ is a \typ{POLMOD} modulo $N$ this function performs rational

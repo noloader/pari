@@ -282,7 +282,7 @@ addrr_sign(GEN x, long sx, GEN y, long sy)
     if (i==lx) return real_0_bit(ey+1 - prec2nbits(lx));
     f2 = (uel(y,i) > uel(x,i));
   }
-  /* result is non-zero. f2 = (y > x) */
+  /* result is nonzero. f2 = (y > x) */
   i = lz-1; z = cgetr(lz);
   if (f2)
   {

@@ -36,7 +36,7 @@ pari_kernel_version(void) { return ""; }
 #define LIMBS(x)  ((x)+2)
 #define NLIMBS(x) (lgefint(x)-2)
 
-/* Normalize a non-negative integer */
+/* Normalize a nonnegative integer */
 GEN
 int_normalize(GEN x, long known_zero_words)
 {
@@ -823,7 +823,7 @@ TRIVIAL:
     if (z) *z = icopy(x);
     return gen_0;
   }
-DIVIDE: /* quotient is non-zero */
+DIVIDE: /* quotient is nonzero */
   av=avma; if (sx<0) sy = -sy;
   r1 = new_chunk(lx); sh = bfffo(y[2]);
   if (sh)

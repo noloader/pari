@@ -13,7 +13,7 @@ Doc: \idx{binomial coefficient} $\binom{x}{k}$.
  ? n = 4; vector(n+1, k, binomial(n,k-1))
  %2 = [1, 4, 6, 4, 1]
  @eprog\noindent The argument $k$ may be omitted if $x = n$ is a
- non-negative integer; in this case, return the vector with $n+1$
+ nonnegative integer; in this case, return the vector with $n+1$
  components whose $k+1$-th entry is \kbd{binomial}$(n,k)$
  \bprog
  ? binomial(4)

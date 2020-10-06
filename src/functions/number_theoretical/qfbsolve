@@ -7,7 +7,7 @@ Help: qfbsolve(Q,n,{flag=0}): Solve the equation
  up to the action of the special orthogonal group of Q over the integers.
  Binary digits of flag mean
  1: return all solutions,
- 2: also include non-primitive solutions.
+ 2: also include imprimitive solutions.
 Doc: Solve the equation $Q(x,y)=n$ in coprime integers $x$ and $y$ (primitive
  solutions), where
  $Q$ is a binary quadratic form and $n$ an integer, up to the action of the
@@ -19,9 +19,9 @@ Doc: Solve the equation $Q(x,y)=n$ in coprime integers $x$ and $y$ (primitive
  Binary digits of $\fl$ mean:
  1: return all solutions if set, else a single solution; return $[]$ if
  a single solution is wanted (bit unset) but none exist.
- 2: also include non-primitive solutions.
+ 2: also include imprimitive solutions.
 
- When $\fl = 2$ (return a single solution, possibly non-primitive), the
+ When $\fl = 2$ (return a single solution, possibly imprimitive), the
  algorithm returns a solution with minimal content; in particular, a
  primitive solution exists if and only if one is returned.
 
@@ -35,7 +35,7 @@ Doc: Solve the equation $Q(x,y)=n$ in coprime integers $x$ and $y$ (primitive
  ? qfbsolve(Qfb(1,0,2), 603, 1) \\ all primitive solutions
  %2 = [[5, 17], [-19, -11], [19, -11], [5, -17]]
 
- ? qfbsolve(Qfb(1,0,2), 603, 2) \\ a single, possibly non-primitive solution
+ ? qfbsolve(Qfb(1,0,2), 603, 2) \\ a single, possibly imprimitive solution
  %3 = [5, 17] \\ actually primitive
 
  ? qfbsolve(Qfb(1,0,2), 603, 3) \\ all solutions

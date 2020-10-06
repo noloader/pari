@@ -1307,7 +1307,7 @@ gpvaluation(GEN x, GEN p)
   return v == LONG_MAX? mkoo(): stoi(v);
 }
 
-/* x is non-zero */
+/* x is nonzero */
 long
 u_lvalrem(ulong x, ulong p, ulong *py)
 {
@@ -1494,7 +1494,7 @@ Z_lvalrem_stop(GEN *n, ulong p, int *stop)
   *stop = isless_iu(q,p); return v;
 }
 
-/* x is a non-zero integer, |p| > 1 */
+/* x is a nonzero integer, |p| > 1 */
 long
 Z_pvalrem(GEN x, GEN p, GEN *py)
 {

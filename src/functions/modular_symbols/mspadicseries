@@ -34,7 +34,7 @@ Doc: Let $\Phi$ be the $p$-adic distribution-valued overconvergent symbol
   + (3 + 4*5 + 4*5^2 + O(5^3))*x^3 \
   + (3 + O(5))*x^4 + O(x^5)
  @eprog\noindent
- An example with non-zero Teichm\"uller:
+ An example with nonzero Teichm\"uller:
  \bprog
  ? [M,phi] = msfromell(ellinit("11a1"),1);
  ? Mp = mspadicinit(M, 3,10);

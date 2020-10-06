@@ -4,7 +4,7 @@ C-Name: rnfequation0
 Prototype: GGD0,L,
 Help: rnfequation(nf,pol,{flag=0}): given a pol with coefficients in nf,
  gives an absolute equation z of the number field defined by pol. flag is
- optional, and can be 0: default, or non-zero, gives [z,al,k], where
+ optional, and can be 0: default, or nonzero, gives [z,al,k], where
  z defines the absolute equation L/Q as in the default behavior,
  al expresses as an element of L a root of the polynomial
  defining the base field nf, and k is a small integer such that
@@ -28,7 +28,7 @@ Doc: given a number field
  %2 = x^6 + 108  \\ Galois closure of Q(2^(1/3))
  @eprog
 
- If $\fl$ is non-zero, outputs a 3-component row vector $[z,a,k]$, where
+ If $\fl$ is nonzero, outputs a 3-component row vector $[z,a,k]$, where
 
  \item $z$ is the absolute equation of $L$ over $\Q$, as in the default
  behavior,

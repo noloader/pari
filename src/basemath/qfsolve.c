@@ -423,7 +423,7 @@ blocks4(GEN G, long d, long n, GEN *A, GEN *B, GEN *C)
  * Returns [G',U,factd] with U in GLn(Q) such that G'=U~*G*U*constant
  * is integral and has minimal determinant.
  * In dimension 3 or 4, may return a prime p if the reduction at p is
- * impossible because of local non-solvability.
+ * impossible because of local nonsolvability.
  * P,E = factor(+/- det(G)), "prime" -1 is ignored. Destroy E. */
 static GEN qfsolvemodp(GEN G, GEN p);
 static GEN
@@ -547,7 +547,7 @@ qfminimize(GEN G, GEN P, GEN E)
     }
 
     /* Minimization was not possible so far. */
-    /* If n == 3 or 4, this proves the local non-solubility at p. */
+    /* If n == 3 or 4, this proves the local nonsolubility at p. */
     if (n == 3 || n == 4)
     {
       if (DEBUGLEVEL >= 1) err_printf(" no local solution at %Ps\n",p);
@@ -622,7 +622,7 @@ qfbsqrt(GEN D, GEN q, GEN P, GEN E)
     return qfb(D, c, shifti(negi(b),1), shifti(a,1));
 }
 
-/* \prod gen[i]^e[i] as a Qfb, e in {0,1}^n non-zero */
+/* \prod gen[i]^e[i] as a Qfb, e in {0,1}^n nonzero */
 static GEN
 qfb_factorback(GEN D, GEN gen, GEN e)
 {

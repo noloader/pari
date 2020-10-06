@@ -41,7 +41,7 @@ check_quaddisc_imag(GEN x, long *r, const char *f)
 }
 
 /* X^2 + b X + c is the canonical quadratic t_POL of discriminant D.
- * Dodd is non-zero iff D is odd */
+ * Dodd is nonzero iff D is odd */
 static void
 quadpoly_bc(GEN D, long Dodd, GEN *b, GEN *c)
 {

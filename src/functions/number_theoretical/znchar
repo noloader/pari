@@ -10,7 +10,7 @@ Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
 
  The following possibilities for $D$ are supported
 
- \item a non-zero \typ{INT} congruent to $0,1$ modulo $4$, return the real
+ \item a nonzero \typ{INT} congruent to $0,1$ modulo $4$, return the real
  character modulo $D$ given by the Kronecker symbol $(D/.)$;
 
  \item a \typ{INTMOD} \kbd{Mod(m, N)}, return the Conrey character

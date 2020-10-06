@@ -2,9 +2,9 @@
 [85997496, [42998748, 2], [[408188227, 99620635; 0, 1], [2, 1; 0, 1]]]
 12.340047278667903334059769086970462209
 4.1894250945222025884896456921310573069
-  *** bnfinit: Warning: non-monic polynomial in bnfinit, using polredbest.
+  *** bnfinit: Warning: nonmonic polynomial in bnfinit, using polredbest.
 [1, [], []]
-  *** bnfinit: Warning: non-monic polynomial in bnfinit, using polredbest.
+  *** bnfinit: Warning: nonmonic polynomial in bnfinit, using polredbest.
 [1, [], []]
 [2, -1]
 512
@@ -108,4 +108,4 @@ Mat([0, 0, 0, -2, 0]), 2]]], [[0]~, Mat(1)]]], [[2], Vecsmall([1]), Mat(1/2)
 38231520
 23095900
 352
-Total time spent: 16134
+Total time spent: 20902

@@ -1303,7 +1303,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       Appendy(&pl[0],&pl[1],yr);
     }
   }
-  else /* non-recursive plot */
+  else /* nonrecursive plot */
   {
     GEN V, X = cgetg(N+1, t_VEC);
     for (i = 1; i <= N; i++) { gel(X,i) = x; x = addrr(x,dx); }
@@ -1348,7 +1348,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
         Appendy(&pl[0], &pl[1], gtodouble(gel(V,i)));
         pl[0].d[i-1] = gtodouble(gel(X,i));
       }
-    else /* vector of non-parametric curves */
+    else /* vector of nonparametric curves */
       for (i = 1; i <= N; i++)
       {
         t = gel(V,i);

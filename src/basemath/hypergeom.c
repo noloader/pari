@@ -490,7 +490,7 @@ zind(GEN z, long ind)
   return z;
 }
 
-/* z not 0 or 1, c not a non-positive integer */
+/* z not 0 or 1, c not a nonpositive integer */
 static long
 F21ind(GEN a, GEN b, GEN c, GEN z)
 {
@@ -576,7 +576,7 @@ F21finitetaylor(long m, GEN b, GEN c, GEN z, long prec)
   return S;
 }
 
-/* c not a non-positive integer */
+/* c not a nonpositive integer */
 static GEN
 F21finite_i(long m, GEN b, GEN c, GEN z, GEN B, GEN C, GEN coe, long prec)
 {
@@ -584,7 +584,7 @@ F21finite_i(long m, GEN b, GEN c, GEN z, GEN B, GEN C, GEN coe, long prec)
               F21finitetaylor(m, b, c, z, prec));
 }
 
-/* c not a non-positive integer */
+/* c not a nonpositive integer */
 static GEN
 F21finite(long m, GEN b, GEN c, GEN z, long prec)
 {
@@ -594,7 +594,7 @@ F21finite(long m, GEN b, GEN c, GEN z, long prec)
   if (ind < 0)
   {
     b1 = bind(a, b, c, inda);
-    c1 = cind(a, b, c, inda); /* not a non-positive integer */
+    c1 = cind(a, b, c, inda); /* not a nonpositive integer */
   }
   switch (inda)
   {
@@ -681,7 +681,7 @@ F21taylor[16]: if b-a integer, calls FBaux1, else calls FBaux2
 F21taylorlim: calls precFtaylor then compute
 F21finitelim: direct */
 static GEN F21taylorind(GEN a, GEN b, GEN c, GEN z, long ind, long prec);
-/* c not a non-positive integer */
+/* c not a nonpositive integer */
 static GEN
 F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
 {
@@ -702,7 +702,7 @@ F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
     GEN tmp = gpow(gsubsg(1, z), gneg(gaddsg(m, b)), prec);
     return gmul(tmp, F21finite(m, gsub(c, b), c, z, prec));
   }
-  /* Here a, b, c, c-a, c-b are not non-positive integers */
+  /* Here a, b, c, c-a, c-b are not nonpositive integers */
   ind = F21ind(a, b, c, z);
   if (ind < 0) return gmul(ggamma(c, prec), F21taylorind(a,b,c, z, ind, prec));
   if (gsigne(real_i(b)) <= 0)

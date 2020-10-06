@@ -676,7 +676,7 @@ F2m_F2c_invimage(GEN A, GEN y)
     Released under the GNU General Public License v2 or later version.
 */
 
-/* F2Ms are vector of vecsmall which represents non-zero entries of columns
+/* F2Ms are vector of vecsmall which represents nonzero entries of columns
  * F2w are vecsmall whoses entries are columns of a n x BIL F2m
  * F2wB are F2w in the special case where dim = BIL.
  */

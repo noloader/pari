@@ -283,7 +283,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
 
   i = lig = li-1; col = co-1; lk0 = k0;
   T = (k0 || (lg(C) > 1 && lgcols(C) > 1))? matid(col): NULL;
-  /* Look for lines with a single non-0 entry, equal to 1 in absolute value */
+  /* Look for lines with a single nonzero entry, equal to 1 in absolute value */
   while (i > lk0 && col)
     switch( count(mat,perm[i],col,&n) )
     {
@@ -301,7 +301,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
           if (T)
           {
             p1 = gel(T,col);
-            for (i=1; ; i++) /* T is a permuted identity: single non-0 entry */
+            for (i=1; ; i++) /* T = permuted identity: single nonzero entry */
               if (signe(gel(p1,i))) { togglesign_safe(&gel(p1,i)); break; }
           }
         }
@@ -322,7 +322,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
       if (count(mat,perm[i],col,&n) > 0) break;
     if (i == lk0) break;
 
-    /* only 0, +/- 1 entries, at least 2 of them non-zero */
+    /* only 0, +/- 1 entries, at least 2 of them nonzero */
     lswap(perm[i], perm[lig]);
     swap(gel(mat,n), gel(mat,col)); p = gel(mat,col);
     if (T) swap(gel(T,n), gel(T,col));
@@ -444,7 +444,7 @@ END2: /* clean up mat: remove everything to the right of the 1s on diagonal */
   if (DEBUGLEVEL>5) err_printf("    matb cleaned up (using Id block)\n");
 
   nlze = lk0 - k0;  /* # of 0 rows */
-  lnz = lig-nlze+1; /* 1 + # of non-0 rows (!= 0...0 1 0 ... 0) */
+  lnz = lig-nlze+1; /* 1 + # of nonzero rows (!= 0...0 1 0 ... 0) */
   if (T) matt = ZM_mul(matt,T); /* update top rows */
   extramat = cgetg(col+1,t_MAT); /* = new C minus the 0 rows */
   for (j=1; j<=col; j++)
@@ -453,7 +453,7 @@ END2: /* clean up mat: remove everything to the right of the 1s on diagonal */
     GEN t = (gel(matb,j)) + nlze - k0;
     p2=cgetg(lnz,t_COL); gel(extramat,j) = p2;
     for (i=1; i<=k0; i++) gel(p2,i) = gel(z,i); /* top k0 rows */
-    for (   ; i<lnz; i++) gel(p2,i) = gel(t,i); /* other non-0 rows */
+    for (   ; i<lnz; i++) gel(p2,i) = gel(t,i); /* other nonzero rows */
   }
   if (!col) {
     permpro = identity_perm(lnz);
@@ -1545,7 +1545,7 @@ Minus(long j, GEN lambda)
   for (k=j+1; k<n; k++) togglesign_safe(&gcoeff(lambda,j,k));
 }
 
-/* index of first non-zero entry */
+/* index of first nonzero entry */
 static long
 findi(GEN M)
 {
@@ -2829,7 +2829,7 @@ ZV_snfall(GEN D, GEN *pU, GEN *pV)
       if (V) ZV_togglesign(gel(V,j));
     }
   }
-  /* entries are non-negative integers */
+  /* entries are nonnegative integers */
   p = gen_indexsort(D, NULL, &negcmpii);
   D = vecpermute(D, p);
   if (U) U = vecpermute(U, p);

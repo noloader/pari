@@ -16,7 +16,7 @@ Doc: let $\var{nf}$ be a
   ? nf = nfinit(x^2+1);
   ? L = nfgaloisconj(nf)
   %2 = [-x, x]~
-  ? aut = L[1]; /* the non-trivial automorphism */
+  ? aut = L[1]; /* the nontrivial automorphism */
   ? nfgaloisapply(nf, aut, x)
   %4 = Mod(-x, x^2 + 1)
   ? P = idealprimedec(nf,5); /* prime ideals above 5 */

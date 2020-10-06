@@ -11,7 +11,7 @@ Doc: Initalization function for evaluating the $m$-th derivative of theta
 
  \item a positive real scalar $\rho$: $t$ is real, $t \geq \rho$.
 
- \item a non-real complex number: compute at this particular $t$; this
+ \item a nonreal complex number: compute at this particular $t$; this
  allows to compute $\theta(z)$ for any complex $z$ satisfying $|z|\geq |t|$
  and $|\arg z| \leq |\arg t|$; we must have $|2 \arg z / d| < \pi/2$, where
  $d$ is the degree of the $\Gamma$ factor.

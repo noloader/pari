@@ -5,7 +5,7 @@ Prototype: GGDGD0,L,
 Help: idealfactorback(nf,f,{e},{flag = 0}): given a factorization f, gives the
  ideal product back. If e is present, f has to be a
  vector of the same length, and we return the product of the f[i]^e[i]. If
- flag is non-zero, perform idealred along the way.
+ flag is nonzero, perform idealred along the way.
 Doc: gives back the ideal corresponding to a factorization. The integer $1$
  corresponds to the empty factorization.
  If $e$ is present, $e$ and $f$ must be vectors of the same length ($e$ being
@@ -37,7 +37,7 @@ Doc: gives back the ideal corresponding to a factorization. The integer $1$
  ? % == idealhnf(nf, 4 + 2*y)
  %4 = 1
  @eprog
- If \kbd{flag} is non-zero, perform ideal reductions (\tet{idealred}) along the
+ If \kbd{flag} is nonzero, perform ideal reductions (\tet{idealred}) along the
  way. This is most useful if the ideals involved are all \emph{extended}
  ideals (for instance with trivial principal part), so that the principal parts
  extracted by \kbd{idealred} are not lost. Here is an example:

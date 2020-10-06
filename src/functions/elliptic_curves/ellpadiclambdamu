@@ -32,7 +32,7 @@ Doc: Let $p$ be a prime number and let $E/\Q$ be a rational elliptic curve
  where $\xi_n = \kbd{polcyclo}(p^n, 1+X)$.
  Let $\lambda_n,\mu_n$ be the invariants of $P_n$. We find that
 
- \item $\mu_n$ is non-negative and decreasing for $n$ of given parity hence
+ \item $\mu_n$ is nonnegative and decreasing for $n$ of given parity hence
  $\mu_{2n}$ tends to a limit $\mu^+$ and $\mu_{2n+1}$ tends to a limit
  $\mu^-$ (both conjecturally $0$).
 

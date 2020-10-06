@@ -16,7 +16,7 @@ Doc: Let $\Delta_0:=\text{Div}^0(\P^1 (\Q))$.
 
  \item a \typ{COL} coding a modular symbol in terms of
  the fixed basis of $\Hom_G(\Delta_0,V)$ chosen in $M$; if $M$ was
- initialized with a non-zero \emph{sign} ($+$ or $-$), then either the
+ initialized with a nonzero \emph{sign} ($+$ or $-$), then either the
  basis for the full symbol space or the $\pm$-part can be used (the dimension
  being used to distinguish the two).
 

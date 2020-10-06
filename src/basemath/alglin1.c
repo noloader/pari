@@ -2380,7 +2380,7 @@ gauss_get_pivot_NZ(GEN X, GEN x0/*unused*/, long ix, GEN c)
  * (first non zero pivot, maximal pivot...)
  * x0 is a reference point used when guessing whether x[i,j] ~ 0
  * (iff x[i,j] << x0[i,j]); typical case: mateigen, Gauss pivot on x - vp.Id,
- * but use original x when deciding whether a prospective pivot is non-0 */
+ * but use original x when deciding whether a prospective pivot is nonzero */
 static pivot_fun
 get_pivot_fun(GEN x, GEN x0, GEN *data)
 {
@@ -3659,7 +3659,7 @@ deplin(GEN x)
 /* return the transform of x under a standard Gauss pivot.
  * x0 is a reference point when guessing whether x[i,j] ~ 0
  * (iff x[i,j] << x0[i,j])
- * Set r = dim ker(x). d[k] contains the index of the first non-zero pivot
+ * Set r = dim ker(x). d[k] contains the index of the first nonzero pivot
  * in column k */
 static GEN
 gauss_pivot_ker(GEN x, GEN x0, GEN *dd, long *rr)
@@ -3707,7 +3707,7 @@ gauss_pivot_ker(GEN x, GEN x0, GEN *dd, long *rr)
 
 /* r = dim ker(x).
  * Returns d:
- *   d[k] != 0 contains the index of a non-zero pivot in column k
+ *   d[k] != 0 contains the index of a nonzero pivot in column k
  *   d[k] == 0 if column k is a linear combination of the (k-1) first ones */
 GEN
 RgM_pivots(GEN x0, GEN data, long *rr, pivot_fun pivot)
@@ -5236,7 +5236,7 @@ det_bareiss(GEN a)
   return gerepileupto(av, p);
 }
 
-/* count non-zero entries in col j, at most 'max' of them.
+/* count nonzero entries in col j, at most 'max' of them.
  * Return their indices */
 static GEN
 col_count_non_zero(GEN a, long j, long max)
@@ -5252,7 +5252,7 @@ col_count_non_zero(GEN a, long j, long max)
     }
   setlg(v, k); return v;
 }
-/* count non-zero entries in row i, at most 'max' of them.
+/* count nonzero entries in row i, at most 'max' of them.
  * Return their indices */
 static GEN
 row_count_non_zero(GEN a, long i, long max)

@@ -52,8 +52,8 @@ Doc: estimate the cost of running
  %4 = [[16, 242], [16, 242], [7, 242]]
  @eprog\noindent The Dedekind function of this abelian quartic field
  is the product of four Dirichlet $L$-functions attached to the trivial
- character, a non-trivial real character and two complex conjugate
- characters. The non-trivial characters happen to have the same conductor
+ character, a nontrivial real character and two complex conjugate
+ characters. The nontrivial characters happen to have the same conductor
  (hence same evaluation costs), and correspond to two evaluations only
  since the two conjugate characters are evaluated simultaneously.
  For a total of three $L$-functions evaluations, which explains the three

@@ -105,7 +105,7 @@ Doc:
  is $k$, $N$ is the conductor, and $r$ describes the polar part of $L(s)$.
  This is obtained via the function \tet{lfuncreate}. N.B. For motivic
  $L$-functions, the motivic weight $w$ is $w = k-1$; but we also support
- non-motivic $L$-functions.
+ nonmotivic $L$-functions.
 
  \misctitle{Technical note} When some components of an \kbd{Ldata} cannot be
  given exactly, usually $r$ or $\epsilon$, the \kbd{Ldata} may be given as a
@@ -169,7 +169,7 @@ Doc:
 
  Given a Dirichlet character $\chi:(\Z/N\Z)^*\to \C$, we let
  $$L(\chi, s) = \sum_{n\geq 1} \chi(n) n^{-s}.$$
- Only primitive characters are supported. Given a non-zero
+ Only primitive characters are supported. Given a nonzero
  integer $D$, the \typ{INT} $D$ encodes the function $L((D_0/.), s)$, for the
  quadratic Kronecker symbol attached to the fundamental discriminant
  $D_0 = \kbd{coredisc}(D)$. This includes Riemann $\zeta$ function via the
@@ -202,7 +202,7 @@ Doc:
  or a Conrey logarithm (see \tet{znconreylog}), and the latter format is
  actually the fastest one. Instead
  of a single character as above, one may use the construction
- \kbd{lfuncreate([G, vchi])} where \kbd{vchi} is a non-empty vector of
+ \kbd{lfuncreate([G, vchi])} where \kbd{vchi} is a nonempty vector of
  characters \emph{of the same conductor} (more precisely, whose attached
  primitive characters have the same conductor) and \emph{same parity}.
  The function is then vector-valued, where the values are ordered as the
@@ -215,7 +215,7 @@ Doc:
  over $K = \Q$ (see below), for a modulus $[N, [1]]$ but this is both more
  complicated and less efficient.
 
- In all cases, a non-primitive character is replaced by the attached primitive
+ In all cases, a nonprimitive character is replaced by the attached primitive
  character.
 
  \subsec{Hecke $L$-functions} %GPHELPskip
@@ -253,7 +253,7 @@ Doc:
  For even characters, replace by \kbd{bnrinit(K, N)}. Note that the simpler
  direct construction in the previous section will be more efficient. Instead
  of a single character as above, one may use the construction
- \kbd{lfuncreate([Cf, vchi])} where \kbd{vchi} is a non-empty vector of
+ \kbd{lfuncreate([Cf, vchi])} where \kbd{vchi} is a nonempty vector of
  characters \emph{of the same conductor} (more precisely, whose attached
  primitive characters have the same conductor). The function is then
  vector-valued, where the values are ordered as the characters in \kbd{vchi}.

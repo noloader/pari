@@ -226,7 +226,7 @@ FlxqE_mul(GEN P, GEN n, GEN a4, GEN T, ulong p)
 
 /* 3*x^2+2*a2*x = -a2*x, and a2!=0 */
 
-/* Finds a random non-singular point on E */
+/* Finds a random nonsingular point on E */
 static GEN
 random_F3xqE(GEN a2, GEN a6, GEN T)
 {
@@ -244,7 +244,7 @@ random_F3xqE(GEN a2, GEN a6, GEN T)
   return gerepilecopy(ltop, mkvec2(x, y));
 }
 
-/* Finds a random non-singular point on E */
+/* Finds a random nonsingular point on E */
 GEN
 random_FlxqE(GEN a4, GEN a6, GEN T, ulong p)
 {

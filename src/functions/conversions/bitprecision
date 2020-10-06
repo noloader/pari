@@ -28,7 +28,7 @@ Doc: the function behaves differently according to whether $n$ is
  done componentwise; for series and polynomials, the operation is done
  coefficientwise. For real $x$, $n$ is the number of desired significant
  \emph{bits}. If $n$ is smaller than the precision of $x$, $x$ is truncated,
- otherwise $x$ is extended with zeros. For exact or non-floating point types,
+ otherwise $x$ is extended with zeros. For exact or non-floating-point types,
  no change.
  \bprog
  ? bitprecision(Pi, 10)    \\ actually 64 bits ~ 19 decimal digits

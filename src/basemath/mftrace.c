@@ -714,7 +714,7 @@ mfchargalois(long N, int odd, GEN flagorder)
   }
   setlg(L, j); return L;
 }
-/* possible characters for non-trivial S_1(N, chi) */
+/* possible characters for nontrivial S_1(N, chi) */
 static GEN
 mfwt1chars(long N, GEN vCHI)
 {
@@ -2022,7 +2022,7 @@ mflinear_linear(GEN F, GEN L, int strip)
   if (strip && !mflinear_strip(&vF,&L)) return mftrivial();
   return taglinear(vecmfNK(vF), vF, L);
 }
-/* F non-empty vector of forms of the form mfdiv(mflinear(B,v), E) where E
+/* F nonempty vector of forms of the form mfdiv(mflinear(B,v), E) where E
  * does not vanish at oo, or mflinear(B,v). Apply mflinear(F, L) */
 static GEN
 mflineardiv_linear(GEN F, GEN L, int strip)
@@ -2637,7 +2637,7 @@ static long
 myh(long D)
 {
   ulong z = (ulong)cache_get(cache_H, -D);
-  if (z) return z/6; /* should be hfromH(-D) if D non-fundamental */
+  if (z) return z/6; /* should be hfromH(-D) if D nonfundamental */
   return itou(quadclassno(stoi(D)));
 }
 
@@ -3259,7 +3259,7 @@ mkmup(long N)
   return MUP;
 }
 
-/* quadratic non-residues mod p; p odd prime, p^2 fits in a long */
+/* quadratic nonresidues mod p; p odd prime, p^2 fits in a long */
 static GEN
 non_residues(long p)
 {
@@ -3271,7 +3271,7 @@ non_residues(long p)
 }
 
 /* CHIP primitive. Return t_VECSMALL v of length q such that
- * Tr^new_{N,CHIP}(n) = 0 whenever v[(n%q) + 1] is non-zero */
+ * Tr^new_{N,CHIP}(n) = 0 whenever v[(n%q) + 1] is nonzero */
 static GEN
 mfnewzerodata(long N, GEN CHIP)
 {
@@ -4125,7 +4125,7 @@ RgC_Bd_expand(long m0, long m, GEN v, long d, long m0d)
   for (; j <= m; i++, j += d) gel(w,j-m0+1) = gel(v,i+1);
   return w;
 }
-/* S a non-empty vector of t_MF_BD(t_MF_HECKE(t_MF_NEWTRACE)); M the matrix
+/* S a nonempty vector of t_MF_BD(t_MF_HECKE(t_MF_NEWTRACE)); M the matrix
  * of their coefficients r*0, r*1, ..., r*m0 (~ mfvectomat) or NULL (empty),
  * extend it to coeffs up to m > m0. The forms B_d(T_j(tf_N))in S should be
  * sorted by level N, then j, then increasing d. No reordering here. */
@@ -5135,12 +5135,12 @@ MF_get_fields(GEN mf) { return gel(obj_checkbuild(mf,MF_SPLIT,&split),2); }
 /*                     Modular forms of Weight 1                         */
 /*************************************************************************/
 /* S_1(G_0(N)), small N. Return 1 if definitely empty; return 0 if maybe
- * non-empty  */
+ * nonempty  */
 static int
 wt1empty(long N)
 {
   if (N <= 100) switch (N)
-  { /* non-empty [32/100] */
+  { /* nonempty [32/100] */
     case 23: case 31: case 39: case 44: case 46:
     case 47: case 52: case 55: case 56: case 57:
     case 59: case 62: case 63: case 68: case 69:
@@ -5343,7 +5343,7 @@ mfconreyminimize(GEN CHI)
   return zv_cyc_minimize(cyc, chi, coprimes_zv(mfcharorder(CHI)));
 }
 
-/* find scalar c such that first non-0 entry of c*v is 1; return c*v
+/* find scalar c such that first nonzero entry of c*v is 1; return c*v
  * (set c = NULL for 1) */
 static GEN
 RgV_normalize(GEN v, GEN *pc)
@@ -5573,7 +5573,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
     }
     A = RgM_mul(A, vecslice(VC,1, lg(Ar)-1));
   }
-  a0 = gel(ES1,2); /* non-zero */
+  a0 = gel(ES1,2); /* nonzero */
   if (gequal1(a0)) a0 = a0i = NULL;
   else
   {
@@ -6164,7 +6164,7 @@ dihan(GEN bnr, GEN w, GEN k0j, ulong lim)
       }
     }
   }
-  /* complete with non-prime powers */
+  /* complete with nonprime powers */
   for (n = 2; n <= lim; n++)
   {
     GEN S, fa = myfactoru(n), P = gel(fa, 1), E = gel(fa, 2);
@@ -6995,7 +6995,7 @@ getembed(GEN P, GEN T, GEN zcyclo, long prec)
     for (i = 1; i < l; i++) gel(v,i) = mkcol3(P,zcyclo,gel(v,i));
   }
   else if (T)
-  { /* Q(y) / (T(y)), T non-cyclotomic */
+  { /* Q(y) / (T(y)), T noncyclotomic */
     GEN vr = ZX_roots(T, prec);
     v = rootspowers(vr); l = lg(v);
     for (i = 1; i < l; i++) gel(v,i) = mkcol2(T, gel(v,i));
@@ -7143,7 +7143,7 @@ evalcusp(GEN mf, GEN F, GEN t, long prec)
 }
 /* Evaluate an mf closure numerically, i.e., in the usual sense, either for a
  * single tau or a vector of tau; for each, return a vector of results
- * corresponding to all complex embeddings of F. If flag is non-zero, allow
+ * corresponding to all complex embeddings of F. If flag is nonzero, allow
  * replacing F by F | gamma to increase imag(gamma^(-1).tau) [ expensive if
  * MF_EISENSPACE not present ] */
 static GEN
@@ -7531,7 +7531,7 @@ myusqrt(ulong a, long prec)
   if (uissquareall(a, &a)) return utoipos(a);
   return sqrtr_abs(utor(a, prec));
 }
-/* Assume mf is a non-trivial new space, rational primitive character CHIP
+/* Assume mf is a nontrivial new space, rational primitive character CHIP
  * and (Q,FC) = 1 */
 static GEN
 mfatkinmatnewquad(GEN mf, GEN CHIP, long Q, long flag, long PREC)
@@ -8090,7 +8090,7 @@ mfgaexpansionatkin(GEN mf, GEN F, GEN C, GEN D, long Q, long n, long prec)
   long i, FC, k = MF_get_k(mf);
   GEN x, v, V, z, s, CHI = mfchartoprimitive(MF_get_CHI(mf), &FC);
 
-  /* V = mfcoefs(F | w_Q, n), can't use mfatkin because MQ non-rational */
+  /* V = mfcoefs(F | w_Q, n), can't use mfatkin because MQ nonrational */
   V = RgM_RgC_mul(mfcoefs_mf(mf,n,1), RgM_RgC_mul(MQ, mftobasis_i(mf,F)));
   (void)bezout(utoipos(Q), C, &x, &v);
   s = mfchareval(CHI, (umodiu(x, FC) * umodiu(D, FC)) % FC);

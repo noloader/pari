@@ -16,7 +16,7 @@ Doc: number of distinct real roots of the real polynomial \var{T}. If
  and the result may be wrong due to that initial error. If only $a$ or $b$ is
  inexact, on the other hand, the interval is first thickened using rational
  endpoints and the result remains guaranteed unless there exist a root
- \emph{very} close to a non-rational endpoint (which may be missed or unduly
+ \emph{very} close to a nonrational endpoint (which may be missed or unduly
  included).
  \bprog
  ? T = (x-1)*(x-2)*(x-3);

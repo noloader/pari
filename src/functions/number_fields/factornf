@@ -14,7 +14,7 @@ Doc: This function is obsolete, use \kbd{nffactor}.
  in general faster.
 
  The main variable of $t$ must be of \emph{lower} priority than that of $x$
- (see \secref{se:priority}). However if non-rational number field elements
+ (see \secref{se:priority}). However if nonrational number field elements
  occur (as polmods or polynomials) as coefficients of $x$, the variable of
  these polmods \emph{must} be the same as the main variable of $t$. For
  example

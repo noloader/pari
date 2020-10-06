@@ -61,7 +61,7 @@ Doc: returns the \kbd{Ldata} structure attached to the
  %13 ~ 0
  ? bnr = bnrinit(bnfinit(x^2+47),1,1);
  ? bnr.cyc
- %15 = [5] \\ Z/5Z: 4 non-trivial ray class characters
+ %15 = [5] \\ Z/5Z: 4 nontrivial ray class characters
  ? lfun([bnr,[1]], s) - lfun(L3, s)
  %16 ~ 0
  ? lfun([bnr,[2]], s) - lfun(L4, s)
@@ -71,7 +71,7 @@ Doc: returns the \kbd{Ldata} structure attached to the
  ? lfun([bnr,[4]], s) - lfun(L4, s)
  %19 ~ 0
  @eprog
- The first identity identifies the non-trivial abelian character with
+ The first identity identifies the nontrivial abelian character with
  $(-47,\cdot)$; the second is the factorization of the regular representation of
  $D_{10}$; the third is the factorization of the natural representation of
  $D_{10}\subset S_5$; and the final four are the expressions of the degree $2$

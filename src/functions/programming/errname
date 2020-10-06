@@ -9,7 +9,7 @@ Doc: returns the type of the error message \kbd{E} as a string.
  e_INV
  ? ?? e_INV
  [...]
- * "e_INV".  Tried to invert a non-invertible object x in function s.
+ * "e_INV".  Tried to invert a noninvertible object x in function s.
  [...]
  @eprog
 Description:

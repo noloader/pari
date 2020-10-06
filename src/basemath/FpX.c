@@ -31,7 +31,7 @@ get_FpX_red(GEN T, GEN *B)
 
 /* FpX are polynomials over Z/pZ represented as t_POL with
  * t_INT coefficients.
- * 1) Coefficients should belong to {0,...,p-1}, though non-reduced
+ * 1) Coefficients should belong to {0,...,p-1}, though nonreduced
  * coefficients should work but be slower.
  *
  * 2) p is not assumed to be prime, but it is assumed that impossible divisions

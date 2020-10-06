@@ -22,7 +22,7 @@ Doc: initialize tables for $n$-point Gauss-Legendre integration of
  increased as well.
 
  Specifically, the function returns a pair of vectors $[x,w]$, where $x$
- contains the non-negative roots of the $n$-th Legendre polynomial $P_n$ and
+ contains the nonnegative roots of the $n$-th Legendre polynomial $P_n$ and
  $w$ the corresponding Gaussian integration weights
  $Q_n(x_j)/P'_n(x_j) = 2 / ((1-x_j^2)P'_n(x_j))^2$  such that
  $$ \int_{-1}^{1} f(t)\, dt \approx w_j f(x_j)\;. $$

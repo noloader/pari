@@ -100,7 +100,7 @@ ZM_supnorm(GEN x)
 /**                           MULTIPLICATION                       **/
 /**                                                                **/
 /********************************************************************/
-/* x non-empty ZM, y a compatible nc (dimension > 0). */
+/* x nonempty ZM, y a compatible nc (dimension > 0). */
 static GEN
 ZM_nc_mul_i(GEN x, GEN y, long c, long l)
 {
@@ -130,7 +130,7 @@ ZV_zc_mul(GEN x, GEN y)
   return gerepileuptoint(av,s);
 }
 
-/* x non-empty ZM, y a compatible zc (dimension > 0). */
+/* x nonempty ZM, y a compatible zc (dimension > 0). */
 static GEN
 ZM_zc_mul_i(GEN x, GEN y, long c, long l)
 {
@@ -154,7 +154,7 @@ ZM_zc_mul(GEN x, GEN y) {
   return ZM_zc_mul_i(x,y, l, lgcols(x));
 }
 
-/* y non-empty ZM, x a compatible zv (dimension > 0). */
+/* y nonempty ZM, x a compatible zv (dimension > 0). */
 GEN
 zv_ZM_mul(GEN x, GEN y) {
   long i,j, lx = lg(x), ly = lg(y);

@@ -3818,8 +3818,7 @@ zlx_translate1(GEN P, ulong p, long e)
 /**                                                                   **/
 /***********************************************************************/
 /* Fl2 objects are Flv of length 2 [a,b] representing a+bsqrt(D) for
-   a non-square D.
-*/
+ * a nonsquare D. */
 
 INLINE GEN
 mkF2(ulong a, ulong b) { return mkvecsmall2(a,b); }

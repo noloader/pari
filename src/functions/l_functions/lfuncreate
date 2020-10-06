@@ -20,7 +20,7 @@ Doc: This low-level routine creates \tet{Ldata} structures, needed by
  to initialize computations in the rectangular box $\Re(s-c) \leq w$,
  $\Im(s) \leq h$.
 
- We now describe the low-level interface, used to input non-builtin
+ We now describe the low-level interface, used to input nonbuiltin
  $L$-functions. The input is now a $6$ or $7$ component vector
  $V=[a, astar, Vga, k, N, eps, poles]$, whose components are as follows:
 

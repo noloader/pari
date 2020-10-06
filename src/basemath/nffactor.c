@@ -142,11 +142,11 @@ FpM_ratlift(GEN M, GEN mod, GEN amax, GEN bmax, GEN den)
 /*******************************************************************/
 /*              GCD in K[X], K NUMBER FIELD                        */
 /*******************************************************************/
-/* P a non-zero ZXQX */
+/* P a nonzero ZXQX */
 static GEN
 lead_simplify(GEN P)
 {
-  GEN x = gel(P, lg(P)-1); /* x a non-zero ZX or t_INT */
+  GEN x = gel(P, lg(P)-1); /* x a nonzero ZX or t_INT */
   if (typ(x) == t_POL)
   {
     if (degpol(x)) return x;
@@ -330,7 +330,7 @@ RgX_int_normalize(GEN P)
   /* cater for t_POL */
   if (typ(P0) == t_POL)
   {
-    P0 = gel(P0,2); /* non-0 constant */
+    P0 = gel(P0,2); /* nonzero constant */
     P = shallowcopy(P);
     gel(P,lg(P)-1) = P0; /* now leading term is a t_INT */
   }
@@ -340,7 +340,7 @@ RgX_int_normalize(GEN P)
 }
 
 /* discard change of variable if nf is of the form [nf,c] as return by nfinit
- * for non-monic polynomials */
+ * for nonmonic polynomials */
 static GEN
 proper_nf(GEN nf)
 { return (lg(nf) == 3)? gel(nf,1): nf; }
@@ -886,7 +886,7 @@ typedef struct {
   GEN S1, P1;   /* S = S0 + S1 q, idem P */
 } trace_data;
 
-/* S1 * u - P1 * round(P^-1 S u). K non-zero coords in u given by ind */
+/* S1 * u - P1 * round(P^-1 S u). K nonzero coords in u given by ind */
 static GEN
 get_trace(GEN ind, trace_data *T)
 {

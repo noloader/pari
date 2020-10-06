@@ -35,7 +35,7 @@ Doc:
  ? L[10] = 1  \\ can't insert beyond the end of the list
   ***   at top-level: L[10]=1
   ***                  ^------
-  ***   non-existent component: index > 2
+  ***   nonexistent component: index > 2
  ? listput(L, 1, 10) \\ but listput can
  %8 = 1
  ? L

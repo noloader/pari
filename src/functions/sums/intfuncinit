@@ -14,7 +14,7 @@ Doc: initialize tables for use with integral transforms (such as Fourier,
  for some kernel $k(t,z)$.
  The endpoints $a$ and $b$ are coded as in \kbd{intnum}, $f$ is the
  function to which the integral transform is to be applied and the
- non-negative integer $m$ is as in \kbd{intnum}: multiply the number of
+ nonnegative integer $m$ is as in \kbd{intnum}: multiply the number of
  sampling points roughly by $2^m$, hopefully increasing the accuracy. This
  function is particularly useful when the function $f$ is hard to compute,
  such as a gamma product.
