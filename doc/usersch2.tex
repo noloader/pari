@@ -1311,9 +1311,13 @@ attached to values in a given scope.
 
 \subsec{Variable names}\label{se:varname} A valid name starts with a letter,
 followed by any number of keyword characters: \kbd{\_} or alphanumeric
-characters ([\kbd{A-Za-z0-9}]). The built-in function names are reserved and
-cannot be used; see the list with \b{c}, including the constants \kbd{Pi},
-\kbd{Euler}, \kbd{Catalan}, $\kbd{I}=\sqrt{-1}$ and $\kbd{oo} = \infty$.
+characters ([\kbd{A-Za-z0-9}]). As a rule, the built-in function names are
+reserved and cannot be used; see the list with \b{c}, including the constants
+\kbd{Pi}, \kbd{Euler}, \kbd{Catalan}, $\kbd{I}=\sqrt{-1}$ and $\kbd{oo} =
+\infty$. Beware in particular of \kbd{gamma}, \kbd{omega}, \kbd{theta},
+\kbd{sum} or \kbd{O}, none of which are free to use. (We shall see
+in~\secref{se:scope} how this rule can be circumvented. It \emph{is} possible
+to name a \var{lexical} variable \kbd{gamma}.)
 
 GP names are case sensitive. For instance, the symbol \kbd{i} is perfectly
 safe to use, and will not be mistaken for $\kbd{I} = \sqrt{-1}$; analogously,
@@ -1542,6 +1546,15 @@ is unaffected by the introduction of a private variable of the same name in
 binding stack for the \kbd{x} identifier contains two items: the global
 binding to 0, and the binding to 1 introduced in \kbd{h}, which is still
 present on the stack since the control flow has not left \kbd{h} yet.
+
+The rule mentionned in the previous section about built-in function names
+being reserved does \emph{not} apply to lexically scoped variables. Those may
+temporarily shadow an existing function name:
+\bprog
+  my(gamma = 0) ; ...
+@eprog
+Without the \kbd{my}, this would be invalid since \kbd{gamma} is the $\Gamma$
+function.
 
 \subsec{Scoping rules}
 
