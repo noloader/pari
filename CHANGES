@@ -11,6 +11,10 @@ BA   6- printf("%5.2f",M) transposed M [#2252]
      7- bnfinit instability at low accuracy. E.g., at \p38
         P=x^7+22*x^6+184*x^5+764*x^4+2020*x^3+3792*x^2+5712*x+4;
         bnfinit(P,1).no -> 4 times too large
+     8- accuracy problems in bnfisunit after bnfinit(P,1). E.g., at \pb 10240
+        P=x^7-22*x^6+169*x^5-568*x^4+1263*x^3-1506*x^2+2295*x+2;
+        setrand(1); K=bnfinit(P,1); U=bnfunits(K,idealprimedec(K,2));
+        bnfisunit(K,4*(x^2-18*x+85)/x^2*Mod(1,K.pol),U) -> error
 
   Added
      1- examples/pari.f90: example FORTRAN binding

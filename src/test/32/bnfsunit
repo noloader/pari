@@ -1,4 +1,4 @@
-  ***   Warning: new stack size = 20000000 (19.073 Mbytes).
+  ***   Warning: new stack size = 80000000 (76.294 Mbytes).
 [x, x + 1, -x^2 - 1, x^2 - 2*x - 1, 7]
 5.1716650998879371140383798588705766078
 [1, [], []]
@@ -40,4 +40,6 @@
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]~
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]~
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]~
-Total time spent: 864
+   realbitprecision = 10240 significant bits (3082 decimal digits displayed)
+[0, 7, 68, -59, 0, 0]~
+Total time spent: 6297

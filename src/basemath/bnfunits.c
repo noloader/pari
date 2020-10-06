@@ -20,10 +20,10 @@ bnfisunit(GEN bnf, GEN x)
 {
   long tx = typ(x), i, r1, RU, e, n, prec;
   pari_sp av = avma;
-  GEN t, rlog, logunit, ex, nf, pi2_sur_w, rx, emb, arg;
+  GEN t, logunit, ex, nf, pi2_sur_w, rx, emb, arg;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
-  logunit = bnf_get_logfu(bnf); RU = lg(logunit);
+  RU = lg(bnf_get_logfu(bnf));
   n = bnf_get_tuN(bnf); /* # { roots of 1 } */
   if (tx == t_MAT)
   { /* famat, assumed OK */
@@ -43,11 +43,14 @@ bnfisunit(GEN bnf, GEN x)
   }
 
   r1 = nf_get_r1(nf);
-  rlog = real_i(logunit);
   prec = nf_get_prec(nf);
   for (i = 1;; i++)
   {
-    rx = nflogembed(nf,x,&emb, MEDDEFAULTPREC);
+    GEN rlog;
+    nf = bnf_get_nf(bnf);
+    logunit = bnf_get_logfu(bnf);
+    rlog = real_i(logunit);
+    rx = nflogembed(nf,x,&emb, prec);
     if (rx)
     {
       GEN logN = RgV_sum(rx); /* log(Nx), should be ~ 0 */
@@ -72,7 +75,7 @@ bnfisunit(GEN bnf, GEN x)
       prec = precdbl(prec);
     }
     if (DEBUGLEVEL) pari_warn(warnprec,"bnfisunit",prec);
-    nf = nfnewprec_shallow(nf, prec);
+    bnf = bnfnewprec_shallow(bnf, prec);
   }
   /* choose a large embedding => small relative error */
   for (i = 1; i < RU; i++)
