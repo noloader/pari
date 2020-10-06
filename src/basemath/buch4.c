@@ -654,8 +654,6 @@ rnfisnorm(GEN T, GEN x, long flag)
   for (i = 1; i < L; i++) p_append(gel(S,i),H0,NULL);
   S1 = gel(T,6);
   S2 = gel(T,7);
-  if (flag && !gequal0(gel(T,8)))
-    pari_warn(warner,"useless flag in rnfisnorm: the extension is Galois");
   if (flag > 0)
   {
     forprime_t T;
