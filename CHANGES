@@ -8,6 +8,9 @@ Done for version 2.13.0 (released ??/10/2020):
 BA   4- permorder returned incorrect results for large orders
      5- p=[4,54]; lfunmf(mfinit(p,0), mftraceform(p,0)) -> oo loop
 BA   6- printf("%5.2f",M) transposed M [#2252]
+     7- bnfinit instability at low accuracy. E.g., at \p38
+        P=x^7+22*x^6+184*x^5+764*x^4+2020*x^3+3792*x^2+5712*x+4;
+        bnfinit(P,1).no -> 4 times too large
 
   Added
      1- examples/pari.f90: example FORTRAN binding

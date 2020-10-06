@@ -2987,10 +2987,10 @@ bad_check(GEN c)
  *
  * Output: *ptkR = R, *ptU = basis of fundamental units (in terms lambda) */
 static long
-compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
+compute_R(GEN lambda, GEN z, GEN *ptL, GEN *ptkR)
 {
   pari_sp av = avma;
-  long r, reason, RU = lg(lambda) == 1? 1: lgcols(lambda);
+  long bit, r, reason, RU = lg(lambda) == 1? 1: lgcols(lambda);
   GEN L, H, D, den, R, c;
 
   *ptL = NULL;
@@ -2998,31 +2998,24 @@ compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR)
   if (RU == 1) { *ptkR = gen_1; *ptL = lambda; return bad_check(z); }
   D = gmul2n(mpmul(*ptkR,z), 1); /* bound for denom(lambda) */
   if (expo(D) < 0 && rtodbl(D) < 0.95) return fupb_PRECI;
-  lambda = bestappr(lambda,D);
-  if (lg(lambda) == 1)
+  L = bestappr(lambda,D);
+  if (lg(L) == 1)
   {
     if (DEBUGLEVEL) err_printf("truncation error in bestappr\n");
     return fupb_PRECI;
   }
-  den = Q_denom(lambda);
+  den = Q_denom(L);
   if (mpcmp(den,D) > 0)
   {
     if (DEBUGLEVEL) err_printf("D = %Ps\nden = %Ps\n",D, i2print(den));
     return fupb_PRECI;
   }
-  L = Q_muli_to_int(lambda, den);
-  if (bit > 0)
+  bit = -gexpo(gsub(L, lambda)); /* input accuracy */
+  L = Q_muli_to_int(L, den);
+  if (gexpo(L) + expi(den) > bit - 32)
   {
-    if (lg(L) > 1)
-    {
-      if (RU > 5) bit -= 64;
-      else if (RU > 3) bit -= 32;
-    }
-    if (gexpo(L) + expi(den) > bit - 32)
-    {
-      if (DEBUGLEVEL) err_printf("dubious bestappr; den = %Ps\n", i2print(den));
-      return fupb_PRECI;
-    }
+    if (DEBUGLEVEL) err_printf("dubious bestappr; den = %Ps\n", i2print(den));
+    return fupb_PRECI;
   }
   H = ZM_hnf(L); r = lg(H)-1;
   if (!r || r != nbrows(H))
@@ -3602,18 +3595,6 @@ try_elt(RELCACHE_t *cache, FB_t *F, GEN nf, GEN x, FACT *fact)
   set_avma(av);
 }
 
-static long
-scalar_bit(GEN x) { return bit_accuracy(gprecision(x)) - gexpo(x); }
-static long
-RgM_bit(GEN x, long bit)
-{
-  long i, j, m, b = bit, l = lg(x);
-  if (l == 1) return b;
-  m = lgcols(x);
-  for (j = 1; j < l; j++)
-    for (i = 1; i < m; i++ ) b = minss(b, scalar_bit(gcoeff(x,i,j)));
-  return b;
-}
 static void
 matenlarge(GEN C, long h)
 {
@@ -4074,7 +4055,7 @@ START:
     }
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
-    i = compute_R(lambda, mulir(h,invhr), flag? 0: RgM_bit(C, bit), &L, &R);
+    i = compute_R(lambda, mulir(h,invhr), &L, &R);
     if (DEBUGLEVEL)
     {
       err_printf("\n");
