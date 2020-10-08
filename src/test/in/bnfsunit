@@ -46,5 +46,9 @@ foreach(U[1],u,print(bnfisunit(L,u,U)))
 \\ from D. Broadhurst's examples
 P=x^7-22*x^6+169*x^5-568*x^4+1263*x^3-1506*x^2+2295*x+2;
 setrand(1); bnf=bnfinit(P,1);
-US=bnfunits(bnf,idealprimedec(bnf,2));
-bnfisunit(bnf,4*(x^2-18*x+85)/x^2*Mod(1,bnf.pol),US)
+US=bnfunits(bnf,idealprimedec(bnf,2)); u=US[1];
+t=4*(x^2-18*x+85)/x^2*Mod(1,bnf.pol);
+v=bnfisunit(bnf,t,US);
+for(i=1,#u,u[i][,2] *= v[i]);
+P=nfmodprinit(bnf,idealprimedec(bnf,2^32+15)[1]);
+nfmodpr(bnf,matreduce(matconcat(u~)), P) / nfmodpr(bnf,t,P)
