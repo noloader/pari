@@ -1,5 +1,4 @@
 default(realprecision,38);
-default(echo,1);
 test(D) =
 {
   for (d = D, D+10^3,
@@ -8,6 +7,16 @@ test(D) =
   );
 }
 setrand(1); test(10^15); test(-10^15)
+
+{
+  for(i=1,10000,
+    my(D=2*i-(i%2));
+    if(issquare(D),next());
+    my(w=quadunit(D));
+    if(denominator(w)>1 || abs(norm(w))!=1,error(D)))
+}
+
+default(echo,1);
 
 \\#1180
 setrand(1);quadclassunit(572).no
