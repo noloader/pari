@@ -5385,18 +5385,74 @@ update_f(GEN f, GEN a)
   gcoeff(f,2,2) = p1;
 }
 
+static GEN
+ZM_mul2(GEN A, GEN B)
+{
+  GEN A11=gcoeff(A,1,1),A12=gcoeff(A,1,2), B11=gcoeff(B,1,1),B12=gcoeff(B,1,2);
+  GEN A21=gcoeff(A,2,1),A22=gcoeff(A,2,2), B21=gcoeff(B,2,1),B22=gcoeff(B,2,2);
+  GEN a = mulii(A11, B11), b = mulii(A12, B21);
+  GEN c = mulii(A11, B12), d = mulii(A12, B22);
+  GEN e = mulii(A21, B11), f = mulii(A22, B21);
+  GEN g = mulii(A21, B12), h = mulii(A22, B22);
+  retmkmat2(mkcol2(addii(a,b), addii(e,f)), mkcol2(addii(c,d), addii(g,h)));
+}
+
+/*
+ * fm is a vector of matrices and i an index
+ * the bits of i give the non-zero entries
+ * the product of the non zero entries is the
+ * actual result.
+ * if i odd, fm[1] is implicitely [fm[1],1;1,0]
+ */
+
+static void
+update_fm(GEN f, GEN a, long i)
+{
+  if (!odd(i))
+    gel(f,1) = a;
+  else
+  {
+    long v = vals(i+1), k;
+    GEN b = gel(f,1);
+    GEN u = mkmat22(addiu(mulii(a, b), 1), b, a, gen_1);
+    gel(f,1) = gen_0;
+    for (k = 1; k < v; k++)
+    {
+      u = ZM_mul2(gel(f, k+1), u);
+      gel(f,k+1) = gen_0; /* for gerepileall */
+    }
+    gel(f,v+1) = u;
+  }
+}
+
+static GEN
+prod_fm(GEN f, long i)
+{
+  long v = vals(i);
+  GEN u;
+  long k;
+  if (!v) u = mkmat22(gel(f,1),gen_1,gen_1,gen_0);
+  else u = gel(f,v+1);
+  v++;
+  for (i>>=v, k = v+1; i; i>>=1, k++)
+    if (odd(i))
+      u = ZM_mul2(gel(f,k), u);
+  return u;
+}
+
 GEN
 quadunit(GEN x)
 {
   pari_sp av = avma, av2;
   GEN pol, y, a, u, v, sqd, f;
-  long r;
+  long r, i = 1;
 
   check_quaddisc_real(x, &r, "quadunit");
   pol = quadpoly(x);
   sqd = sqrti(x); av2 = avma;
   a = shifti(addui(r,sqd),-1);
-  f = mkmat2(mkcol2(a, gen_1), mkcol2(gen_1, gen_0)); /* [a,0; 1,0] */
+  f = zerovec(2+(expi(x)>>1));
+  gel(f,1) = a;
   u = stoi(r); v = gen_2;
   for(;;)
   {
@@ -5404,6 +5460,7 @@ quadunit(GEN x)
     u1 = subii(mulii(a,v),u);
     v1 = divii(subii(x,sqri(u1)),v);
     if ( equalii(v,v1) ) {
+      f = prod_fm(f,i);
       y = get_quad(f,pol,r);
       update_f(f,a);
       y = gdiv(get_quad(f,pol,r), conj_i(y));
@@ -5411,15 +5468,15 @@ quadunit(GEN x)
     }
     a = divii(addii(sqd,u1), v1);
     if ( equalii(u,u1) ) {
-      y = get_quad(f,pol,r);
+      y = get_quad(prod_fm(f,i),pol,r);
       y = gdiv(y, conj_i(y));
       break;
     }
-    update_f(f,a);
+    update_fm(f,a,i++);
     u = u1; v = v1;
     if (gc_needed(av2,2))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"quadunit");
+      if(DEBUGMEM>1) pari_warn(warnmem,"quadunit (%ld)", i);
       gerepileall(av2,4, &a,&f,&u,&v);
     }
   }

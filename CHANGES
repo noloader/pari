@@ -20,6 +20,7 @@ BA   6- printf("%5.2f",M) transposed M [#2252]
      1- examples/pari.f90: example FORTRAN binding
      2- [libpari] quodif
 BA   3- [libpari] perm_sqr, perm_powu, perm_orderu
+BA   4- asymptotically fast quadunit
 
   Changed
      1- faster intnumgaussinit + change default number of points to B/4,
