@@ -84,7 +84,7 @@ static const ulong readonly_constants[] = {
   (ulong)(readonly_constants+4),
   (ulong)(readonly_constants+7)
 };
-THREAD GEN zetazone, bernzone, primetab;
+THREAD GEN zetazone, bernzone, eulerzone, primetab;
 byteptr diffptr;
 FILE    *pari_outfile, *pari_errfile, *pari_logfile, *pari_infile;
 char    *current_logfile, *current_psfile, *pari_datadir;

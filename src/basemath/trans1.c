@@ -30,7 +30,7 @@ static THREAD GEN gcatalan, geuler, glog2, gpi;
 void
 pari_init_floats(void)
 {
-  gcatalan = geuler = gpi = zetazone = bernzone = glog2 = NULL;
+  gcatalan = geuler = gpi = zetazone = bernzone = glog2 = eulerzone = NULL;
 }
 
 void
@@ -42,6 +42,7 @@ pari_close_floats(void)
   guncloneNULL(glog2);
   guncloneNULL(zetazone);
   guncloneNULL_deep(bernzone);
+  guncloneNULL_deep(eulerzone);
 }
 
 /********************************************************************/

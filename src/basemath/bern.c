@@ -343,6 +343,7 @@ eulerpol(long k, long v)
   E = RgX_Rg_mul(RgX_sub(B, RgX_rescale(B, gen_2)), sstoQ(2,k));
   return gerepileupto(av, E);
 }
+
 GEN
 eulervec(long n)
 {
@@ -357,4 +358,234 @@ eulervec(long n)
   for (k = 1; k <= n; k++)
     gel(v,k+1) = diviiexact(gel(E,2*n-2*k+2), gel(C,2*k+1));
   return gerepileupto(av, v);
+}
+
+/**************************************************************/
+/*                      Euler numbers                         */
+/**************************************************************/
+
+/* precision needed to compute E_k for all k <= N */
+long
+eulerbitprec(long N)
+{ /* 1.1605 ~ log(32/Pi) / 2 */
+  const double logPIS2 = 0.4515827;
+  double t = (N + 0.5) * log((double)N) - N*(1 + logPIS2) + 1.1605;
+  return (long)ceil(t / M_LN2) + 16;
+}
+static long
+eulerprec(long N) { return nbits2prec(eulerbitprec(N)); }
+
+/* \sum_{k > M, k odd } (-1)^((k-1)/2)k^(-n) <= M^(-n) < 2^-bit_accuracy(prec) */
+static long
+lfun4maxpow(long n, long prec)
+{
+  long b = bit_accuracy(prec), M = (long)exp2((double)b/(n+0.));
+  return M | 1; /* make it odd */
+}
+
+/* lfun4(k) using 'max' precomputed odd powers */
+static GEN
+euler_lfun4(long k, GEN pow, long max, long prec)
+{
+  GEN s = ((max & 3L) == 1) ? gel(pow, max) : negr(gel(pow, max));
+  long j;
+  for (j = max - 2; j >= 3; j -= 2)
+    s = ((j & 3L) == 1) ? addrr(s, gel(pow,j)) : subrr(s, gel(pow,j));
+  return addrs(s, 1);
+}
+
+/* 1 <= m <= n, set y[1] = E_{2m}, ... y[n-m+1] = E_{2n} in Z */
+static void
+eulerset(GEN *y, long m, long n)
+{
+  long i, j, k, bit, prec, max, N = n << 1, N1 = N + 1; /* up to E_N */
+  GEN A, C, pow;
+  bit = eulerbitprec(N);
+  prec = nbits2prec(bit);
+  A = sqrr(Pi2n(-1, prec)); /* (Pi/2)^2 */
+  C = divrr(mpfactr(N, prec), mulrr(powru(A, n), Pi2n(-2,prec)));
+  max = lfun4maxpow(N1, prec);
+  pow = cgetg(max+1, t_VEC);
+  for (j = 3; j <= max; j += 2)
+  { /* fixed point, precision decreases with j */
+    long b = bit - N1 * log2(j), p = b <= 0? LOWDEFAULTPREC: nbits2prec(b);
+    gel(pow,j) = invr(rpowuu(j, N1, p));
+  }
+  y += n - m;
+  for (i = n, k = N1;; i--)
+  { /* set E_n, k = 2i + 1 */
+    pari_sp av2 = avma;
+    GEN E, s = euler_lfun4(k, pow, max, prec);
+    long j;
+    /* s = lfun4(k), C = (4/Pi)*k! / (Pi/2)^k */
+    E = roundr(mulrr(s, C)); if (odd(i)) setsigne(E, -1); /* E ~ E_n */
+    *y-- = gclone(E);
+    if (i == m) break;
+    affrr(divrunu(mulrr(C,A), k-2), C);
+    for (j = max; j >= 3; j -= 2) affrr(mulru2(gel(pow,j), j), gel(pow,j));
+    set_avma(av2);
+    k -= 2;
+    if ((k & 0xf) == 0)
+    { /* reduce precision if possible */
+      long bit2 = eulerbitprec(k), prec2 = nbits2prec(bit2), max2;
+      if (prec2 == prec) continue;
+      prec = prec2;
+      max2 = lfun4maxpow(k,prec);
+      if (max2 > max) continue;
+      bit = bit2;
+      max = max2;
+      setprec(C, prec);
+      for (j = 3; j <= max; j += 2)
+      {
+        GEN P = gel(pow,j);
+        long b = bit + expo(P), p = b <= 0? LOWDEFAULTPREC: nbits2prec(b);
+        if (realprec(P) > p) setprec(P, p);
+      }
+    }
+  }
+}
+
+/* need E[2..2*nb] as t_INT or t_FRAC */
+void
+constreuler(long nb)
+{
+  const pari_sp av = avma;
+  long i, l;
+  GEN E;
+  pari_timer T;
+
+  l = eulerzone? lg(eulerzone): 0;
+  if (l > nb) return;
+
+  nb = maxss(nb, l + 127);
+  E = cgetg_block(nb+1, t_VEC);
+  if (eulerzone)
+  { for (i = 1; i < l; i++) gel(E,i) = gel(eulerzone,i); }
+  else
+  {
+    gel(E,1) = gclone(stoi(-1));
+    gel(E,2) = gclone(stoi(5));
+    gel(E,3) = gclone(stoi(-61));
+    gel(E,4) = gclone(stoi(1385));
+    gel(E,5) = gclone(stoi(-50521));
+    gel(E,6) = gclone(stoi(2702765));
+    gel(E,7) = gclone(stoi(-199360981));
+    l = 8;
+  }
+  set_avma(av);
+  if (DEBUGLEVEL) {
+    err_printf("caching Euler numbers 2*%ld to 2*%ld\n", l, nb);
+    timer_start(&T);
+  }
+  eulerset((GEN*)E + l, l, nb);
+  if (DEBUGLEVEL) timer_printf(&T, "Euler");
+  swap(E, eulerzone); guncloneNULL(E);
+  set_avma(av);
+}
+
+GEN inv_lfun4_euler(long n, long prec);
+
+/* assume n even > 0, if iz != NULL, assume iz = 1/lfun4(n+1) */
+static GEN
+eulerreal_using_lfun4(long n, long prec)
+{
+  GEN pisur2 = Pi2n(-1, prec+EXTRAPRECWORD);
+  GEN iz = inv_lfun4_euler(n+1, prec);
+  GEN z = divrr(mpfactr(n, prec), mulrr(powru(pisur2, n), iz));
+  z = divrr(z, Pi2n(-2, prec)); /* (4/Pi) * n! * lfun4(n+1) / (Pi/2)^n */
+  if ((n & 3L) == 2) setsigne(z, -1);
+  return z;
+}
+/* assume n even > 0, E = NULL or good approximation to E_n */
+static GEN
+eulerfrac_i(long n, GEN E)
+{
+  pari_sp av = avma;
+  if (!E) E = eulerreal_using_lfun4(n, eulerprec(n));
+  return gerepilecopy(av, roundr(E));
+}
+GEN
+eulerfracnew(long n)
+{
+  long k;
+  if (n <= 0)
+  {
+    if (n < 0) pari_err_DOMAIN("eulerfrac", "index", "<", gen_0, stoi(n));
+    return gen_1;
+  }
+  if (odd(n)) return gen_0;
+  k = n >> 1;
+  if (!eulerzone) constreuler(0);
+  if (eulerzone && k < lg(eulerzone)) return gel(eulerzone, k);
+  return eulerfrac_i(n, NULL);
+}
+GEN
+eulervecnew(long n)
+{
+  long i, l;
+  GEN y;
+  if (n < 0) return cgetg(1, t_VEC);
+  constreuler(n);
+  l = n+2; y = cgetg(l, t_VEC); gel(y,1) = gen_1;
+  for (i = 2; i < l; i++) gel(y,i) = gel(eulerzone,i-1);
+  return y;
+}
+
+/* 1/lfun4(n) using Euler product. Assume n > 0. */
+GEN
+inv_lfun4_euler(long n, long prec)
+{
+  GEN z, res;
+  pari_sp av, av2;
+  double A, D, lba;
+  ulong p, lim;
+  forprime_t S;
+
+  if (n > prec2nbits(prec)) return real_1(prec);
+
+  lba = prec2nbits_mul(prec, M_LN2);
+  D = exp((double)lba / n);
+  lim = 1 + (ulong)ceil(D);
+  if (lim < 3) return real_1(prec);
+  res = cgetr(prec); incrprec(prec);
+  av = avma;
+  z = real_1(prec);
+
+  (void)u_forprime_init(&S, 3, lim);
+  av2 = avma; A = n / M_LN2;
+  while ((p = u_forprime_next(&S)))
+  {
+    long l = prec2nbits(prec) - (long)floor(A * log((double)p)) - BITS_IN_LONG;
+    GEN h;
+
+    if (l < BITS_IN_LONG) l = BITS_IN_LONG;
+    l = minss(prec, nbits2prec(l));
+    h = divrr(z, rpowuu(p, (ulong)n, l));
+    z = (p & 3L) == 1 ? subrr(z, h) : addrr(z, h);
+    if (gc_needed(av,1))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"inv_lfun4_euler, p = %lu/%lu", p,lim);
+      z = gerepileuptoleaf(av2, z);
+    }
+  }
+  affrr(z, res); set_avma(av); return res;
+}
+
+/* Return E_n */
+GEN
+eulerreal(long n, long prec)
+{
+  GEN B;
+  long p, k;
+  if (n < 0) pari_err_DOMAIN("eulerreal", "index", "<", gen_0, stoi(n));
+  if (n == 0) return real_1(prec);
+  if (odd(n)) return real_0(prec);
+
+  k = n >> 1;
+  if (!eulerzone) constreuler(0);
+  if (k < lg(eulerzone)) return itor(gel(eulerzone,k), prec);
+  p = eulerprec(n);
+  B = eulerreal_using_lfun4(n, minss(p, prec));
+  if (p < prec) B = itor(eulerfrac_i(n, B), prec);
+  return B;
 }
