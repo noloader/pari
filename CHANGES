@@ -151,6 +151,7 @@ DJ  91- sqrtn(Mod(13,112),6) -> o loop [instead of 'bad input' error]
     95- addprimes() creates issues with nffactor [wrong results].
     96- gmulsg(0, t_REAL) followed mulsr semantic (t_REAL) instead of gmul's
        (t_INT). Analogous problem for gmulsg(0, t_COMPLEX)
+BA  97- MPQS choice of multiplier and tuning were not optimal
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
@@ -236,6 +237,7 @@ AP  60- improve bnfisprincipal in fields of large degree (test more small
         representation of principal part)
     63- added sanity checks when parsing default args in 'install' prototypes
     64- improved zetahurwitz: faster & use less memory
+BA  65- MPQS does not use temporary files anymore
 
   Added
      1- new GP function rootsof1
