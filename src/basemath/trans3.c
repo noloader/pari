@@ -3728,16 +3728,16 @@ cxEk(GEN tau, long k, long prec)
 static GEN
 mplambertW0(GEN y)
 {
-  long bitprec = bit_prec(y) - 2;
-  GEN x, tmp;
+  long bit = bit_prec(y) - 2;
+  GEN z, x = mplog(addrs(y,1));
 
-  x = mplog(addrs(y,1));
   do {
-   tmp = x;
    /* f(x) = log(x)+x-log(y), f'(x) = (1+1/x)
-    * x *= (1-log(x/y))/(x+1) */
-    x = mulrr(x, divrr(subsr(1, mplog(divrr(x,y))), addrs(x,1)));
-  } while (expo(tmp) - expo(subrr(x,tmp)) < bitprec);
+    * x -= x(x+log(x/y))/(x+1) */
+    z = addrr(x, mplog(divrr(x,y)));
+    z = mulrr(x, divrr(z, addrs(x,1)));
+    x = subrr(x, z);
+  } while (expo(x) - expo(z) < bit);
   return x;
 }
 
@@ -3747,12 +3747,14 @@ mplambertW(GEN y)
 {
   pari_sp av = avma;
   GEN x;
-  long p = 1, s = signe(y);
-  ulong mask = quadratic_prec_mask(realprec(y)-1);
+  long p = 1, s = signe(y), prec = realprec(y);
+  ulong mask;
 
   if (s<0) pari_err_DOMAIN("Lw", "y", "<", gen_0, y);
   if(s==0) return rcopy(y);
+  if (prec <= LOWDEFAULTPREC) return gerepileuptoleaf(av, mplambertW0(y));
   x = mplambertW0(rtor(y, LOWDEFAULTPREC));
+  mask = quadratic_prec_mask(prec-1);
   while (mask!=1)
   {
     p <<= 1; if (mask & 1) p--;
