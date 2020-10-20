@@ -36,8 +36,6 @@ Kernel:
 
 Misc:
 =====
-2  rnfkummer (non-prime degree)
-
 2  nfsubfields [use known subfields to discard blocs right away]
 
 2  merge quadclassunit and bnfinit
