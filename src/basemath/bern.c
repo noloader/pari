@@ -344,22 +344,6 @@ eulerpol(long k, long v)
   return gerepileupto(av, E);
 }
 
-GEN
-eulervec(long n)
-{
-  pari_sp av;
-  GEN v, E, C;
-  long k;
-  if (n < 0) return cgetg(1, t_VEC);
-  C = vecbinomial(2*n);
-  E = ZX_translate(RgX_rescale(eulerpol(2*n, 0), gen_2), gen_1);
-  av = avma; v = cgetg(n + 2, t_VEC); gel(v,1) = gen_1;
-  /* 2^(2n) E_2n(x/2 + 1) = sum_k binomial(2n,k) E_k x^(n-k) */
-  for (k = 1; k <= n; k++)
-    gel(v,k+1) = diviiexact(gel(E,2*n-2*k+2), gel(C,2*k+1));
-  return gerepileupto(av, v);
-}
-
 /**************************************************************/
 /*                      Euler numbers                         */
 /**************************************************************/
@@ -375,7 +359,7 @@ eulerbitprec(long N)
 static long
 eulerprec(long N) { return nbits2prec(eulerbitprec(N)); }
 
-/* \sum_{k > M, k odd } (-1)^((k-1)/2)k^(-n) <= M^(-n) < 2^-bit_accuracy(prec) */
+/* sum_{k > M, k odd} (-1)^((k-1)/2)k^(-n) < M^(-n) < 2^-bit_accuracy(prec) */
 static long
 lfun4maxpow(long n, long prec)
 {
@@ -445,7 +429,7 @@ eulerset(GEN *y, long m, long n)
   }
 }
 
-/* need E[2..2*nb] as t_INT or t_FRAC */
+/* need E[2..2*nb] as t_INT */
 void
 constreuler(long nb)
 {
@@ -483,7 +467,7 @@ constreuler(long nb)
   set_avma(av);
 }
 
-GEN inv_lfun4_euler(long n, long prec);
+static GEN inv_lfun4_euler(long n, long prec);
 
 /* assume n even > 0, if iz != NULL, assume iz = 1/lfun4(n+1) */
 static GEN
@@ -491,8 +475,8 @@ eulerreal_using_lfun4(long n, long prec)
 {
   GEN pisur2 = Pi2n(-1, prec+EXTRAPRECWORD);
   GEN iz = inv_lfun4_euler(n+1, prec);
-  GEN z = divrr(mpfactr(n, prec), mulrr(powru(pisur2, n), iz));
-  z = divrr(z, Pi2n(-2, prec)); /* (4/Pi) * n! * lfun4(n+1) / (Pi/2)^n */
+  GEN z = divrr(mpfactr(n, prec), mulrr(powru(pisur2, n+1), iz));
+  shiftr_inplace(z, 1); /* z = (4/Pi) * n! * lfun4(n+1) / (Pi/2)^n */
   if ((n & 3L) == 2) setsigne(z, -1);
   return z;
 }
@@ -502,10 +486,11 @@ eulerfrac_i(long n, GEN E)
 {
   pari_sp av = avma;
   if (!E) E = eulerreal_using_lfun4(n, eulerprec(n));
-  return gerepilecopy(av, roundr(E));
+  return gerepileuptoleaf(av, roundr(E));
 }
+/* Euler numbers: 1, 0, -1, 0, 5, 0, -61,... */
 GEN
-eulerfracnew(long n)
+eulerfrac(long n)
 {
   long k;
   if (n <= 0)
@@ -520,7 +505,7 @@ eulerfracnew(long n)
   return eulerfrac_i(n, NULL);
 }
 GEN
-eulervecnew(long n)
+eulervec(long n)
 {
   long i, l;
   GEN y;
@@ -532,7 +517,7 @@ eulervecnew(long n)
 }
 
 /* 1/lfun4(n) using Euler product. Assume n > 0. */
-GEN
+static GEN
 inv_lfun4_euler(long n, long prec)
 {
   GEN z, res;
@@ -560,8 +545,8 @@ inv_lfun4_euler(long n, long prec)
 
     if (l < BITS_IN_LONG) l = BITS_IN_LONG;
     l = minss(prec, nbits2prec(l));
-    h = divrr(z, rpowuu(p, (ulong)n, l));
-    z = (p & 3L) == 1 ? subrr(z, h) : addrr(z, h);
+    h = rpowuu(p, (ulong)n, l); if (p & 3UL) setsigne(h, -1);
+    z = addrr(z, divrr(z, h)); /* z *= (1 + chi_{-4}(p) / p^n) */
     if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"inv_lfun4_euler, p = %lu/%lu", p,lim);

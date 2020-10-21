@@ -240,28 +240,6 @@ get_S_even(long N)
   }
 }
 
-static GEN Lfeq(long D, long k);
-/* Euler numbers: 1, 0, -1, 0, 5, 0, -61,... */
-GEN
-eulerfrac(long n)
-{
-  pari_sp av = avma;
-  if (n < 0) pari_err_DOMAIN("eulerfrac", "index", "<", gen_0, stoi(n));
-  if (odd(n)) return gen_0;
-  switch(n)
-  {
-    case 0: return gen_1;
-    case 2: return gen_m1;
-    case 4: return utoipos(5);
-    case 6: return utoineg(61);
-    case 8: return utoipos(1385);
-    case 10:return utoineg(50521);
-    case 12:return utoipos(2702765);
-    case 14:return utoineg(199360981);
-  }
-  return gerepileuptoint(av, gmul2n(Lfeq(-4, n+1), 1));
-}
-
 static GEN
 mfDcoefs(GEN F, GEN vD, long d)
 {
@@ -282,6 +260,7 @@ myinverseimage(GEN M, GEN R, GEN *pden)
   return c;
 }
 
+static GEN Lfeq(long D, long k);
 static GEN
 Hcol(GEN k, long r, GEN vD, long d, long N2)
 {
