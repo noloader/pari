@@ -278,27 +278,26 @@ sumformal(GEN T, long v)
 GEN
 inv_szeta_euler(long n, long prec)
 {
+  long bit = prec2nbits(prec);
   GEN z, res;
   pari_sp av, av2;
   double A, D, lba;
   ulong p, lim;
   forprime_t S;
 
-  if (n > prec2nbits(prec)) return real_1(prec);
+  if (n > bit) return real_1(prec);
 
   lba = prec2nbits_mul(prec, M_LN2);
   D = exp((lba - log((double)(n-1))) / (n-1));
   lim = 1 + (ulong)ceil(D);
   if (lim < 3) return subir(gen_1,real2n(-n,prec));
-  res = cgetr(prec); incrprec(prec);
-  av = avma;
-  z = subir(gen_1, real2n(-n, prec));
+  res = cgetr(prec); av = avma; incrprec(prec);
 
   (void)u_forprime_init(&S, 3, lim);
-  av2 = avma; A = n / M_LN2;
+  av2 = avma; A = n / M_LN2; z = subir(gen_1, real2n(-n, prec));
   while ((p = u_forprime_next(&S)))
   {
-    long l = prec2nbits(prec) - (long)floor(A * log((double)p)) - BITS_IN_LONG;
+    long l = bit - (long)floor(A * log((double)p));
     GEN h;
 
     if (l < BITS_IN_LONG) l = BITS_IN_LONG;
@@ -469,40 +468,36 @@ constreuler(long nb)
   set_avma(av);
 }
 
-/* 1/lfun4(n) using Euler product. Assume n > 0. */
+/* 1/lfun(-4,n) using Euler product. Assume n > 0. */
 static GEN
-inv_lfun4_euler(long n, long prec)
+inv_lfun4(long n, long prec)
 {
+  long bit = prec2nbits(prec);
   GEN z, res;
   pari_sp av, av2;
-  double A, D, lba;
+  double A;
   ulong p, lim;
   forprime_t S;
 
-  if (n > prec2nbits(prec)) return real_1(prec);
+  if (n > bit) return real_1(prec);
 
-  lba = prec2nbits_mul(prec, M_LN2);
-  D = exp((double)lba / n);
-  lim = 1 + (ulong)ceil(D);
-  if (lim < 3) return real_1(prec);
-  res = cgetr(prec); incrprec(prec);
-  av = avma;
-  z = real_1(prec);
+  lim = 1 + (ulong)ceil(exp2((double)bit / n));
+  res = cgetr(prec); av = avma; incrprec(prec);
 
   (void)u_forprime_init(&S, 3, lim);
-  av2 = avma; A = n / M_LN2;
+  av2 = avma; A = n / M_LN2; z = real_1(prec);
   while ((p = u_forprime_next(&S)))
   {
-    long l = prec2nbits(prec) - (long)floor(A * log((double)p)) - BITS_IN_LONG;
+    long l = bit - (long)floor(A * log((double)p));
     GEN h;
 
     if (l < BITS_IN_LONG) l = BITS_IN_LONG;
     l = minss(prec, nbits2prec(l));
     h = rpowuu(p, (ulong)n, l); if ((p & 3UL) == 1) setsigne(h, -1);
-    z = addrr(z, divrr(z, h)); /* z *= (1 + chi_{-4}(p) / p^n) */
+    z = addrr(z, divrr(z, h)); /* z *= 1 - chi_{-4}(p) / p^n */
     if (gc_needed(av,1))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"inv_lfun4_euler, p = %lu/%lu", p,lim);
+      if (DEBUGMEM>1) pari_warn(warnmem,"inv_lfun4, p = %lu/%lu", p,lim);
       z = gerepileuptoleaf(av2, z);
     }
   }
@@ -513,7 +508,7 @@ static GEN
 eulerreal_using_lfun4(long n, long prec)
 {
   GEN pisur2 = Pi2n(-1, prec+EXTRAPRECWORD);
-  GEN iz = inv_lfun4_euler(n+1, prec);
+  GEN iz = inv_lfun4(n+1, prec);
   GEN z = divrr(mpfactr(n, prec), mulrr(powru(pisur2, n+1), iz));
   if ((n & 3L) == 2) setsigne(z, -1);
   shiftr_inplace(z, 1); return z;
