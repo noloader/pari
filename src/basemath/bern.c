@@ -178,15 +178,15 @@ bernreal_using_zeta(long n, long prec)
 static GEN
 bernfrac_i(long n, GEN B)
 {
-  pari_sp av = avma;
   GEN z = fracB2k(divisorsu(n >> 1));
   if (!B) B = bernreal_using_zeta(n, bernprec(n));
   B = roundr( gadd(B, fractor(z,LOWDEFAULTPREC)) );
-  return gerepileupto(av, gsub(B, z));
+  return gsub(B, z);
 }
 GEN
 bernfrac(long n)
 {
+  pari_sp av;
   long k;
   if (n <= 1)
   {
@@ -197,7 +197,8 @@ bernfrac(long n)
   k = n >> 1;
   if (!bernzone) constbern(0);
   if (bernzone && k < lg(bernzone)) return gel(bernzone, k);
-  return bernfrac_i(n, NULL);
+  av = avma;
+  return gerepileupto(av, bernfrac_i(n, NULL));
 }
 GEN
 bernvec(long n)
@@ -317,6 +318,7 @@ inv_szeta_euler(long n, long prec)
 GEN
 bernreal(long n, long prec)
 {
+  pari_sp av;
   GEN B;
   long p, k;
   if (n < 0) pari_err_DOMAIN("bernreal", "index", "<", gen_0, stoi(n));
@@ -327,10 +329,10 @@ bernreal(long n, long prec)
   k = n >> 1;
   if (!bernzone) constbern(0);
   if (k < lg(bernzone)) return fractor(gel(bernzone,k), prec);
-  p = bernprec(n);
+  p = bernprec(n); av = avma;
   B = bernreal_using_zeta(n, minss(p, prec));
   if (p < prec) B = fractor(bernfrac_i(n, B), prec);
-  return B;
+  return gerepileuptoleaf(av, B);
 }
 
 GEN
@@ -467,55 +469,6 @@ constreuler(long nb)
   set_avma(av);
 }
 
-static GEN inv_lfun4_euler(long n, long prec);
-
-/* assume n even > 0, if iz != NULL, assume iz = 1/lfun4(n+1) */
-static GEN
-eulerreal_using_lfun4(long n, long prec)
-{
-  GEN pisur2 = Pi2n(-1, prec+EXTRAPRECWORD);
-  GEN iz = inv_lfun4_euler(n+1, prec);
-  GEN z = divrr(mpfactr(n, prec), mulrr(powru(pisur2, n+1), iz));
-  shiftr_inplace(z, 1); /* z = (4/Pi) * n! * lfun4(n+1) / (Pi/2)^n */
-  if ((n & 3L) == 2) setsigne(z, -1);
-  return z;
-}
-/* assume n even > 0, E = NULL or good approximation to E_n */
-static GEN
-eulerfrac_i(long n, GEN E)
-{
-  pari_sp av = avma;
-  if (!E) E = eulerreal_using_lfun4(n, eulerprec(n));
-  return gerepileuptoleaf(av, roundr(E));
-}
-/* Euler numbers: 1, 0, -1, 0, 5, 0, -61,... */
-GEN
-eulerfrac(long n)
-{
-  long k;
-  if (n <= 0)
-  {
-    if (n < 0) pari_err_DOMAIN("eulerfrac", "index", "<", gen_0, stoi(n));
-    return gen_1;
-  }
-  if (odd(n)) return gen_0;
-  k = n >> 1;
-  if (!eulerzone) constreuler(0);
-  if (eulerzone && k < lg(eulerzone)) return gel(eulerzone, k);
-  return eulerfrac_i(n, NULL);
-}
-GEN
-eulervec(long n)
-{
-  long i, l;
-  GEN y;
-  if (n < 0) return cgetg(1, t_VEC);
-  constreuler(n);
-  l = n+2; y = cgetg(l, t_VEC); gel(y,1) = gen_1;
-  for (i = 2; i < l; i++) gel(y,i) = gel(eulerzone,i-1);
-  return y;
-}
-
 /* 1/lfun4(n) using Euler product. Assume n > 0. */
 static GEN
 inv_lfun4_euler(long n, long prec)
@@ -545,7 +498,7 @@ inv_lfun4_euler(long n, long prec)
 
     if (l < BITS_IN_LONG) l = BITS_IN_LONG;
     l = minss(prec, nbits2prec(l));
-    h = rpowuu(p, (ulong)n, l); if (p & 3UL) setsigne(h, -1);
+    h = rpowuu(p, (ulong)n, l); if ((p & 3UL) == 1) setsigne(h, -1);
     z = addrr(z, divrr(z, h)); /* z *= (1 + chi_{-4}(p) / p^n) */
     if (gc_needed(av,1))
     {
@@ -555,11 +508,52 @@ inv_lfun4_euler(long n, long prec)
   }
   affrr(z, res); set_avma(av); return res;
 }
+/* assume n even > 0, E_n = (-1)^(n/2) (4/Pi) n! lfun4(n+1) / (Pi/2)^n */
+static GEN
+eulerreal_using_lfun4(long n, long prec)
+{
+  GEN pisur2 = Pi2n(-1, prec+EXTRAPRECWORD);
+  GEN iz = inv_lfun4_euler(n+1, prec);
+  GEN z = divrr(mpfactr(n, prec), mulrr(powru(pisur2, n+1), iz));
+  if ((n & 3L) == 2) setsigne(z, -1);
+  shiftr_inplace(z, 1); return z;
+}
+/* Euler numbers: 1, 0, -1, 0, 5, 0, -61,... */
+GEN
+eulerfrac(long n)
+{
+  pari_sp av;
+  long k;
+  GEN E;
+  if (n <= 0)
+  {
+    if (n < 0) pari_err_DOMAIN("eulerfrac", "index", "<", gen_0, stoi(n));
+    return gen_1;
+  }
+  if (odd(n)) return gen_0;
+  k = n >> 1;
+  if (!eulerzone) constreuler(0);
+  if (eulerzone && k < lg(eulerzone)) return gel(eulerzone, k);
+  av = avma; E = eulerreal_using_lfun4(n, eulerprec(n));
+  return gerepileuptoleaf(av, roundr(E));
+}
+GEN
+eulervec(long n)
+{
+  long i, l;
+  GEN y;
+  if (n < 0) return cgetg(1, t_VEC);
+  constreuler(n);
+  l = n+2; y = cgetg(l, t_VEC); gel(y,1) = gen_1;
+  for (i = 2; i < l; i++) gel(y,i) = gel(eulerzone,i-1);
+  return y;
+}
 
 /* Return E_n */
 GEN
 eulerreal(long n, long prec)
 {
+  pari_sp av = avma;
   GEN B;
   long p, k;
   if (n < 0) pari_err_DOMAIN("eulerreal", "index", "<", gen_0, stoi(n));
@@ -571,6 +565,6 @@ eulerreal(long n, long prec)
   if (k < lg(eulerzone)) return itor(gel(eulerzone,k), prec);
   p = eulerprec(n);
   B = eulerreal_using_lfun4(n, minss(p, prec));
-  if (p < prec) B = itor(eulerfrac_i(n, B), prec);
-  return B;
+  if (p < prec) B = itor(roundr(B), prec);
+  return gerepileuptoleaf(av, B);
 }
