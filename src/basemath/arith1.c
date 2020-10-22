@@ -5386,18 +5386,6 @@ update_f(GEN f, GEN a)
   gcoeff(f,2,2) = p1;
 }
 
-static GEN
-ZM_mul2(GEN A, GEN B)
-{
-  GEN A11=gcoeff(A,1,1),A12=gcoeff(A,1,2), B11=gcoeff(B,1,1),B12=gcoeff(B,1,2);
-  GEN A21=gcoeff(A,2,1),A22=gcoeff(A,2,2), B21=gcoeff(B,2,1),B22=gcoeff(B,2,2);
-  GEN a = mulii(A11, B11), b = mulii(A12, B21);
-  GEN c = mulii(A11, B12), d = mulii(A12, B22);
-  GEN e = mulii(A21, B11), f = mulii(A22, B21);
-  GEN g = mulii(A21, B12), h = mulii(A22, B22);
-  retmkmat2(mkcol2(addii(a,b), addii(e,f)), mkcol2(addii(c,d), addii(g,h)));
-}
-
 /*
  * fm is a vector of matrices and i an index
  * the bits of i give the non-zero entries
@@ -5419,7 +5407,7 @@ update_fm(GEN f, GEN a, long i)
     gel(f,1) = gen_0;
     for (k = 1; k < v; k++)
     {
-      u = ZM_mul2(gel(f, k+1), u);
+      u = ZM2_mul(gel(f, k+1), u);
       gel(f,k+1) = gen_0; /* for gerepileall */
     }
     gel(f,v+1) = u;
@@ -5437,7 +5425,7 @@ prod_fm(GEN f, long i)
   v++;
   for (i>>=v, k = v+1; i; i>>=1, k++)
     if (odd(i))
-      u = ZM_mul2(gel(f,k), u);
+      u = ZM2_mul(gel(f,k), u);
   return u;
 }
 
