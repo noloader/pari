@@ -350,7 +350,7 @@ eulerpol(long k, long v)
 /**************************************************************/
 
 /* precision needed to compute E_k for all k <= N */
-long
+static long
 eulerbitprec(long N)
 { /* 1.1605 ~ log(32/Pi) / 2 */
   const double logPIS2 = 0.4515827;
@@ -431,7 +431,7 @@ eulerset(GEN *y, long m, long n)
 }
 
 /* need E[2..2*nb] as t_INT */
-void
+static void
 constreuler(long nb)
 {
   const pari_sp av = avma;
