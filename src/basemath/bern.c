@@ -369,7 +369,7 @@ lfun4maxpow(long n, long prec)
 
 /* lfun4(k) using 'max' precomputed odd powers */
 static GEN
-euler_lfun4(long k, GEN pow, long max, long prec)
+euler_lfun4(GEN pow, long max)
 {
   GEN s = ((max & 3L) == 1) ? gel(pow, max) : negr(gel(pow, max));
   long j;
@@ -399,7 +399,7 @@ eulerset(GEN *y, long m, long n)
   for (i = n, k = N1;; i--)
   { /* set E_n, k = 2i + 1 */
     pari_sp av2 = avma;
-    GEN E, s = euler_lfun4(k, pow, max, prec);
+    GEN E, s = euler_lfun4(pow, max);
     long j;
     /* s = lfun4(k), C = (4/Pi)*k! / (Pi/2)^k */
     E = roundr(mulrr(s, C)); if (odd(i)) setsigne(E, -1); /* E ~ E_n */
