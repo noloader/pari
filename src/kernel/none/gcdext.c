@@ -220,7 +220,7 @@ bezout_halfgcd(GEN x, GEN y, GEN *ptu, GEN *ptv)
   while (lgefint(y)-2 >= EXTGCD_HALFGCD_LIMIT)
   {
     GEN M = HGCD0(x,y);
-    R = ZM_mul2(R, gel(M, 1));
+    R = ZM2_mul(R, gel(M, 1));
     x = gel(M,2); y = gel(M,3);
     if (signe(y) && expi(y)<magic_threshold(x))
     {
