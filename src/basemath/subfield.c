@@ -1398,7 +1398,7 @@ maxgen_subfields(GEN pol, GEN fa, long flag)
 {
   pari_sp av = avma;
   GEN principal, ismax, isgene, Lmax = NULL, Lgene, res, V, W, W1;
-  long i, i2, j, flmax, flgene, nbmax = 0, nbgene = 0, dup;
+  long i, i2, j, flmax, flgene, nbmax = 0, nbgene = 0;
 
   if (!flag) return cgetg(1,t_VEC);
   flmax = (flag & subf_MAXIMAL)!=0;
@@ -1413,19 +1413,15 @@ maxgen_subfields(GEN pol, GEN fa, long flag)
   i2 = 1;
   for (i=1; i<lg(principal)-1; i++)
   {
+    long dup = 0;
     V = gel(principal,i);
-    dup = 0;
     j = i2-1;
-    while(j>0 && lg(gel(principal,j))==lg(V))
+    while (j > 0 && lg(gel(principal,j)) == lg(V))
     {
       if (field_is_contained(gel(principal,j),V,0)) { dup=1; break; }
       j--;
     }
-    if (!dup)
-    {
-      gel(principal,i2) = V;
-      i2++;
-    }
+    if (!dup) gel(principal,i2++) = V;
   }
   setlg(principal, i2);
 
@@ -1464,11 +1460,7 @@ maxgen_subfields(GEN pol, GEN fa, long flag)
     Lmax = cgetg(nbmax+1, t_VEC);
     j=1;
     for (i=1; i<lg(principal); i++)
-      if (ismax[i])
-      {
-        gel(Lmax,j) = gel(principal,i);
-        j++;
-      }
+      if (ismax[i]) gel(Lmax,j++) = gel(principal,i);
   }
 
   if (flgene)
@@ -1476,11 +1468,7 @@ maxgen_subfields(GEN pol, GEN fa, long flag)
     Lgene = cgetg(nbgene+1, t_VEC);
     j=1;
     for (i=1; i<lg(principal); i++)
-      if (isgene[i])
-      {
-        gel(Lgene,j) = gel(principal,i);
-        j++;
-      }
+      if (isgene[i]) gel(Lgene,j++) = gel(principal,i);
   }
 
   if (!flgene) res = Lmax;
