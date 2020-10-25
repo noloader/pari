@@ -1393,7 +1393,7 @@ lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
   if (ldata_get_type(ldata)==t_LFUN_NF)
   {
     GEN T = gel(ldata_get_an(ldata), 2);
-    return lfunzetakinit(T, dom, der, 0, bitprec);
+    return lfunzetakinit(T, dom, der, bitprec);
   }
   k = ldata_get_k(ldata);
   parse_dom(gtodouble(k), dom, &S);
@@ -1919,7 +1919,7 @@ lfuncheckfeq_i(GEN theta, GEN thetad, GEN t0, GEN t0i, long bitprec)
       { /* inefficient since theta not needed; no need to optimize for this
            (artificial) query [e.g. lfuncheckfeq(t_POL)] */
         GEN T = gel(ldata_get_an(ldata), 2);
-        GEN L = lfunzetakinit(T,zerovec(3),0,0,bitprec);
+        GEN L = lfunzetakinit(T,zerovec(3),0,bitprec);
         return lfuncheckfeq(L,t0,bitprec);
       }
       v = lfunrootres(theta, bitprec);

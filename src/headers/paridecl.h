@@ -4201,7 +4201,7 @@ GEN     lfunmfspec(GEN lmisc, long bitprec);
 GEN     lfunmul(GEN ldata1, GEN ldata2, long bitprec);
 GEN     lfunqf(GEN ldata, long prec);
 GEN     lfunsympow(GEN E, ulong m);
-GEN     lfunzetakinit(GEN pol, GEN dom, long der, long flag, long bitprec);
+GEN     lfunzetakinit(GEN pol, GEN dom, long der, long bitprec);
 long    qfiseven(GEN M);
 
 /* lfunquad */

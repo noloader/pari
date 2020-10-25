@@ -1094,14 +1094,6 @@ lfunproduct(GEN ldata, GEN linit1, GEN linit2, GEN domain)
 }
 
 static GEN
-lfunzetakinit_raw(GEN T, GEN dom, long der, long bitprec)
-{
-  pari_sp ltop = avma;
-  GEN ldata = lfunzetak_i(T);
-  return gerepileupto(ltop, lfuninit(ldata, dom, der, bitprec));
-}
-
-static GEN
 lfunzetakinit_quotient(GEN nf, GEN polk, GEN dom, long der, long bitprec)
 {
   pari_sp av = avma;
@@ -1110,7 +1102,7 @@ lfunzetakinit_quotient(GEN nf, GEN polk, GEN dom, long der, long bitprec)
 
   nf_get_sign(nf,&r1,&r2);
   nfk = nfinit(polk, nbits2prec(bitprec));
-  Lk = lfunzetakinit(nfk, dom, der, 0, bitprec); /* zeta_k */
+  Lk = lfunzetakinit(nfk, dom, der, bitprec); /* zeta_k */
   nf_get_sign(nfk,&r1k,&r2k);
   Vga = vec01((r1+r2) - (r1k+r2k), r2-r2k);
   N = absi_shallow(diviiexact(nf_get_disc(nf), nf_get_disc(nfk)));
@@ -1135,7 +1127,7 @@ lfunzetakinit_Galois(GEN nf, GEN gal, GEN dom, long der, long bitprec)
 }
 
 GEN
-lfunzetakinit(GEN NF, GEN dom, long der, long flag, long bitprec)
+lfunzetakinit(GEN NF, GEN dom, long der, long bitprec)
 {
   GEN nf = checknf(NF);
   GEN G, nfs, sbg;
@@ -1146,8 +1138,6 @@ lfunzetakinit(GEN NF, GEN dom, long der, long flag, long bitprec)
     return lfunzetakinit_Galois(nf, G, dom, der, bitprec);
   nfs = nfsubfields(nf, 0); lf = lg(nfs)-1;
   sbg = gmael(nfs,lf-1,1);
-  if (flag && d > 4*degpol(sbg))
-    return lfunzetakinit_raw(nf, dom, der, bitprec);
   return lfunzetakinit_quotient(nf, sbg, dom, der, bitprec);
 }
 
