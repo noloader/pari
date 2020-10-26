@@ -3,12 +3,12 @@ Section: number_fields
 C-Name: bnfisprincipal0
 Prototype: GGD1,L,
 Help: bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives
- [e,t], where e is the vector of exponents on
- the class group generators and t is the generator of the resulting
- principal ideal. In particular x is principal if and only if v is the zero
- vector. flag is optional, whose binary digits mean 1: output [e,t] (only e
- if unset); 2: increase precision until alpha can be computed (do not insist
- if unset); 4: return alpha in factored form (compact representation).
+ [e,t], where e is the vector of exponents on the class group generators and
+ t is the generator of the resulting principal ideal. In particular x is
+ principal if and only if e is the zero vector. flag is optional, whose
+ binary digits mean 1: output [e,t] (only e if unset); 2: increase precision
+ until alpha can be computed (do not insist if unset); 4: return alpha in
+ factored form (compact representation).
 Doc: $\var{bnf}$ being the \sidx{principal ideal}
  number field data output by \kbd{bnfinit}, and $x$ being an ideal, this
  function tests whether the ideal is principal or not. The result is more

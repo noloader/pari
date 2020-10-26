@@ -1987,7 +1987,7 @@ New syntax: isprincipal(bnf,x) ===> bnfisprincipal(bnf,x,0)
 bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [e,t], where 
 e is the vector of exponents on the class group generators and t is the 
 generator of the resulting principal ideal. In particular x is principal if and 
-only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+only if e is the zero vector. flag is optional, whose binary digits mean 1: 
 output [e,t] (only e if unset); 2: increase precision until alpha can be 
 computed (do not insist if unset); 4: return alpha in factored form (compact 
 representation).
@@ -2003,7 +2003,7 @@ New syntax: isprincipalforce(bnf,x) ===> bnfisprincipal(bnf,x,2)
 bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [e,t], where 
 e is the vector of exponents on the class group generators and t is the 
 generator of the resulting principal ideal. In particular x is principal if and 
-only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+only if e is the zero vector. flag is optional, whose binary digits mean 1: 
 output [e,t] (only e if unset); 2: increase precision until alpha can be 
 computed (do not insist if unset); 4: return alpha in factored form (compact 
 representation).
@@ -2019,7 +2019,7 @@ New syntax: isprincipalgen(bnf,x) ===> bnfisprincipal(bnf,x)
 bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [e,t], where 
 e is the vector of exponents on the class group generators and t is the 
 generator of the resulting principal ideal. In particular x is principal if and 
-only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+only if e is the zero vector. flag is optional, whose binary digits mean 1: 
 output [e,t] (only e if unset); 2: increase precision until alpha can be 
 computed (do not insist if unset); 4: return alpha in factored form (compact 
 representation).
@@ -2035,7 +2035,7 @@ New syntax: isprincipalgenforce(bnf,x) ===> bnfisprincipal(bnf,x,3)
 bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [e,t], where 
 e is the vector of exponents on the class group generators and t is the 
 generator of the resulting principal ideal. In particular x is principal if and 
-only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+only if e is the zero vector. flag is optional, whose binary digits mean 1: 
 output [e,t] (only e if unset); 2: increase precision until alpha can be 
 computed (do not insist if unset); 4: return alpha in factored form (compact 
 representation).
@@ -4524,4 +4524,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 6
+Total time spent: 2
