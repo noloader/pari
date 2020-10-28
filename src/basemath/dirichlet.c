@@ -437,8 +437,7 @@ dirpowerssum(ulong N, GEN s, long prec)
     precp = p;
     if ((p & 0x1ff) == 1) S = gerepileupto(av2, S);
   }
-  P = mkvecsmall2(2, 3);
-  av2 = avma;
+  P = mkvecsmall2(2, 3); av2 = avma;
   for(x1 = 1;; x1 += step)
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, lv, x2 = (N >= 2*step && N - 2*step >= x1)? x1-1 + step: N;
@@ -446,11 +445,9 @@ dirpowerssum(ulong N, GEN s, long prec)
     lv = lg(v);
     for (j = 1; j < lv; j++) if (gel(v,j))
     {
-      ulong d = x1-1 + j; /* squarefree, coprime to 6 */
-      ulong q;
+      ulong q, d = x1-1 + j; /* squarefree, coprime to 6 */
       tmp = smallfact(d, gel(v,j), sq, V);
       if (!tmp) continue;
-      q = N / d;
       switch(q = N / d)
       {
         case 1: break;
@@ -471,7 +468,7 @@ dirpowerssum(ulong N, GEN s, long prec)
     if (x2 == N) break;
     S = gerepileupto(av2, S);
   }
-  return gerepilecopy(av, S);
+  return gerepileupto(av, S);
 }
 GEN
 dirpowerssum0(GEN N, GEN s, long prec)
