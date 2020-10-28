@@ -1750,18 +1750,19 @@ czeta(GEN s0, long prec)
   if (nn > 50000)
   {
     Ns = dirpowerssum(nn, ms, prec);
+    incrprec(prec); /* one extra word of precision */
     ns = gpow(utor(nn, prec), ms, prec);
     y = gsub(Ns, gmul2n(ns, -1));
   }
   else
   {
+    incrprec(prec); /* one extra word of precision */
     Ns = vecpowug(nn, ms, prec);
     ns = gel(Ns,nn); setlg(Ns, nn);
     y = gadd(gmul2n(ns, -1), RgV_sum(Ns));
   }
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 1 to N");
 
-  incrprec(prec); /* one extra word of precision */
   invn2 = divri(real_1(prec), sqru(nn)); lim2 = lim<<1;
   constbern(lim);
   tes = bernfrac(lim2);
