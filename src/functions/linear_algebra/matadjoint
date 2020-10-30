@@ -15,18 +15,17 @@ Doc:
  $(-1)^{n-1} (T(x)-T(0))/x$ evaluated at $M$.
  \bprog
  ? a = [1,2,3;3,4,5;6,7,8] * Mod(1,4);
+ ? matadjoint(a)
  %2 =
- [Mod(1, 4) Mod(2, 4) Mod(3, 4)]
+ [Mod(1, 4) Mod(1, 4) Mod(2, 4)]
 
- [Mod(3, 4) Mod(0, 4) Mod(1, 4)]
+ [Mod(2, 4) Mod(2, 4) Mod(0, 4)]
 
- [Mod(2, 4) Mod(3, 4) Mod(0, 4)]
+ [Mod(1, 4) Mod(1, 4) Mod(2, 4)]
  @eprog\noindent
- Both algorithms use $O(n^4)$ operations in the base ring, and are usually
- slower than computing the characteristic polynomial or the inverse of $M$
- directly.
+ Both algorithms use $O(n^4)$ operations in the base ring. Over a field,
+ they are usually slower than computing the characteristic polynomial or
+ the inverse of $M$ directly.
 Variant: Also available are
  \fun{GEN}{adj}{GEN x} (\fl=0) and
  \fun{GEN}{adjsafe}{GEN x} (\fl=1).
-
-
