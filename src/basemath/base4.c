@@ -2089,7 +2089,7 @@ idealinv(GEN nf, GEN x)
         x = zk_inv(nf, x);
         x = Q_remove_denom(x, &d); /* true inverse is c/d * x */
         if (!d) /* x and x^(-1) integral => x a unit */
-          x = scalarmat_shallow(c? c: gen_1, N);
+          x = c? scalarmat(c, N): matid(N);
         else
         {
           c = c? gdiv(c,d): ginv(d);

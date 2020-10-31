@@ -250,6 +250,15 @@ matrix(0,2)
 [1/9, 1/18, 0, 0, 0, 0]~
 [4/3, 2/3, 1/3, 1, 1/3, -1/3]~
 [0, 0, 0, -1, 1, 2]~
+
+[1 0   0 4/9]
+
+[0 1 4/9   0]
+
+[0 0 1/9   0]
+
+[0 0   0 1/9]
+
   ***   at top-level: idealaddtoone(Q,2,[;])
   ***                 ^----------------------
   *** idealaddtoone: elements not coprime in idealaddtoone:
@@ -298,4 +307,4 @@ matrix(0,2)
   ***   at top-level: idealred(nf,[2,Mat(1)])
   ***                 ^-----------------------
   *** idealred: incorrect type in idealtyp [extended ideal] (t_VEC).
-Total time spent: 134
+Total time spent: 117
