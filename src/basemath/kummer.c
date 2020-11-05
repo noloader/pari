@@ -1125,8 +1125,7 @@ relative_pol(GEN pol, GEN emb, GEN pol2)
 {
   GEN eqn, polrel;
   if (degree(pol)==1) return pol2;
-  emb = liftpol(emb);
-  eqn = gsub(emb, pol_x(varn(pol)));
+  eqn = gsub(liftpol_shallow(emb), pol_x(varn(pol)));
   eqn = Q_remove_denom(eqn, NULL);
   polrel = nfgcd(pol2, eqn, pol, NULL);
   return RgX_Rg_div(polrel, leading_coeff(polrel));

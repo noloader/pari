@@ -114,9 +114,8 @@ ellnfcompisog(GEN nf, GEN F, GEN G)
   if (!nf) return ellcompisog(F, G);
   T = nf_get_pol(nf);
   timer_start(&ti);
-  checkellisog(F);
-  checkellisog(G);
-  F = liftpol(F); G = liftpol(G);
+  checkellisog(F); F = liftpol_shallow(F);
+  checkellisog(G); G = liftpol_shallow(G);
   get_isog_vars(F, &vx, &vy);
   Gh = to_RgX(gel(G,3),vx); Gh2 = QXQX_sqr(Gh, T); Gh3 = QXQX_mul(Gh, Gh2, T);
   F0 = to_RgX(polcoef(gel(F,2), 0, vy), vx);

@@ -3919,9 +3919,10 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
   if (nf)
   {
     long v0 = fetch_var();
-    GEN q;
-    GEN T = nf_get_pol(nf);
-    k = nfcompositum_lambda(nf, liftpol(A), liftpol(B), k);
+    GEN q, T = nf_get_pol(nf);
+    A = liftpol_shallow(A);
+    B = liftpol_shallow(B);
+    k = nfcompositum_lambda(nf, A, B, k);
     if (flag&1)
     {
       GEN H0, H1;
@@ -3937,9 +3938,10 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
       H0 = lift_if_rational(H0);
       H1 = lift_if_rational(H1);
       LPRS = mkvec2(H0,H1);
-    } else
+    }
+    else
     {
-      C = nf_direct_compositum(nf, RgX_rescale(liftpol(A),stoi(-k)), liftpol(B));
+      C = nf_direct_compositum(nf, RgX_rescale(A,stoi(-k)), B);
       setvarn(C, v); C = QXQX_to_mod_shallow(C, T);
     }
   }

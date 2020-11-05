@@ -1249,7 +1249,7 @@ galoissubfieldcm(GEN G, long fl)
 
   /* compute a totally imaginary generator */
   pol = gel(sub,1);
-  emb = liftpol(gel(sub,2));
+  emb = liftpol_shallow(gel(sub,2));
   d = degpol(pol);
   if (!(ZX_deflate_order(pol)%2) && sturm(RgX_deflate(pol,2))==d/2)
   {
