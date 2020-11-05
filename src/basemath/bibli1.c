@@ -1092,14 +1092,14 @@ minim_lll(GEN a, GEN *u)
 }
 
 static void
-forqfvec_init_dolll(struct qfvec *qv, GEN a, long dolll)
+forqfvec_init_dolll(struct qfvec *qv, GEN *pa, long dolll)
 {
-  GEN r, u;
+  GEN r, u, a = *pa;
   if (!dolll) u = NULL;
   else
   {
     if (typ(a) != t_MAT || !RgM_is_ZM(a)) pari_err_TYPE("qfminim",a);
-    a = minim_lll(a, &u);
+    a = *pa = minim_lll(a, &u);
   }
   qv->a = RgM_gtofp(a, DEFAULTPREC);
   r = qfgaussred_positive(qv->a);
@@ -1115,7 +1115,7 @@ forqfvec_init_dolll(struct qfvec *qv, GEN a, long dolll)
 
 static void
 forqfvec_init(struct qfvec *qv, GEN a)
-{ forqfvec_init_dolll(qv, a, 1); }
+{ forqfvec_init_dolll(qv, &a, 1); }
 
 static void
 forqfvec_i(void *E, long (*fun)(void *, GEN, GEN, double), struct qfvec *qv, GEN BORNE)
@@ -1296,7 +1296,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
   }
   minim_alloc(n, &q, &x, &y, &z, &v);
 
-  forqfvec_init_dolll(&qv, a, dolll);
+  forqfvec_init_dolll(&qv, &a, dolll);
   av1 = avma;
   r = qv.r;
   u = qv.u;
