@@ -700,6 +700,9 @@ mf=mfinit(F);
 [mf2,g]=mfshimura(mf,F);
 mfcuspval(mf2,g,0)
 
+T3=mfpow(T,3);mf=mfinit(T3);
+[mf,TSHI,res]=mfshimura(mf,T3);
+mfcoefs(TSHI,10)
 T5=mfpow(T,5);
 [mf,TSHI,res]=mfshimura(mfinit(T5),T5);
 mfcoefs(TSHI,10)

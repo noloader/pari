@@ -8944,11 +8944,11 @@ charLFwt1(long N, GEN CHI, long ord, long t)
   S = gen_0; vt = varn(mfcharpol(CHI));
   for (r = 1; r < N; r++)
   { /* S += r*chi(r) */
-    long a;
+    long a, c;
     if (ugcd(N,r) != 1) continue;
     a = mfcharevalord(CHI,r,ord);
-    if (t != 1 && kross(t, r) < 0) r = -r;
-    S = gadd(S, Qab_Czeta(a, ord, stoi(r), vt));
+    c = (t != 1 && kross(t, r) < 0)? -r: r;
+    S = gadd(S, Qab_Czeta(a, ord, stoi(c), vt));
   }
   return gdivgs(S, -2*N);
 }
