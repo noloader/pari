@@ -1360,9 +1360,9 @@ RgXn_mul2(GEN f, GEN g, long n)
   n0 = n>>1; n1 = n-n0;
   RgX_even_odd(f, &fe, &fo);
   RgX_even_odd(g, &ge, &go);
-  l = RgXn_mul(fe,ge,n1);
-  h = RgXn_mul(fo,go,n0);
-  m = RgX_sub(RgXn_mul(RgX_add(fe,fo),RgX_add(ge,go),n0), RgX_add(l,h));
+  l = RgXn_mul2(fe,ge,n1);
+  h = RgXn_mul2(fo,go,n0);
+  m = RgX_sub(RgXn_mul2(RgX_add(fe,fo),RgX_add(ge,go),n0), RgX_add(l,h));
   /* n1-1 <= n0 <= n1, deg l,m <= n1-1, deg h <= n0-1
    * result is t^2 h(t^2) + t m(t^2) + l(t^2) */
   l = RgX_inflate(l,2); /* deg l <= 2n1 - 2 <= n-1 */
@@ -1382,8 +1382,8 @@ RgX_mulhigh_i2(GEN f, GEN g, long n)
   long d = degpol(f)+degpol(g) + 1 - n;
   GEN h;
   if (d <= 2) return RgX_shift_shallow(RgX_mul(f,g), -n);
-  h = RgX_recip_shallow(RgXn_mul(RgX_recip_shallow(f),
-                                 RgX_recip_shallow(g), d));
+  h = RgX_recip_shallow(RgXn_mul2(RgX_recip_shallow(f),
+                                  RgX_recip_shallow(g), d));
   return RgX_shift_shallow(h, d-1-degpol(h)); /* possibly (fg)(0) = 0 */
 }
 
