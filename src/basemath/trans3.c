@@ -2249,7 +2249,7 @@ GEN
 zetahurwitz(GEN s, GEN x, long der, long bitprec)
 {
   pari_sp av = avma, av2;
-  GEN al, ral, ral0, Nx, S1, S2, S3, N2, rx, sch = NULL, s0 = s, y;
+  GEN a, ra, ra0, Nx, S1, S2, S3, N2, rx, sch = NULL, s0 = s, y;
   long j, k, m, N, precinit = nbits2prec(bitprec), prec = precinit;
   long fli = 0, v, prpr;
   pari_timer T;
@@ -2305,54 +2305,57 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       prpr = (lg(y) + v + 1)/v; if (gequal1(s0)) prpr += v;
       s = gadd(gadd(s0, pol_x(0)), zeroser(0, prpr));
     }
-  al = gneg(s0); ral = real_i(al); ral0 = ground(ral);
+  a = gneg(s0); ra = real_i(a); ra0 = ground(ra);
   if (gequal1(s0) && (!sch || gequal0(sch)))
     pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
-  fli = (gsigne(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17 - bitprec);
+  fli = (gsigne(ra0) >= 0 && gexpo(gsub(a, ra0)) < 17 - bitprec);
   if (!sch && fli)
-  { /* al ~ non negative integer */
-    k = itos(gceil(ral)) + 1;
+  { /* a ~ non negative integer */
+    k = itos(gceil(ra)) + 1;
     if (odd(k)) k++;
     N = 1;
   }
   else
   {
     double c;
-    GEN C, rs = real_i(gsubsg(1, s0));
+    GEN C, rs = real_i(gsubsg(1, s0)), ix = imag_i(x);
     long ebit = 0;
-    if (fli) al = gadd(al, ghalf); /* hack */
+    if (fli) a = gadd(a, ghalf); /* hack */
     if (gsigne(rs) > 0)
     {
       ebit = (long)(ceil(gtodouble(rs)*expu(bitprec)));
       bitprec += ebit; prec = nbits2prec(bitprec);
       x = gprec_w(x, prec);
       s = gprec_w(s, prec);
-      al = gprec_w(al, prec);
+      a = gprec_w(a, prec);
       if (sch) sch = gprec_w(sch, prec);
     }
     c = (typ(s) == t_INT)? 1: 20 * log((double)bitprec);
     k = bitprec * M_LN2 / (1 + dbllambertW0(M_PI / c));
-    k = maxss(itos(gceil(gadd(ral, ghalf))) + 1, k);
+    k = maxss(itos(gceil(gadd(ra, ghalf))) + 1, k);
     if (odd(k)) k++;
-    C = gmulsg(2, gmul(binomial(al, k+1), gdivgs(bernfrac(k+2), k+2)));
+    C = gmulsg(2, gmul(binomial(a, k+1), gdivgs(bernfrac(k+2), k+2)));
     C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
-    C = gadd(gpow(C, ginv(gsubsg(k+1, ral)), LOWDEFAULTPREC),
-             gabs(gsubsg(1,rx), LOWDEFAULTPREC));
-    C = gceil(polcoef_i(C, 0, -1));
+    C = gpow(C, ginv(gsubsg(k+1, ra)), LOWDEFAULTPREC);
+    C = polcoef_i(C, 0, -1);
+    /* need |N + x - 1|^2 > C^2 */
+    if (!gequal0(ix)) C = gsqrt(gsub(gsqr(C), gsqr(ix)), LOWDEFAULTPREC);
+    /* need |N + re(x) - 1| > C */
+    C = gceil(gadd(C, gsubsg(1, rx)));
     if (typ(C) != t_INT) pari_err_TYPE("zetahurwitz",s);
     N = itos(C);
     if (N < 1) N = 1;
   }
   N = maxss(N, 1 - itos(rx));
-  al = gneg(s);
+  a = gneg(s);
   if (DEBUGLEVEL>2) timer_start(&T);
   incrprec(prec);
   Nx = gmul(real_1(prec), gaddsg(N - 1, x));
-  S1 = S3 = gpow(Nx, al, prec);
+  S1 = S3 = gpow(Nx, a, prec);
   av2 = avma;
   for (m = N - 2; m >= 0; m--)
   {
-    S1 = gadd(S1, gpow(gaddsg(m,x), al, prec));
+    S1 = gadd(S1, gpow(gaddsg(m,x), a, prec));
     if ((m & 0xff) == 0) S1 = gerepileupto(av2, S1);
   }
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
@@ -2363,11 +2366,11 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     S2 = gen_0;
     for (j = k; j >= 2; j -= 2)
     {
-      GEN t = gsubgs(al, j), u = gmul(t, gaddgs(t, 1));
+      GEN t = gsubgs(a, j), u = gmul(t, gaddgs(t, 1));
       u = gmul(gdivgs(u, j*(j+1)), gmul(S2, N2));
       S2 = gadd(gdivgs(bernfrac(j), j), u);
     }
-    S2 = gmul(S2, gdiv(al, Nx));
+    S2 = gmul(S2, gdiv(a, Nx));
   }
   else
   {
@@ -2376,7 +2379,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   }
   S2 = gadd(ghalf, S2);
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
-  S2 = gmul(S3, gadd(gdiv(Nx, gaddsg(1, al)), S2));
+  S2 = gmul(S3, gadd(gdiv(Nx, gaddsg(1, a)), S2));
   S1 = gprec_wtrunc(gsub(S1, S2), precinit);
   if (sch) return gerepileupto(av, gsubst(S1, 0, sch));
   return gerepilecopy(av, S1);
