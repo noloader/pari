@@ -5,7 +5,7 @@ Done for version 2.14.0 (released ??/??/2020):
      2- GC error in idealinv [#2258]
      3- qfminim inefficiency (initial bound from non-LLL-reduced matrix)
      4- mfshimura in weight 3/2 => oo loop
-     5- zetahurwitz(s, huge x) was very slow
+     5- zetahurwitz(s, huge x) => overflow or very slow
 
   Added
 HC   1- new GP function eulerreal

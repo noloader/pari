@@ -2343,10 +2343,9 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     /* need |N + re(x) - 1| > C */
     C = gceil(gadd(C, gsubsg(1, rx)));
     if (typ(C) != t_INT) pari_err_TYPE("zetahurwitz",s);
-    N = itos(C);
-    if (N < 1) N = 1;
+    N = (signe(C) <= 0)? 1: itos(C);
   }
-  N = maxss(N, 1 - itos(rx));
+  if (gsigne(rx) < 0) N = maxss(N, 1 - itos(rx));
   a = gneg(s);
   if (DEBUGLEVEL>2) timer_start(&T);
   incrprec(prec);
