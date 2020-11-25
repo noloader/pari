@@ -2229,7 +2229,7 @@ binsplit(GEN *pP, GEN *pR, GEN aN2, GEN isqaN, GEN s, long j, long k, long prec)
     else
     {
       P = gmul(gaddgs(s, j2-1), gaddgs(s, j2));
-      P = gdivgs(gmul(P, isqaN), (j2+1) * (j2+2));
+      P = divgunu(gmul(P, isqaN), j2+1);
     }
     if (pP) *pP = P;
     if (pR) *pR = gmul(bernreal(j2+2, prec), P);
@@ -2317,20 +2317,17 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   }
   else
   {
-    double c;
     GEN C, rs = real_i(gsubsg(1, s0)), ix = imag_i(x);
-    long ebit = 0;
+    double c = (typ(s) == t_INT)? 1: 20 * log((double)bitprec);
     if (fli) a = gadd(a, ghalf); /* hack */
     if (gsigne(rs) > 0)
     {
-      ebit = (long)(ceil(gtodouble(rs)*expu(bitprec)));
-      bitprec += ebit; prec = nbits2prec(bitprec);
+      bitprec += (long)ceil(gtodouble(rs) * expu(bitprec));
+      prec = nbits2prec(bitprec);
       x = gprec_w(x, prec);
       s = gprec_w(s, prec);
-      a = gprec_w(a, prec);
       if (sch) sch = gprec_w(sch, prec);
     }
-    c = (typ(s) == t_INT)? 1: 20 * log((double)bitprec);
     k = bitprec * M_LN2 / (1 + dbllambertW0(M_PI / c));
     k = maxss(itos(gceil(gadd(ra, ghalf))) + 1, k);
     if (odd(k)) k++;
@@ -2362,12 +2359,12 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   N2 = ginv(gsqr(Nx));
   if (typ(s0) == t_INT)
   {
-    S2 = gen_0;
-    for (j = k; j >= 2; j -= 2)
+    S2 = bernreal(k, prec);
+    for (j = k - 2; j >= 2; j -= 2)
     {
       GEN t = gsubgs(a, j), u = gmul(t, gaddgs(t, 1));
-      u = gmul(gdivgs(u, j*(j+1)), gmul(S2, N2));
-      S2 = gadd(gdivgs(bernfrac(j), j), u);
+      u = gmul(divgunu(u, j), gmul(S2, N2));
+      S2 = gadd(gdivgs(bernreal(j, prec), j), u);
     }
     S2 = gmul(S2, gdiv(a, Nx));
   }
