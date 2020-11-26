@@ -2244,14 +2244,18 @@ binsplit(GEN *pP, GEN *pR, GEN aN2, GEN isqaN, GEN s, long j, long k, long prec)
   }
 }
 
+/* a0 +  a1 x + O(x^e), e >= 0 */
+static GEN
+deg1ser_shallow(GEN a1, GEN a0, long v, long e)
+{ return RgX_to_ser(deg1pol_shallow(a1, a0, v), e+2); }
+
 /* New zetahurwitz, from Fredrik Johansson. */
 GEN
 zetahurwitz(GEN s, GEN x, long der, long bitprec)
 {
   pari_sp av = avma, av2;
-  GEN a, ra, ra0, Nx, S1, S2, S3, N2, rx, sch = NULL, s0 = s, y;
-  long j, k, m, N, precinit = nbits2prec(bitprec), prec = precinit;
-  long fli = 0, v, prpr;
+  GEN a, ra, ra0, Nx, S1, S2, S3, N2, rx, sch = NULL, s0 = s, x0 = x, y;
+  long j, k, m, N, prec0 = nbits2prec(bitprec), prec = prec0, fli = 0;
   pari_timer T;
 
   if (der < 0) pari_err_DOMAIN("zetahurwitz", "der", "<", gen_0, stoi(der));
@@ -2265,10 +2269,9 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     }
     else
     {
-      GEN sser;
       if (gequal1(s)) pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
-      sser = gadd(gadd(s, pol_x(0)), zeroser(0, der + 2));
-      z = zetahurwitz(sser, x, 0, bitprec + der * log2(der));
+      s = deg1ser_shallow(gen_1, s, 0, der+2);
+      z = zetahurwitz(s, x, 0, bitprec + der * log2(der));
       z = gmul(mpfact(der), polcoef(z, der, -1));
     }
     return gerepileupto(av,z);
@@ -2277,18 +2280,18 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     return gerepilecopy(av, hurwitzp(s, x));
   switch(typ(x))
   {
-    case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX:
-      rx = ground(real_i(x));
-      if (signe(rx) <= 0 && gexpo(gsub(x, rx)) < 17 - bitprec)
-        pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
-      break;
+    case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: break;
     default:
       if (!(y = toser_i(x))) pari_err_TYPE("zetahurwitz", x);
-      x = y; rx = ground(polcoef_i(x, 0, -1));
-      if (typ(rx) != t_INT) pari_err_TYPE("zetahurwitz", x);
+      x = y; x0 = polcoef_i(x, 0, -1); break;
   }
+  rx = grndtoi(real_i(x0), &j);
+  if (typ(rx) != t_INT) pari_err_TYPE("zetahurwitz", x);
+  if (x0 == x && signe(rx) <= 0 && gexpo(gsub(x, rx)) < 17 - bitprec)
+    pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
   switch (typ(s))
   {
+    long v, pr;
     case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: break;
     default:
       if (!(y = toser_i(s))) pari_err_TYPE("zetahurwitz", s);
@@ -2296,14 +2299,15 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       s0 = polcoef_i(y, 0, -1);
       switch(typ(s0))
       {
-        case t_INT: case t_REAL: case t_COMPLEX: case t_FRAC: break;
+        case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: break;
         case t_PADIC: pari_err_IMPL("zetahurwitz(t_SER of t_PADIC)");
         default: pari_err_TYPE("zetahurwitz", s0);
       }
       sch = gequal0(s0)? y: serchop0(y);
       v = valp(sch);
-      prpr = (lg(y) + v + 1)/v; if (gequal1(s0)) prpr += v;
-      s = gadd(gadd(s0, pol_x(0)), zeroser(0, prpr));
+      pr = (lg(y) + v + 1) / v;
+      if (gequal1(s0)) pr += v;
+      s = deg1ser_shallow(gen_1, s0, 0, pr);
     }
   a = gneg(s0); ra = real_i(a); ra0 = ground(ra);
   if (gequal1(s0) && (!sch || gequal0(sch)))
@@ -2317,30 +2321,48 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   }
   else
   {
-    GEN C, rs = real_i(gsubsg(1, s0)), ix = imag_i(x);
+    GEN C, ix = imag_i(x0);
     double c = (typ(s) == t_INT)? 1: 20 * log((double)bitprec);
+    double rs = gtodouble(ra) + 1;
+    long k0;
     if (fli) a = gadd(a, ghalf); /* hack */
-    if (gsigne(rs) > 0)
+    if (rs > 0)
     {
-      bitprec += (long)ceil(gtodouble(rs) * expu(bitprec));
+      bitprec += (long)ceil(rs * expu(bitprec));
       prec = nbits2prec(bitprec);
       x = gprec_w(x, prec);
       s = gprec_w(s, prec);
       if (sch) sch = gprec_w(sch, prec);
     }
     k = bitprec * M_LN2 / (1 + dbllambertW0(M_PI / c));
-    k = maxss(itos(gceil(gadd(ra, ghalf))) + 1, k);
+    k0 = itos(gceil(gadd(ra, ghalf))) + 1;
+    k = maxss(k0, k);
     if (odd(k)) k++;
-    C = gmulsg(2, gmul(binomial(a, k+1), gdivgs(bernfrac(k+2), k+2)));
-    C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
+    /* R_k < 2 |binom(a,k+1) B_{k+2}/(k+2)| */
+    C = binomial(a, k+1); C = polcoef_i(C, 0, -1);
+    C = gmul(C, gdivgs(bernfrac(k+2), k+2));
+    C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec + 1);
     C = gpow(C, ginv(gsubsg(k+1, ra)), LOWDEFAULTPREC);
-    C = polcoef_i(C, 0, -1);
     /* need |N + x - 1|^2 > C^2 */
     if (!gequal0(ix)) C = gsqrt(gsub(gsqr(C), gsqr(ix)), LOWDEFAULTPREC);
     /* need |N + re(x) - 1| > C */
     C = gceil(gadd(C, gsubsg(1, rx)));
     if (typ(C) != t_INT) pari_err_TYPE("zetahurwitz",s);
-    N = (signe(C) <= 0)? 1: itos(C);
+    if (signe(C) > 0) N = itos(C);
+    else
+    { /* Need 2 |x^(-K) (B_K/K) binom(a, K-1)| < 2^-bit |x|^-rs |zeta(s,x)|
+       * with K = k+2; N = 1; |zeta(s,x)| ~ |x|^(rs-1);
+       * (B_K/K) binom(a, K-1) ~ 2 |a / 2Pi|^K */
+      double dx = dbllog2(x0), d = dx + log2(M_PI) - dbllog2(s0);
+      if (d > 0)
+      { /* d ~ log2 |2Pi x / a| */
+        long K = (long)ceil((bitprec + 2 + dx) / d);
+        K = maxss(k0, K);
+        if (odd(K)) K++;
+        if (K < k) k = K;
+      }
+      N = 1;
+    }
   }
   if (gsigne(rx) < 0) N = maxss(N, 1 - itos(rx));
   a = gneg(s);
@@ -2376,7 +2398,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   S2 = gadd(ghalf, S2);
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
   S2 = gmul(S3, gadd(gdiv(Nx, gaddsg(1, a)), S2));
-  S1 = gprec_wtrunc(gsub(S1, S2), precinit);
+  S1 = gprec_wtrunc(gsub(S1, S2), prec0);
   if (sch) return gerepileupto(av, gsubst(S1, 0, sch));
   return gerepilecopy(av, S1);
 }
