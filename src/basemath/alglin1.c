@@ -2887,21 +2887,41 @@ ZM_gauss(GEN a, GEN b0)
   return gerepileupto(av, res);
 }
 
+/* #C = n, C[z[i]] = K[i], complete by 0s */
 static GEN
-RgC_inflate(GEN K, GEN v, long n)
+RgC_inflate(GEN K, GEN z, long n)
 {
   GEN c = zerocol(n);
   long j, l = lg(K);
-  for (j = 1; j < l; j++) gel(c, v[j]) = gel(K, j);
+  for (j = 1; j < l; j++) gel(c, z[j]) = gel(K, j);
   return c;
 }
+/* in place: C[i] *= cB / v[i] */
+static void
+QC_normalize(GEN C, GEN v, GEN cB)
+{
+  long l = lg(C), i;
+  for (i = 1; i < l; i++)
+  {
+    GEN c = cB, k = gel(C,i), d = gel(v,i);
+    if (d)
+    {
+      if (isintzero(d)) { gel(C,i) = gen_0; continue; }
+      c = div_content(c, d);
+    }
+    gel(C,i) = c? gmul(k,c): k;
+  }
+}
+
 /* same as above, M rational; if flag = 1, call indexrank and return 1 sol */
 GEN
 QM_gauss_i(GEN M, GEN B, long flag)
 {
   pari_sp av = avma;
-  long i, l = lg(M);
+  long i, l, n;
+  int col = typ(B) == t_COL;
   GEN K, cB, N = cgetg_copy(M, &l), v = cgetg(l, t_VEC), z2 = NULL;
+
   for (i = 1; i < l; i++)
     gel(N,i) = Q_primitive_part(gel(M,i), &gel(v,i));
   if (flag)
@@ -2909,34 +2929,24 @@ QM_gauss_i(GEN M, GEN B, long flag)
     GEN z = ZM_indexrank(N), z1 = gel(z,1);
     z2 = gel(z,2);
     N = shallowmatextract(N, z1, z2);
-    B = typ(B) == t_MAT? rowpermute(B,z1): vecpermute(B,z1);
-    if (lg(z2) == l) z2 = NULL; else { v = vecpermute(v, z2); l = lg(v); }
+    B = col? vecpermute(B,z1): rowpermute(B,z1);
+    if (lg(z2) == l) z2 = NULL; else v = vecpermute(v, z2);
   }
   B = Q_primitive_part(B, &cB);
   K = ZM_gauss(N, B); if (!K) return gc_NULL(av);
-  for (i = 1; i < l; i++)
+  n = l - 1;
+  if (col)
   {
-    GEN c, k = gel(K,i), d = gel(v,i);
-    if (d)
-    {
-      if (isintzero(d))
-      {
-        if (gequal0(k)) continue;
-        return NULL;
-      }
-      d = inv_content(d);
-    }
-    c = mul_content(cB, d);
-    if (c) gel(K,i) = gmul(gel(K,i), c);
+    QC_normalize(K, v, cB);
+    if (z2) K = RgC_inflate(K, z2, n);
   }
-  if (z2)
+  else
   {
-    long n = lg(M)-1;
-    if (typ(B) == t_COL) K = RgC_inflate(K, z2, n);
-    else
+    long lK = lg(K);
+    for (i = 1; i < lK; i++)
     {
-      l = lg(B);
-      for (i = 1; i < l; i++) gel(B,i) = RgC_inflate(gel(B,i), z2, n);
+      QC_normalize(gel(K,i), v, cB);
+      if (z2) gel(K,i) = RgC_inflate(gel(K,i), z2, n);
     }
   }
   return gerepilecopy(av, K);

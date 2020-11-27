@@ -6,6 +6,7 @@ Done for version 2.14.0 (released ??/??/2020):
      3- qfminim inefficiency (initial bound from non-LLL-reduced matrix)
      4- mfshimura in weight 3/2 => oo loop
      5- zetahurwitz(s, huge x) => overflow or very slow
+     6- matsolve([1,1,1/2; 1,0,1/2; 2,1,0], [-1;1;-1]) -> SEGV [#2261]
 
   Added
 HC   1- new GP function eulerreal
