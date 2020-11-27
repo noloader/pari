@@ -1920,7 +1920,7 @@ fincke_pohst(GEN a, GEN B0, long stockmax, long PREC, FP_chk_fun *CHECK)
       if (CHECK) pari_err_TYPE("fincke_pohst [dimension 0]", a);
       retmkvec3(gen_0, gen_0, cgetg(1,t_MAT));
     }
-    u = lllfp(a, 0.75, LLL_GRAM);
+    u = lllfp(a, 0.75, LLL_GRAM | LLL_IM);
     if (lg(u) != lg(a)) return NULL;
     r = qf_apply_RgM(a,u);
     i = gprecision(r);

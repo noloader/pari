@@ -16,6 +16,7 @@ Vecsmall([0, 0, 0, 133, 165, 638, 396, 4268])
 []
 []
 [0, 0, [;]]
+[2, 1.0000000000000000000000000000000000000, Mat(1)]
 [0, 0, [;]]
 []
 [0, 0, [;]]
@@ -74,4 +75,4 @@ Vecsmall([0, 0, 0, 133, 165, 638, 396, 4268])
   ***   at top-level: qfeval(1,1)
   ***                 ^-----------
   *** qfeval: incorrect type in qfeval (t_INT).
-Total time spent: 13
+Total time spent: 9

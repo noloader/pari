@@ -12,6 +12,7 @@ qfminim(Q,8,,1)
 qfminim(Q,4,,1)
 qfminim([;],4,,1)
 qfminim([;],4,,2)
+qfminim(Mat(1),,,2) \\ #2262
 qfminim(matid(2),0,1,2)
 qfminim(matid(2),0,1,1)
 qfminim(matid(2),0,1,0)
