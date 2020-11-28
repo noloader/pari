@@ -44,7 +44,7 @@ K = bnfinit(polcompositum(polcyclo(5,y),y^2-5029,2), 1); K.cyc
 bnflog(K, 2)
 bnflog(K, 3)
 bnflog(K, 5)
-K = bnfinit(polcompositum(T0,y^2+499,2)); K.cyc
+K = bnfinit(polcompositum(T0,y^2+499,2), 1); K.cyc
 bnflog(K, 5)
 K = bnfinit(polcompositum(T0,y^3+3*y^2+2*y+125,2), 1); K.cyc
 bnflog(K, 2)
