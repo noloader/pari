@@ -1640,16 +1640,10 @@ Pade(GEN M, GEN *pP, GEN *pQ)
 static GEN
 veczetaprime(GEN a, GEN b, long N, long prec)
 {
-  long newprec, fpr = prec2nbits(prec), pr = (long)ceil(fpr * 1.5);
-  long l = nbits2prec(pr), e = fpr / 2;
-  GEN eps, A, B;
-  newprec = nbits2prec(pr + BITS_IN_LONG);
-  a = gprec_wensure(a, newprec);
-  b = gprec_wensure(b, newprec);
-  eps = real2n(-e, l);
-  A = veczeta(a, gsub(b, eps), N, newprec);
-  B = veczeta(a, gadd(b, eps), N, newprec);
-  return gmul2n(RgV_sub(B, A), e-1);
+  long B = prec2nbits(prec) / 2;
+  GEN v, h = mkcomplex(gen_0, real2n(-B, prec));
+  v = veczeta(a, gadd(b, h), N, prec);
+  return gmul2n(imag_i(v), B);
 }
 
 struct mon_w {

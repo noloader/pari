@@ -14,6 +14,7 @@ HC   1- new GP function eulerreal
 
   Changed
 HC   1- faster implementation of eulervec + cache result
+     2- sumnummonieninit(,1): faster algorithm (complex step)
 
 Done for version 2.13.0 (released 19/10/2020):
   Fixed
