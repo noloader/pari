@@ -13,4 +13,4 @@ Doc: the name of directory containing the optional data files. For now,
 
  \misctitle{Windows-specific note} On Windows operating systems, the
  special value \kbd{@} stands for ``the directory where the \kbd{gp}
- binary is installed''. This is the defaut value.
+ binary is installed''. This is the default value.
