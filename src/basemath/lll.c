@@ -940,16 +940,20 @@ dperotate(dpe_t **A, long k2, long k)
 }
 
 static void
+dpe_normalize0(dpe_t *x)
+{
+  int e;
+  x->d = frexp(x->d, &e);
+  x->e += e;
+}
+
+static void
 dpe_normalize(dpe_t *x)
 {
   if (x->d == 0.0)
     x->e = -LONG_MAX;
   else
-  {
-    int e;
-    x->d = frexp(x->d, &e);
-    x->e += e;
-  }
+    dpe_normalize0(x);
 }
 
 static GEN
@@ -991,16 +995,26 @@ static void
 dpe_mulz(dpe_t *x, dpe_t *y, dpe_t *z)
 {
   z->d = x->d * y->d;
-  z->e = x->e + y->e;
-  dpe_normalize(z);
+  if (z->d == 0.0)
+    z->e = -LONG_MAX;
+  else
+  {
+    z->e = x->e + y->e;
+    dpe_normalize0(z);
+  }
 }
 
 static void
 dpe_divz(dpe_t *x, dpe_t *y, dpe_t *z)
 {
   z->d = x->d / y->d;
-  z->e = x->e - y->e;
-  dpe_normalize(z);
+  if (z->d == 0.0)
+    z->e = -LONG_MAX;
+  else
+  {
+    z->e = x->e - y->e;
+    dpe_normalize0(z);
+  }
 }
 
 static void
