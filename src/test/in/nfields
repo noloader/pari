@@ -1,4 +1,4 @@
-HEAP=[168, if(sizebyte(0)==16,97898,99570)];
+HEAP=if(sizebyte(0)==16,[[168,97902]],[[168,99570],[168,99594]]);
 default(realprecision,154); Pi; default(realprecision,38);
 \e
 \\
@@ -134,4 +134,4 @@ rnfsteinitz(nf2,aa)
 \\
 setrand(1);quadclassunit(1-10^7,,[1,1])
 setrand(1);quadclassunit(10^9-3,,[0.5,0.5])
-if (getheap()!=HEAP, getheap())
+if (!setsearch(HEAP,getheap()), getheap())
