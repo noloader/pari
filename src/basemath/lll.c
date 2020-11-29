@@ -155,7 +155,7 @@ gc_lll(pari_sp av, int n, ...)
   http://www.shoup.net/ntl/ */
 
 /* x t_REAL, |x| >= 1/2. Test whether |x| <= 3/2 */
-int
+static int
 absrsmall2(GEN x)
 {
   long e = expo(x), l, i;
@@ -166,7 +166,7 @@ absrsmall2(GEN x)
   return 1;
 }
 /* x t_REAL; test whether |x| <= 1/2 */
-int
+static int
 absrsmall(GEN x)
 {
   long e, l, i;
@@ -801,11 +801,11 @@ Babai_heuristic(pari_sp av, long kappa, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
   *pB = B; *pU = U; return gc_bool(av, 0);
 }
 
-GEN
+static GEN
 ZC_to_RC(GEN x, long prec)
 { pari_APPLY_type(t_COL,itor(gel(x,i),prec)) }
 
-GEN
+static GEN
 ZM_to_RM(GEN x, long prec)
 { pari_APPLY_same(ZC_to_RC(gel(x,i),prec)) }
 
