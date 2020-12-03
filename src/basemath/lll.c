@@ -393,7 +393,7 @@ Babai_fast(pari_sp av, long kappa, GEN *pB, GEN *pU, double **mu, double **r,
         /* we have |X| >= 2 */
         if (atmp < 9007199254740992.)
         {
-          tmp = rint(tmp);
+          tmp = floor(tmp+.5);
           for (k=zeros+1; k<j; k++)
             dmael(mu,kappa,k) -= ldexp(tmp * dmael(mu,j,k), e);
           xx = (s64) tmp;
@@ -1262,7 +1262,7 @@ Babai_dpe(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, dpe_t **mu, dpe_t *
         /* we have |X| >= 2 */
         if (tmp->e < BITS_IN_LONG-1)
         {
-          long xx = (long) rint(ldexp(tmp->d, tmp->e)); /* X fits in an long */
+          long xx = (long) floor(ldexp(tmp->d, tmp->e)+.5); /* X fits in an long */
           if (xx > 0) /* = xx */
           {
             for (k=zeros+1; k<j; k++)
@@ -1306,7 +1306,7 @@ Babai_dpe(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, dpe_t **mu, dpe_t *
         else
         {
           long e = tmp->e - BITS_IN_LONG + 1;
-          long xx = (long) rint(ldexp(tmp->d, BITS_IN_LONG - 1));
+          long xx = (long) floor(ldexp(tmp->d, BITS_IN_LONG - 1)+.5);
           if (xx > 0)
           {
             for (k=zeros+1; k<j; k++)
