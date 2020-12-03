@@ -104,6 +104,13 @@ if test -n "$__gnuc__"; then
   # Specific optimisations for some architectures
   case "$arch" in
     sparcv8*) cflags=-mv8;;
+    i?86)
+      cmd="$CC $CFLAGS $extraflag -mpc64 -fno-strict-aliasing -o $exe gnu.c"
+      . log_cmd
+      if test -s $exe; then
+        cflags="-mpc64"
+      fi
+      . cleanup_exe;;
   esac
   # problems on some architectures
   case "$osname" in
