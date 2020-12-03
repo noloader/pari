@@ -104,10 +104,6 @@ if test -n "$__gnuc__"; then
   # Specific optimisations for some architectures
   case "$arch" in
     sparcv8*) cflags=-mv8;;
-    i?86|x86_64)
-      case "$__gnuc__" in
-        gcc*4.0.*) cflags=-fno-gcse-after-reload
-      esac
   esac
   # problems on some architectures
   case "$osname" in
