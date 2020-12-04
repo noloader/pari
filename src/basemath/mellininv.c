@@ -267,23 +267,15 @@ Kderivsmallinit(GEN ldata, GEN Vga, long m, long bit)
   return mkvec5(L, RgV_neg(M), mat, mkvecsmall(prec2), piA);
 }
 
-/* Evaluate a vector considered as a polynomial using Horner. Unstable!
- * If ui != NULL, ui = 1/u, evaluate P(1/u)*u^(deg P): useful for |u|>1 */
+/* Evaluate a vector considered as a polynomial using Horner. */
 static GEN
-evalvec(GEN vec, long N, GEN u, GEN ui)
+evalvec(GEN vec, long N, GEN u)
 {
-  pari_sp av = avma;
   GEN S = gen_0;
   long n;
   N = minss(N, lg(vec)-1);
-  if (!ui)
-    for (n = N; n >= 1; n--) S = gmul(u, gadd(gel(vec,n), S));
-  else
-  {
-    for (n = 1; n <= N; n++) S = gmul(ui, gadd(gel(vec,n), S));
-    S = gmul(gpowgs(u, n), S);
-  }
-  return gerepileupto(av, S);
+  for (n = N; n >= 1; n--) S = gmul(u, gadd(gel(vec,n), S));
+  return S;
 }
 
 /* gammamellininvinit accessors */
@@ -311,7 +303,7 @@ static GEN
 Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
 {
   GEN VS = GMi_get_VS(K), L = gel(VS,1), M = gel(VS,2), mat = gel(VS,3);
-  GEN d2, Lx, x2, x2i, S, pi, piA = gel(VS,5);
+  GEN d2, Lx, x2, S, pi, piA = gel(VS,5);
   long prec = gel(VS,4)[1], d = GMi_get_degree(K);
   long j, k, limn, N = lg(L)-1;
   double xd, Wd, Ed = M_LN2*bitprec / d;
@@ -331,14 +323,13 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   /* at this stage, x has been replaced by pi^(d/2) x */
   x2 = gsqr(x);
   Lx = gpowers(gneg(glog(x,prec)), vecsmall_max(L));
-  x2i = (gcmp(gnorml2(x2), gen_1) <= 0)? NULL: ginv(x2);
   S = gen_0;
   for (j = 1; j <= N; ++j)
   {
     long lj = L[j];
     GEN s = gen_0;
     for (k = 1; k <= lj; k++)
-      s = gadd(s, gmul(gel(Lx,k), evalvec(gmael(mat,j,k), limn, x2, x2i)));
+      s = gadd(s, gmul(gel(Lx,k), evalvec(gmael(mat,j,k), limn, x2)));
     S = gadd(S, gmul(gpow(x, gel(M,j), prec), s));
   }
   if (!gequal0(piA)) S = gmul(S, piA);
