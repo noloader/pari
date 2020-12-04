@@ -118,15 +118,8 @@ if test -n "$__gnuc__"; then
     nextstep) cflags="$cflags -traditional-cpp";;
   esac
 
-  # omit-frame-pointer incompatible with -pg
   PRFFLAGS="-pg $OPTFLAGS"
   GCOVFLAGS="-fprofile-arcs -ftest-coverage"
-  case "$optimization" in
-    full) case "$osname" in
-           mingw) ;;
-           *) OPTFLAGS="$OPTFLAGS -fomit-frame-pointer";;
-          esac;;
-  esac
 else
   DBGFLAGS=${DBGFLAGS:-'-g'}
   PRFFLAGS='-pg'
