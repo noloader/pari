@@ -270,20 +270,20 @@ Kderivsmallinit(GEN ldata, GEN Vga, long m, long bit)
 /* Evaluate a vector considered as a polynomial using Horner. Unstable!
  * If ui != NULL, ui = 1/u, evaluate P(1/u)*u^(deg P): useful for |u|>1 */
 static GEN
-evalvec(GEN vec, long lim, GEN u, GEN ui)
+evalvec(GEN vec, long N, GEN u, GEN ui)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   GEN S = gen_0;
   long n;
-  lim = minss(lim, lg(vec)-1);
+  N = minss(N, lg(vec)-1);
   if (!ui)
-    for (n = lim; n >= 1; --n) S = gmul(u, gadd(gel(vec,n), S));
+    for (n = N; n >= 1; n--) S = gmul(u, gadd(gel(vec,n), S));
   else
   {
-    for (n = 1; n <= lim; ++n) S = gmul(ui, gadd(gel(vec,n), S));
+    for (n = 1; n <= N; n++) S = gmul(ui, gadd(gel(vec,n), S));
     S = gmul(gpowgs(u, n), S);
   }
-  return gerepileupto(ltop, S);
+  return gerepileupto(av, S);
 }
 
 /* gammamellininvinit accessors */
