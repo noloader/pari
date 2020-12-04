@@ -90,6 +90,12 @@ if test -n "$__gnuc__"; then
   OPTFLAGS=-O3
   ASMINLINE=yes
   OPTFLAGS="$OPTFLAGS $warn"
+  cmd="$CC $CFLAGS $extraflag -ffp-contract=off -o $exe gnu.c"
+  . log_cmd
+  if test -s $exe; then
+    OPTFLAGS="$OPTFLAGS -ffp-contract=off"
+  fi
+  . cleanup_exe
   cmd="$CC $CFLAGS $extraflag -fno-strict-aliasing -o $exe gnu.c"
   . log_cmd
   if test -s $exe; then
