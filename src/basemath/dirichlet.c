@@ -399,13 +399,13 @@ dirpowerssum(ulong N, GEN s, long prec)
 {
   const ulong step = 2048;
   pari_sp av = avma, av2;
-  GEN P, V, W, F, c2, c3, c6, c12, c123, c1234, tmp, S;
+  GEN P, V, W, F, c2, c3, c6, tmp, S;
   forprime_t T;
   ulong x1, n, sq, p, precp;
   long prec0;
 
   if (!N) return gen_0;
-  if (N < 9UL) return gerepileupto(av, RgV_sum(dirpowers(N, s, prec)));
+  if (N < 1000UL) return gerepileupto(av, RgV_sum(dirpowers(N, s, prec)));
   sq = usqrt(N);
   V = cgetg(sq+1, t_VEC);
   W = cgetg(sq+1, t_VEC);
@@ -421,9 +421,6 @@ dirpowerssum(ulong N, GEN s, long prec)
     gel(F,n) = gadd(gel(F,n-1), gsqr(gel(V,n)));
   }
   c2 = gel(V,2); c3 = gel(V,3); c6 = gmul(c2, c3);
-  c12 = gaddgs(c2, 1);
-  c123 = gadd(c12, c3);
-  c1234 = gadd(gel(F,2), gadd(c2,c3));
   precp = 0; tmp = NULL; S = gen_0;
   u_forprime_init(&T, sq + 1, N);
   av2 = avma;
@@ -451,10 +448,10 @@ dirpowerssum(ulong N, GEN s, long prec)
       switch(q = N / d)
       {
         case 1: break;
-        case 2: tmp = gmul(tmp, c12); break;
-        case 3: tmp = gmul(tmp, c123); break;
+        case 2: tmp = gmul(tmp, gel(W,2)); break;
+        case 3: tmp = gmul(tmp, gel(W,3)); break;
         case 4:
-        case 5: tmp = gmul(tmp, c1234); break;
+        case 5: tmp = gmul(tmp, gel(W,4)); break;
         default:
         {
           GEN a = gel(F, usqrt(q)), b = gel(F, usqrt(q / 2));
