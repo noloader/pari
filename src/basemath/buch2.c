@@ -831,7 +831,6 @@ smooth_norm(FB_t *F, GEN *N, GEN *ex)
     if (v)
     {
       GEN LP = gel(F->LV,p);
-      if(!LP) pari_err_BUG("can_factor");
       if (lg(LP) == 1) return 0;
       if (stop) break;
     }
