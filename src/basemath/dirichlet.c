@@ -399,7 +399,7 @@ dirpowerssum(ulong N, GEN s, long prec)
 {
   const ulong step = 2048;
   pari_sp av = avma, av2;
-  GEN P, V, W, F, c2, c3, c6, tmp, S;
+  GEN P, V, W, F, c2, c3, c6, S;
   forprime_t T;
   ulong x1, n, sq, p, precp;
   long prec0;
@@ -421,16 +421,16 @@ dirpowerssum(ulong N, GEN s, long prec)
     gel(F,n) = gadd(gel(F,n-1), gsqr(gel(V,n)));
   }
   c2 = gel(V,2); c3 = gel(V,3); c6 = gmul(c2, c3);
-  precp = 0; tmp = NULL; S = gen_0;
+  precp = 0; S = gen_0;
   u_forprime_init(&T, sq + 1, N);
   av2 = avma;
   while ((p = u_forprime_next(&T)))
   {
-    GEN t = utor(p, prec0);
+    GEN t = utor(p, prec0), ps;
     if (precp) t = divru(t, precp);
     t = gpow(t, s, prec0);
-    tmp = precp? gmul(tmp, t): t; /* p^s */
-    S = gadd(S, gmul(gel(W, N / p), tmp));
+    ps = precp? gmul(ps, t): t; /* p^s */
+    S = gadd(S, gmul(gel(W, N / p), ps));
     precp = p;
     if ((p & 0x1ff) == 1) S = gerepileupto(av2, S);
   }
@@ -443,24 +443,23 @@ dirpowerssum(ulong N, GEN s, long prec)
     for (j = 1; j < lv; j++) if (gel(v,j))
     {
       ulong q, d = x1-1 + j; /* squarefree, coprime to 6 */
-      tmp = smallfact(d, gel(v,j), sq, V);
-      if (!tmp) continue;
+      GEN t = smallfact(d, gel(v,j), sq, V), u;
+      if (!t) continue;
       switch(q = N / d)
       {
-        case 1: break;
-        case 2: tmp = gmul(tmp, gel(W,2)); break;
-        case 3: tmp = gmul(tmp, gel(W,3)); break;
+        case 1: S = gadd(S, t); continue;
+        case 2: u = gel(W,2); break;
+        case 3: u = gel(W,3); break;
         case 4:
-        case 5: tmp = gmul(tmp, gel(W,4)); break;
+        case 5: u = gel(W,4); break;
         default:
         {
           GEN a = gel(F, usqrt(q)), b = gel(F, usqrt(q / 2));
           GEN c = gel(F, usqrt(q / 3)), d = gel(F, usqrt(q / 6));
-          tmp = gmul(tmp, gadd(gadd(a, gmul(c2, b)),
-                               gadd(gmul(c3, c), gmul(c6, d))));
+          u = gadd(gadd(a, gmul(c2, b)), gadd(gmul(c3, c), gmul(c6, d)));
         }
       }
-      S = gadd(S, tmp);
+      S = gadd(S, gmul(t, u));
     }
     if (x2 == N) break;
     S = gerepileupto(av2, S);
