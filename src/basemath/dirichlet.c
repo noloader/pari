@@ -393,36 +393,13 @@ smallfact(ulong n, GEN P, ulong sq, GEN V)
   }
   return c;
 }
-
-/* floor(sqrt(a)); sqrta ~ sqrt(a) [no rounding assumption];
- * assume (sqrta+1)^2 does not overflow */
-static ulong
-usqrt2(ulong a, double sqrta)
-{
-  ulong x = (ulong)sqrta, x2 = x * x;
-  if (x2 > a)
-  {
-    do { x--; x2 -= 2*x + 1; } while (x2 > a);
-    return x;
-  }
-  while (x2 < a)
-  {
-    ulong y = x2 + 2*x + 1;
-    if (y > a) return x;
-    x2 = y; x++;
-  }
-  return x;
-}
 /* sum_{n <= N} n^s. */
 GEN
 dirpowerssum(ulong N, GEN s, long prec)
 {
-  const double i2 = 0.70710678118654752440084436210484903928; /* 2^(-1/2) */
-  const double i3 = 0.57735026918962576450914878050195745565; /* 3^(-1/2) */
-  const double i6 = 0.40824829046386301636621401245098189866; /* 3^(-1/2) */
   const ulong step = 2048;
   pari_sp av = avma, av2;
-  GEN P, V, W, F, c2, c3, c6, S;
+  GEN P, V, W, F, c2, c3, c6, tmp, S;
   forprime_t T;
   ulong x1, n, sq, p, precp;
   long prec0;
@@ -444,16 +421,16 @@ dirpowerssum(ulong N, GEN s, long prec)
     gel(F,n) = gadd(gel(F,n-1), gsqr(gel(V,n)));
   }
   c2 = gel(V,2); c3 = gel(V,3); c6 = gmul(c2, c3);
-  precp = 0; S = gen_0;
+  precp = 0; tmp = NULL; S = gen_0;
   u_forprime_init(&T, sq + 1, N);
   av2 = avma;
   while ((p = u_forprime_next(&T)))
   {
-    GEN t = utor(p, prec0), ps;
+    GEN t = utor(p, prec0);
     if (precp) t = divru(t, precp);
     t = gpow(t, s, prec0);
-    ps = precp? gmul(ps, t): t; /* p^s */
-    S = gadd(S, gmul(gel(W, N / p), ps));
+    tmp = precp? gmul(tmp, t): t; /* p^s */
+    S = gadd(S, gmul(gel(W, N / p), tmp));
     precp = p;
     if ((p & 0x1ff) == 1) S = gerepileupto(av2, S);
   }
@@ -466,25 +443,24 @@ dirpowerssum(ulong N, GEN s, long prec)
     for (j = 1; j < lv; j++) if (gel(v,j))
     {
       ulong q, d = x1-1 + j; /* squarefree, coprime to 6 */
-      GEN u, t = smallfact(d, gel(v,j), sq, V);
-      if (!t) continue;
+      tmp = smallfact(d, gel(v,j), sq, V);
+      if (!tmp) continue;
       switch(q = N / d)
       {
-        case 1: S = gadd(S, t); continue;
-        case 2: u = gel(W,2); break;
-        case 3: u = gel(W,3); break;
+        case 1: break;
+        case 2: tmp = gmul(tmp, gel(W,2)); break;
+        case 3: tmp = gmul(tmp, gel(W,3)); break;
         case 4:
-        case 5: u = gel(W,4); break;
+        case 5: tmp = gmul(tmp, gel(W,4)); break;
         default:
         {
-          double sq = sqrt(q);
-          long ia = usqrt2(q, sq), ib = usqrt2(q/2, sq * i2);
-          long ic = usqrt2(q/3, sq * i3), id = usqrt2(q/6, sq * i6);
-          GEN a = gel(F, ia), b = gel(F, ib), c = gel(F, ic), d = gel(F, id);
-          u = gadd(gadd(a, gmul(c2, b)), gadd(gmul(c3, c), gmul(c6, d)));
+          GEN a = gel(F, usqrt(q)), b = gel(F, usqrt(q / 2));
+          GEN c = gel(F, usqrt(q / 3)), d = gel(F, usqrt(q / 6));
+          tmp = gmul(tmp, gadd(gadd(a, gmul(c2, b)),
+                               gadd(gmul(c3, c), gmul(c6, d))));
         }
       }
-      S = gadd(S, gmul(t, u));
+      S = gadd(S, tmp);
     }
     if (x2 == N) break;
     S = gerepileupto(av2, S);
