@@ -399,7 +399,7 @@ dirpowerssum(ulong N, GEN s, long prec)
 {
   const ulong step = 2048;
   pari_sp av = avma, av2;
-  GEN P, V, W, F, c2, c3, c6, S;
+  GEN P, V, W, F, c2, c3, c6, S, ps;
   forprime_t T;
   ulong x1, n, sq, p, precp;
   long prec0;
@@ -420,13 +420,13 @@ dirpowerssum(ulong N, GEN s, long prec)
     gel(W,n) = gadd(gel(W,n-1), gel(V,n));
     gel(F,n) = gadd(gel(F,n-1), gsqr(gel(V,n)));
   }
-  c2 = gel(V,2); c3 = gel(V,3); c6 = gmul(c2, c3);
-  precp = 0; S = gen_0;
+  c2 = gel(V,2); c3 = gel(V,3); c6 = gel(V,6);
+  precp = 0; ps = NULL; S = gen_0;
   u_forprime_init(&T, sq + 1, N);
   av2 = avma;
   while ((p = u_forprime_next(&T)))
   {
-    GEN t = utor(p, prec0), ps;
+    GEN t = utor(p, prec0);
     if (precp) t = divru(t, precp);
     t = gpow(t, s, prec0);
     ps = precp? gmul(ps, t): t; /* p^s */
