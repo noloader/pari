@@ -1179,12 +1179,12 @@ RgX_embed2(GEN P, long vt, GEN vT, GEN vU)
   for (i = 2; i < l; i++) gel(Q,i) = Rg_embed2(gel(P,i), vt, vT, vU);
   Q[1] = P[1]; return normalizepol_lg(Q,l);
 }
-/* embed polynomial f in variable vx [ may be a scalar ], E from getembed */
+/* embed polynomial f in variable 0 [ may be a scalar ], E from getembed */
 static GEN
-RgX_embed(GEN f, long vx, GEN E)
+RgX_embed(GEN f, GEN E)
 {
   GEN vT;
-  if (typ(f) != t_POL || varn(f) != vx) return mfembed(E, f);
+  if (typ(f) != t_POL || varn(f) != 0) return mfembed(E, f);
   if (lg(E) == 1) return f;
   vT = gel(E,2);
   if (lg(E) == 3)
@@ -1216,15 +1216,15 @@ mfmatembed(GEN E, GEN f)
   for (i = 1; i < l; i++) gel(g,i) = mfvecembed(E, gel(f,i));
   return g;
 }
-/* embed vector of polynomials in var vx */
+/* embed vector of polynomials in var 0 */
 static GEN
-RgXV_embed(GEN f, long vx, GEN E)
+RgXV_embed(GEN f, GEN E)
 {
   long i, l;
   GEN v;
   if (lg(E) == 1) return f;
   v = cgetg_copy(f, &l);
-  for (i = 1; i < l; i++) gel(v,i) = RgX_embed(gel(f,i), vx, E);
+  for (i = 1; i < l; i++) gel(v,i) = RgX_embed(gel(f,i), E);
   return v;
 }
 
@@ -1243,13 +1243,13 @@ mfembed(GEN E, GEN f)
 }
 /* vector of the sigma(f), sigma in vE */
 static GEN
-RgX_embedall(GEN f, long vx, GEN vE)
+RgX_embedall(GEN f, GEN vE)
 {
   long i, l = lg(vE);
   GEN v;
-  if (l == 2) return RgX_embed(f, vx, gel(vE,1));
+  if (l == 2) return RgX_embed(f, gel(vE,1));
   v = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(v,i) = RgX_embed(f, vx, gel(vE,i));
+  for (i = 1; i < l; i++) gel(v,i) = RgX_embed(f, gel(vE,i));
   return v;
 }
 /* matrix whose colums are the sigma(v), sigma in vE */
@@ -12012,7 +12012,7 @@ mfperiodpol(GEN mf0, GEN F, long flag, long bit)
     pol = fs_get_pols(F);
   }
   if (flag) pol = RgX_by_parity(pol, flag < 0);
-  return gerepilecopy(av, RgX_embedall(pol, 0, fs_get_vE(F)));
+  return gerepilecopy(av, RgX_embedall(pol, fs_get_vE(F)));
 }
 
 static int
@@ -12105,7 +12105,7 @@ mfsymboleval_direct(GEN fs, GEN path, GEN ga, GEN P)
   van = mfgetvan(fs, ga, &al, maxss(nlimA,nlimB), prec);
   S = intAoo(van, nlimA, al,w, P, A, k, prec);
   if (B) S = gsub(S, intAoo(van, nlimB, al,w, P, B, k, prec));
-  return RgX_embedall(S, 0, fs_get_vE(fs));
+  return RgX_embedall(S, fs_get_vE(fs));
 }
 
 /* Computation of int_A^oo (f | ga)(t)(X-t)^{k-2} dt, assuming convergence;
@@ -12131,7 +12131,7 @@ mfsymbolevalpartial(GEN fs, GEN A, GEN ga, long bit)
   }
   else
     S = intAoo0(fs, A, ga, P, bit);
-  S = RgX_embedall(S, 0, F? mfgetembed(F,prec): fs_get_vE(fs));
+  S = RgX_embedall(S, F? mfgetembed(F,prec): fs_get_vE(fs));
   delete_var(); return normalizeapprox(S, bit-20);
 }
 
@@ -12205,7 +12205,7 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
   }
   if (F) pari_err_TYPE("mfsymboleval", fs);
   D = a*d-b*c;
-  if (!D) { set_avma(av); return RgX_embedall(gen_0, 0, fs_get_vE(fs)); }
+  if (!D) { set_avma(av); return RgX_embedall(gen_0, fs_get_vE(fs)); }
   mfpols = fs_get_pols(fs);
   cosets = fs_get_cosets(fs);
   CHI = MF_get_CHI(mf); N = MF_get_N(mf);
@@ -12233,7 +12233,7 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
     if (gexpo(R) < -bitprec + 20) S = S1;
   }
   if (vabd) S = unact(S, vabd, k, prec);
-  S = RgX_embedall(S, 0, fs_get_vE(fs));
+  S = RgX_embedall(S, fs_get_vE(fs));
   return gerepileupto(av, normalizeapprox(S, bitprec-20));
 }
 
@@ -12344,8 +12344,8 @@ mfmanin(GEN FS, long bitprec)
   for (i = 1; i < lvE; i++)
   {
     GEN p, m, wp, wm, petdiag, r, E = gel(vE,i);
-    p = normal(RgXV_embed(vpp,0,E), polabs, roabs, rnfeq, &wp, prec);
-    m = normal(RgXV_embed(vmm,0,E), polabs, roabs, rnfeq, &wm, prec);
+    p = normal(RgXV_embed(vpp, E), polabs, roabs, rnfeq, &wp, prec);
+    m = normal(RgXV_embed(vmm, E), polabs, roabs, rnfeq, &wm, prec);
     petdiag = typ(pet)==t_MAT? gcoeff(pet,i,i): pet;
     r = gdiv(imag_i(gmul(wp, conj_i(wm))), petdiag);
     r = bestapprnfrel(r, polabs, roabs, rnfeq, prec);
