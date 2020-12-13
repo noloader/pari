@@ -9,6 +9,8 @@ Done for version 2.14.0 (released ??/??/2020):
      6- matsolve([1,1,1/2; 1,0,1/2; 2,1,0], [-1;1;-1]) -> SEGV [#2261]
      7- qfminim(Mat(1),,,2) -> precision error [#2262]
      8- subst(p, v, t_SER) very slow if p contains many variables [#2264]
+     9- mfsymboleval for trivial path returned 0 instead of a vector of 0s
+        when f has multiple embeddings [#2260]
 
   Added
 HC   1- new GP function eulerreal

@@ -1246,9 +1246,11 @@ static GEN
 RgX_embedall(GEN f, long vx, GEN vE)
 {
   long i, l = lg(vE);
-  GEN v = cgetg(l, t_VEC);
+  GEN v;
+  if (l == 2) return RgX_embed(f, vx, gel(vE,1));
+  v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(v,i) = RgX_embed(f, vx, gel(vE,i));
-  return l == 2? gel(v,1): v;
+  return v;
 }
 /* matrix whose colums are the sigma(v), sigma in vE */
 static GEN
@@ -12202,7 +12204,8 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
     return gerepileupto(av, normalizeapprox(z, bitprec-20));
   }
   if (F) pari_err_TYPE("mfsymboleval", fs);
-  D = a*d-b*c; if (!D) return gc_const(av, gen_0);
+  D = a*d-b*c;
+  if (!D) { set_avma(av); return RgX_embedall(gen_0, 0, fs_get_vE(fs)); }
   mfpols = fs_get_pols(fs);
   cosets = fs_get_cosets(fs);
   CHI = MF_get_CHI(mf); N = MF_get_N(mf);
