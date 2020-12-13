@@ -399,9 +399,9 @@ dirpowerssum(ulong N, GEN s, long prec)
 {
   const ulong step = 2048;
   pari_sp av = avma, av2;
-  GEN P, V, W, F, c2, c3, c6, S, ps;
+  GEN P, V, W, Q, c2, c3, c6, S, ps, Z;
   forprime_t T;
-  ulong x1, n, sq, p, precp;
+  ulong a, b, c, e, q, x1, n, sq, p, precp;
   long prec0;
 
   if (!N) return gen_0;
@@ -409,18 +409,28 @@ dirpowerssum(ulong N, GEN s, long prec)
   sq = usqrt(N);
   V = cgetg(sq+1, t_VEC);
   W = cgetg(sq+1, t_VEC);
-  F = cgetg(sq+1, t_VEC);
+  Q = cgetg(sq+1, t_VEC);
   prec0 = prec + EXTRAPRECWORD;
   s = gprec_w(s, prec0);
-  gel(V,1) = gel(W,1) = gel(F,1) = gen_1;
-  for (n = 2; n <= sq; n++)
+  gel(V,1) = gel(W,1) = gel(Q,1) = gen_1;
+  gel(V,2) = c2 = gexp(gmul(s, mplog2(prec0)), prec0); /* 2^s */
+  gel(W,2) = gaddgs(c2, 1);
+  gel(Q,2) = gaddgs(gsqr(c2), 1);
+  for (n = 3; n <= sq; n++)
   {
-    GEN t = divru(utor(n, prec0), n-1);
-    gel(V,n) = gmul(gel(V,n-1), gpow(t, s, prec0));
-    gel(W,n) = gadd(gel(W,n-1), gel(V,n));
-    gel(F,n) = gadd(gel(F,n-1), gsqr(gel(V,n)));
+    GEN t;
+    if (odd(n))
+    {
+      t = divru(utor(n, prec0), n-1); /* n / (n-1) */
+      t = gmul(gel(V,n-1), gpow(t, s, prec0)); /* = n^s */
+    }
+    else
+      t = gmul(c2, gel(V, n>> 1));
+    gel(V,n) = t; /* = n^s */
+    gel(W,n) = gadd(gel(W,n-1), gel(V,n));       /* = 1^s + ... + n^s */
+    gel(Q,n) = gadd(gel(Q,n-1), gsqr(gel(V,n))); /* = 1^2s + ... + n^2s */
   }
-  c2 = gel(V,2); c3 = gel(V,3); c6 = gel(V,6);
+  c3 = gel(V,3); c6 = gel(V,6);
   precp = 0; ps = NULL; S = gen_0;
   u_forprime_init(&T, sq + 1, N);
   av2 = avma;
@@ -434,7 +444,31 @@ dirpowerssum(ulong N, GEN s, long prec)
     precp = p;
     if ((p & 0x1ff) == 1) S = gerepileupto(av2, S);
   }
-  P = mkvecsmall2(2, 3); av2 = avma;
+  P = mkvecsmall2(2, 3);
+  Z = cgetg(sq+1, t_VEC);
+  /* a,b,c,e = sqrt(q), sqrt(q/2), sqrt(q/3), sqrt(q/6)
+   * Z[q] = Q[a] + 2^s Q[b] + 3^s Q[c] + 6^s Q[e], with Q[0] = 0 */
+  gel(Z, 1) = gen_1;
+  gel(Z, 2) = gel(W, 2);
+  gel(Z, 3) = gel(W, 3);
+  gel(Z, 4) = gel(Z, 5) = gel(W, 4);
+  gel(Z, 6) = gel(Z, 7) = gadd(gel(W,4), c6);
+  a = 2; b = c = e = 1;
+  for (q = 8; q <= sq; q++)
+  { /* Gray code: at most one of a,b,c,d differs (by 1) from previous value */
+    GEN z = gel(Z, q - 1);
+    ulong na, nb, nc, ne;
+    if ((na = usqrt(q)) != a)
+    { a = na; z = gadd(z, gel(V, na * na)); }
+    else if ((nb = usqrt(q / 2)) != b)
+    { b = nb; z = gadd(z, gel(V, 2 * nb * nb)); }
+    else if ((nc = usqrt(q / 3)) != c)
+    { c = nc; z = gadd(z, gel(V, 3 * nc * nc)); }
+    else if ((ne = usqrt(q / 6)) != e)
+    { e = ne; z = gadd(z, gel(V, 6 * ne * ne)); }
+    gel(Z,q) = z;
+  }
+  av2 = avma;
   for(x1 = 1;; x1 += step)
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, lv, x2 = (N >= 2*step && N - 2*step >= x1)? x1-1 + step: N;
@@ -442,22 +476,18 @@ dirpowerssum(ulong N, GEN s, long prec)
     lv = lg(v);
     for (j = 1; j < lv; j++) if (gel(v,j))
     {
-      ulong q, d = x1-1 + j; /* squarefree, coprime to 6 */
-      GEN t = smallfact(d, gel(v,j), sq, V), u;
+      ulong d = x1-1 + j; /* squarefree, coprime to 6 */
+      GEN t = smallfact(d, gel(v,j), sq, V), u; /* = d^s */
       if (!t) continue;
-      switch(q = N / d)
-      {
-        case 1: S = gadd(S, t); continue;
-        case 2: u = gel(W,2); break;
-        case 3: u = gel(W,3); break;
-        case 4:
-        case 5: u = gel(W,4); break;
-        default:
-        {
-          GEN a = gel(F, usqrt(q)), b = gel(F, usqrt(q / 2));
-          GEN c = gel(F, usqrt(q / 3)), d = gel(F, usqrt(q / 6));
-          u = gadd(gadd(a, gmul(c2, b)), gadd(gmul(c3, c), gmul(c6, d)));
-        }
+      /* S += d^s * Z[q] */
+      q = N / d;
+      if (q == 1) { S = gadd(S, t); continue; }
+      if (q <= sq) u = gel(Z, q);
+      else
+      { /* b, c, e are distinct if q > 49 */
+        a = usqrt(q); b = usqrt(q / 2); c = usqrt(q / 3); e = usqrt(q / 6);
+        u = gadd(gadd(gel(Q,a), gmul(c2, gel(Q,b))),
+                 gadd(gmul(c3, gel(Q,c)), gmul(c6, gel(Q,e))));
       }
       S = gadd(S, gmul(t, u));
     }
