@@ -399,7 +399,7 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
 {
   const ulong step = 2048;
   pari_sp av = avma, av2;
-  GEN P, V, W, Q, c2, c3, c6, S, ps, Z;
+  GEN P, V, W, Q, c2, Q2, Q3, Q6, S, ps, Z;
   forprime_t T;
   ulong a, b, c, e, q, x1, n, sq, p, precp;
   long prec0;
@@ -472,7 +472,9 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
       gel(W,n) = gadd(gel(W,n-1), gel(V,n));       /* = 1^s + ... + n^s */
       gel(Q,n) = gadd(gel(Q,n-1), gsqr(gel(V,n))); /* = 1^2s + ... + n^2s */
     }
-  c3 = gel(V,3); c6 = gel(V,6);
+  Q2 = RgV_Rg_mul(Q, gel(V,2));
+  Q3 = RgV_Rg_mul(Q, gel(V,3));
+  Q6 = RgV_Rg_mul(Q, gel(V,6));
   precp = 0; ps = NULL; S = gen_0;
   u_forprime_init(&T, sq + 1, N);
   av2 = avma;
@@ -494,8 +496,8 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
   gel(Z, 1) = gen_1;
   gel(Z, 2) = gel(W, 2);
   gel(Z, 3) = gel(W, 3);
-  gel(Z, 4) = gel(Z, 5) = gel(W, 4);
-  gel(Z, 6) = gel(Z, 7) = gadd(gel(W,4), c6);
+  gel(Z, 4) = gel(Z, 5) = gel(W,4);
+  gel(Z, 6) = gel(Z, 7) = gadd(gel(W,4), gel(V,6));
   a = 2; b = c = e = 1;
   for (q = 8; q <= sq; q++)
   { /* Gray code: at most one of a,b,c,d differs (by 1) from previous value */
@@ -527,10 +529,9 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
       if (q == 1) { S = gadd(S, t); continue; }
       if (q <= sq) u = gel(Z, q);
       else
-      { /* b, c, e are distinct if q > 49 */
+      {
         a = usqrt(q); b = usqrt(q / 2); c = usqrt(q / 3); e = usqrt(q / 6);
-        u = gadd(gadd(gel(Q,a), gmul(c2, gel(Q,b))),
-                 gadd(gmul(c3, gel(Q,c)), gmul(c6, gel(Q,e))));
+        u = gadd(gadd(gel(Q,a), gel(Q2,b)), gadd(gel(Q3,c), gel(Q6,e)));
       }
       S = gadd(S, gmul(t, u));
     }
