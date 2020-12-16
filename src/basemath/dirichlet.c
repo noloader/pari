@@ -375,15 +375,16 @@ dirpowers(long n, GEN x, long prec)
   return gerepilecopy(av, v);
 }
 
-/* P = prime divisors of (squarefree) n */
+/* P = prime divisors of (squarefree) n, V[i] = i^s for i <= sq.
+ * Return NULL if n is not sq-smooth, else n^s */
 static GEN
 smallfact(ulong n, GEN P, ulong sq, GEN V)
 {
-  long i, l = lg(P);
+  long i, l;
   ulong p;
   GEN c;
-  if (l == 1) return gen_1;
-  p = uel(P,l - 1); if (p > sq) return NULL;
+  if (n <= sq) return gel(V,n);
+  l = lg(P); p = uel(P,l - 1); if (p > sq) return NULL;
   c = gel(V, p);
   for (i = l-2; i > 0; i--)
   {
