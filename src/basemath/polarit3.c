@@ -3125,7 +3125,7 @@ GEN
 ffsumnbirred(GEN p, long n)
 {
   pari_sp av = avma, av2;
-  GEN q, t = p, v = vecfactoru(1, n);
+  GEN q, t = p, v = vecfactoru_i(1, n);
   long i;
   q = cgetg(n+1,t_VEC); gel(q,1) = p;
   for (i=2; i<=n; i++) gel(q,i) = mulii(gel(q,i-1), p);

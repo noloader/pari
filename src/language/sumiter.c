@@ -142,7 +142,7 @@ forfactoredpos(ulong a, ulong b, GEN code)
   for(x1 = a;; x1 += step, set_avma(av))
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, lv, x2 = (b >= 2*step && b - 2*step >= x1)? x1-1 + step: b;
-    GEN v = vecfactoru(x1, x2);
+    GEN v = vecfactoru_i(x1, x2);
     lv = lg(v);
     for (j = 1; j < lv; j++)
     {
@@ -269,7 +269,7 @@ forfactoredneg(ulong a, ulong b, GEN code)
   for(x2 = b;; x2 -= step, set_avma(av))
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, x1 = (x2 >= 2*step && x2-2*step >= a)? x2+1 - step: a;
-    GEN v = vecfactoru(x1, x2);
+    GEN v = vecfactoru_i(x1, x2);
     for (j = lg(v)-1; j; j--)
     { /* run backward: from factor(x1..x2) to factor(-x2..-x1) */
       ulong n = x1-1 + j;

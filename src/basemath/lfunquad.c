@@ -313,7 +313,7 @@ modulareven(long D, long r, long N0)
   B = muleven(N) * mfsturmNgk(N, k);
   vD = Dpos(d, N0, B);
   vP = vecRCpol(r, d);
-  l = lg(vD); B = vD[l-1] / N; V = vecfactoru(1, B);
+  l = lg(vD); B = vD[l-1] / N; V = vecfactoru_i(1, B);
   vs = cgetg(B+2, t_VEC); gel(vs,1) = usumdivk_0_all(r, d);
   for (i = 1; i <= B; i++) gel(vs, i+1) = usumdivk_fact_all(gel(V,i), r, d);
   M = cgetg(l, t_MAT);
@@ -519,7 +519,7 @@ modularodd(long D, long r, long N0)
   B = mulodd(N, kro) * mfsturmNgk(4*N, k);
   vD = Dneg(B, kro, dim + 5, N);
   vD4 = kro ? vD : div4(vD);
-  l = lg(vD); B = vD4[l-1] / N; V = vecfactoru(1, B);
+  l = lg(vD); B = vD4[l-1] / N; V = vecfactoru_i(1, B);
   vs = cgetg(B+2, t_VEC); gel(vs,1) = NULL; /* unused */
   for (i = 1; i <= B; i++) gel(vs,i+1) = usumdivktwist_fact_all(gel(V,i), r, d);
   M = cgetg(l, t_MAT);
