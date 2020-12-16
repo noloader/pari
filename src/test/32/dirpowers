@@ -10,7 +10,8 @@
 0
 10
 12.090146129863427947363219363504219501
+1.9653021041108146546512931866285750493
   ***   at top-level: dirpowerssum('x,1)
   ***                 ^------------------
   *** dirpowerssum: incorrect type in dirpowerssum (t_POL).
-Total time spent: 69
+Total time spent: 40

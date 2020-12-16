@@ -1,11 +1,16 @@
 Function: dirpowerssum
 Section: number_theoretical
 C-Name: dirpowerssum0
-Prototype: GGp
-Help: dirpowerssum(n,x): return 1^x + 2^x + ... + n^x.
-Doc: for positive integer $n$ and complex number $x$, return the sum
- $1^x + 2^x + \dots + n^x$. This is the same as \kbd{vecsum(dirpowers(n,x))},
- but faster and using only $O(\sqrt{n})$ memory instead of $O(n)$.
+Prototype: GGDGp
+Help: dirpowerssum(N,x,{f}): return f(1)1^x + f(2)2^x + ... + f(N)N^x, where
+ f is a completely multiplicative function (= 1 if omitted)
+Doc: for positive integer $N$ and complex number $x$, return the sum
+ $f(1)1^x + f(2)2^x + \dots + f(N)N^x$, where $f$ is a completely
+ multiplicative function. If $f$ is omitted, return
+ $1^x + \dots + N^x$. When $N \le 0$, the function returns $0$.
+
+ Unlike variants using \kbd{dirpowers(N,x)}, this function uses $O(\sqrt{N})$
+ memory instead of $O(N)$. And it is faster for large $N$.
  \bprog
  ? dirpowers(5, 2)
  %1 = [1, 4, 9, 16, 25]
@@ -14,16 +19,18 @@ Doc: for positive integer $n$ and complex number $x$, return the sum
  ? dirpowerssum(5, 2)
  %3 = 55
  ? \p200
- ? dirpowerssum(10^7, 1/2 + I * sqrt(3));
- time = 29,884 ms.
- ? vecsum(dirpowers(10^7, 1/2 + I * sqrt(3)))
- time = 41,894 ms.
+ ? s = 1/2 + I * sqrt(3); N = 10^7;
+ ? dirpowerssum(N, s);
+ time = 11,425 ms.
+ ? vecsum(dirpowers(N, s))
+ time = 19,365 ms.
+ ? dirpowerssum(N, s, n->kronecker(-23,n))
+ time = 10,981 ms.
 
- @eprog\noindent The penultimate command works with default stack size, the
- last one requires a stacksize of at least 5GB.
 
- When $n \le 0$, the function returns $0$.
+ @eprog\noindent The \kbd{dirpowerssum} commands work with default stack size,
+ the \kbd{dirpowers} one requires a stacksize of at least 5GB.
 
-Variant: Also available is
- \fun{GEN}{dirpowerssum}{ulong n, GEN x, long prec}.
-
+ \synt{dirpowerssumfun}{ulong N, GEN x, void *E, GEN (*f)(void*, ulong, long),
+                long prec}. When $f = \kbd{NULL}$, one may use
+ \fun{GEN}{dirpowerssum}{ulong N, GEN x, long prec}.
