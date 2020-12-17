@@ -2845,40 +2845,15 @@ ellE(GEN k, long prec)
 /**                             LOG(X)                             **/
 /**                                                                **/
 /********************************************************************/
-/* atanh(u/v) using binary splitting */
-static GEN
-atanhQ_split(ulong u, ulong v, long prec)
-{
-  long i, nmax;
-  GEN u2 = sqru(u), v2 = sqru(v);
-  double d = ((double)v) / u;
-  struct abpq_res R;
-  struct abpq A;
-  /* satisfies (2n+1) (v/u)^2n > 2^bitprec */
-  nmax = (long)(prec2nbits(prec) / (2*log2(d)));
-  abpq_init(&A, nmax);
-  A.a[0] = A.b[0] = gen_1;
-  A.p[0] = utoipos(u);
-  A.q[0] = utoipos(v);
-  for (i = 1; i <= nmax; i++)
-  {
-    A.a[i] = gen_1;
-    A.b[i] = utoipos((i<<1)+1);
-    A.p[i] = u2;
-    A.q[i] = v2;
-  }
-  abpq_sum(&R, 0, nmax, &A);
-  return rdivii(R.T, mulii(R.B,R.Q),prec);
-}
 /* log(2) = 18*atanh(1/26)-2*atanh(1/4801)+8*atanh(1/8749)
  * faster than 10*atanh(1/17)+4*atanh(13/499) for all precisions,
  * and than Pi/2M(1,4/2^n) ~ n log(2) for bitprec at least up to 10^8 */
 static GEN
 log2_split(long prec)
 {
-  GEN u = atanhQ_split(1, 26, prec);
-  GEN v = atanhQ_split(1, 4801, prec);
-  GEN w = atanhQ_split(1, 8749, prec);
+  GEN u = atanhuu(1, 26, prec);
+  GEN v = atanhuu(1, 4801, prec);
+  GEN w = atanhuu(1, 8749, prec);
   shiftr_inplace(v, 1); setsigne(v, -1);
   shiftr_inplace(w, 3);
   return addrr(mulur(18, u), addrr(v, w));

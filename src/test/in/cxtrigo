@@ -10,7 +10,7 @@ fun = [asin,acos,atan,asinh,acosh,atanh];
 FUN = [ASIN,ACOS,ATAN,ASINH,ACOSH,ATANH];
 
 test(f, F, N = 4) = {
-  my (h = 1./ N);
+  my (h = 1 / N);
   forstep (re = -N, N, h,
     forstep (im = -N, N, h,
       iferr(

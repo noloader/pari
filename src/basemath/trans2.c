@@ -762,15 +762,74 @@ mpatanh(GEN x)
   shiftr_inplace(z, -1); return gerepileuptoleaf(av, z);
 }
 
+/* atanh(u/v) using binary splitting, 0 < u < v */
+GEN
+atanhuu(ulong u, ulong v, long prec)
+{
+  long i, nmax;
+  GEN u2 = sqru(u), v2 = sqru(v);
+  double d = ((double)v) / u;
+  struct abpq_res R;
+  struct abpq A;
+  /* satisfies (2n+1) (v/u)^2n > 2^bitprec */
+  nmax = (long)(prec2nbits(prec) / (2*log2(d)));
+  abpq_init(&A, nmax);
+  A.a[0] = A.b[0] = gen_1;
+  A.p[0] = utoipos(u);
+  A.q[0] = utoipos(v);
+  for (i = 1; i <= nmax; i++)
+  {
+    A.a[i] = gen_1;
+    A.b[i] = utoipos((i<<1)+1);
+    A.p[i] = u2;
+    A.q[i] = v2;
+  }
+  abpq_sum(&R, 0, nmax, &A);
+  return rdivii(R.T, mulii(R.B,R.Q),prec);
+}
+
+static void
+err_atanh(GEN x, GEN bad) { pari_err_DOMAIN("atanh", "x", "=", bad, x); }
+
 GEN
 gatanh(GEN x, long prec)
 {
   long sx;
   pari_sp av;
   GEN a, y, z;
+  ulong u, v;
 
   switch(typ(x))
   {
+    case t_INT:
+      sx = signe(x);
+      if (!sx) return real_0(prec);
+      if (lgefint(x) > 3) break;
+      u = x[2];
+      if (u == 1) err_atanh(x, sx == 1? gen_1: gen_m1);
+      z = cgetg(3, t_COMPLEX); av = avma;
+      gel(z,1) = gerepileuptoleaf(av, atanhuu(1, u, prec));
+      gel(z,2) = Pi2n(-1, prec);
+      togglesign(sx > 0? gel(z,2): gel(z,1));
+      return z;
+    case t_FRAC:
+      y = gel(x,1);
+      z = gel(x,2); if (lgefint(y) > 3 || lgefint(z) > 3) break;
+      u = y[2]; v = z[2];
+      if (u > v)
+      {
+        z = cgetg(3, t_COMPLEX); av = avma;
+        gel(z,1) = gerepileuptoleaf(av, atanhuu(v, u, prec));
+        gel(z,2) = Pi2n(-1, prec);
+        togglesign(signe(y) > 0? gel(z,2): gel(z,1));
+      }
+      else
+      {
+        av = avma;
+        z = gerepileuptoleaf(av, atanhuu(u, v, prec));
+        if (signe(y) < 0) togglesign(z);
+      }
+      return z;
     case t_REAL:
       sx = signe(x);
       if (!sx) return real_0_bit(expo(x));
@@ -779,10 +838,10 @@ gatanh(GEN x, long prec)
       y = cgetg(3,t_COMPLEX);
       av = avma;
       z = subrs(x,1);
-      if (!signe(z)) pari_err_DOMAIN("atanh", "argument", "=", gen_1, x);
+      if (!signe(z)) err_atanh(x, gen_1);
       z = invr(z); shiftr_inplace(z, 1); /* 2/(x-1)*/
       z = addrs(z,1);
-      if (!signe(z)) pari_err_DOMAIN("atanh", "argument", "=", gen_m1, x);
+      if (!signe(z)) err_atanh(x, gen_m1);
       z = logr_abs(z);
       shiftr_inplace(z, -1); /* (1/2)log((1+x)/(x-1)) */
       gel(y,1) = gerepileuptoleaf(av, z);

@@ -13162,6 +13162,10 @@ $x \exp(x) = y$, for $y > 0$ a \typ{REAL}.
 
 \subsec{Other complex transcendental functions}
 
+\fun{GEN}{atanhuu}{ulong u, ulong v, long prec} computes \text{atanh}$(u/v)$
+using binary splitting, assuming $0 < u < v$. Not memory clean but suitable
+for \kbd{gerepileupto}.
+
 \fun{GEN}{szeta}{long s, long prec} returns the value of Riemann's zeta
 function at the (possibly negative) integer $s\neq 1$, in relative accuracy
 \kbd{prec}.

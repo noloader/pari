@@ -5215,6 +5215,7 @@ ulong   usqrt(ulong a);
 /* trans2.c */
 
 GEN     Qp_gamma(GEN x);
+GEN     atanhuu(ulong u, ulong v, long prec);
 GEN     gacosh(GEN x, long prec);
 GEN     gacos(GEN x, long prec);
 GEN     garg(GEN x, long prec);
