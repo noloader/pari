@@ -13204,12 +13204,20 @@ complex number (\typ{INT}, \typ{FRAC}, \typ{REAL} or \typ{COMPLEX}).
 when $x$ is real and $y$ pure imaginary.
 
 \fun{GEN}{pow2Pis}{GEN s, long prec} returns $(2\pi)^s$. The intent of this
-function and the next one is to be accurate even if $s$ has a huge imaginary
+function and the next ones is to be accurate even if $s$ has a huge imaginary
 part: $\pi$ is computed at an accuracy taking into account the cancellation
 induced by argument reduction when computing the sine or cosine of
 $\Im s \log 2\pi$.
 
 \fun{GEN}{powPis}{GEN s, long prec} returns $\pi^s$, as \kbd{pow2Pis}.
+
+\fun{long}{powcx_prec}{long e, GEN s, long prec} if $e \approx \log_2 |x|$
+return the precision at which $\log(x)$ must be computed to evaluate $x^s$
+reliably (taking into account argument reduction).
+
+\fun{GEN}{powcx}{GEN x, GEN logx, GEN s, long prec} assuming $s$ is a
+\typ{COMPLEX} and \kbd{logx} is \log$(x)$ computed to accuracy
+\kbd{powcx\_prec}, return $x^s$.
 
 \fun{void}{gsincos}{GEN x, GEN *s, GEN *c, long prec} general case.
 

@@ -400,10 +400,12 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
 {
   const ulong step = 2048;
   pari_sp av = avma, av2;
-  GEN P, V, W, Q, c2, Q2, Q3, Q6, S, ps, Z;
+  GEN P, V, W, Q, c2, Q2, Q3, Q6, S, Z, logp;
+  int needlogp;
   forprime_t T;
+  long gp[] = {evaltyp(t_INT)|_evallg(3), evalsigne(1)|evallgefint(3),0};
   ulong a, b, c, e, q, x1, n, sq, p, precp;
-  long prec0;
+  long prec0, prec1;
 
   if (!N) return gen_0;
   if (f)
@@ -423,12 +425,20 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
   V = cgetg(sq+1, t_VEC);
   W = cgetg(sq+1, t_VEC);
   Q = cgetg(sq+1, t_VEC);
-  prec0 = prec + EXTRAPRECWORD;
+  prec1 = prec0 = prec + EXTRAPRECWORD;
   s = gprec_w(s, prec0);
+  switch(typ(s))
+  {
+    case t_REAL: needlogp = 2; break; /* need log(p) */
+    case t_COMPLEX:
+      prec1 = powcx_prec(log2((double)N), s, prec);
+      needlogp = 1; break;
+    default: needlogp = 0; break; /* don't need log(p) */
+  }
   gel(V,1) = gel(W,1) = gel(Q,1) = gen_1;
-  c2 = gexp(gmul(s, mplog2(prec0)), prec0); /* f(2) 2^s */
+  c2 = gpow(gen_2, s, prec0);
   if (f) c2 = gmul(c2, f(E, 2, prec));
-  gel(V,2) = c2;
+  gel(V,2) = c2; /* f(2) 2^s */
   gel(W,2) = gaddgs(c2, 1);
   gel(Q,2) = gaddgs(gsqr(c2), 1);
   if (f)
@@ -444,7 +454,7 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
           t = gpow(utoipos(3), s, prec0);
         else
         {
-          t = divru(utor(n, prec0), n-2); /* n / (n-2) */
+          t = divru(utor(n, prec1), n-2); /* n / (n-2) */
           ts = gpow(t, s, prec0);
           t = gmul(nsprec, ts); /* = n^s */
         }
@@ -464,7 +474,7 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
       GEN t;
       if (odd(n))
       {
-        t = divru(utor(n, prec0), n-1); /* n / (n-1) */
+        t = divru(utor(n, prec1), n-1); /* n / (n-1) */
         t = gmul(gel(V,n-1), gpow(t, s, prec0)); /* = n^s */
       }
       else
@@ -476,15 +486,30 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
   Q2 = RgV_Rg_mul(Q, gel(V,2));
   Q3 = RgV_Rg_mul(Q, gel(V,3));
   Q6 = RgV_Rg_mul(Q, gel(V,6));
-  precp = 0; ps = NULL; S = gen_0;
+  precp = 0; logp = NULL; S = gen_0;
   u_forprime_init(&T, sq + 1, N);
   av2 = avma;
   while ((p = u_forprime_next(&T)))
   {
-    GEN t = utor(p, prec0), u;
-    if (precp) t = divru(t, precp);
-    t = gpow(t, s, prec0);
-    u = ps = precp? gmul(ps, t): t; /* p^s */
+    GEN u;
+    gp[2] = p;
+    if (needlogp)
+    {
+      if (!logp)
+        logp = logr_abs(utor(p, prec1));
+      else
+      { /* log p = log(precp) + 2 atanh((p - precp) / (p + precp)) */
+        ulong a = p >> 1, b = precp >> 1; /* p = 2a + 1, precp = 2b + 1 */
+        GEN z = atanhuu(a - b, a + b + 1, prec0); /* avoid overflow */
+        shiftr_inplace(z, 1);
+        logp = addrr(logp, z);
+      }
+      u = needlogp == 1? powcx(gp, logp, s, prec0)
+                       : mpexp(gmul(s, logp));
+    }
+    else
+      u = gpow(gp, s, prec0);
+    /* u = p^s */
     if (f) u = gmul(u, f(E, p, prec0));
     S = gadd(S, gmul(gel(W, N / p), u));
     precp = p;

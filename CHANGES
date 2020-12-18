@@ -16,7 +16,7 @@ Done for version 2.14.0 (released ??/??/2020):
 HC   1- new GP function eulerreal
 BA   2- fplll: fast, dpe and heuristic variants
      3- dirpowerssum: allow a completely multiplicative function
-     4- [libpari] atanhuu, atanhui
+     4- [libpari] atanhuu, atanhui, powcx, powcx_prec
 
   Changed
 HC   1- faster implementation of eulervec + cache result

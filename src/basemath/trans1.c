@@ -1138,7 +1138,7 @@ powfrac(GEN x, GEN n, long prec)
 
 /* n = a+ib, x > 0 real, ex ~ |log2(x)|; return precision at which
  * log(x) must be computed to evaluate x^n */
-static long
+long
 powcx_prec(long ex, GEN n, long prec)
 {
   GEN a = gel(n,1), b = gel(n,2);
@@ -1146,7 +1146,7 @@ powcx_prec(long ex, GEN n, long prec)
   e += gexpo_safe(is_rational_t(typ(a))? b: n);
   return e > 2? prec + nbits2extraprec(e): prec;
 }
-static GEN
+GEN
 powcx(GEN x, GEN logx, GEN n, long prec)
 {
   GEN sxb, cxb, xa, a = gel(n,1), xb = gmul(gel(n,2), logx);
