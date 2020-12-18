@@ -1247,6 +1247,7 @@ gpow(GEN x, GEN n, long prec)
     long p = powcx_prec(fabs(dbllog2(x)), n, prec);
     return gerepileupto(av, powcx(x, glog(x, p), n, prec));
   }
+  if (tn == t_PADIC) x = gcvtop(x, gel(n,2), precp(n));
   i = precision(n);
   if (i) prec = i;
   prec0 = prec;

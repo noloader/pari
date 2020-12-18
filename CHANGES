@@ -11,6 +11,7 @@ Done for version 2.14.0 (released ??/??/2020):
      8- subst(p, v, t_SER) very slow if p contains many variables [#2264]
      9- mfsymboleval for trivial path returned 0 instead of a vector of 0s
         when f has multiple embeddings [#2260]
+    10- 2^(1 + O(3^4)) -> type error
 
   Added
 HC   1- new GP function eulerreal
