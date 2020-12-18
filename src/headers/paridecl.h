@@ -4149,6 +4149,8 @@ GEN     lfuncost(GEN lmisc, GEN dom, long der, long bitprec);
 GEN     lfuncost0(GEN L, GEN dom, long der, long bitprec);
 GEN     lfuncreate(GEN obj);
 GEN     lfundual(GEN L, long bitprec);
+GEN     lfunparams(GEN ldata, long prec);
+GEN     lfunan(GEN ldata, long L, long prec);
 GEN     lfunhardy(GEN ldata, GEN t, long bitprec);
 GEN     lfuninit(GEN ldata, GEN dom, long der, long bitprec);
 GEN     lfuninit0(GEN ldata, GEN dom, long der, long bitprec);

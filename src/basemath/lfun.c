@@ -891,7 +891,7 @@ struct lfunp {
 };
 
 static void
-lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
+lfunp_set(GEN ldata, long der, long bitprec, struct lfunp *S)
 {
   const long derprec = (der > 1)? dbllog2(mpfact(der)): 0; /* log2(der!) */
   GEN Vga, N, L, k;
@@ -1341,7 +1341,7 @@ lfuncost(GEN L, GEN dom, long der, long bitprec)
   struct lfunp S;
 
   parse_dom(gtodouble(k), dom, &S);
-  lfunparams(ldata, der, bitprec, &S);
+  lfunp_set(ldata, der, bitprec, &S);
   set_avma(av); return mkvecsmall2(S.nmax, S.Dmax);
 }
 GEN
@@ -1397,7 +1397,7 @@ lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
   }
   k = ldata_get_k(ldata);
   parse_dom(gtodouble(k), dom, &S);
-  lfunparams(ldata, der, bitprec, &S);
+  lfunp_set(ldata, der, bitprec, &S);
   ldata = ldata_newprec(ldata, nbits2prec(S.Dmax));
   r = ldata_get_residue(ldata);
   /* Note: all guesses should already have been performed (thetainit more

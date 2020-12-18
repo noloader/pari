@@ -18,6 +18,7 @@ HC   1- new GP function eulerreal
 BA   2- fplll: fast, dpe and heuristic variants
      3- dirpowerssum: allow a completely multiplicative function
      4- [libpari] atanhuu, atanhui, powcx, powcx_prec
+     5- new GP function lfunparams (initial implementation P. Molin)
 
   Changed
 HC   1- faster implementation of eulervec + cache result

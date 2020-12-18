@@ -31,14 +31,20 @@ is_tagged(GEN v)
   GEN T = gel(v,1);
   return (typ(T)==t_VEC && lg(T)==3 && typ(gel(T,1))==t_VECSMALL);
 }
+/* rough check */
+static long
+is_ldata(GEN L)
+{
+  long l = lg(L);
+  return typ(L) == t_VEC && (l == 7 || l == 8);
+}
+/* thorough check */
 static void
 checkldata(GEN ldata)
 {
   GEN vga, w, N;
 #if 0 /* assumed already checked and true */
-  long l = lg(ldata);
-  if (typ(ldata)!=t_VEC || l < 7 || l > 8 || !is_tagged(ldata))
-    pari_err_TYPE("checkldata", ldata);
+  if (!is_ldata(ldata) || !is_tagged(ldata)) pari_err_TYPE("checkldata", ldata);
 #endif
   vga = ldata_get_gammavec(ldata);
   if (typ(vga) != t_VEC) pari_err_TYPE("checkldata [gammavec]",vga);
@@ -53,30 +59,65 @@ checkldata(GEN ldata)
   if (typ(N) != t_INT) pari_err_TYPE("checkldata [conductor]",N);
 }
 
+/* tag as t_LFUN_GENERIC */
+static void
+lfuncreate_tag(GEN L)
+{
+  if (is_tagged(L)) return;
+  gel(L,1) = tag(gel(L,1), t_LFUN_GENERIC);
+  if (typ(gel(L,2)) != t_INT) gel(L,2) = tag(gel(L,2), t_LFUN_GENERIC);
+}
+
+/* shallow */
+static GEN
+closure2ldata(GEN C, long prec)
+{
+  GEN L = closure_callgen0prec(C, prec);
+  if (is_ldata(L)) { checkldata(L); lfuncreate_tag(L); }
+  else L = lfunmisc_to_ldata_shallow(L);
+  return L;
+}
+
 /* data may be either an object (polynomial, elliptic curve, etc...)
  * or a description vector [an,sd,Vga,k,conductor,rootno,{poles}]. */
 GEN
 lfuncreate(GEN data)
 {
-  long lx = lg(data);
-  if (typ(data)==t_VEC && (lx == 7 || lx == 8))
+  if (is_ldata(data))
   {
-    GEN ldata = gcopy(data);
-    if (!is_tagged(data))
-    { /* tag first component as t_LFUN_GENERIC */
-      gel(ldata, 1) = tag(gel(ldata,1), t_LFUN_GENERIC);
-      if (typ(gel(ldata, 2))!=t_INT)
-        gel(ldata, 2) = tag(gel(ldata,2), t_LFUN_GENERIC);
-    }
-    checkldata(ldata); return ldata;
-  } else if (typ(data)==t_CLOSURE && closure_arity(data)==0)
+    GEN L = gcopy(data);
+    lfuncreate_tag(L); checkldata(L); return L;
+  }
+  if (typ(data) == t_CLOSURE && closure_arity(data)==0)
   {
     pari_sp av = avma;
-    GEN ldata = lfuncreate(closure_callgen0prec(data, DEFAULTPREC));
-    gel(ldata,1) = tag(data, t_LFUN_CLOSURE0);
-    return gerepilecopy(av, ldata);
+    GEN L = closure2ldata(data, DEFAULTPREC);
+    gel(L,1) = tag(data, t_LFUN_CLOSURE0); return gerepilecopy(av, L);
   }
   return lfunmisc_to_ldata(data);
+}
+
+GEN
+lfunparams(GEN L, long prec)
+{
+  pari_sp av = avma;
+  GEN k, N, v;
+  long p;
+
+  if (is_linit(L)) L = linit_get_ldata(L);
+  if (!is_ldata(L) || !is_tagged(L)) pari_err_TYPE("lfunparams", L);
+  N = ldata_get_conductor(L);
+  k = ldata_get_k(L);
+  v = ldata_get_gammavec(L);
+  p = gprecision(v);
+  if (p > prec) v = gprec_wtrunc(v, prec);
+  else if (p < prec)
+  {
+    GEN van = ldata_get_an(L), an = gel(van,2);
+    long t = mael(van,1,1);
+    if (t == t_LFUN_CLOSURE0) L = closure2ldata(an, prec);
+  }
+  return gerepilecopy(av, mkvec3(N, k, v));
 }
 
 /********************************************************************/
@@ -2698,10 +2739,8 @@ lfundatatype(GEN data)
 static GEN
 lfunmisc_to_ldata_i(GEN ldata, long shallow)
 {
-  long lx;
   if (is_linit(ldata)) ldata = linit_get_ldata(ldata);
-  lx = lg(ldata);
-  if (typ(ldata)==t_VEC && (lx == 7 || lx == 8) && is_tagged(ldata))
+  if (is_ldata(ldata) && is_tagged(ldata))
   {
     if (!shallow) ldata = gcopy(ldata);
     checkldata(ldata); return ldata;
@@ -2804,22 +2843,19 @@ ldata_vecan(GEN van, long L, long prec)
   return an;
 }
 
-/* shallow function */
+/* shallow */
 GEN
 ldata_newprec(GEN ldata, long prec)
 {
-  GEN van = ldata_get_an(ldata);
-  GEN an = gel(van, 2);
+  GEN van = ldata_get_an(ldata), an = gel(van, 2);
   long t = mael(van,1,1);
   switch (t)
   {
-    case t_LFUN_CLOSURE0:
-      return lfuncreate(closure_callgen0prec(an, prec));
+    case t_LFUN_CLOSURE0: return closure2ldata(an, prec);
     case t_LFUN_QF:
     {
       GEN eno = ldata_get_rootno(ldata);
-      if (typ(eno)==t_REAL && realprec(eno) < prec)
-        return lfunqf(an, prec);
+      if (typ(eno)==t_REAL && realprec(eno) < prec) return lfunqf(an, prec);
       break;
     }
   }
