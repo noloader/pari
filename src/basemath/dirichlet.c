@@ -324,33 +324,59 @@ vecpowuu(long N, ulong B)
   }
   return v;
 }
+
+/* does n^s require log(x) ? */
+static long
+get_needlog(GEN s)
+{
+  switch(typ(s))
+  {
+    case t_REAL: return 2; /* yes but not powcx */
+    case t_COMPLEX: return 1; /* yes using powcx */
+    default: return 0; /* no */
+  }
+}
 /* [1^B,...,N^B] */
 GEN
 vecpowug(long N, GEN B, long prec)
 {
-  GEN v, pow = NULL;
-  long p, precp = 2, eB, prec0;
+  GEN v, logp = NULL;
+  long gp[] = {evaltyp(t_INT)|_evallg(3), evalsigne(1)|evallgefint(3),0};
+  long p, precp = 2, prec0, prec1, needlog;
   forprime_t T;
   if (N == 1) return mkvec(gen_1);
   if (typ(B) == t_INT && lgefint(B) <= 3 && signe(B) >= 0)
     return vecpowuu(N, itou(B));
-  eB = gexpo(B);
-  prec0 = eB < 5? prec: prec + nbits2extraprec(eB);
+  needlog = get_needlog(B);
+  prec1 = prec0 = prec;
+  if (needlog == 1) prec1 = powcx_prec(log2((double)N), B, prec);
   u_forprime_init(&T, 2, N);
   v = const_vec(N, NULL);
   gel(v,1) = gen_1;
   while ((p = u_forprime_next(&T)))
   {
     long m, pk, oldpk;
-    if (!pow)
-      pow = gpow(utor(p,prec0), B, prec);
-    else
+    GEN u;
+    gp[2] = p;
+    if (needlog)
     {
-      GEN t = gpow(divru(utor(p,prec0), precp), B, prec);
-      pow = gmul(pow, t); /* (p / precp)^B * precp^B */
+      if (!logp)
+        logp = logr_abs(utor(p, prec1));
+      else
+      { /* Assuming p and precp are odd,
+         * log p = log(precp) + 2 atanh((p - precp) / (p + precp)) */
+        ulong a = p >> 1, b = precp >> 1; /* p = 2a + 1, precp = 2b + 1 */
+        GEN z = atanhuu(a - b, a + b + 1, prec1); /* avoid overflow */
+        shiftr_inplace(z, 1); logp = addrr(logp, z);
+      }
+      u = needlog == 1? powcx(gp, logp, B, prec0)
+                      : mpexp(gmul(B, logp));
+      if (p == 2) logp = NULL; /* reset: precp must be odd */
     }
+    else
+      u = gpow(gp, B, prec0);
     precp = p;
-    gel(v,p) = pow; /* p^B */
+    gel(v,p) = u; /* p^B */
     if (prec0 != prec) gel(v,p) = gprec_wtrunc(gel(v,p), prec);
     for (pk = p, oldpk = p; pk; oldpk = pk, pk = umuluu_le(pk,p,N))
     {
@@ -393,6 +419,9 @@ smallfact(ulong n, GEN P, ulong sq, GEN V)
   }
   return c;
 }
+static GEN
+Qtor(GEN x, long prec)
+{ return typ(x) == t_FRAC? fractor(x, prec): x; }
 /* sum_{n <= N} n^s. */
 GEN
 dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
@@ -401,11 +430,10 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
   const ulong step = 2048;
   pari_sp av = avma, av2;
   GEN P, V, W, Q, c2, Q2, Q3, Q6, S, Z, logp;
-  int needlogp;
   forprime_t T;
   long gp[] = {evaltyp(t_INT)|_evallg(3), evalsigne(1)|evallgefint(3),0};
   ulong a, b, c, e, q, x1, n, sq, p, precp;
-  long prec0, prec1;
+  long prec0, prec1, needlog;
 
   if (!N) return gen_0;
   if (f)
@@ -416,73 +444,55 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
       S = gen_1;
       for (n = 2; n <= N; n++)
         S = gadd(S, gmul(gel(V,n), f(E, n, prec)));
-      return gerepileupto(av, S);
+      return gerepileupto(av, Qtor(S, prec));
     }
   }
   else if (N < 1000UL)
-    return gerepileupto(av, RgV_sum(vecpowug(N, s, prec)));
+    return gerepileupto(av, Qtor(RgV_sum(vecpowug(N, s, prec)), prec));
   sq = usqrt(N);
   V = cgetg(sq+1, t_VEC);
   W = cgetg(sq+1, t_VEC);
   Q = cgetg(sq+1, t_VEC);
   prec1 = prec0 = prec + EXTRAPRECWORD;
   s = gprec_w(s, prec0);
-  switch(typ(s))
-  {
-    case t_REAL: needlogp = 2; break; /* need log(p) */
-    case t_COMPLEX:
-      prec1 = powcx_prec(log2((double)N), s, prec);
-      needlogp = 1; break;
-    default: needlogp = 0; break; /* don't need log(p) */
-  }
+  needlog = get_needlog(s);
+  if (needlog == 1) prec1 = powcx_prec(log2((double)N), s, prec);
   gel(V,1) = gel(W,1) = gel(Q,1) = gen_1;
   c2 = gpow(gen_2, s, prec0);
   if (f) c2 = gmul(c2, f(E, 2, prec));
   gel(V,2) = c2; /* f(2) 2^s */
-  gel(W,2) = gaddgs(c2, 1);
-  gel(Q,2) = gaddgs(gsqr(c2), 1);
-  if (f)
+  gel(W,2) = Qtor(gaddgs(c2, 1), prec0);
+  gel(Q,2) = Qtor(gaddgs(gsqr(c2), 1), prec0);
+  logp = NULL;
+  for (n = 3; n <= sq; n++)
   {
-    GEN nsprec = NULL;
-    for (n = 3; n <= sq; n++)
+    GEN u;
+    if (odd(n))
     {
-      GEN t;
-      if (odd(n))
+      gp[2] = n;
+      if (needlog)
       {
-        GEN ts;
-        if (n == 3)
-          t = gpow(utoipos(3), s, prec0);
+        if (!logp)
+          logp = logr_abs(utor(n, prec1));
         else
-        {
-          t = divru(utor(n, prec1), n-2); /* n / (n-2) */
-          ts = gpow(t, s, prec0);
-          t = gmul(nsprec, ts); /* = n^s */
+        { /* log n = log(n-2) + 2 atanh(1 / (n - 1)) */
+          GEN z = atanhuu(1, n - 1, prec1);
+          shiftr_inplace(z, 1); logp = addrr(logp, z);
         }
-        nsprec = t;
-        t = gmul(t, f(E, n, prec0)); /* f(n) n^s */
+        u = needlog == 1? powcx(gp, logp, s, prec0)
+                        : mpexp(gmul(s, logp));
+
       }
       else
-        t = gmul(c2, gel(V, n>> 1));
-      gel(V,n) = t; /* = f(n) n^s */
-      gel(W,n) = gadd(gel(W,n-1), gel(V,n));       /* = sum_{i<=n} f(i)i^s */
-      gel(Q,n) = gadd(gel(Q,n-1), gsqr(gel(V,n))); /* = sum_{i<=n} f(i^2)i^2s */
+        u = gpow(gp, s, prec0);
+      if (f) u = gmul(u, f(E, n, prec0)); /* f(n) n^s */
     }
+    else
+      u = gmul(c2, gel(V, n>> 1));
+    gel(V,n) = u; /* = f(n) n^s */
+    gel(W,n) = gadd(gel(W,n-1), gel(V,n));       /* = sum_{i<=n} f(i)i^s */
+    gel(Q,n) = gadd(gel(Q,n-1), gsqr(gel(V,n))); /* = sum_{i<=n} f(i^2)i^2s */
   }
-  else
-    for (n = 3; n <= sq; n++)
-    {
-      GEN t;
-      if (odd(n))
-      {
-        t = divru(utor(n, prec1), n-1); /* n / (n-1) */
-        t = gmul(gel(V,n-1), gpow(t, s, prec0)); /* = n^s */
-      }
-      else
-        t = gmul(c2, gel(V, n>> 1));
-      gel(V,n) = t; /* = f(n) n^s */
-      gel(W,n) = gadd(gel(W,n-1), gel(V,n));       /* = 1^s + ... + n^s */
-      gel(Q,n) = gadd(gel(Q,n-1), gsqr(gel(V,n))); /* = 1^2s + ... + n^2s */
-    }
   Q2 = RgV_Rg_mul(Q, gel(V,2));
   Q3 = RgV_Rg_mul(Q, gel(V,3));
   Q6 = RgV_Rg_mul(Q, gel(V,6));
@@ -493,19 +503,18 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
   {
     GEN u;
     gp[2] = p;
-    if (needlogp)
+    if (needlog)
     {
       if (!logp)
         logp = logr_abs(utor(p, prec1));
       else
       { /* log p = log(precp) + 2 atanh((p - precp) / (p + precp)) */
         ulong a = p >> 1, b = precp >> 1; /* p = 2a + 1, precp = 2b + 1 */
-        GEN z = atanhuu(a - b, a + b + 1, prec0); /* avoid overflow */
-        shiftr_inplace(z, 1);
-        logp = addrr(logp, z);
+        GEN z = atanhuu(a - b, a + b + 1, prec1); /* avoid overflow */
+        shiftr_inplace(z, 1); logp = addrr(logp, z);
       }
-      u = needlogp == 1? powcx(gp, logp, s, prec0)
-                       : mpexp(gmul(s, logp));
+      u = needlog == 1? powcx(gp, logp, s, prec0)
+                      : mpexp(gmul(s, logp));
     }
     else
       u = gpow(gp, s, prec0);
