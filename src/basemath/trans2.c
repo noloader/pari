@@ -772,11 +772,36 @@ atanhuu(ulong u, ulong v, long prec)
   struct abpq_res R;
   struct abpq A;
   /* satisfies (2n+1) (v/u)^2n > 2^bitprec */
-  nmax = (long)(prec2nbits(prec) / (2*log2(d)));
+  nmax = (long)ceil(prec2nbits(prec) / (2*log2(d)));
   abpq_init(&A, nmax);
   A.a[0] = A.b[0] = gen_1;
   A.p[0] = utoipos(u);
   A.q[0] = utoipos(v);
+  for (i = 1; i <= nmax; i++)
+  {
+    A.a[i] = gen_1;
+    A.b[i] = utoipos((i<<1)+1);
+    A.p[i] = u2;
+    A.q[i] = v2;
+  }
+  abpq_sum(&R, 0, nmax, &A);
+  return rdivii(R.T, mulii(R.B,R.Q),prec);
+}
+/* atanh(u/v) using binary splitting, 0 < u < v */
+GEN
+atanhui(ulong u, GEN v, long prec)
+{
+  long i, nmax;
+  GEN u2 = sqru(u), v2 = sqri(v);
+  double d = gtodouble(v) / u;
+  struct abpq_res R;
+  struct abpq A;
+  /* satisfies (2n+1) (v/u)^2n > 2^bitprec */
+  nmax = (long)ceil(prec2nbits(prec) / (2*log2(d)));
+  abpq_init(&A, nmax);
+  A.a[0] = A.b[0] = gen_1;
+  A.p[0] = utoipos(u);
+  A.q[0] = v;
   for (i = 1; i <= nmax; i++)
   {
     A.a[i] = gen_1;
@@ -797,39 +822,48 @@ gatanh(GEN x, long prec)
   long sx;
   pari_sp av;
   GEN a, y, z;
-  ulong u, v;
 
   switch(typ(x))
   {
     case t_INT:
       sx = signe(x);
       if (!sx) return real_0(prec);
-      if (lgefint(x) > 3) break;
-      u = x[2];
-      if (u == 1) err_atanh(x, sx == 1? gen_1: gen_m1);
       z = cgetg(3, t_COMPLEX); av = avma;
-      gel(z,1) = gerepileuptoleaf(av, atanhuu(1, u, prec));
+      if (lgefint(x) == 3)
+      {
+        if (x[2] == 1) err_atanh(x, sx == 1? gen_1: gen_m1);
+        a = atanhuu(1, x[2], prec);
+      }
+      else
+        a = atanhui(1, x, prec);
+      gel(z,1) = gerepileuptoleaf(av, a);
       gel(z,2) = Pi2n(-1, prec);
       togglesign(sx > 0? gel(z,2): gel(z,1));
       return z;
     case t_FRAC:
-      y = gel(x,1);
-      z = gel(x,2); if (lgefint(y) > 3 || lgefint(z) > 3) break;
-      u = y[2]; v = z[2];
-      if (u > v)
+    {
+      long ly, lz;
+
+      y = gel(x,1); ly = lgefint(y);
+      z = gel(x,2); lz = lgefint(z); if (ly > 3 && lz > 3) break;
+      if (abscmpii(y, z) > 0) /* |y| > z; lz = 3 */
       {
+        ulong u = z[2];
         z = cgetg(3, t_COMPLEX); av = avma;
-        gel(z,1) = gerepileuptoleaf(av, atanhuu(v, u, prec));
+        a = ly == 3? atanhuu(u, y[2], prec): atanhui(u, y, prec);
+        gel(z,1) = gerepileuptoleaf(av, a);
         gel(z,2) = Pi2n(-1, prec);
         togglesign(signe(y) > 0? gel(z,2): gel(z,1));
       }
       else
-      {
+      { /* |y| < z; ly = 3 */
         av = avma;
-        z = gerepileuptoleaf(av, atanhuu(u, v, prec));
+        a = lz == 3? atanhuu(y[2], z[2], prec): atanhui(y[2], z, prec);
+        z = gerepileuptoleaf(av, a);
         if (signe(y) < 0) togglesign(z);
       }
       return z;
+    }
     case t_REAL:
       sx = signe(x);
       if (!sx) return real_0_bit(expo(x));

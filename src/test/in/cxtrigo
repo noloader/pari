@@ -26,6 +26,8 @@ test(f, F, N = 4) = {
   );
 }
 for(k = 1, #fun, test(fun[k], FUN[k]));
+atanh(2^64)
+atanh(3/2^64)
 default(realprecision,1155);
 a=sqrt(2)/2;
 sin(asin(a)) - a

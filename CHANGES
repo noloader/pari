@@ -16,12 +16,12 @@ Done for version 2.14.0 (released ??/??/2020):
 HC   1- new GP function eulerreal
 BA   2- fplll: fast, dpe and heuristic variants
      3- dirpowerssum: allow a completely multiplicative function
-     4- [libpari] atanhuu
+     4- [libpari] atanhuu, atanhui
 
   Changed
 HC   1- faster implementation of eulervec + cache result
      2- sumnummonieninit(,1): faster algorithm (complex step)
-     3- atanh(rational of small height) now uses binary splitting
+     3- atanh(rational) now uses binary splitting
 
 Done for version 2.13.0 (released 19/10/2020):
   Fixed
