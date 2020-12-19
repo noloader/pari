@@ -47,7 +47,7 @@ Doc: let \var{bnr} be the ray class group data output by
  representatives (implicit if the flag is $0$, computed and stored in the
  \var{bnr} if the flag is $1$) are in general different and this is what
  happens here. Indeed, the implicit generators are naturally expressed
- expressed in terms of \kbd{bnr.bnf.gen} and \kbd{bnr.bid.gen} and \emph{then}
+ in terms of \kbd{bnr.bnf.gen} and \kbd{bnr.bid.gen} and \emph{then}
  expanded and simplified (in the same ideal class) so that we obtain ideal
  representatives for \kbd{bnr.gen} which are as simple as possible.
  And indeed the quotient of the two $\alpha$ found is $1$ modulo the
