@@ -3429,21 +3429,20 @@ mpcos(GEN x)
 {
   long mod8;
   pari_sp av;
-  GEN y,p1;
+  GEN y, z;
 
   if (!signe(x)) {
     long l = nbits2prec(-expo(x));
     if (l < LOWDEFAULTPREC) l = LOWDEFAULTPREC;
     return real_1(l);
   }
-
-  av = avma; p1 = mpcosm1(x,&mod8);
+  av = avma; z = mpcosm1(x,&mod8);
   switch(mod8)
   {
-    case 0: case 4: y = addsr(1,p1); break;
-    case 1: case 7: y = mpaut(p1); togglesign(y); break;
-    case 2: case 6: y = subsr(-1,p1); break;
-    default:        y = mpaut(p1); break; /* case 3: case 5: */
+    case 0: case 4: y = addsr(1,z); break;
+    case 1: case 7: y = mpaut(z); togglesign(y); break;
+    case 2: case 6: y = subsr(-1,z); break;
+    default:        y = mpaut(z); break; /* case 3: case 5: */
   }
   return gerepileuptoleaf(av, y);
 }
@@ -3507,17 +3506,16 @@ mpsin(GEN x)
 {
   long mod8;
   pari_sp av;
-  GEN y,p1;
+  GEN y, z;
 
   if (!signe(x)) return real_0_bit(expo(x));
-
-  av = avma; p1 = mpcosm1(x,&mod8);
+  av = avma; z = mpcosm1(x,&mod8);
   switch(mod8)
   {
-    case 0: case 6: y=mpaut(p1); break;
-    case 1: case 5: y=addsr(1,p1); break;
-    case 2: case 4: y=mpaut(p1); togglesign(y); break;
-    default:        y=subsr(-1,p1); break; /* case 3: case 7: */
+    case 0: case 6: y = mpaut(z); break;
+    case 1: case 5: y = addsr(1,z); break;
+    case 2: case 4: y = mpaut(z); togglesign(y); break;
+    default:        y = subsr(-1,z); break; /* case 3: case 7: */
   }
   return gerepileuptoleaf(av, y);
 }
@@ -3603,7 +3601,7 @@ mpsincosm1(GEN x, GEN *s, GEN *c)
 {
   long mod8;
   pari_sp av, tetpil;
-  GEN p1, *gptr[2];
+  GEN z, *gptr[2];
 
   if (!signe(x))
   {
@@ -3612,19 +3610,19 @@ mpsincosm1(GEN x, GEN *s, GEN *c)
     *c = real_0_bit(2*e-1);
     return;
   }
-  av=avma; p1=mpcosm1(x,&mod8); tetpil=avma;
+  av = avma; z = mpcosm1(x,&mod8); tetpil = avma;
   switch(mod8)
   {
-    case 0: *c=rcopy(p1); *s=mpaut(p1); break;
-    case 1: *s=addsr(1,p1); *c=addrs(mpaut(p1),1); togglesign(*c); break;
-    case 2: *c=subsr(-2,p1); *s=mpaut(p1); togglesign(*s); break;
-    case 3: *s=subsr(-1,p1); *c=subrs(mpaut(p1),1); break;
-    case 4: *c=rcopy(p1); *s=mpaut(p1); togglesign(*s); break;
-    case 5: *s=addsr( 1,p1); *c=subrs(mpaut(p1),1); break;
-    case 6: *c=subsr(-2,p1); *s=mpaut(p1); break;
-    case 7: *s=subsr(-1,p1); *c=subsr(-1,mpaut(p1)); break;
+    case 0: *c = rcopy(z); *s = mpaut(z); break;
+    case 1: *s = addsr(1,z); *c = addrs(mpaut(z),1); togglesign(*c); break;
+    case 2: *c = subsr(-2,z); *s = mpaut(z); togglesign(*s); break;
+    case 3: *s = subsr(-1,z); *c = subrs(mpaut(z),1); break;
+    case 4: *c = rcopy(z); *s = mpaut(z); togglesign(*s); break;
+    case 5: *s = addsr( 1,z); *c = subrs(mpaut(z),1); break;
+    case 6: *c = subsr(-2,z); *s = mpaut(z); break;
+    case 7: *s = subsr(-1,z); *c = subsr(-1,mpaut(z)); break;
   }
-  gptr[0]=s; gptr[1]=c;
+  gptr[0] = s; gptr[1] = c;
   gerepilemanysp(av,tetpil,gptr,2);
 }
 
