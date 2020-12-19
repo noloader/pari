@@ -151,7 +151,7 @@ _jbessel(GEN n, GEN z, long flag, long m)
   GEN Z,s;
   long k;
 
-  Z = gmul2n(gsqr(z),-2); if (flag & 1) Z = gneg(Z);
+  Z = gmul2n(gsqr(z),-2); if (odd(flag)) Z = gneg(Z);
   if (typ(z) == t_SER)
   {
     long v = valp(z);
@@ -469,7 +469,7 @@ _kbessel1(long n, GEN z, long flag, long m, long prec)
   pari_sp av;
   long k;
 
-  Z = gmul2n(gsqr(z),-2); if (flag & 1) Z = gneg(Z);
+  Z = gmul2n(gsqr(z),-2); if (odd(flag)) Z = gneg(Z);
   if (typ(z) == t_SER)
   {
     long v = valp(z);
@@ -564,12 +564,12 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
         p2 = gsub(gmul2n(p1,-1),gmul(p2,p3));
         p2 = gprec_wtrunc(p2, prec);
         if (flK) {
-          if (k & 1) p2 = gneg(p2);
+          if (odd(k)) p2 = gneg(p2);
         }
         else
         {
           p2 = gdiv(p2, Pi2n(-1,prec));
-          if (ki >= 0 || (k&1)==0) p2 = gneg(p2);
+          if (ki >= 0 || !odd(k)) p2 = gneg(p2);
         }
         return gerepilecopy(av, p2);
       }
@@ -1659,7 +1659,7 @@ szeta(long k, long prec)
   if (!k) { z = real2n(-1, prec); setsigne(z,-1); return z; }
   if (k < 0)
   {
-    if ((k&1) == 0) return gen_0;
+    if (!odd(k)) return gen_0;
     /* the one value such that k < 0 and 1 - k < 0, due to overflow */
     if ((ulong)k == (HIGHBIT | 1))
       pari_err_OVERFLOW("zeta [large negative argument]");
@@ -3636,7 +3636,7 @@ thetanullk(GEN q, long k, long prec)
   if (l) prec = l;
   q = check_unit_disc("thetanullk", q, prec);
 
-  if (!(k&1)) { set_avma(av); return gen_0; }
+  if (!odd(k)) { set_avma(av); return gen_0; }
   qn = gen_1;
   ps2 = gsqr(q);
   ps = gneg_i(ps2);
