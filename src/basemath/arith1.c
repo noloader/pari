@@ -1160,7 +1160,7 @@ Zn_quad_roots(GEN N, GEN B, GEN C)
     if (i > 1)
     { /* p > 2 */
       if (kronecker(D0, p) == -1) return NULL;
-      q = powiu(p,s-t2);
+      q = powiu(p, s - t2);
       f = Zp_sqrt(D0, p, d);
       if (!f) return NULL; /* p was not actually prime... */
       if (t2) f = mulii(powiu(p,t2), f);
@@ -1168,16 +1168,16 @@ Zn_quad_roots(GEN N, GEN B, GEN C)
     }
     else
     { /* p = 2 */
-      if (d == 1) { Q0 = int2n(1+t2); F0 = NULL; continue; }
-      if (d == 2)
+      if (d <= 3)
       {
-        if (Mod4(D0) != 1) return NULL;
+        if (d == 3 && Mod8(D0) != 1) return NULL;
+        if (d == 2 && Mod4(D0) != 1) return NULL;
         Q0 = int2n(1+t2); F0 = NULL; continue;
       }
-      /* d > 2 */
       if (Mod8(D0) != 1) return NULL;
-      q = int2n(d-1+t2);
-      f = shifti(Z2_sqrt(D0, d), t2);
+      q = int2n(d - 1 + t2);
+      f = Z2_sqrt(D0, d);
+      if (t2) f = shifti(f, t2);
       mf = Fp_neg(f, q);
     }
     gel(Q,j) = q;

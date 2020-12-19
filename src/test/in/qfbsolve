@@ -38,6 +38,7 @@ qfbsolve(Qfb(1,0,1),F,1)
 qfbsolve(Qfb(1,0,1),[N,F])
 qfbsolve(Qfb(1,0,1),[N,F],1)
 qfbsolve(Qfb(5,16,7),factor(-30),1)
+qfbsolve(Qfb(1,0,7*16),128,1)
 
 \\ incorrect factorization
 qfbsolve(Qfb(1,0,1),Mat([2^198-3,1]))
