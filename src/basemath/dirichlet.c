@@ -489,7 +489,7 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
     }
     else
       u = gmul(c2, gel(V, n>> 1));
-    gel(V,n) = u; /* = f(n) n^s */
+    gel(V,n) = u; /* f(n) n^s */
     gel(W,n) = gadd(gel(W,n-1), gel(V,n));       /* = sum_{i<=n} f(i)i^s */
     gel(Q,n) = gadd(gel(Q,n-1), gsqr(gel(V,n))); /* = sum_{i<=n} f(i^2)i^2s */
   }
@@ -518,8 +518,7 @@ dirpowerssumfun(ulong N, GEN s, void *E, GEN (*f)(void *, ulong, long),
     }
     else
       u = gpow(gp, s, prec0);
-    /* u = p^s */
-    if (f) u = gmul(u, f(E, p, prec0));
+    if (f) u = gmul(u, f(E, p, prec0)); /* f(p) p^s */
     S = gadd(S, gmul(gel(W, N / p), u));
     precp = p;
     if ((p & 0x1ff) == 1) S = gerepileupto(av2, S);
