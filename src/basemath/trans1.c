@@ -3570,7 +3570,7 @@ mpsincos(GEN x, GEN *s, GEN *c)
 {
   long mod8;
   pari_sp av, tetpil;
-  GEN p1, *gptr[2];
+  GEN z, *gptr[2];
 
   if (!signe(x))
   {
@@ -3580,20 +3580,19 @@ mpsincos(GEN x, GEN *s, GEN *c)
     return;
   }
 
-  av=avma; p1=mpcosm1(x,&mod8); tetpil=avma;
+  av = avma; z = mpcosm1(x, &mod8); tetpil = avma;
   switch(mod8)
   {
-    case 0: *c=addsr( 1,p1); *s=mpaut(p1); break;
-    case 1: *s=addsr( 1,p1); *c=mpaut(p1); togglesign(*c); break;
-    case 2: *c=subsr(-1,p1); *s=mpaut(p1); togglesign(*s); break;
-    case 3: *s=subsr(-1,p1); *c=mpaut(p1); break;
-    case 4: *c=addsr( 1,p1); *s=mpaut(p1); togglesign(*s); break;
-    case 5: *s=addsr( 1,p1); *c=mpaut(p1); break;
-    case 6: *c=subsr(-1,p1); *s=mpaut(p1); break;
-    case 7: *s=subsr(-1,p1); *c=mpaut(p1); togglesign(*c); break;
+    case 0: *c = addsr( 1,z); *s = mpaut(z); break;
+    case 1: *s = addsr( 1,z); *c = mpaut(z); togglesign(*c); break;
+    case 2: *c = subsr(-1,z); *s = mpaut(z); togglesign(*s); break;
+    case 3: *s = subsr(-1,z); *c = mpaut(z); break;
+    case 4: *c = addsr( 1,z); *s = mpaut(z); togglesign(*s); break;
+    case 5: *s = addsr( 1,z); *c = mpaut(z); break;
+    case 6: *c = subsr(-1,z); *s = mpaut(z); break;
+    case 7: *s = subsr(-1,z); *c = mpaut(z); togglesign(*c); break;
   }
-  gptr[0]=s; gptr[1]=c;
-  gerepilemanysp(av,tetpil,gptr,2);
+  gptr[0] = s; gptr[1] = c; gerepilemanysp(av,tetpil,gptr,2);
 }
 
 /* SINE and COSINE - 1 */
