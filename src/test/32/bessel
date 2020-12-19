@@ -837,8 +837,8 @@ bessely
 [8, 8]: 3.9757472194224873313063069161081647375 E304 + 1.2716329178698389636
 754301746165561798 E305*I
 11.628856980944362293418444710423341176
-error("forbidden multiplication t_REAL * t_PADIC.")
-error("forbidden multiplication t_REAL * t_PADIC.")
+error("domain error in Qp_log: argument = 0")
+error("domain error in Qp_log: argument = 0")
 error("incorrect type in isint (t_PADIC).")
 error("incorrect type in isint (t_PADIC).")
 error("forbidden multiplication t_REAL * t_STR.")
@@ -853,4 +853,4 @@ error("incorrect type in jbessel (t_STR).")
 error("incorrect type in jbessel (t_STR).")
 error("incorrect type in besselk (t_STR).")
 error("incorrect type in besseln (t_STR).")
-Total time spent: 50
+Total time spent: 22
