@@ -3299,7 +3299,7 @@ static GEN
 mpcosm1(GEN x, long *ptmod8)
 {
   long a = expo(x), l = realprec(x), b, L, i, n, m, B;
-  GEN y, p2, x2;
+  GEN y, u, x2;
   double d;
 
   n = 0;
@@ -3378,34 +3378,35 @@ mpcosm1(GEN x, long *ptmod8)
   * 2n (-1/log(2) - log_2 |Y| + log_2(2n+2)) >= b  */
   x = rtor(x, L); shiftr_inplace(x, -m); setsigne(x, 1);
   x2 = sqrr(x);
-  if (n == 1) { p2 = x2; shiftr_inplace(p2, -1); setsigne(p2, -1); } /*-Y^2/2*/
+  if (n == 1) { u = x2; shiftr_inplace(u, -1); setsigne(u, -1); } /*-Y^2/2*/
   else
   {
-    GEN unr = real_1(L);
+    GEN un = real_1(L);
     pari_sp av;
     long s = 0, l1 = nbits2prec((long)(d + n + 16));
 
-    p2 = cgetr(L); av = avma;
-    for (i=n; i>=2; i--)
+    u = cgetr(L); av = avma;
+    for (i = n; i >= 2; i--)
     {
-      GEN p1;
-      setprec(x2,l1); p1 = divrunu(x2, 2*i-1);
-      l1 += dvmdsBIL(s - expo(p1), &s); if (l1>L) l1=L;
-      if (i != n) p1 = mulrr(p1,p2);
-      setprec(unr,l1); p1 = addrr_sign(unr,1, p1,-signe(p1));
-      setprec(p2,l1); affrr(p1,p2); set_avma(av);
+      GEN t;
+      setprec(x2,l1); t = divrunu(x2, 2*i-1);
+      l1 += dvmdsBIL(s - expo(t), &s); if (l1 > L) l1 = L;
+      if (i != n) t = mulrr(t,u);
+      setprec(un,l1); t = addrr_sign(un,1, t,-signe(t));
+      setprec(u,l1); affrr(t,u); set_avma(av);
     }
-    shiftr_inplace(p2, -1); togglesign(p2); /* p2 := -p2/2 */
-    setprec(x2,L); p2 = mulrr(x2,p2);
+    shiftr_inplace(u, -1); togglesign(u); /* u := -u/2 */
+    setprec(x2,L); u = mulrr(x2,u);
   }
-  /* Now p2 = sum {1<= i <=n} (-1)^i x^(2i) / (2i)! ~ cos(x) - 1 */
-  for (i=1; i<=m; i++)
-  { /* p2 = cos(x)-1 --> cos(2x)-1 */
-    p2 = mulrr(p2, addsr(2,p2));
-    shiftr_inplace(p2, 1);
-    if ((i & 31) == 0) p2 = gerepileuptoleaf((pari_sp)y, p2);
+  /* Now u = sum {1<= i <=n} (-1)^i x^(2i) / (2i)! ~ cos(x) - 1 */
+  for (i = 1; i <= m; i++)
+  { /* u = cos(x)-1 <- cos(2x)-1 = 2cos(x)^2 - 2 = 4u + 2u^2*/
+    GEN q = sqrr(u);
+    shiftr_inplace(u, 1); u = addrr(u, q);
+    shiftr_inplace(u, 1);
+    if ((i & 31) == 0) u = gerepileuptoleaf((pari_sp)y, u);
   }
-  affrr_fixlg(p2,y); return y;
+  affrr_fixlg(u, y); return y;
 }
 
 /* sqrt (|1 - (1+x)^2|) = sqrt(|x*(x+2)|). Sends cos(x)-1 to |sin(x)| */
