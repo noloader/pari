@@ -394,8 +394,7 @@ dirpowers(long n, GEN x, long prec)
   pari_sp av;
   GEN v;
   if (n <= 0) return cgetg(1, t_VEC);
-  av = avma;
-  v = vecpowug(n, x, prec);
+  av = avma; v = vecpowug(n, x, prec);
   if (typ(x) == t_INT && lgefint(x) <= 3 && signe(x) >= 0 && cmpiu(x, 2) <= 0)
     return v;
   return gerepilecopy(av, v);
@@ -407,17 +406,14 @@ static GEN
 smallfact(ulong n, GEN P, ulong sq, GEN V)
 {
   long i, l;
-  ulong p;
+  ulong p, m, o;
   GEN c;
   if (n <= sq) return gel(V,n);
-  l = lg(P); p = uel(P,l - 1); if (p > sq) return NULL;
-  c = gel(V, p);
-  for (i = l-2; i > 0; i--)
-  {
-    n /= p; if (n <= sq) return gmul(c, gel(V,n));
-    p = uel(P, i); c = gmul(c, gel(V,p));
-  }
-  return c;
+  l = lg(P); m = p = uel(P, l-1); if (p > sq) return NULL;
+  for (i = l-2; i > 1; i--, m = o) { p = uel(P,i); o = m*p; if (o > sq) break; }
+  c = gel(V,m); n /= m; /* m <= sq, o = m * p > sq */
+  if (n > sq) { c = gmul(c, gel(V,p)); n /= p; }
+  return gmul(c, gel(V,n));
 }
 static GEN
 Qtor(GEN x, long prec)
