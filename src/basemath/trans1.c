@@ -3413,9 +3413,7 @@ mpcosm1(GEN x, long *ptmod8)
 static GEN
 mpaut(GEN x)
 {
-  GEN t, q = sqrr(x);
-  shiftr_inplace(q,-1); t = addrr(q, x);
-  shiftr_inplace(t, 1); /* t = x(x+2) */
+  GEN t = mulrr(x, addsr(2,x)); /* != 0 */
   if (!signe(t)) return real_0_bit(expo(t) >> 1);
   return sqrtr_abs(t);
 }
