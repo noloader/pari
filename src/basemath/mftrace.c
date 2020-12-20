@@ -12655,10 +12655,11 @@ Whalfint(long k, GEN VP, GEN z, long prec)
 static GEN
 WfromZ(GEN Z, GEN VP, GEN gkm1, long k2, GEN pi4, long prec)
 {
+  pari_sp av = avma;
   GEN Zk = gpow(Z, gkm1, prec), z = gmul(pi4, gsqrt(Z,prec));
   z = odd(k2)? Whalfint(k2 >> 1, VP, z, prec)
              : Wint(k2 >> 1, VP, z, prec);
-  return gdiv(z, Zk);
+  return gerepileupto(av, gdiv(z, Zk));
 }
 /* mf a true mf or an fs2 */
 static GEN
@@ -12688,7 +12689,7 @@ fs2_init(GEN mf, GEN F, long bit)
   if (vW)
   {
     tab = gel(vW,1); /* attached to cusp 0, width N */
-    lim = (lg(tab)-1) / N;
+    lim = (lg(tab) - 1) / N;
   }
   else
   { /* true mf */
@@ -12699,10 +12700,7 @@ fs2_init(GEN mf, GEN F, long bit)
     Lw = N*lim;
     tab = cgetg(Lw+1,t_VEC);
     for (n = 1; n <= Lw; n++)
-    {
-      pari_sp av = avma;
-      gel(tab,n) = gerepileupto(av, WfromZ(sstoQ(n,N),vP, gkm1, k2, pi4, prec));
-    }
+      gel(tab,n) = WfromZ(sstoQ(n,N),vP, gkm1, k2, pi4, prec);
     cusps = mfcusps_i(N);
     DEN = gmul2n(gmulgs(gpow(Pi2n(3, prec), gkm1, prec), mypsiu(N)), -2);
     if (odd(k2)) DEN = gdiv(DEN, sqrtr_abs(Pi2n(-1,prec)));
@@ -12717,7 +12715,7 @@ fs2_init(GEN mf, GEN F, long bit)
     long A, C, w, wi, Lw, n;
     GEN VF, W, paramsf, al;
     (void)cusp_AC(gel(cusps,i), &A,&C);
-    wi = ugcd(N, C*C); w = N / wi; Lw = w*lim;
+    wi = ugcd(N, C*C); w = N / wi; Lw = w * lim;
     VF = mfslashexpansion(mf, F, cusp2mat(A,C), Lw, 0, &paramsf, prec);
     /* paramsf[2] = w */
     av = avma; al = gel(paramsf, 1); if (gequal0(al)) al = NULL;
@@ -12732,16 +12730,8 @@ fs2_init(GEN mf, GEN F, long bit)
     {
       W = cgetg(Lw+2, t_VEC);
       for (n = 0; n <= Lw; n++)
-      {
-        GEN c;
-        if (!al) c = n? gel(tab, n * wi): W0;
-        else
-        {
-          pari_sp av = avma;
-          c = gerepileupto(av, WfromZ(gadd(al,sstoQ(n,w)),vP,gkm1,k2,pi4, prec));
-        }
-        gel(W,n+1) = c;
-      }
+        gel(W, n+1) = al? WfromZ(gadd(al,sstoQ(n,w)),vP,gkm1,k2,pi4, prec)
+                        : (n? gel(tab, n * wi): W0);
     }
     al0[i] = !al;
     gel(vVF, i) = VF;
