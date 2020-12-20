@@ -280,11 +280,13 @@ mynumdivu(long N)
 static long
 mypsiu(ulong N)
 {
-  pari_sp av = avma;
-  GEN P = gel(myfactoru(N), 1);
-  long j, l = lg(P), res = N;
-  for (j = 1; j < l; j++) res += res/P[j];
-  return gc_long(av,res);
+  pari_sp av;
+  GEN P;
+  long j, l, a;
+  if (N == 1) return 1;
+  av = avma; P = gel(myfactoru(N), 1); l = lg(P);
+  for (a = N, j = 1; j < l; j++) a += a / P[j];
+  return gc_long(av, a);
 }
 /* write n = mf^2. Return m, set f. */
 static ulong
@@ -12658,16 +12660,6 @@ WfromZ(GEN Z, GEN VP, GEN gkm1, long k2, GEN pi4, long prec)
              : Wint(k2 >> 1, VP, z, prec);
   return gdiv(z, Zk);
 }
-static long
-mfindex(long N)
-{
-  GEN fa;
-  long P = N, i;
-  if (N == 1) return 1;
-  fa = gel(factoru(N), 1);
-  for (i = 1; i < lg(fa); ++i) P += P/fa[i];
-  return P;
-}
 /* mf a true mf or an fs2 */
 static GEN
 fs2_init(GEN mf, GEN F, long bit)
@@ -12712,7 +12704,7 @@ fs2_init(GEN mf, GEN F, long bit)
       gel(tab,n) = gerepileupto(av, WfromZ(sstoQ(n,N),vP, gkm1, k2, pi4, prec));
     }
     cusps = mfcusps_i(N);
-    DEN = gmul2n(gmulgs(gpow(Pi2n(3, prec), gkm1, prec), mfindex(N)), -2);
+    DEN = gmul2n(gmulgs(gpow(Pi2n(3, prec), gkm1, prec), mypsiu(N)), -2);
     if (odd(k2)) DEN = gdiv(DEN, sqrtr_abs(Pi2n(-1,prec)));
   }
   l = lg(cusps);
