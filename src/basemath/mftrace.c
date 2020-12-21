@@ -12538,10 +12538,9 @@ mfpetersson_i(GEN FS, GEN GS)
 /****************************************************************/
 /*           Petersson products using Nelson-Collins            */
 /****************************************************************/
-
-/* Compute W(k,z) = \sum_{m >= 1} (mz)^{k-1}(mzK_{k-2}(mz)-K_{k-1}(mz))
+/* Compute W(k,z) = sum_{m >= 1} (mz)^{k-1}(mzK_{k-2}(mz)-K_{k-1}(mz))
  * for z>0 and absolute accuracy < 2^{-B}.
- * K_k(x) ~ (\pi/(2x))^{1/2}e^{-x} */
+ * K_k(x) ~ (Pi/(2x))^{1/2} e^{-x} */
 
 static void
 Wparams(GEN *ph, long *pN, long k, double x, long prec)
@@ -12549,8 +12548,7 @@ Wparams(GEN *ph, long *pN, long k, double x, long prec)
   double B = prec2nbits(prec) + 10;
   double C = B + k*log(x)/M_LN2 + 1, D = C*M_LN2 + 2.065;
   double F = 2 * ((C - 1) * M_LN2 + log(gtodouble(mpfact(k)))) / x;
-  double T = log(F) * (1 + 2*k/x/F);
-  double PI2 = M_PI*M_PI;
+  double T = log(F) * (1 + 2*k/x/F), PI2 = M_PI*M_PI;
   *pN = (long)ceil((T/PI2) * (D + log(D/PI2)));
   *ph = gprec_w(dbltor(T / *pN), prec);
 }
@@ -12578,13 +12576,13 @@ Wcoshall(GEN *pCH, GEN *pCHK, GEN *pCHK1, GEN h, long N, long k, long prec)
 
 /* computing W(k,x) via integral */
 static GEN
-Wint(long k, GEN VP, GEN x, long prec)
+Wint(long k, GEN vP, GEN x, long prec)
 {
   GEN P, P1, S1, S, h, CH, CHK, CHK1;
   long N, j;
   Wparams(&h, &N, k, gtodouble(x), prec);
   Wcoshall(&CH, &CHK, &CHK1, h, N, k, prec);
-  P = gel(VP, k+1); P1 = gel(VP, k); S = S1 = NULL;
+  P = gel(vP, k+1); P1 = gel(vP, k); S = S1 = NULL;
   for (j = 0; j <= N; j++)
   {
     GEN eh = gexp(j? gmul(x, gel(CH, j)): x, prec);
@@ -12605,35 +12603,33 @@ Wint(long k, GEN VP, GEN x, long prec)
   return gmul(gmul(h, gpowgs(x, k-1)), gsub(gmul(x, S), gmulsg(2*k-1, S1)));
 }
 
-/* P_j given P_{j-1} */
-static GEN
-nextP(GEN P, long j, GEN Xm1)
-{ return RgX_shift_shallow(gsub(gmulsg(j, P), gmul(Xm1, ZX_deriv(P))), 1); }
 static GEN
 get_vP(long k)
 {
-  GEN v = cgetg(k+2, t_VEC), Xm1 = deg1pol_shallow(gen_1,gen_m1,0);
+  GEN P, v = cgetg(k+2, t_VEC), Q = deg1pol_shallow(gen_1,gen_m1,0);
   long j;
   gel(v,1) = gen_1;
-  gel(v,2) = pol_x(0);
-  for (j = 2; j <= k; j++) gel(v,j+1) = nextP(gel(v,j), j, Xm1);
+  gel(v,2) = P = pol_x(0);
+  for (j = 2; j <= k; j++)
+    gel(v,j+1) = P = RgX_shift_shallow(gsub(gmulsg(j, P),
+                                            gmul(Q, ZX_deriv(P))), 1);
   return v;
 }
-/* vector of (-1)^j(1/(exp(x)-1))^(j) [x = z] * z^j for 0<=j<=k */
+/* vector of (-1)^j(1/(exp(x)-1))^(j) [x = z] * z^j for 0<=j<=r */
 static GEN
-VS(long k, GEN z, GEN V, long prec)
+VS(long r, GEN z, GEN V, long prec)
 {
-  GEN ex = gexp(z, prec), c = ginv(gsubgs(ex,1));
-  GEN po = gpowers0(gmul(c, z), k, c);
+  GEN e = gexp(z, prec), c = ginv(gsubgs(e,1));
+  GEN T = gpowers0(gmul(c, z), r, c);
   long j;
-  V = gsubst(V, 0, ex);
-  for (j = 1; j <= k + 1; j++) gel(V,j) = gmul(gel(V,j), gel(po, j));
+  V = gsubst(V, 0, e);
+  for (j = 1; j <= r + 1; j++) gel(V,j) = gmul(gel(V,j), gel(T,j));
   return V;
 }
 
 /* U(r,x)=sum_{m >= 1} (mx)^k K_k(mx), k = r+1/2 */
 static GEN
-Unelsonhalf(long r, GEN V)
+Unelson(long r, GEN V)
 {
   GEN S = gel(V,r+1), C = gen_1; /* (r+j)! / j! / (r-j)! */
   long j;
@@ -12647,20 +12643,20 @@ Unelsonhalf(long r, GEN V)
 }
 /* W(r+1/2,z) / sqrt(Pi/2) */
 static GEN
-Whalfint(long r, GEN VP, GEN z, long prec)
+Wint2(long r, GEN vP, GEN z, long prec)
 {
-  GEN R, V = VS(r, z, VP, prec);
-  R = Unelsonhalf(r, V);
-  if (r) R = gsub(R, gmulsg(2*r, Unelsonhalf(r-1, V)));
+  GEN R, V = VS(r, z, vP, prec);
+  R = Unelson(r, V);
+  if (r) R = gsub(R, gmulsg(2*r, Unelson(r-1, V)));
   return R;
 }
 typedef GEN(*Wfun_t)(long, GEN, GEN, long);
 static GEN
-WfromZ(GEN Z, GEN VP, GEN gkm1, Wfun_t W, long k, GEN pi4, long prec)
+WfromZ(GEN Z, GEN vP, GEN gkm1, Wfun_t W, long k, GEN pi4, long prec)
 {
   pari_sp av = avma;
   GEN Zk = gpow(Z, gkm1, prec), z = gmul(pi4, gsqrt(Z,prec));
-  return gerepileupto(av, gdiv(W(k, VP, z, prec), Zk));
+  return gerepileupto(av, gdiv(W(k, vP, z, prec), Zk));
 }
 /* mf a true mf or an fs2 */
 static GEN
@@ -12687,7 +12683,7 @@ fs2_init(GEN mf, GEN F, long bit)
   N = MF_get_N(mf);
   gk = MF_get_gk(mf); gkm1 = gsubgs(gk, 1);
   k2 = itos(gmul2n(gk,1));
-  Wf = odd(k2)? Whalfint: Wint;
+  Wf = odd(k2)? Wint2: Wint;
   k = k2 >> 1; vP = get_vP(k);
   if (vW) lim = (lg(gel(vW,1)) - 2) / N; /* vW[1] attached to cusp 0, width N */
   else
