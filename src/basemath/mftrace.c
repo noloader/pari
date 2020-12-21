@@ -12362,34 +12362,32 @@ GEN
 mfperiodpolbasis(long k, long flag)
 {
   pari_sp av = avma;
-  long i, j, km2 = k - 2;
-  GEN M, C;
+  long i, j, n = k - 2;
+  GEN M, C, v;
   if (k <= 4) return cgetg(1,t_VEC);
   M = cgetg(k, t_MAT);
-  C = matpascal(km2);
+  C = matpascal(n);
   if (!flag)
-    for (j = 0; j <= km2; j++)
+    for (j = 0; j <= n; j++)
     {
-      GEN v = cgetg(k, t_COL);
+      gel(M, j+1) = v = cgetg(k, t_COL);
       for (i = 0; i <= j; i++) gel(v, i+1) = gcoeff(C, j+1, i+1);
-      for (; i <= km2; i++) gel(v, i+1) = gcoeff(C, km2-j+1, i-j+1);
-      gel(M, j+1) = v;
+      for (; i <= n; i++) gel(v, i+1) = gcoeff(C, n-j+1, i-j+1);
     }
   else
-    for (j = 0; j <= km2; j++)
+    for (j = 0; j <= n; j++)
     {
-      GEN v = cgetg(k, t_COL);
-      for (i = 0; i <= km2; i++)
+      gel(M, j+1) = v = cgetg(k, t_COL);
+      for (i = 0; i <= n; i++)
       {
         GEN a = i < j ? gcoeff(C, j+1, i+1) : gen_0;
-        if (i + j >= km2)
+        if (i + j >= n)
         {
-          GEN b = gcoeff(C, j+1, i+j-km2+1);
+          GEN b = gcoeff(C, j+1, i+j-n+1);
           a = flag < 0 ? addii(a,b) : subii(a,b);
         }
         gel(v, i+1) = a;
       }
-      gel(M, j+1) = v;
     }
   return gerepilecopy(av, RgM_to_RgXV(ZM_ker(M), 0));
 }
