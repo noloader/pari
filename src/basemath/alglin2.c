@@ -1011,7 +1011,7 @@ QM_charpoly_ZX_slice(GEN A, GEN dM, GEN P, GEN *mod)
     Hp = Flm_charpoly_i(a, p);
     if (dp != 1) Hp = Flx_rescale(Hp, Fl_inv(dp, p), p);
     Hp = gerepileupto(av, Flx_to_ZX(Hp));
-    *mod = utoi(p); return Hp;
+    *mod = utoipos(p); return Hp;
   }
   T = ZV_producttree(P);
   A = ZM_nv_mod_tree(A, P, T);
@@ -1024,8 +1024,7 @@ QM_charpoly_ZX_slice(GEN A, GEN dM, GEN P, GEN *mod)
   }
   H = nxV_chinese_center_tree(H, P, T, ZV_chinesetree(P,T));
   *mod = gmael(T, lg(T)-1, 1);
-  gerepileall(av, 2, &H, mod);
-  return H;
+  gerepileall(av, 2, &H, mod); return H;
 }
 
 GEN

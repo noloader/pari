@@ -310,7 +310,7 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
   {
     pari_sp av2 = avma;
     GEN M, D;
-    D = diff_red(s, monomial(utoi(p),p*i-1,1),(k*p-1)>>1, Q, pN1);
+    D = diff_red(s, monomial(utoipos(p),p*i-1,1),(k*p-1)>>1, Q, pN1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"red");
     M = ZpXXQ_frob(D, U, V, (k-1)>>1, Q, p, N + 1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"frob");
@@ -324,7 +324,7 @@ hyperellpadicfrobenius(GEN H, ulong p, long n)
 {
   pari_sp av = avma;
   GEN M = ZlX_hyperellpadicfrobenius(H, p, n);
-  GEN q = zeropadic(utoi(p),n);
+  GEN q = zeropadic(utoipos(p),n);
   return gerepileupto(av, ZM_to_padic(M, q));
 }
 
@@ -405,7 +405,7 @@ ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
   ulong mask;
   long v = varn(F), n=1;
   pari_timer ti;
-  GEN a = pol_1(v), pp = utoi(p);
+  GEN a = pol_1(v), pp = utoipos(p);
   if (DEBUGLEVEL>1) timer_start(&ti);
   if (e <= 1) return gerepilecopy(av, a);
   mask = quadratic_prec_mask(e);
@@ -444,7 +444,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
 {
   pari_sp av = avma, av2;
   long i, pr = degpol(F), dS = degpol(S), v = varn(T);
-  GEN q = powuu(p,e), pp = utoi(p);
+  GEN q = powuu(p,e), pp = utoipos(p);
   GEN Sp = RgX_deriv(S), Sp1 = RgX_shift_shallow(Sp, 1);
   GEN M = gel(F,pr+2), R;
   av2 = avma;
@@ -452,7 +452,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
   {
     GEN A, B, H, Bc;
     ulong v, r;
-    H = ZpXQX_divrem(FpXQX_mul(V, M, T, q), S, T, q, utoi(p), e, &B);
+    H = ZpXQX_divrem(FpXQX_mul(V, M, T, q), S, T, q, utoipos(p), e, &B);
     A = FpXX_add(FpXQX_mul(U, M, T, q), FpXQX_mul(H, Sp, T, q),q);
     v = u_lvalrem(2*i+1,p,&r);
     Bc = RgX_deriv(B);
@@ -522,13 +522,12 @@ Fq_diff_red(GEN s, GEN A, long m, GEN S, GEN T, GEN q, GEN p, long e)
 static void
 Fq_get_UV(GEN *U, GEN *V, GEN S, GEN T, ulong p, long e)
 {
-  GEN q = powuu(p, e), d;
-  GEN dS = RgX_deriv(S);
-  GEN R  = polresultantext(S, dS), C;
+  GEN q = powuu(p, e), pp = utoipos(p), d;
+  GEN dS = RgX_deriv(S), R  = polresultantext(S, dS), C;
   long v = varn(S);
-  if (signe(FpX_red(to_ZX(gel(R,3),v),utoi(p)))==0) is_sing(S, p);
+  if (signe(FpX_red(to_ZX(gel(R,3),v), pp))==0) is_sing(S, p);
   C = FpXQ_red(to_ZX(gel(R, 3),v), T, q);
-  d = ZpXQ_inv(C, T, utoi(p), e);
+  d = ZpXQ_inv(C, T, pp, e);
   *U = FpXQX_FpXQ_mul(FpXQX_red(to_ZX(gel(R,1),v),T,q),d,T,q);
   *V = FpXQX_FpXQ_mul(FpXQX_red(to_ZX(gel(R,2),v),T,q),d,T,q);
 }
@@ -561,11 +560,9 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   if (typ(H) != t_POL) pari_err_TYPE("hyperellpadicfrobenius",H);
   if (p == 2) is_sing(H, 2);
   d = degpol(H);
-  if (d <= 0)
-    pari_err_CONSTPOL("hyperellpadicfrobenius");
-  if (n < 1)
-    pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
-  k = get_basis(p, d); pp = utoi(p);
+  if (d <= 0) pari_err_CONSTPOL("hyperellpadicfrobenius");
+  if (n < 1) pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
+  k = get_basis(p, d); pp = utoipos(p);
   N = n + ulogint(2*n, p) + 1;
   q = powuu(p,n); N1 = N+1;
   pN1 = powuu(p,N1); T = FpX_get_red(T, pN1);
@@ -600,9 +597,9 @@ GEN
 nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
 {
   pari_sp av = avma;
+  GEN pp = utoipos(p), q = zeropadic(pp, n);
   GEN M = ZlXQX_hyperellpadicfrobenius(lift_shallow(H),T,p,n);
-  GEN MM = ZpXQM_prodFrobenius(M, T, utoi(p), n);
-  GEN q = zeropadic(utoi(p),n);
+  GEN MM = ZpXQM_prodFrobenius(M, T, pp, n);
   GEN m = gmul(ZXM_to_padic(MM, q), gmodulo(gen_1, T));
   return gerepileupto(av, m);
 }

@@ -2798,7 +2798,7 @@ ZlM_gauss_ratlift(GEN a, GEN b, ulong p, long e, GEN C)
   mask = quadratic_prec_mask((e+f-1)/f);
   pi = q = powuu(p, f);
   bb = b;
-  C = ZpM_invlift(FpM_red(a, q), Flm_to_ZM(C), utoi(p), f);
+  C = ZpM_invlift(FpM_red(a, q), Flm_to_ZM(C), utoipos(p), f);
   av2 = avma;
   xb = xi = FpM_mul(C, b, q);
   for (i = f; i <= e; i+=f)
@@ -2966,7 +2966,7 @@ ZM_inv_slice(GEN A, GEN P, GEN *mod)
     GEN Hp, a = ZM_to_Flm(A, p);
     Hp = Flm_adjoint(a, p);
     Hp = gerepileupto(av, Flm_to_ZM(Hp));
-    *mod = utoi(p); return Hp;
+    *mod = utoipos(p); return Hp;
   }
   T = ZV_producttree(P);
   A = ZM_nv_mod_tree(A, P, T);
@@ -3291,8 +3291,7 @@ ZM_ker_slice(GEN A, GEN P, GEN *mod)
   {
     ulong p = uel(P,1);
     GEN K = Flm_ker_sp(ZM_to_Flm(A, p), p, 2);
-    *mod = utoi(p);
-    return mkvec2(Flm_to_ZM(gel(K,1)), gel(K,2));
+    *mod = utoipos(p); return mkvec2(Flm_to_ZM(gel(K,1)), gel(K,2));
   }
   T = ZV_producttree(P);
   A = ZM_nv_mod_tree(A, P, T);
@@ -4543,7 +4542,7 @@ ZabM_inv_slice(GEN A, GEN Q, GEN P, GEN *mod)
     GEN Qp = ZX_to_Flx(Q, p);
     GEN Hp = FlkM_adjoint(Ap, Qp, p);
     Hp = gerepileupto(av, FlxM_to_ZXM(Hp));
-    *mod = utoi(p); return Hp;
+    *mod = utoipos(p); return Hp;
   }
   T = ZV_producttree(P);
   A = ZXM_nv_mod_tree(A, P, T, w);
@@ -5399,8 +5398,7 @@ ZM_det_slice(GEN A, GEN P, GEN *mod)
     ulong Hp, p = uel(P,1);
     GEN a = ZM_to_Flm(A, p);
     Hp = Flm_det_sp(a, p);
-    set_avma(av);
-    *mod = utoi(p); return utoi(Hp);
+    set_avma(av); *mod = utoipos(p); return utoi(Hp);
   }
   T = ZV_producttree(P);
   A = ZM_nv_mod_tree(A, P, T);
@@ -5413,8 +5411,7 @@ ZM_det_slice(GEN A, GEN P, GEN *mod)
   }
   H = ZV_chinese_tree(H, P, T, ZV_chinesetree(P,T));
   *mod = gmael(T, lg(T)-1, 1);
-  gerepileall(av, 2, &H, mod);
-  return H;
+  gerepileall(av, 2, &H, mod); return H;
 }
 
 GEN

@@ -2334,8 +2334,7 @@ QXQ_inv_slice(GEN A, GEN B, GEN P, GEN *mod)
       *mod = gen_1; return pol_0(v);
     }
     H = gerepilecopy(av, Flx_to_ZX(U));
-    *mod = utoi(p);
-    return H;
+    *mod = utoipos(p); return H;
   }
   T = ZV_producttree(P);
   A = ZX_nv_mod_tree(A, P, T);
@@ -2439,8 +2438,7 @@ QXQ_div_slice(GEN A, GEN B, GEN C, GEN P, GEN *mod)
     }
     U = Flxq_mul(a, bi, c, p);
     H = gerepilecopy(av, Flx_to_ZX(U));
-    *mod = utoi(p);
-    return H;
+    *mod = utoipos(p); return H;
   }
   T = ZV_producttree(P);
   A = ZX_nv_mod_tree(A, P, T);
@@ -2549,10 +2547,8 @@ ZXQ_minpoly_slice(GEN A, GEN B, long d, GEN P, GEN *mod)
     GEN a = ZX_to_Flx(A, p), b = ZX_to_Flx(B, p);
     GEN Hp = Flxq_minpoly(a, b, p);
     if (degpol(Hp) != d) { p = 1; Hp = pol0_Flx(v); }
-    H = Flx_to_ZX(Hp);
-    *mod = utoi(p);
-    gerepileall(av, 2, &H, mod);
-    return H;
+    H = gerepileupto(av, Flx_to_ZX(Hp));
+    *mod = utoipos(p); return H;
   }
   T = ZV_producttree(P);
   A = ZX_nv_mod_tree(A, P, T);
@@ -2642,10 +2638,8 @@ ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, long degA, long degB, long dres,
     ulong dp = dB ? umodiu(dB, p): 1;
     GEN a = ZX_to_Flx(A, p), b = ZXX_to_FlxX(B, p, vY);
     GEN Hp = ZX_ZXY_resultant_prime(a, b, dp, p, degA, degB, dres, sX);
-    H = Flx_to_ZX(Hp);
-    *mod = utoi(p);
-    gerepileall(av, 2, &H, mod);
-    return H;
+    H = gerepileupto(av, Flx_to_ZX(Hp));
+    *mod = utoipos(p); return H;
   }
   T = ZV_producttree(P);
   A = ZX_nv_mod_tree(A, P, T);
@@ -2764,8 +2758,7 @@ ZX_direct_compositum_slice(GEN A, GEN B, GEN P, GEN *mod)
     GEN a = ZX_to_Flx(A, p), b = ZX_to_Flx(B, p);
     GEN Hp = Flx_direct_compositum(a, b, p);
     H = gerepileupto(av, Flx_to_ZX(Hp));
-    *mod = utoi(p);
-    return H;
+    *mod = utoipos(p); return H;
   }
   T = ZV_producttree(P);
   A = ZX_nv_mod_tree(A, P, T);
@@ -2858,8 +2851,7 @@ ZXQX_direct_compositum_slice(GEN A, GEN B, GEN C, GEN P, GEN *mod)
     GEN c = ZX_to_Flx(C, p);
     GEN Hp = FlxX_to_Flm(FlxqX_direct_compositum(a, b, c, p), dC);
     H = gerepileupto(av, Flm_to_ZM(Hp));
-    *mod = utoi(p);
-    return H;
+    *mod = utoipos(p); return H;
   }
   T = ZV_producttree(P);
   A = ZXX_nv_mod_tree(A, P, T, v);
