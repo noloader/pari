@@ -104,8 +104,7 @@ lfunparams(GEN L, long prec)
   GEN k, N, v;
   long p;
 
-  if (is_linit(L)) L = linit_get_ldata(L);
-  if (!is_ldata(L) || !is_tagged(L)) pari_err_TYPE("lfunparams", L);
+  if (!is_ldata(L) || !is_tagged(L)) L = lfunmisc_to_ldata_shallow(L);
   N = ldata_get_conductor(L);
   k = ldata_get_k(L);
   v = ldata_get_gammavec(L);

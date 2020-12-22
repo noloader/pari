@@ -197,6 +197,7 @@ check all formats
 [1, -1, 1, 1, -1, -1, -1, -1, 1, 1]
 [1, -1, 0, 1, 1, 0, 0, -1, 0, -1]
 [1, 1, [0]]
+[1, 1, [0]]
 [496, 2, [0, 1]]
 [1, 1, [0]]
 -191
@@ -366,7 +367,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfun([[],[""]],1)
   ***                 ^-----------------
   *** lfun: incorrect type in lfunmisc_to_ldata (t_VEC).
-  ***   at top-level: lfunparams(1)
-  ***                 ^-------------
-  *** lfunparams: incorrect type in lfunparams (t_INT).
-Total time spent: 3842
+Total time spent: 3825

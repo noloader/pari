@@ -247,8 +247,9 @@ lfunan(2^63+5,10)
 lfunan(2^64+5,10)
 
 lfunparams(lfuncreate(1))
-lfunparams(lfuncreate(ellinit([1,1])))
-lfunparams(lfuncreate(Mod(19,3)))
+lfunparams(1)
+lfunparams(ellinit([1,1]))
+lfunparams(Mod(19,3))
 
 \\ zeta(s)*zeta(s-(k-1)), single pole at k if k even >= 4
 f(k) = lfuncreate([n->vector(n,i,sigma(i,k-1)),0,[0,1],k,1,I^k,zeta(k)]);
@@ -456,4 +457,3 @@ L=lfuncreate([[(x,y)->1,[[2,3]]],0,[0],1,1,1,1]); lfunan(L,5)
 L=lfuncreate([[(x,y)->1,[["",3]]],0,[0],1,1,1,1]); lfunan(L,5)
 L=lfuncreate([[(x,y)->1,[[2,""]]],0,[0],1,1,1,1]); lfunan(L,5)
 lfun([[],[""]],1) \\ #2251
-lfunparams(1)
