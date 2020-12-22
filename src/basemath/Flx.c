@@ -2943,12 +2943,11 @@ Flxq_auttrace(GEN x, ulong n, GEN T, ulong p)
 static long
 bounded_order(ulong p, GEN b, long k)
 {
+  GEN a = modii(utoipos(p), b);
   long i;
-  GEN a=modii(utoi(p),b);
-  for(i=1;i<k;i++)
+  for(i = 1; i < k; i++)
   {
-    if (equali1(a))
-      return i;
+    if (equali1(a)) return i;
     a = modii(muliu(a,p),b);
   }
   return 0;
@@ -2985,8 +2984,8 @@ Flxq_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, ulong p)
     GEN b = diviiround(q, an), a = subii(q, mulii(an,b));
     GEN bb, u, v, autk;
     long vb = Z_lvalrem(b,p,&bb);
-    long m, r, k = is_pm1(bb) ? 1 : bounded_order(p,bb,d);
-    if (!k || d-vb<k) return Flxq_pow(x,n, T, p);
+    long m, r, k = is_pm1(bb)? 1: bounded_order(p,bb,d);
+    if (!k || d-vb < k) return Flxq_pow(x,n, T, p);
     m = (d-vb)/k; r = (d-vb)%k;
     u = diviiexact(subiu(powuu(p,k),1),bb);
     v = diviiexact(subii(powuu(p,r+vb),a),b);
