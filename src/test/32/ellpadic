@@ -70,7 +70,7 @@ O(5^7)
   *** ellap: inconsistent moduli in ellap: 2 != 11
   ***   at top-level: ellpadics2(Ep,2,5)
   ***                 ^------------------
-  *** ellpadics2: incorrect type in ellpadicfrobenius (t_INT).
+  *** ellpadics2: incorrect type in ellpadicfrobenius (t_VEC).
   ***   at top-level: ellcard(Ep,2)
   ***                 ^-------------
   *** ellcard: inconsistent moduli in ellcard: 2 != 11
@@ -86,4 +86,4 @@ O(5^7)
   ***   at top-level: ellgroup(ellinit([5^6,5^6]),5,1)
   ***                 ^--------------------------------
   *** ellgroup: incorrect type in ellgroup [not a p-minimal curve] (t_VEC).
-Total time spent: 358
+Total time spent: 152

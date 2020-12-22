@@ -230,7 +230,7 @@ static GEN
 smoothness_vec(ulong p, long r, long n)
 {
   long i,j,k;
-  GEN R = cgetg(r+1, t_VEC);
+  GEN R = cgetg(r+1, t_VEC), pp = utoipos(p);
   GEN V = cgetg(n+1, t_VEC);
   for (j = 1; j <= n; ++j)
     gel(V, j) =  binomialuu(p+j-1,j);
@@ -238,7 +238,7 @@ smoothness_vec(ulong p, long r, long n)
   for (k = 2; k <= r; ++k)
   {
     GEN W = cgetg(n+1, t_VEC);
-    GEN Ik = ffnbirred(utoi(p),k);
+    GEN Ik = ffnbirred(pp, k);
     for (j = 1; j <= n; ++j)
     {
       long l = j/k;
@@ -282,12 +282,12 @@ static GEN
 smooth_best(long p, long n, long *pt_r, long *pt_nb)
 {
   pari_sp av = avma, av2;
-  GEN bestc = NULL;
+  GEN bestc = NULL, pp = utoipos(p);
   long bestr = 0, bestFB = 0;
   long r,d, dC = (n+2)/3;
   for (r = 1; r < dC; ++r)
   {
-    GEN fb = ffsumnbirred(utoi(p), r);
+    GEN fb = ffsumnbirred(pp, r);
     GEN smoothC = smoothness_vec(p,r,dC);
     GEN prC = gdiv(gel(smoothC,r), powuu(p,dC));
     ulong rels = 0;
@@ -709,7 +709,7 @@ Flxq_log_index_Coppersmith(GEN a0, GEN b0, GEN m, GEN T0, ulong p)
   long n = degpol(T0), r = (long) sqrt(n*rf);
   GEN T;
   long r2 = 3*r/2;
-  long nbi = itos(ffsumnbirred(utoi(p), r)), nbrel=nbi*5/4;
+  long nbi = itos(ffsumnbirred(utoipos(p), r)), nbrel=nbi*5/4;
   if (DEBUGLEVEL)
   {
     err_printf("Coppersmith: Parameters r=%ld r2=%ld\n", r,r2);

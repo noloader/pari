@@ -654,7 +654,7 @@ _lift_invd(void *E, GEN V, GEN v, GEN qM, long M)
   GEN F = mkvec4(Dy, Dx, TM, XM);
   e.ai = Flxq_inv(ZX_to_Flx(Dy,p),d->Tp,p);
   e.sqx = d->sqx; e.Tp = d->Tp; e.p=p; e.Xm = XM;
-  return gen_ZpX_Dixon(F,V,qM,utoi(p),M,(void*) &e, _lift_lin, _lift_invl);
+  return gen_ZpX_Dixon(F,V,qM,utoipos(p),M,(void*) &e, _lift_lin, _lift_invl);
 }
 
 static GEN
@@ -664,7 +664,7 @@ lift_isogeny(GEN phi, GEN x0, long n, GEN Xm, GEN T, GEN sqx, GEN Tp, ulong p)
   d.phi=phi;
   d.Xm=Xm; d.T=T;
   d.sqx=sqx; d.Tp=Tp; d.p=p;
-  return gen_ZpX_Newton(x0, utoi(p), n,(void*)&d, _lift_iter, _lift_invd);
+  return gen_ZpX_Newton(x0, utoipos(p), n,(void*)&d, _lift_iter, _lift_invd);
 }
 
 static GEN
@@ -675,7 +675,7 @@ getc2(GEN act, GEN X, GEN T, GEN q, ulong p, long N)
   GEN xp = FpXQ_powers(X,n,T,q);
   GEN P  = FpX_FpXQV_eval(A1, xp, T, q);
   GEN Q  = FpX_FpXQV_eval(A2, xp, T, q);
-  return ZpXQ_div(P, Q, T, q, utoi(p), N);
+  return ZpXQ_div(P, Q, T, q, utoipos(p), N);
 }
 
 struct _ZpXQ_norm
@@ -787,7 +787,7 @@ _teich_invd(void *E, GEN V, GEN v, GEN qM, long M)
   GEN x1 = FpX_red(gel(v,2), qM);
   GEN F = mkvec3(x1, TM, XM);
   e.sqx = d->sqx; e.Tp = d->Tp; e.p=p;
-  return gen_ZpX_Dixon(F,V,qM,utoi(p),M,(void*) &e, _teich_lin, _teich_invl);
+  return gen_ZpX_Dixon(F,V,qM,utoipos(p),M,(void*) &e, _teich_lin, _teich_invl);
 }
 
 static GEN
@@ -795,7 +795,7 @@ Teichmuller_lift(GEN x, GEN Xm, GEN T, GEN sqx, GEN Tp, ulong p, long N)
 {
   struct _teich_iso d;
   d.Xm = Xm; d.T = T; d.sqx = sqx; d.Tp = Tp; d.p = p;
-  return gen_ZpX_Newton(x,utoi(p), N,(void*)&d, _teich_iter, _teich_invd);
+  return gen_ZpX_Newton(x,utoipos(p), N,(void*)&d, _teich_iter, _teich_invd);
 }
 
 static GEN
@@ -809,7 +809,7 @@ get_norm(GEN a4, GEN a6, GEN T, ulong p, long N)
     GEN P = mkpoln(4, pol1_Flx(sv), pol0_Flx(sv), a4, a6);
     a = gel(FlxqX_powu(P,p>>1,T,p),2+p-1);
   }
-  return Zp_sqrtnlift(gen_1,subss(p,1),utoi(Flxq_norm(a,T,p)),utoi(p), N);
+  return Zp_sqrtnlift(gen_1,subss(p,1),utoi(Flxq_norm(a,T,p)),utoipos(p), N);
 }
 
 static GEN
@@ -933,13 +933,13 @@ Flxq_ellcard_Kohel(GEN a4, GEN a6, GEN T, ulong p)
   }
   c2 = gerepileupto(av2, c2);
   if (DEBUGLEVEL) timer_printf(&ti,"tc2");
-  Nc2 = (ispcyc? ZpXQ_sqrtnorm_pcyc: ZpXQ_sqrtnorm)(c2, T2, q, utoi(p), N);
+  Nc2 = (ispcyc? ZpXQ_sqrtnorm_pcyc: ZpXQ_sqrtnorm)(c2, T2, q, utoipos(p), N);
   if (DEBUGLEVEL) timer_printf(&ti,"Norm");
   Np = get_norm(a4,a6,T,p,N);
   if (p>3 && ispcyc)
   {
     GEN Ncpi =  utoi(Fl_inv(umodiu(Nc2,p), p));
-    GEN tNc2 = Zp_sqrtnlift(gen_1, subss(p,1), Ncpi, utoi(p),N);
+    GEN tNc2 = Zp_sqrtnlift(gen_1, subss(p,1), Ncpi, utoipos(p),N);
     if (DEBUGLEVEL) timer_printf(&ti,"Teichmuller/Fp");
     Nc2 = Fp_mul(Nc2,tNc2,q);
   }
@@ -951,7 +951,7 @@ static void
 liftcurve(GEN J, GEN T, GEN q, ulong p, long N, GEN *A4, GEN *A6)
 {
   pari_sp av = avma;
-  GEN r = ZpXQ_inv(Z_ZX_sub(utoi(1728),J),T,utoi(p),N);
+  GEN r = ZpXQ_inv(Z_ZX_sub(utoi(1728),J),T,utoipos(p),N);
   GEN g = FpXQ_mul(J,r,T,q);
   *A4 = FpX_mulu(g,3,q);
   *A6 = FpX_mulu(g,2,q);
@@ -971,7 +971,7 @@ getc5(GEN H, GEN A40, GEN A60, GEN A41, GEN A61, GEN T, GEN q, ulong p, long N)
   GEN beta = ZX_sub(ZX_sub(ZX_mulu(FpXQ_mul(A40,s1,T,q),42),ZX_mulu(A60,14*p-15)),
                     ZX_mulu(h3,70)); /* 42*A40*s1-A60*(14*p-15)-70*h3 */
   GEN u2 = FpXQ_mul(FpXQ_mul(A41,beta,T,q),
-                    ZpXQ_inv(FpXQ_mul(A61,alpha,T,q),T,utoi(p),N),T,q);
+                    ZpXQ_inv(FpXQ_mul(A61,alpha,T,q),T,utoipos(p),N),T,q);
   return u2;
 }
 
@@ -1022,7 +1022,7 @@ ZpXQX_liftrootmod_vald(GEN f, GEN H, long v, GEN T, GEN p, long e)
 static GEN
 get_H1(GEN A41, GEN A61, GEN T2, ulong p)
 {
-  GEN q = utoi(p), T = FpXT_red(T2,q);
+  GEN q = utoipos(p), T = FpXT_red(T2,q);
   GEN pol = FpXQ_elldivpol(FpX_red(A41,q),FpX_red(A61,q),p,T,q);
   return FpXQX_normalize(RgX_deflate(pol,p),T,q);
 }
@@ -1033,7 +1033,7 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
   pari_sp av = avma, av2;
   pari_timer ti;
   long n = get_Flx_degree(T), N = (n+5)/2;
-  GEN q = powuu(p, N);
+  GEN pp = utoipos(p), q = powuu(p, N);
   GEN T2, j, t;
   GEN J1,A40,A41,A60,A61, sqx,Xm;
   GEN pol, h1, H;
@@ -1067,7 +1067,7 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
   pol = FpXQ_elldivpol(A40,A60,p,T2,q);
   if (DEBUGLEVEL) timer_printf(&ti,"p-division");
   h1 = get_H1(A41,A61,T2,p);
-  H = ZpXQX_liftrootmod_vald(pol,h1,1,T2,utoi(p),N);
+  H = ZpXQX_liftrootmod_vald(pol,h1,1,T2,pp,N);
   q = diviuexact(q,p); N--;
   if (DEBUGLEVEL) timer_printf(&ti,"kernel");
   c2 = getc5(H,A40,A60,A41,A61,T2,q,p,N);
@@ -1081,13 +1081,13 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
   }
   c2 = gerepileupto(av2, c2);
   q = powuu(p, N);
-  Nc2 = (ispcyc? ZpXQ_sqrtnorm_pcyc: ZpXQ_sqrtnorm)(c2, T2, q, utoi(p), N);
+  Nc2 = (ispcyc? ZpXQ_sqrtnorm_pcyc: ZpXQ_sqrtnorm)(c2, T2, q, pp, N);
   if (DEBUGLEVEL) timer_printf(&ti,"Norm");
   Np = get_norm(a4,a6,T,p,N);
   if (ispcyc)
   {
     GEN Ncpi = utoi(Fl_inv(umodiu(Nc2,p), p));
-    GEN tNc2 = Zp_sqrtnlift(gen_1, subss(p,1), Ncpi, utoi(p), N);
+    GEN tNc2 = Zp_sqrtnlift(gen_1, subss(p,1), Ncpi, pp, N);
     if (DEBUGLEVEL) timer_printf(&ti,"Teichmuller/Fp");
     Nc2 = Fp_mul(Nc2,tNc2,q);
   }
@@ -1379,7 +1379,7 @@ Flxq_ellcard_Kedlaya(GEN a4, GEN a6, GEN T, ulong p)
   GEN Tp = Flx_to_ZX(get_Flx_mod(T));
   long n = degpol(Tp), e = ((p < 16 ? n+1: n)>>1)+1;
   GEN M = ZlXQX_hyperellpadicfrobenius(H, Tp, p, e);
-  GEN N = ZpXQM_prodFrobenius(M, Tp, utoi(p), e);
+  GEN N = ZpXQM_prodFrobenius(M, Tp, utoipos(p), e);
   GEN q = powuu(p, e);
   GEN tp = Fq_add(gcoeff(N,1,1), gcoeff(N,2,2), Tp, q);
   GEN t = Fp_center_i(typ(tp)==t_INT ? tp: leading_coeff(tp), q, shifti(q,-1));
@@ -1464,7 +1464,7 @@ Flxq_ellcardj(GEN a4, GEN a6, ulong j, GEN T, GEN q, ulong p, long n)
     ulong w;
     GEN W, t, N;
     if (umodiu(q,6)!=1) return q1;
-    N = Fp_ffellcard(gen_0,gen_1,q,n,utoi(p));
+    N = Fp_ffellcard(gen_0,gen_1,q,n,utoipos(p));
     t = subii(q1, N);
     W = Flxq_pow(a6,diviuexact(shifti(q,-1), 3),T,p);
     if (degpol(W)>0) /*p=5 mod 6*/
@@ -1500,7 +1500,7 @@ Flxq_ellcardj(GEN a4, GEN a6, ulong j, GEN T, GEN q, ulong p, long n)
     W = Flxq_pow(a4,shifti(q,-2),T,p);
     if (degpol(W)>0) return q1; /*p=3 mod 4*/
     w = W[2];
-    N = Fp_ffellcard(gen_1,gen_0,q,n,utoi(p));
+    N = Fp_ffellcard(gen_1,gen_0,q,n,utoipos(p));
     if(w==1) return N;
     t = subii(q1, N);
     if(w==p-1) return addii(q1, t);
@@ -1516,7 +1516,7 @@ Flxq_ellcardj(GEN a4, GEN a6, ulong j, GEN T, GEN q, ulong p, long n)
   {
     ulong g = Fl_div(j, Fl_sub(1728%p, j, p), p);
     GEN l = Flxq_div(Flx_triple(a6,p),Flx_double(a4,p),T,p);
-    GEN N = Fp_ffellcard(utoi(Fl_triple(g,p)),utoi(Fl_double(g,p)),q,n,utoi(p));
+    GEN N = Fp_ffellcard(utoi(Fl_triple(g,p)),utoi(Fl_double(g,p)),q,n,utoipos(p));
     if (Flxq_issquare(l,T,p)) return N;
     return subii(shifti(q1,1),N);
   }
@@ -1533,7 +1533,7 @@ Flxq_ellcard(GEN a4, GEN a6, GEN T, ulong p)
   else if (p==3)
     r = F3xq_ellcardj(a4, a6, T, q, n);
   else if (degpol(a4)<=0 && degpol(a6)<=0)
-    r = Fp_ffellcard(utoi(Flx_eval(a4,0,p)),utoi(Flx_eval(a6,0,p)),q,n,utoi(p));
+    r = Fp_ffellcard(utoi(Flx_eval(a4,0,p)),utoi(Flx_eval(a6,0,p)),q,n,utoipos(p));
   else if (degpol(J=Flxq_ellj(a4,a6,T,p))<=0)
     r = Flxq_ellcardj(a4,a6,lgpol(J)?J[2]:0,T,q,p,n);
   else if (p <= 7)
@@ -1547,6 +1547,6 @@ Flxq_ellcard(GEN a4, GEN a6, GEN T, ulong p)
   else if (expi(q)<=62)
     r = Flxq_ellcard_Shanks(a4, a6, q, T, p);
   else
-    r = Fq_ellcard_SEA(Flx_to_ZX(a4),Flx_to_ZX(a6),q,Flx_to_ZX(T),utoi(p),0);
+    r = Fq_ellcard_SEA(Flx_to_ZX(a4),Flx_to_ZX(a6),q,Flx_to_ZX(T),utoipos(p),0);
   return gerepileuptoint(av, r);
 }

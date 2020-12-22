@@ -1169,7 +1169,7 @@ ellQ_goodl_l(GEN E, long l)
     if (umodiu(disc,p)==0) { i--; continue; }
     else
     {
-      long t = itos(ellap(E, utoi(p)));
+      long t = itos(ellap(E, utoipos(p)));
       if (l==2)
       {
         if (t%2==1) return 0;
@@ -1199,7 +1199,7 @@ ellnf_goodl_l(GEN E, GEN v)
   for(i=1; i<=20; i++)
   {
     ulong p = u_forprime_next(&T);
-    GEN pr = idealprimedec(nf, utoi(p));
+    GEN pr = idealprimedec(nf, utoipos(p));
     long j, k, lv = lg(v), g = lg(pr)-1;
     for (j=1; j<=g; j++)
     {
@@ -1300,7 +1300,7 @@ ellnf_prime_degree(GEN E)
   {
     ulong p = u_forprime_next(&T);
     if (dvdiu(bad, p)) {i--; continue;}
-    B = gcdii(B, ellnf_get_degree(E, utoi(p)));
+    B = gcdii(B, ellnf_get_degree(E, utoipos(p)));
     if (Z_issquareall(B,&rB)) B=rB;
   }
   if (signe(B)==0) pari_err_DOMAIN("ellisomat", "E","has",strtoGENstr("CM"),E);
@@ -1504,7 +1504,7 @@ ellisomat(GEN E, long p, long flag)
   GEN r = NULL, nf = NULL;
   long good = 1;
   if (flag < 0 || flag > 1) pari_err_FLAG("ellisomat");
-  if (p < 0) pari_err_PRIME("ellisomat", utoi(p));
+  if (p < 0) pari_err_PRIME("ellisomat", stoi(p));
   if (p == 1) { flag = 1; p = 0; } /* for backward compatibility */
   checkell(E);
   switch(ell_get_type(E))

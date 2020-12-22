@@ -1197,14 +1197,14 @@ static GEN
 _can5_invd(void *E, GEN H, GEN v, GEN qM, long M)
 {
   ulong p = *(long*)E;
-  return gen_ZpX_Dixon(gel(v,2), H, qM, utoi(p), M, E, _can5_lin, _can5_invl);
+  return gen_ZpX_Dixon(gel(v,2), H, qM, utoipos(p), M, E, _can5_lin, _can5_invl);
 }
 
 GEN
 Flx_Teichmuller(GEN P, ulong p, long n)
 {
   return p==3 ? F3x_frobeniuslift(P,n):
-         gen_ZpX_Newton(Flx_to_ZX(P),utoi(p), n, &p, _can5_iter, _can5_invd);
+         gen_ZpX_Newton(Flx_to_ZX(P),utoipos(p), n, &p, _can5_iter, _can5_invd);
 }
 
 GEN
@@ -1212,10 +1212,8 @@ polteichmuller(GEN P, ulong p, long n)
 {
   pari_sp av = avma;
   GEN q = NULL;
-  if (typ(P)!=t_POL || !RgX_is_FpX(P,&q))
-    pari_err_TYPE("polteichmuller",P);
-  if (q && !equaliu(q,p))
-    pari_err_MODULUS("polteichmuller",q,utoi(p));
+  if (typ(P)!=t_POL || !RgX_is_FpX(P,&q)) pari_err_TYPE("polteichmuller",P);
+  if (q && !equaliu(q,p)) pari_err_MODULUS("polteichmuller",q,utoi(p));
   if (n <= 0)
     pari_err_DOMAIN("polteichmuller", "precision", "<=",gen_0,stoi(n));
   return gerepileupto(av, p==2 ? F2x_Teichmuller(RgX_to_F2x(P), n)

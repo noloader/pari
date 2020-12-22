@@ -790,12 +790,12 @@ GEN
 ellpadicfrobenius(GEN E, ulong p, long n)
 {
   checkell(E);
-  if (p < 2) pari_err_DOMAIN("ellpadicfrobenius","p", "<", gen_2, utoi(p));
+  if (p < 2) pari_err_DOMAIN("ellpadicfrobenius","p", "<", gen_2, utoipos(p));
   switch(ell_get_type(E))
   {
     case t_ELL_Q: break;
     case t_ELL_Qp: if (equaliu(ellQp_get_p(E), p)) break;
-    default: pari_err_TYPE("ellpadicfrobenius",utoi(p));
+    default: pari_err_TYPE("ellpadicfrobenius", E);
   }
   return hyperellpadicfrobenius(ec_bmodel(E), p, n);
 }

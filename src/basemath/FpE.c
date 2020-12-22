@@ -1192,8 +1192,7 @@ Fl_ellcard_Shanks(ulong c4, ulong c6, ulong p)
         if (table[m].x < uel(ftest,1)) l=m+1; else r=m;
       }
       if (r < s && table[r].x == uel(ftest,1)) break;
-      if (Fle_add_inplace(ftest, fg, cp4, p))
-        pari_err_PRIME("ellap",utoi(p));
+      if (Fle_add_inplace(ftest, fg, cp4, p)) pari_err_PRIME("ellap",utoi(p));
     }
     h += table[r].i * B;
     if (table[r].y == uel(ftest,2))

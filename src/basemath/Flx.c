@@ -217,7 +217,7 @@ Rg_to_Fl(GEN x, ulong p)
     case t_INTMOD: {
       GEN q = gel(x,1), a = gel(x,2);
       if (absequaliu(q, p)) return itou(a);
-      if (!dvdiu(q,p)) pari_err_MODULUS("Rg_to_Fl", q, utoi(p));
+      if (!dvdiu(q,p)) pari_err_MODULUS("Rg_to_Fl", q, utoipos(p));
       return umodiu(a, p);
     }
     default: pari_err_TYPE("Rg_to_Fl",x);
@@ -2976,7 +2976,7 @@ Flxq_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, ulong p)
   q = powuu(p, d);
   if (dvdii(q, n))
   {
-    long vn = logint(an,utoi(p));
+    long vn = logint(an, utoipos(p));
     GEN autvn = vn==1 ? aut: Flxq_autpow(aut,vn,T,p);
     z = Flx_Flxq_eval(x,autvn,T,p);
   } else
@@ -3049,7 +3049,7 @@ Fl_Flxq_log(ulong a, GEN g, GEN o, GEN T, ulong p)
       g = Flxq_pow(g,q,T,p);
     }
   }
-  n_q = Fp_log(utoi(a), utoi(uel(g,2)), op, utoi(p));
+  n_q = Fp_log(utoi(a), utoipos(uel(g,2)), op, utoipos(p));
   if (lg(n_q)==1) return gerepileuptoleaf(av, n_q);
   if (q) n_q = mulii(q, n_q);
   return gerepileuptoint(av, n_q);
