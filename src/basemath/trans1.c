@@ -2157,10 +2157,10 @@ exp1r_abs(GEN x)
   L = l + nbits2extraprec(m);
  /* Multiplication is quadratic in this range (l is small, otherwise we
   * use logAGM + Newton). Set Y = 2^(-e-a) x, compute truncated series
-  * sum x^k/k!: this costs roughly
+  * sum_{k <= n} Y^k/k!: this costs roughly
   *    m b^2 + sum_{k <= n} (k e + BITS_IN_LONG)^2
-  * bit operations with |x| <  2^(1+a), |Y| < 2^(1-e) , m = e+a and b bits of
-  * accuracy needed, so
+  * bit operations with n ~ b/e, |x| <  2^(1+a), |Y| < 2^(1-e) , m = e+a and
+  * b bits of accuracy needed, so
   *    B := (b / 3 + BITS_IN_LONG + BITS_IN_LONG^2 / b) ~ m(m-a)
   * we want b ~ 3 m (m-a) or m~b+a hence
   *     m = min( a/2 + sqrt(a^2/4 + B),  b + a )
@@ -3345,7 +3345,7 @@ mpcosm1(GEN x, long *ptmod8)
   }
 
   y = cgetr(l);
-  B = b/6 + BITS_IN_LONG + (BITS_IN_LONG*BITS_IN_LONG/2)/ b;
+  B = b/6 + BITS_IN_LONG/2 + (BITS_IN_LONG*BITS_IN_LONG/2)/ b;
   d = a/2.; m = (long)(d + sqrt(d*d + B)); /* >= 0 ,*/
   if (m < (-a) * 0.1) m = 0; /* not worth it */
   L = l + nbits2extraprec(m);
@@ -3361,14 +3361,13 @@ mpcosm1(GEN x, long *ptmod8)
   * use logAGM + Newton). Set Y = 2^(-e-a) x, compute truncated series
   * sum Y^2k/(2k)!: this costs roughly
   *   m b^2 + sum_{k <= n} (2k e + BITS_IN_LONG)^2
-  *   ~ floor(b/2e) b^2 / 3  + m b^2
-  * bit operations with |x| <  2^(1+a), |Y| < 2^(1-e) , m = e+a and b bits of
-  * accuracy needed, so
-  *    B := ( b / 6 + BITS_IN_LONG + BITS_IN_LONG^2 / 2b) ~ m(m-a)
+  *   ~ (b/2e) b^2 / 3  + m b^2
+  * bit operations with n ~ b/2e, |x| <  2^(1+a), |Y| < 2^(1-e) , m = e+a and
+  * b bits of accuracy needed, so
+  *    B := (b / 6 + BITS_IN_LONG/2 + BITS_IN_LONG^2 / 2b) ~ m(m-a)
   * we want b ~ 6 m (m-a) or m~b+a hence
   *     m = min( a/2 + sqrt(a^2/4 + b/6),  b/2 + a )
-  * NB1: e ~ (b/6)^(1/2) or b/2.
-  * NB2: We use b/4 instead of b/6 in the formula above: hand-optimized...
+  * NB: e ~ (b/6)^(1/2) or b/2.
   *
   * Truncate the sum at k = n (>= 1), the remainder is
   * < sum_{k >= n+1} Y^2k / 2k! < Y^(2n+2) / (2n+2)!(1-Y^2) < Y^(2n+2)/(2n+1)!
