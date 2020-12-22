@@ -5487,7 +5487,7 @@ mf1dimmodp(GEN A, GEN E, GEN M, long ordchi, long dih, long lim)
 static GEN
 mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
 {
-  GEN E, EB, E1, E1i, mf, A, M, Tp, den, VC, C, POLCYC, DIH, a0, a0i, Minv;
+  GEN E, EB, E1i, mf, A, M, Tp, den, VC, C, POLCYC, DIH, Minv;
   long plim, lim, biglim, i, p, dA, dimp, ordchi, dih;
 
   if (pdih) *pdih = 0;
@@ -5559,11 +5559,11 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
     if (!pS) return utoipos(dih);
     return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pS);
   }
-  VC = gen_1; E1 = gel(E,1); /* does not vanish at oo */
+  VC = gen_1; /* E[1] does not vanish at oo */
   if (lg(E) > 2)
   {
     pari_sp btop;
-    GEN Ar = rowslice(A, 1, (3*lim)/2 + 1), M2 = mfmatsermul(Ar, E1);
+    GEN Ar = rowslice(A, 1, (3*lim)/2 + 1), M2 = mfmatsermul(Ar, gel(E,1));
     GEN v, y, M2M2I, M2I;
     M2I = QabM_pseudoinv(M2, POLCYC, ordchi, &v, &den);
     M2M2I = RgM_mul(M2,M2I);
@@ -5580,15 +5580,7 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
     }
     A = RgM_mul(A, vecslice(VC,1, lg(Ar)-1));
   }
-  a0 = gel(E1,2); /* nonzero */
-  if (gequal1(a0)) a0 = a0i = NULL;
-  else
-  {
-    a0i = ginv(a0);
-    E1 = RgX_Rg_mul(RgX_unscale(E1,a0), a0i);
-  }
-  E1i = RgXn_inv(E1, plim-1);
-  if (a0) E1i = RgX_Rg_mul(RgX_unscale(E1i, a0i), a0i);
+  E1i = RgXn_inv(gel(E,1), plim-1);
   A = mfstabiter(&VC, Tp, A, E1i, lim, POLCYC, ordchi);
   if (!A) return NULL;
   dA = lg(A); if (!pS) return utoi(dA-1);
