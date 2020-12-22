@@ -7707,14 +7707,13 @@ $x$ modulo $p$, yielding a \typ{VECSMALL}.
 
 \fun{GEN}{ZM_to_zm}{GEN z}, converts coefficients using \kbd{itos}
 
-\fun{GEN}{FqC_to_FlxC}{GEN x, GEN T, GEN p}, converts coefficients in \kbd{Fq}
+\fun{GEN}{FqC_to_FlxC}{GEN x, GEN T, ulong p}, converts coefficients in \kbd{Fq}
 to coefficient in Flx, result being a column vector.
 
-\fun{GEN}{FqV_to_FlxV}{GEN x, GEN T, GEN p}, converts coefficients in \kbd{Fq}
-to coefficient in Flx, result being a line vector.
+\fun{GEN}{FqV_to_FlxV}{GEN x, GEN T, ulong p}, converts coefficients in \kbd{Fq}
+to coefficient in Flx, result being a row vector.
 
-
-\fun{GEN}{FqM_to_FlxM}{GEN x, GEN T, GEN p}, converts coefficients in \kbd{Fq}
+\fun{GEN}{FqM_to_FlxM}{GEN x, GEN T, ulong p}, converts coefficients in \kbd{Fq}
 to coefficient in Flx.
 
 \subsubsec{From single precision}

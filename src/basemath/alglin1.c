@@ -1634,7 +1634,7 @@ FqM_gauss_pivot(GEN x, GEN T, GEN p, long *rr)
     pari_sp av = avma;
     ulong pp = uel(p,2);
     GEN Tp = ZXT_to_FlxT(T, pp);
-    GEN d = FlxqM_gauss_pivot(FqM_to_FlxM(x, T, p), Tp, pp, rr);
+    GEN d = FlxqM_gauss_pivot(FqM_to_FlxM(x, T, pp), Tp, pp, rr);
     return d ? gerepileuptoleaf(av, d): d;
   }
   return FqM_gauss_pivot_gen(x, T, p, rr);
@@ -1911,7 +1911,7 @@ FqM_ker_i(GEN x, GEN T, GEN p, long deplin)
   {
     pari_sp ltop=avma;
     ulong l= p[2];
-    GEN Ml = FqM_to_FlxM(x, T, p);
+    GEN Ml = FqM_to_FlxM(x, T, l);
     GEN Tl = ZXT_to_FlxT(T,l);
     GEN p1 = FlxM_to_ZXM(FlxqM_ker(Ml,Tl,l));
     return gerepileupto(ltop,p1);
@@ -4539,7 +4539,7 @@ ZabM_inv_slice(GEN A, GEN Q, GEN P, GEN *mod)
   if (n == 1)
   {
     ulong p = uel(P,1);
-    GEN Ap = FqM_to_FlxM(A, Q, utoi(p));
+    GEN Ap = FqM_to_FlxM(A, Q, p);
     GEN Qp = ZX_to_Flx(Q, p);
     GEN Hp = FlkM_adjoint(Ap, Qp, p);
     Hp = gerepileupto(av, FlxM_to_ZXM(Hp));
@@ -4641,7 +4641,7 @@ ZabM_inv_ratlift(GEN M, GEN P, long n, GEN *pden)
     GEN Hp, Pp, Mp, Hr;
     do p += n; while(!uisprime(p));
     Pp = ZX_to_Flx(P, p);
-    Mp = FqM_to_FlxM(M, P, utoi(p));
+    Mp = FqM_to_FlxM(M, P, p);
     Hp = FlkM_inv(Mp, Pp, p);
     if (!Hp) continue;
     if (!H)
@@ -4711,7 +4711,7 @@ ZabM_ker(GEN M, GEN P, long n)
     GEN Kp, Hp, Dp, Pp, Mp, Hr;
     do p += n; while(!uisprime(p));
     Pp = ZX_to_Flx(P, p);
-    Mp = FqM_to_FlxM(M, P, utoi(p));
+    Mp = FqM_to_FlxM(M, P, p);
     Kp = FlkM_ker(Mp, Pp, p);
     if (!Kp) continue;
     Hp = gel(Kp,1); Dp = gel(Kp,2);
@@ -4757,7 +4757,7 @@ ZabM_indexrank(GEN M, GEN P, long n)
     do p += n; while (!uisprime(p));
     pi = get_Fl_red(p);
     R = Flx_roots(ZX_to_Flx(P, p), p);
-    Mp = FqM_to_FlxM(M, P, utoipos(p));
+    Mp = FqM_to_FlxM(M, P, p);
     K = FlxM_eval_powers_pre(Mp, Fl_powers_pre(uel(R,1), D,p,pi), p,pi);
     v = Flm_indexrank(K, p);
     l = lg(gel(v,2));

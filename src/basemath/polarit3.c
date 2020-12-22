@@ -834,7 +834,7 @@ FqV_roots_to_pol(GEN V, GEN T, GEN p, long v)
   {
     ulong pp = p[2];
     GEN Tl = ZX_to_Flx(T, pp);
-    GEN Vl = FqV_to_FlxV(V, T, p);
+    GEN Vl = FqV_to_FlxV(V, T, pp);
     Tl = FlxqV_roots_to_pol(Vl, Tl, pp, v);
     return gerepileupto(ltop, FlxX_to_ZXX(Tl));
   }
@@ -886,25 +886,23 @@ FqC_FqV_mul(GEN x, GEN y, GEN T, GEN p)
 }
 
 GEN
-FqV_to_FlxV(GEN x, GEN T, GEN pp)
+FqV_to_FlxV(GEN x, GEN T, ulong p)
 {
   long vT = evalvarn(get_FpX_var(T));
-  ulong p = pp[2];
   pari_APPLY_type(t_VEC, typ(gel(x,i))==t_INT?  Z_to_Flx(gel(x,i), p, vT)
                                              : ZX_to_Flx(gel(x,i), p))
 }
 
 GEN
-FqC_to_FlxC(GEN x, GEN T, GEN pp)
+FqC_to_FlxC(GEN x, GEN T, ulong p)
 {
   long vT = evalvarn(get_FpX_var(T));
-  ulong p = pp[2];
   pari_APPLY_type(t_COL, typ(gel(x,i))==t_INT?  Z_to_Flx(gel(x,i), p, vT)
                                              : ZX_to_Flx(gel(x,i), p))
 }
 
 GEN
-FqM_to_FlxM(GEN x, GEN T, GEN p)
+FqM_to_FlxM(GEN x, GEN T, ulong p)
 { pari_APPLY_same(FqC_to_FlxC(gel(x,i), T, p)) }
 
 GEN

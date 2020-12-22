@@ -923,7 +923,7 @@ GEN     random_FpXQX(long d1, long v, GEN T, GEN p);
 /* FpV.c */
 
 GEN     Flc_Flv_mul(GEN x, GEN y, ulong p);
-GEN     Flc_to_mod(GEN z, ulong pp);
+GEN     Flc_to_mod(GEN z, ulong p);
 GEN     Flm_Fl_add(GEN x, ulong y, ulong p);
 GEN     Flm_Fl_mul(GEN y, ulong x, ulong p);
 void    Flm_Fl_mul_inplace(GEN y, ulong x, ulong p);
@@ -940,7 +940,7 @@ GEN     Flm_neg(GEN y, ulong p);
 GEN     Flm_powers(GEN x, ulong n, ulong p);
 GEN     Flm_powu(GEN x, ulong n, ulong p);
 GEN     Flm_sub(GEN x, GEN y, ulong p);
-GEN     Flm_to_mod(GEN z, ulong pp);
+GEN     Flm_to_mod(GEN z, ulong p);
 GEN     Flm_transpose(GEN x);
 GEN     Flv_Fl_div(GEN x, ulong y, ulong p);
 void    Flv_Fl_div_inplace(GEN x, ulong y, ulong p);
@@ -4840,7 +4840,7 @@ GEN     ZV_lcm(GEN x);
 
 /* polarit3.c */
 
-GEN     Flx_FlxY_resultant(GEN a, GEN b, ulong pp);
+GEN     Flx_FlxY_resultant(GEN a, GEN b, ulong p);
 GEN     FlxX_resultant(GEN u, GEN v, ulong p, long sx);
 GEN     FpX_FpXY_resultant(GEN a, GEN b0, GEN p);
 GEN     FpX_translate(GEN P, GEN c, GEN p);
@@ -4869,11 +4869,11 @@ GEN     FqC_Fq_mul(GEN x, GEN y, GEN T, GEN p);
 GEN     FqC_FqV_mul(GEN x, GEN y, GEN T, GEN p);
 GEN     FqC_add(GEN x, GEN y, GEN T, GEN p);
 GEN     FqC_sub(GEN x, GEN y, GEN T, GEN p);
-GEN     FqC_to_FlxC(GEN v, GEN T, GEN pp);
-GEN     FqM_to_FlxM(GEN x, GEN T, GEN pp);
+GEN     FqC_to_FlxC(GEN v, GEN T, ulong p);
+GEN     FqM_to_FlxM(GEN x, GEN T, ulong p);
 GEN     FqV_red(GEN z, GEN T, GEN p);
 GEN     FqV_roots_to_pol(GEN V, GEN T, GEN p, long v);
-GEN     FqV_to_FlxV(GEN v, GEN T, GEN pp);
+GEN     FqV_to_FlxV(GEN v, GEN T, ulong p);
 GEN     FqX_Fq_add(GEN y, GEN x, GEN T, GEN p);
 GEN     FqX_Fq_mul_to_monic(GEN P, GEN U, GEN T, GEN p);
 GEN     FqX_Fq_sub(GEN y, GEN x, GEN T, GEN p);

@@ -26,6 +26,8 @@ BA   2- fplll: fast, dpe and heuristic variants
 HC   1- faster implementation of eulervec + cache result
      2- sumnummonieninit(,1): faster algorithm (complex step)
      3- atanh(rational) now uses binary splitting
+     4- prototype of FqV_to_FlxV, FqC_to_FlxC, FqM_to_FlxM: argument 'p' is
+        an ulong, no longer a GEN
 
 Done for version 2.13.0 (released 19/10/2020):
   Fixed
