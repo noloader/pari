@@ -1002,10 +1002,8 @@ RgX_recipspec_shallow(GEN x, long l, long n)
   long i;
   GEN z = cgetg(n+2,t_POL);
   z[1] = 0; z += 2;
-  for(i=0; i<l; i++)
-    gel(z,n-i-1) = gel(x,i);
-  for(   ; i<n; i++)
-    gel(z, n-i-1) = gen_0;
+  for(i=0; i<l; i++) gel(z,n-i-1) = gel(x,i);
+  for(   ; i<n; i++) gel(z, n-i-1) = gen_0;
   return normalizepol_lg(z-2,n+2);
 }
 
