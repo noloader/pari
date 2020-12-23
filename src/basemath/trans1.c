@@ -3863,6 +3863,16 @@ mptan(GEN x)
   return gerepileuptoleaf(av, divrr(s,c));
 }
 
+/* If exp(-|im(x)|) << 1, avoid overflow in sincos(x) */
+static int
+tan_huge_im(GEN ix, long prec)
+{
+  long b, p = precision(ix);
+  if (!p) p = prec;
+  b = bit_accuracy(p);
+  return (gexpo(ix) > b || fabs(gtodouble(ix)) > (M_LN2 / 2) * b);
+}
+
 GEN
 gtan(GEN x, long prec)
 {
@@ -3875,6 +3885,8 @@ gtan(GEN x, long prec)
 
     case t_COMPLEX: {
       if (isintzero(gel(x,1))) retmkcomplex(gen_0,gtanh(gel(x,2),prec));
+      if (tan_huge_im(gel(x,2), prec))
+        return (gsigne(gel(x,2)) > 0)? gen_I(): mkcomplex(gen_0, gen_m1);
       av = avma; y = mulcxmI(gtanh(mulcxI(x), prec)); /* tan x = -I th(I x) */
       gel(y,1) = gcopy(gel(y,1));
       return gerepileupto(av, y);
@@ -3922,13 +3934,13 @@ gcotan(GEN x, long prec)
     case t_COMPLEX:
       if (isintzero(gel(x,1))) {
         GEN z = cgetg(3, t_COMPLEX);
-        gel(z,1) = gen_0;
-        av = avma;
+        gel(z,1) = gen_0; av = avma;
         gel(z,2) = gerepileupto(av, gneg(ginv(gtanh(gel(x,2),prec))));
         return z;
       }
-      av = avma;
-      gsincos(x,&s,&c,prec);
+      if (tan_huge_im(gel(x,2), prec))
+        return (gsigne(gel(x,2)) > 0)? gen_I(): mkcomplex(gen_0, gen_m1);
+      av = avma; gsincos(x,&s,&c,prec);
       return gerepileupto(av, gdiv(c,s));
 
     case t_INT: case t_FRAC:
