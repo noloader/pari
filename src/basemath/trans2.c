@@ -1140,15 +1140,15 @@ cxgamma(GEN s0, int dolog, long prec)
     if (fabs(ssig-1) + fabs(st) < 1e-16)
     { /* s ~ 1: loggamma(1+u) ~ - Euler * u, cancellation */
       if (funeq) /* s0 ~ 0: use lngamma(s0)+log(s0) = lngamma(s0+1) */
-      {
-        if (dolog)
-          y = gsub(lngamma1(s0,prec), glog(s0,prec));
-        else
-          y = gdiv(gexp(lngamma1(s0,prec), prec), s0);
-      }
+        y = dolog? gsub(lngamma1(s0,prec), glog(s0,prec))
+                 : gdiv(gexp(lngamma1(s0,prec), prec), s0);
       else
       {
-        if (isint1(s0)) { set_avma(av); return dolog? real_0(prec): real_1(prec); }
+        if (isint1(s0))
+        {
+          set_avma(av);
+          return dolog? real_0(prec): real_1(prec);
+        }
         y = lngamma1(gsubgs(s0,1),prec);
         if (!dolog) y = gexp(y,prec);
       }
@@ -1947,6 +1947,21 @@ err_psi(GEN s)
   pari_err_DOMAIN("psi","argument", "=",
                   strtoGENstr("nonpositive integer"), s);
 }
+/* L ~ |log s|^2 */
+static long
+psi_lim(double L, double la, long prec)
+{
+  double d = (prec2nbits_mul(prec, 2*M_LN2) - log(L)) / (4*(1+log(la)));
+  return (d < 2)? 2: 2 + (long)ceil(d);
+}
+/* max(|log (s + it - Euler)|, 1e-6) */
+static double
+dlogE(double s, double t)
+{
+  double rlog, ilog;
+  dcxlog(s - 0.57721566, t, &rlog,&ilog);
+  return maxdd(dnorm(rlog,ilog), 1e-6);
+}
 static GEN
 cxpsi(GEN s0, long prec)
 {
@@ -1966,42 +1981,24 @@ cxpsi(GEN s0, long prec)
   { /* |s| is HUGE. Play safe */
     GEN L, S = gprec_w(s,LOWDEFAULTPREC), rS = real_i(S), iS = imag_i(S);
     double l;
-
-    l = rtodbl( gnorm(glog(S, 3)) );
-    l = log(l) / 2.;
-    lim = 2 + (long)ceil((prec2nbits_mul(prec, M_LN2) - l) / (2*(1+log((double)la))));
-    if (lim < 2) lim = 2;
-
+    lim = psi_lim(rtodbl(gnorm(glog(S,LOWDEFAULTPREC))), la, prec);
     l = (2*lim-1)*la / (2.*M_PI);
     L = gsub(dbltor(l*l), gsqr(iS));
     if (signe(L) < 0) L = gen_0;
-
-    L = gsub(gsqrt(L, 3), rS);
+    L = gsub(gsqrt(L, LOWDEFAULTPREC), rS);
     if (signe(L) > 0) nn = (long)ceil(rtodbl(L)); else nn = 1;
-    if (DEBUGLEVEL>2) err_printf("lim, nn: [%ld, %ld]\n",lim,nn);
   }
   else
   {
-    double ssig = rtodbl(sig);
-    double st = typ(s) == t_REAL? 0.0: rtodbl(imag_i(s));
-    double l;
-    {
-      double rlog, ilog; /* log (s - Euler) */
-      dcxlog(ssig - 0.57721566, st, &rlog,&ilog);
-      l = dnorm(rlog,ilog);
-    }
-    if (l < 0.000001) l = 0.000001;
-    l = log(l) / 2.;
-    lim = 2 + (long)ceil((prec2nbits_mul(prec, M_LN2) - l) / (2*(1+log((double)la))));
-    if (lim < 2) lim = 2;
-
+    double l, rS = rtodbl(sig), iS = typ(s) == t_REAL? 0.0: rtodbl(imag_i(s));
+    lim = psi_lim(dlogE(rS, iS), la, prec);
     l = (2*lim-1)*la / (2.*M_PI);
-    l = l*l - st*st;
+    l = l*l - iS*iS;
     if (l < 0.) l = 0.;
-    nn = (long)ceil( sqrt(l) - ssig );
+    nn = (long)ceil( sqrt(l) - rS );
     if (nn < 1) nn = 1;
-    if (DEBUGLEVEL>2) err_printf("lim, nn: [%ld, %ld]\n",lim,nn);
   }
+  if (DEBUGLEVEL>2) err_printf("lim, nn: [%ld, %ld]\n",lim,nn);
   incrprec(prec); unr = real_1(prec); /* one extra word of precision */
   s2 = gmul2n(s, 1); sq = gsqr(s);
   a = gdiv(unr, gaddgs(s, nn)); /* 1 / (s+n) */
