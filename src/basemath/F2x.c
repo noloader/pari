@@ -745,17 +745,19 @@ F2xn_inv_basecase1(ulong x)
   w = u&v; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1);
   w = u&v; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1);
   for (i=1;i<=4;i++)
-   { w = u&v; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1); }
+  { w = u&v; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1); }
   for (i=1;i<=8;i++)
-   { w = u&v; w ^= w >> 8; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1); }
+  { w = u&v; w ^= w >> 8; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1;
+    v = (w&1UL)|(v<<1); }
   for (i=1;i<=16;i++)
-   { w = u&v; w ^= w >> 16; w ^= w >> 8; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1); }
+  { w = u&v; w ^= w >> 16; w ^= w >> 8; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1;
+    v = (w&1UL)|(v<<1); }
 #ifdef LONG_IS_64BIT
   for (i=1; i<=32; i++)
-   { w = u&v; w ^= w >> 32; w ^= w >> 16; w ^= w >> 8; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1;
-   v = (w&1UL)|(v<<1); }
+  { w = u&v; w ^= w >> 32; w ^= w >> 16; w ^= w >> 8; w ^= w >> 4; w ^= w >> 2;
+    w ^= w >> 1; v = (w&1UL)|(v<<1); }
 #endif
-  return (F2x_recip1(v)<<1)|1UL;
+  return (F2x_recip1(v)<<1) | 1UL;
 }
 
 static GEN

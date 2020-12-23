@@ -4587,7 +4587,8 @@ ZabM_true_Hadamard(GEN a)
   if (n == 0) return gen_1;
   if (n == 1) return gnorml1_fake(gcoeff(a,1,1));
   B = gen_1;
-  for (i = 1; i <= n; i++) B = gmul(B, gnorml2(RgC_gtofp(vecnorml1(gel(a,i)),DEFAULTPREC)));
+  for (i = 1; i <= n; i++)
+    B = gmul(B, gnorml2(RgC_gtofp(vecnorml1(gel(a,i)),DEFAULTPREC)));
   return gerepileuptoint(av, ceil_safe(sqrtr_abs(B)));
 }
 
