@@ -5461,7 +5461,7 @@ mf1dimmodp(GEN A, GEN E, GEN M, long ordchi, long dih, long lim)
 
   Ap = QabM_to_Flm(A, r, p);
   E1p = QabX_to_Flx(gel(E,1), r, p);
-  if (lg(E) >= 3)
+  if (lg(E) > 2)
   {
     GEN M2 = mfmatsermul_Fl(Ap, E1p, p);
     pari_sp av = avma;
