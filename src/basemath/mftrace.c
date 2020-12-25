@@ -5487,7 +5487,7 @@ mf1dimmodp(GEN A, GEN E, GEN M, long ordchi, long dih, long lim)
 static GEN
 mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
 {
-  GEN E, EB, E1i, mf, A, M, Tp, den, VC, C, POLCYC, DIH, Minv;
+  GEN E, EB, E1i, mf, A, M, Tp, VC, C, POLCYC, DIH, Minv;
   long plim, lim, biglim, i, p, dA, dimp, ordchi, dih;
 
   if (pdih) *pdih = 0;
@@ -5564,7 +5564,7 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
   {
     pari_sp btop;
     GEN Ar = rowslice(A, 1, (3*lim)/2 + 1), M2 = mfmatsermul(Ar, gel(E,1));
-    GEN v, y, M2M2I, M2I;
+    GEN v, y, M2M2I, M2I, den;
     M2I = QabM_pseudoinv(M2, POLCYC, ordchi, &v, &den);
     M2M2I = RgM_mul(M2,M2I);
     y = gel(v,1); btop = avma;
