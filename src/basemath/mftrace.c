@@ -5423,22 +5423,22 @@ mfstabitermodp(GEN Mp, GEN Ap, long p, long lim)
 }
 
 static GEN
-mfintereis(GEN *pVC, GEN A, GEN M2, GEN y, GEN den, GEN E2, GEN P, long ordchi)
+mfintereis(GEN *pVC, GEN A, GEN M2, GEN y, GEN den, GEN E, GEN P, long ordchi)
 {
-  GEN z, M1 = mfmatsermul(A,E2), M1den = isint1(den)? M1: RgM_Rg_mul(M1,den);
-  M2 = RgM_mul(M2, rowpermute(M1, y));
-  z = QabM_ker(RgM_sub(M2,M1den), P, ordchi);
+  GEN z, M = mfmatsermul(A,E), Mden = isint1(den)? M: RgM_Rg_mul(M,den);
+  M2 = RgM_mul(M2, rowpermute(M, y));
+  z = QabM_ker(RgM_sub(M2,Mden), P, ordchi);
   if (lg(z) == 1) return NULL;
   if (ordchi > 2) z = gmodulo(z, P);
   *pVC = typ(*pVC) == t_INT? z: RgM_mul(*pVC, z);
   return RgM_mul(A,z);
 }
 static GEN
-mfintereismodp(GEN *pVC, GEN A, GEN M2, GEN E2, long dih, ulong p)
+mfintereismodp(GEN *pVC, GEN A, GEN M2, GEN E, long dih, ulong p)
 {
-  GEN M1 = mfmatsermul_Fl(A, E2, p), z;
+  GEN M = mfmatsermul_Fl(A, E, p), z;
   long j, lx = lg(A);
-  z = Flm_ker(shallowconcat(M1, M2), p);
+  z = Flm_ker(shallowconcat(M, M2), p);
   j = lg(z) - 1; if (j == dih) return NULL;
   for (; j; j--) setlg(z[j], lx);
   *pVC = *pVC? Flm_mul(*pVC, z, p): z;
@@ -5564,13 +5564,13 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
   {
     pari_sp btop;
     GEN Ar = rowslice(A, 1, (3*lim)/2 + 1), M2 = mfmatsermul(Ar, gel(E,1));
-    GEN v, y, M2M2I, M2I, den;
-    M2I = QabM_pseudoinv(M2, POLCYC, ordchi, &v, &den);
-    M2M2I = RgM_mul(M2,M2I);
+    GEN v, y, I, M2i, den;
+    M2i = QabM_pseudoinv(M2, POLCYC, ordchi, &v, &den);
+    I = RgM_mul(M2,M2i);
     y = gel(v,1); btop = avma;
     for (i = 2; i < lg(E); i++)
     {
-      Ar = mfintereis(&VC, Ar, M2M2I, y, den, gel(E,i), POLCYC,ordchi);
+      Ar = mfintereis(&VC, Ar, I, y, den, gel(E,i), POLCYC,ordchi);
       if (!Ar) return NULL;
       if (gc_needed(btop, 1))
       {
@@ -11284,7 +11284,7 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
 static GEN
 mf2basis(long N, long r, GEN CHI, GEN *pCHI1, long space)
 {
-  GEN CHI1, CHI2, mf1, mf2, B1, B2, BT, M1, M2, M, M2I, T, Th, v, den;
+  GEN CHI1, CHI2, mf1, mf2, B1, B2, BT, M1, M2, M, M2i, T, Th, v, den;
   long sb, N2, o1, o2, k1 = r + 1;
 
   if (odd(k1))
@@ -11324,8 +11324,8 @@ mf2basis(long N, long r, GEN CHI, GEN *pCHI1, long space)
     }
   }
   /* now everything is defined mod T = mfcharpol(CHI1) */
-  M2I = QabM_pseudoinv_i(M2, T, o1, &v, &den);
-  M = RgM_mul(M2I, rowpermute(M1, gel(v,1)));
+  M2i = QabM_pseudoinv_i(M2, T, o1, &v, &den);
+  M = RgM_mul(M2i, rowpermute(M1, gel(v,1)));
   M = RgM_mul(M2, M);
   M1 = RgM_Rg_mul(M1, den);
   M = RgM_sub(M1, M); if (T) M = RgXQM_red(M, T);
