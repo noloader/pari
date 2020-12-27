@@ -262,12 +262,12 @@ mfcoefs(F,6,2)
 [mf,F,coe]=mffromqf(2*matid(2),3); vec(F)
 
 mfwt1all(N,mf)=
-{ for(i=1,#mf,
-    my(vtf = mf[i][3], [G,c] = mf[i][1][3], chi = znconreyexp(G,c));
-    mf[i] = [chi, vector(#vtf,j,lift(vec(vtf[j])))]
-  );print(N,": ",mf);
+{ my(mf=mfinit([N,1,0],1));
+  if (#mf, print(N,": ",
+      vector(#mf, i, my(v = mf[i][3], [G,c] = mf[i][1][3]);
+            [znconreyexp(G,c), vector(#v,j,lift(vec(v[j])))])));
 }
-for(N=1,150,my(mf=mfinit([N,1,0],1));if(#mf,mfwt1all(N,mf)));
+for(N=1,150,mfwt1all(N));
 for(N=1,150,print1([N,mfdim([N,1,-1],1),mfdim([N,1,-1],0)]," "));
 mfdim([23,1,0])
 mfdim([23,1,0],0)
