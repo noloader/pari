@@ -261,7 +261,7 @@ mfcoefs(F,6,2)
 [mf,F,coe]=mffromqf(2*matid(2),(x+I*y)^3); vec(F)
 [mf,F,coe]=mffromqf(2*matid(2),3); vec(F)
 
-mfwt1all(N,mf)=
+mfwt1all(N)=
 { my(mf=mfinit([N,1,0],1));
   if (#mf, print(N,": ",
       vector(#mf, i, my(v = mf[i][3], [G,c] = mf[i][1][3]);
