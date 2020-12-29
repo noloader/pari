@@ -2408,10 +2408,12 @@ Q_primitive_part(GEN x, GEN *ptc)
 }
 GEN
 Q_primpart(GEN x) { return Q_primitive_part(x, NULL); }
-
 GEN
 vec_Q_primpart(GEN x)
 { pari_APPLY_same(Q_primpart(gel(x,i))) }
+GEN
+row_Q_primpart(GEN M)
+{ return shallowtrans(vec_Q_primpart(shallowtrans(M))); }
 
 /*******************************************************************/
 /*                                                                 */

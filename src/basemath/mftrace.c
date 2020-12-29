@@ -203,7 +203,7 @@ static GEN
 QabM_ker(GEN M, GEN P, long n)
 {
   if (n <= 2) return QM_ker(M);
-  return ZabM_ker(Q_primpart(liftpol_shallow(M)), P, n);
+  return ZabM_ker(row_Q_primpart(liftpol_shallow(M)), P, n);
 }
 /* pseudo-inverse of M. FIXME: should replace QabM_pseudoinv */
 static GEN
@@ -5589,8 +5589,8 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
     pari_sp av = avma;
     for (i = 2; i <= nE; i++)
     {
-      GEN e = Q_primpart(RgXn_mul(E1i, gel(E,i), LIM));
-      GEN z, B = mfmatsermul(F, e), Bden = rowslice(B, lim+1, LIM);
+      GEN z, e = Q_primpart(RgXn_mul(E1i, gel(E,i), LIM));
+      GEN B = liftpol_shallow(mfmatsermul(F,e)), Bden = rowslice(B,lim+1,LIM);
       GEN B2 = RgM_mul(I, rowpermute(B, Mindex));
       if (den) Bden = RgM_Rg_mul(Bden, den);
       z = QabM_ker(RgM_sub(B2,Bden), POLCYC, ordchi);

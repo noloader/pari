@@ -3373,10 +3373,6 @@ ZM_ker(GEN M)
   return gerepilecopy(av, ZM_ker_i(M));
 }
 
-static GEN
-row_Q_primpart(GEN M)
-{ return shallowtrans(vec_Q_primpart(shallowtrans(M))); }
-
 GEN
 QM_ker(GEN M)
 {

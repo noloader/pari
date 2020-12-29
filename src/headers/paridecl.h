@@ -4834,6 +4834,7 @@ GEN     gcdext0(GEN x, GEN y);
 GEN     polresultantext0(GEN x, GEN y, long v);
 GEN     polresultantext(GEN x, GEN y);
 GEN     prime_fact(GEN x);
+GEN     row_Q_primpart(GEN M);
 GEN     vec_Q_primpart(GEN M);
 GEN     vecprod(GEN v);
 GEN     ZV_lcm(GEN x);

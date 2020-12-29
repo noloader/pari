@@ -12210,7 +12210,11 @@ of \kbd{x} and returns \kbd{x / c}, which is integral.
 \fun{GEN}{Q_primpart}{GEN x} as above but the content is lost. (For
 efficiency, the content remains on the stack.)
 
-\fun{GEN}{vec_Q_primpart}{GEN x} as above component-wise.
+\fun{GEN}{vec_Q_primpart}{GEN x} as above component-wise. Applied to a
+\typ{MAT}, the result has primitive columns.
+
+\fun{GEN}{row_Q_primpart}{GEN x} as above, applied to the rows of a
+\typ{MAT}, so that the result has primitive rows. Not \kbd{gerepile}-safe.
 
 \fun{GEN}{Q_remove_denom}{GEN x, GEN *ptd} sets \kbd{d} to the
 $\Q$-denominator of \kbd{x} and returns \kbd{x * d}, which is integral.

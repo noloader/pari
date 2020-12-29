@@ -22,6 +22,7 @@ BA   2- fplll: fast, dpe and heuristic variants
      3- dirpowerssum: allow a completely multiplicative function
      4- [libpari] atanhuu, atanhui, powcx, powcx_prec
      5- new GP function lfunparams (initial implementation P. Molin)
+     6- [libpari] row_Q_primpart
 
   Changed
 HC   1- faster implementation of eulervec + cache result
