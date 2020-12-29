@@ -5471,9 +5471,11 @@ mf1dimmodp(GEN E, GEN Tp, long ordchi, long dih, GEN TMP)
       z = Flm_ker(Flm_sub(B2, B, p), p);
       if (lg(z)-1 == dih) return dih;
       C = C? Flm_mul(C, z, p): z;
+      if (i == nE) break;
       F = Flm_mul(F, z, p);
       gerepileall(av, 2, &F,&C);
     }
+    A = Flm_mul(A, C, p);
   }
   /* intersection of Eisenstein series quotients non empty: use Schaeffer */
   A = mfmatsermul_Fl(A, E1i, p);
@@ -5490,6 +5492,7 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
 {
   GEN E, EB, E1i, dE1i, mf, A, M, Tp, C, POLCYC, DIH, Minv;
   long plim, lim, biglim, i, p, dA, dimp, ordchi, dih;
+  pari_timer tt;
 
   if (pdih) *pdih = 0;
   if (pS) *pS = NULL;
@@ -5546,7 +5549,12 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
       if (N == 288 && (m != 31 && m !=223)) return NULL;
       if (N == 296 && (m !=105 && m !=265)) return NULL;
   }
-  if (!TMP) TMP = mf1_pre(N);
+  if (DEBUGLEVEL) timer_start(&tt);
+  if (!TMP)
+  {
+    TMP = mf1_pre(N);
+    if (DEBUGLEVEL) timer_printf(&tt, "mf1basis: S_2");
+  }
   lim = gel(TMP,1)[1]; p = gel(TMP,1)[2]; plim = p*lim;
   mf  = gel(TMP,2);
   A   = gel(TMP,3); /* p*lim x dim matrix */
@@ -5554,6 +5562,7 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
   E = RgM_to_RgXV(mfvectomat(EB, plim+1, 1), 0);
   Tp = Tpmat(p, lim, CHI);
   dimp = mf1dimmodp(E, Tp, ordchi, dih, TMP);
+  if (DEBUGLEVEL) timer_printf(&tt, "mf1basis: dim mod p is %ld", dimp);
   if (!dimp) return NULL;
   if (dimp == dih)
   {
@@ -5598,7 +5607,9 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
     }
     A = RgM_mul(A, C);
   }
+  if (DEBUGLEVEL) timer_printf(&tt, "mf1basis: intersection");
   A = mfstabiter(&C, Tp, mfmatsermul(A, E1i), dE1i, lim, POLCYC, ordchi);
+  if (DEBUGLEVEL) timer_printf(&tt, "mf1basis: Hecke stability");
   if (!A) return NULL;
   dA = lg(A); if (!pS) return utoi(dA-1);
   M = cgetg(dA, t_MAT);
@@ -6771,12 +6782,15 @@ mfinit_i(GEN NK, long space)
     if (k == 1 && dk == 1 && space != mf_EISEN)
     {
       GEN TMP, gN, gs;
+      pari_timer tt;
       if (space != mf_CUSP && space != mf_NEW)
         pari_err_IMPL("mfinit([N,1,wildcard], space != cusp or new space)");
       if (wt1empty(N)) return mfEMPTYall(N, gen_1, CHI, space);
       vCHI = mf1chars(N,vCHI);
       l = lg(vCHI); mf = cgetg(l, t_VEC); if (l == 1) return mf;
+      if (DEBUGLEVEL) timer_start(&tt);
       TMP = mf1_pre(N); gN = utoipos(N); gs = utoi(space);
+      if (DEBUGLEVEL) timer_printf(&tt, "mf1basis: S_2(%ld)", N);
       for (i = j = 1; i < l; i++)
       {
         pari_sp av = avma;
@@ -6786,6 +6800,9 @@ mfinit_i(GEN NK, long space)
           if (CHI) z = mfEMPTY(mkvec4(gN,gen_1,c,gs));
         }
         if (z) gel(mf, j++) = z;
+        if (DEBUGLEVEL)
+          timer_printf(&tt, "mf1basis: character %ld / %ld (order = %ld)",
+                       i, l-1, mfcharorder(c));
       }
     }
     else
