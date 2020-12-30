@@ -3666,7 +3666,7 @@ Fp_pow(GEN A, GEN K, GEN N)
   sA = sy && mod2(K);
   if (lgefint(y) == 3) switch(y[2])
   {
-    case 1: return sA ? gen_m1 : gen_1;
+    case 1:  set_avma(av); return sA ? subis(N,1): gen_1;
     case 2:  base_is_2 = 1; break;
   }
 

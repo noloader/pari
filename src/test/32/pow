@@ -38,6 +38,8 @@ x + O(x^4)
 
 O(x^0)
 0.E-19
+Mod(2, 3)
+Mod(4, 5)
   ***   at top-level: Mod(2,3)^(1/2)
   ***                         ^------
   *** _^_: not an n-th power residue in gpow: Mod(2, 3).
@@ -75,4 +77,4 @@ d(9, 11), Mod(7, 11), Mod(3, 11), Mod(6, 11), Mod(1, 11)]
 [2, 6, 18, 54, 162, 486]
 []
 [1]
-Total time spent: 1
+Total time spent: 0
