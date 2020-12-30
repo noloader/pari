@@ -5397,20 +5397,23 @@ mftreatdihedral(GEN DIH, GEN POLCYC, long ordchi, long biglim, GEN *pS)
 static GEN
 mfstabiter(GEN *pC, GEN T, GEN A, GEN dE1i, long lim, GEN P, long ordchi)
 {
-  GEN con, C = dE1i? dE1i: gen_1;
+  GEN con, C = NULL, cC = dE1i;
   for(;;)
   {
     GEN R = shallowconcat(RgM_mul(T,A), rowslice(A,1,lim));
     GEN B = QabM_ker(R, P, ordchi);
     long lA = lg(A), lB = lg(B);
     if (lB == 1) return NULL;
-    if (lB == lA) { *pC = gmul(*pC, C); return A; }
+    if (lB == lA) break;
     B = rowslice(B, 1, lA-1);
-    if (ordchi > 2) B = gmodulo(B, P);
+    if (P) B = gmodulo(B, P);
     A = Q_primitive_part(RgM_mul(A,B), &con);
-    C = gmul(C, B); /* first C is a scalar, then a RgM */
-    if (con) C = RgM_Rg_div(C, con);
+    C = C? RgM_mul(C, B): B;
+    cC = div_content(cC, con);
   }
+  if (*pC) C = C? RgM_mul(*pC, C): *pC;
+  if (cC) C = RgM_Rg_mul(C, cC);
+  *pC = C; return A;
 }
 static long
 mfstabitermodp(GEN Mp, GEN Ap, long lim, long p)
@@ -5571,7 +5574,9 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
   }
   E1i = RgXn_inv(gel(E,1), plim-1); /* E[1] does not vanish at oo */
   E1i = Q_remove_denom(E1i, &dE1i); /* 1/E[1] = E1i / dE1i */
-  C = gen_1;
+  if (DEBUGLEVEL) timer_printf(&tt, "mf1basis: invert E");
+
+  C = NULL;
   if (lg(E) > 2)
   { /* mf attached to S2(N), fi = mfbasis(mf)
      * M = coefs(f1,...,fd) up to LIM
@@ -5595,8 +5600,8 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
       if (den) Bden = RgM_Rg_mul(Bden, den);
       z = QabM_ker(RgM_sub(B2,Bden), POLCYC, ordchi);
       if (lg(z) == 1) return NULL;
-      if (ordchi > 2) z = gmodulo(z, POLCYC);
-      C = typ(C) == t_INT? z: RgM_mul(C, z);
+      if (POLCYC) z = gmodulo(z, POLCYC);
+      C = C? RgM_mul(C, z): z;
       if (i == nE) break;
       F = RgM_mul(F,z);
       if (gc_needed(av, 1))
