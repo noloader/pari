@@ -5392,25 +5392,31 @@ mftreatdihedral(GEN DIH, GEN POLCYC, long ordchi, long biglim, GEN *pS)
   *pS = vecmflinear(DIH, C); return M;
 }
 
+static GEN
+_RgXQM_mul(GEN x, GEN y, GEN T)
+{ return T? RgXQM_mul(x, y, T): RgM_mul(x, y); }
 /* largest T-stable Q(CHI)-subspace of Q(CHI)-vector space spanned by columns
  * of A */
 static GEN
 mfstabiter(GEN *pC, GEN T, GEN A, GEN dE1i, long lim, GEN P, long ordchi)
 {
-  GEN con, C = dE1i? dE1i: gen_1;
+  GEN con, C = NULL, cC = dE1i;
   for(;;)
   {
     GEN R = shallowconcat(RgM_mul(T,A), rowslice(A,1,lim));
     GEN B = QabM_ker(R, P, ordchi);
     long lA = lg(A), lB = lg(B);
     if (lB == 1) return NULL;
-    if (lB == lA) { *pC = gmul(*pC, C); return A; }
+    if (lB == lA) break;
     B = rowslice(B, 1, lA-1);
-    if (ordchi > 2) B = gmodulo(B, P);
-    A = Q_primitive_part(RgM_mul(A,B), &con);
-    C = gmul(C, B); /* first C is a scalar, then a RgM */
-    if (con) C = RgM_Rg_div(C, con);
+    A = _RgXQM_mul(A, B, P);
+    A = Q_primitive_part(A, &con);
+    C = C? _RgXQM_mul(C, B, P): B;
+    cC = div_content(cC, con);
   }
+  if (*pC) C = C? _RgXQM_mul(*pC, C, P): *pC;
+  if (cC) C = RgM_Rg_mul(C, cC);
+  *pC = C; return A;
 }
 static long
 mfstabitermodp(GEN Mp, GEN Ap, long lim, long p)
@@ -5570,8 +5576,10 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
     return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pS);
   }
   E1i = RgXn_inv(gel(E,1), plim-1); /* E[1] does not vanish at oo */
+  if (POLCYC) E1i = liftpol_shallow(E1i);
   E1i = Q_remove_denom(E1i, &dE1i); /* 1/E[1] = E1i / dE1i */
-  C = gen_1;
+  if (DEBUGLEVEL) timer_printf(&tt, "mf1basis: invert E");
+  C = NULL;
   if (lg(E) > 2)
   { /* mf attached to S2(N), fi = mfbasis(mf)
      * M = coefs(f1,...,fd) up to LIM
@@ -5589,16 +5597,18 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
     pari_sp av = avma;
     for (i = 2; i <= nE; i++)
     {
-      GEN z, e = Q_primpart(RgXn_mul(E1i, gel(E,i), LIM));
-      GEN B = liftpol_shallow(mfmatsermul(F,e)), Bden = rowslice(B,lim+1,LIM);
-      GEN B2 = RgM_mul(I, rowpermute(B, Mindex));
+      GEN e = gel(E,i), z, B, Bden, B2;
+      if (POLCYC) e = liftpol_shallow(e);
+      e = RgXn_mul(E1i, e, LIM);
+      B = mfmatsermul(F, Q_primpart(e)); if (POLCYC) B = RgXQM_red(B, POLCYC);
+      Bden = rowslice(B,lim+1,LIM);
+      B2 = RgM_mul(I, rowpermute(B, Mindex));
       if (den) Bden = RgM_Rg_mul(Bden, den);
       z = QabM_ker(RgM_sub(B2,Bden), POLCYC, ordchi);
       if (lg(z) == 1) return NULL;
-      if (ordchi > 2) z = gmodulo(z, POLCYC);
-      C = typ(C) == t_INT? z: RgM_mul(C, z);
+      C = C? _RgXQM_mul(C, z, POLCYC): z;
       if (i == nE) break;
-      F = RgM_mul(F,z);
+      F = _RgXQM_mul(F, z, POLCYC);
       if (gc_needed(av, 1))
       {
         if (DEBUGMEM > 1) pari_warn(warnmem,"mf1basis i = %ld", i);
@@ -5608,10 +5618,12 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
     A = RgM_mul(A, C);
   }
   if (DEBUGLEVEL) timer_printf(&tt, "mf1basis: intersection");
-  A = mfstabiter(&C, Tp, mfmatsermul(A, E1i), dE1i, lim, POLCYC, ordchi);
+  A = mfmatsermul(A, E1i); if (POLCYC) A = RgXQM_red(A, POLCYC);
+  A = mfstabiter(&C, Tp, A, dE1i, lim, POLCYC, ordchi);
   if (DEBUGLEVEL) timer_printf(&tt, "mf1basis: Hecke stability");
   if (!A) return NULL;
   dA = lg(A); if (!pS) return utoi(dA-1);
+  if (POLCYC) { A = gmodulo(A, POLCYC); C = gmodulo(C, POLCYC); }
   M = cgetg(dA, t_MAT);
   for (i = 1; i < dA; i++)
   {
