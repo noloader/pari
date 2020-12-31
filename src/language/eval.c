@@ -439,24 +439,21 @@ INLINE void
 restore_vars(long nbmvar, long nblvar, long nblock)
 {
   long j;
-  for(j=1;j<=nbmvar;j++)
-    freelex();
-  for(j=1;j<=nblvar;j++)
-    { s_lvars.n--; pop_val(lvars[s_lvars.n]); }
-  for(j=1;j<=nblock;j++)
-    { s_locks.n--; gunclone(locks[s_locks.n]); }
+  for(j=1; j<=nbmvar; j++) freelex();
+  for(j=1; j<=nblvar; j++) { s_lvars.n--; pop_val(lvars[s_lvars.n]); }
+  for(j=1; j<=nblock; j++) { s_locks.n--; gunclone(locks[s_locks.n]); }
 }
 
 INLINE void
 restore_trace(long nbtrace)
 {
   long j;
-  for(j=1;j<=nbtrace;j++)
+  for(j=1; j<=nbtrace; j++)
   {
     GEN C = trace[s_trace.n-j].closure;
     clone_unlock(C);
   }
-  s_trace.n-=nbtrace;
+  s_trace.n -= nbtrace;
 }
 
 INLINE long
@@ -1664,11 +1661,8 @@ void
 evalstate_reset(void)
 {
   mtstate_reset();
-  sp = 0;
-  rp = 0;
-  dbg_level = 0;
   restore_vars(s_var.n, s_lvars.n, s_locks.n);
-  s_trace.n = 0;
+  sp = rp = dbg_level = s_trace.n = 0;
   reset_break();
   compilestate_reset();
   parsestate_reset();
