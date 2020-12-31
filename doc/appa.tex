@@ -16,25 +16,25 @@ to fetch \kbd{gcc} at the address
 $$\url{http://www.gnu.org/order/ftp.html}$$
 %
 (On Mac OS X, this is also provided in the \kbd{Xcode} tool
-suite; or the lightweight ``Command-line tools for \kbd{Xcode}''.) You can
-certainly compile PARI with a different compiler, but the PARI kernel takes
-advantage of optimizations provided by \kbd{gcc}. This results in at least
+suite; or the lightweight ``Command-Line Tools (CLT) for \kbd{Xcode}''.) You can
+compile PARI with a different compiler, but the PARI kernel takes advantage
+of optimizations provided by \kbd{gcc}. Compiling with GCC results in at least
 20\% speedup on most architectures.
 
-\misctitle{Optional libraries and programs} The following programs and libraries are useful
-in conjunction with \kbd{gp}, but not mandatory. In any case, get them before
-proceeding if you want the functionalities they provide. All of them are free.
-The download page on our website
+\misctitle{Optional libraries and programs} The following programs and libraries
+are useful in conjunction with \kbd{gp}, but not mandatory. In any case, get them
+before proceeding if you want the functionality they provide. All of libraries
+and programs are free. The download page on our website
 $$
 \url{http://pari.math.u-bordeaux.fr/download.html}
 $$
-contains pointers on how to get these.
+contains pointers on how to get them.
 
-  \item GNU \kbd{MP} library. This provides an alternative multiprecision
-kernel, which is faster than PARI's native one, but unfortunately binary
-incompatible, so the resulting PARI library SONAME is libpari-gmp.
+  \item GNU \kbd{MP} (GMP) library. GMP provides an alternative multiprecision
+kernel, which is faster than PARI's native one. When using GMP the
+binaries incompatible, so the resulting PARI library \kbd{SONAME} is libpari-gmp.
 
-  \item GNU \kbd{readline} library. This provides line editing under
+  \item GNU \kbd{readline} library. Readline provides line editing under
 \kbd{gp}, an automatic context-dependent completion, and an editable history
 of commands.
 
@@ -59,7 +59,7 @@ can be used under \kbd{gp} or independently.
 
 \noindent in the toplevel directory. This attempts to configure PARI/GP
 without outside help. Note that if you want to install the end product in
-some nonstandard place, you can use the \kbd{--prefix} option, as in
+a nonstandard place, you can use the \kbd{--prefix} option, as in
 
 \kbd{./Configure --prefix=}\var{/an/exotic/directory}
 
@@ -68,13 +68,17 @@ package for a Linux distribution, you may want to use
 
 \kbd{./Configure --prefix=/usr}
 
-This phase extracts some files and creates a \var{build directory}, names
-\kbd{O}\var{osname}\kbd{-}\var{arch}, where the
-object files and executables will be built. The
-\var{osname} and \var{arch} components depends on your architecture and
-operating system, thus you can build PARI/GP for several different machines
-from the same source tree (the builds are independent and can be done
-simultaneously).
+The command
+
+\kbd{./Configure --build=osname-arch}
+
+\noindent configures the build for a particular system. It extracts some files
+and creates a \var{build directory}, named \kbd{O}\var{osname}\kbd{-}\var{arch},
+where the object files and executables will be built. The \var{osname} and
+\var{arch} components depends on your architecture and operating system, thus
+you can build PARI/GP for several different machines from the same source tree.
+When building for multiple machines the builds are independent and can be
+performed simultaneously.
 
 Decide whether you agree with what \kbd{Configure} printed on your screen, in
 particular the architecture, compiler and optimization flags. Look for
@@ -84,7 +88,7 @@ and the \kbd{perl} and \kbd{gunzip} (or \kbd{zcat}) binaries.
 If anything should have been found and was not, consider that \kbd{Configure}
 failed and follow the instructions in section~3.
 
-The \kbd{Configure} run creates a file \kbd{config.log} in the build
+The \kbd{Configure} script creates a file \kbd{config.log} in the build
 directory, which contains debugging information --- in particular, all
 messages from compilers ---  that may help diagnose problems. This file
 is erased and recreated from scratch each time \kbd{Configure} is run.
@@ -92,28 +96,36 @@ is erased and recreated from scratch each time \kbd{Configure} is run.
 \subsec{Advanced configuration}
 \kbd{Configure} accepts many other flags, and you may use any number of them
 to build quite a complicated configuration command. See \kbd{Configure
---help} for a complete list. In particular, there are sets of flags related
-to GNU MP (\kbd{--with-gmp*}) and GNU readline library
-(\kbd{--with-readline*}).
+--help} for a complete list. In particular, GMP is configured using the set
+of flags \kbd{--with-gmp*}, and Readline is configured using the set
+of flags \kbd{--with-readline*}.
 
-Here, we focus on the nonobvious ones:
+\kbd{--with-gmp: enables a particular installation of GMP. If GMP was installed
+in \kbd{/an/exotic/directory}, then you can use
+\kbd{--with-gmp=/an/exotic/directory} to find the headers and libraries.
 
-\kbd{--tune}: fine tunes the library for the host used for compilation. This
-adjusts thresholds by running a large number of comparative tests and creates
-a file \kbd{tune.h} in the build directory, that will be used from now on,
-overriding the ones in \kbd{src/kernel/none/} and \kbd{src/kernel/gmp/}. It
-will take a while: about 30 minutes. Expect a small
-performance boost, perhaps a 10\% speed increase
-compared to default settings.
-
-If you are using GMP, tune it first, then PARI. Make sure you tune PARI on
-the machine that will actually run your computations. Do not use a heavily
+If you are using GMP, tune it first, then tune PARI. Make sure you tune PARI
+on the machine that will actually run your computations. Do not use a heavily
 loaded machine for tunings.
 
-You may speed up the compilation by using a parallel make:
+\kbd{--with-readline: enables a particular installation of Readline. If
+Readline was installed in \kbd{/an/exotic/directory}, then you can use
+\kbd{--with-readline=/an/exotic/directory} to find the headers and libraries.
+
+\kbd{make -jN}: You may speed up the compilation by using a parallel make.
+The command below tells make to execute 4 recipes simultaneously.
 \bprog
-  env MAKE="make -j4" Configure --tune
+  env MAKE="make -j4" Configure
 @eprog
+
+Next, we focus on some of the nonobvious options used by \kbd{Configure}:
+
+\kbd{--tune}: fine tunes the library for the host used for compilation.
+Tuning the package adjusts thresholds by running a large number of comparative
+tests and creates a file \kbd{tune.h} in the build directory, that will be
+used from now on, overriding the ones in \kbd{src/kernel/none/} and
+\kbd{src/kernel/gmp/}. It will take a while: about 30 minutes. Expect a small
+performance boost, perhaps a 10\% speed increase compared to default settings.
 
 \kbd{--graphic=}\var{lib}: enables a particular graphic library.
 The default is \kbd{X11} on most platforms, but PARI can use
@@ -157,7 +169,7 @@ requires the pthread library.
 For benchmarking, it is often useful to set \kbd{--time=ftime} so that GP
 report wall-clock instead of the sum of the time spent by each thread.
 
-\item mpi: use the MPI interface to parallelism.  This allows to take
+\item mpi: use the MPI interface to parallelism.  This allows PARI to take
 advantage of clusters using MPI. This option requires a MPI library.
 It is usually necessary to set the environment variable \kbd{CC} to
 \kbd{mpicc}.
@@ -172,14 +184,16 @@ documentation, type
 
 \kbd{make all}
 
-\noindent To only compile the \kbd{gp} binary, type
+\noindent from the build directory. Recall the build directory is
+\kbd{osname-arch}, and it is passed to \kbd{Configure} using the option
+\kbd{--build=osname-arch}. To only compile the \kbd{gp} binary, type
 
 \kbd{make gp}
 
 \noindent in the toplevel directory. If your \kbd{make} program supports
 parallel make, you can speed up the process by going to the build
 directory that \kbd{Configure} created and doing a parallel make here, for
-instance \kbd{make -j4} with GNU make. It should even work from the toplevel
+instance \kbd{make -j4} with GNU make. It should also work from the toplevel
 directory.
 
 \subsec{Basic tests}
@@ -215,7 +229,11 @@ of them, and default answers are provided. If you accept all default answers,
 \kbd{Configure} will fail just the same, so be wary. In any case, we would
 appreciate a bug report (see the last section).
 
-\subsec{Installation directories} The precise default destinations are as
+\subsec{Installation directories} The install location of programs and
+libraries is controlled by \kbd{--prefix} configure option. The default
+location is \kbd{/usr/local}.
+
+The precise destinations of programs and libraries are as
 follows: the \kbd{gp} binary, the scripts \kbd{gphelp} and \kbd{tex2mail} go
 to \kbd{\$prefix/bin}. The pari library goes to \kbd{\$prefix/lib} and
 include files to \kbd{\$prefix/include/pari}. Other system-dependent data go
