@@ -5376,13 +5376,13 @@ RgV_normalize(GEN v, GEN *pc)
 }
 /* pS != NULL; dim > 0 */
 static GEN
-mftreatdihedral(GEN DIH, GEN POLCYC, long ordchi, long biglim, GEN *pS)
+mftreatdihedral(long N, GEN DIH, GEN POLCYC, long ordchi, GEN *pS)
 {
-  long l = lg(DIH), i;
+  long l = lg(DIH), lim = mfsturmNk(N, 1), i;
   GEN Minv, C = cgetg(l, t_VEC), M = cgetg(l, t_MAT);
   for (i = 1; i < l; i++)
   {
-    GEN c, v = mfcoefs_i(gel(DIH,i), biglim, 1);
+    GEN c, v = mfcoefs_i(gel(DIH,i), lim, 1);
     gel(M,i) = RgV_normalize(v, &c);
     gel(C,i) = Rg_col_ei(c, l-1, i);
   }
@@ -5494,7 +5494,7 @@ static GEN
 mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
 {
   GEN E, EB, E1i, dE1i, mf, A, M, Tp, C, POLCYC, DIH, Minv;
-  long plim, lim, biglim, i, p, dA, dimp, ordchi, dih;
+  long plim, lim, i, p, dA, dimp, ordchi, dih;
   pari_timer tt;
 
   if (pdih) *pdih = 0;
@@ -5514,7 +5514,6 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
   }
   POLCYC = (ordchi <= 2)? NULL: mfcharpol(CHI);
   if (pdih) *pdih = dih;
-  biglim = mfsturmNk(N, 2);
   if (N <= 600) switch(N)
   {
     long m;
@@ -5535,7 +5534,7 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
       if (dih)
       {
         if (!pS) return utoipos(dih);
-        return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pS) ;
+        return mftreatdihedral(N, DIH, POLCYC, ordchi, pS) ;
       }
       m = mfcharno(mfcharinduce(CHI,N));
       if (N == 124 && (m != 67 && m != 87)) return NULL;
@@ -5570,7 +5569,7 @@ mf1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *pdih)
   if (dimp == dih)
   {
     if (!pS) return utoipos(dih);
-    return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pS);
+    return mftreatdihedral(N, DIH, POLCYC, ordchi, pS);
   }
   E1i = RgXn_inv(gel(E,1), plim-1); /* E[1] does not vanish at oo */
   E1i = Q_remove_denom(E1i, &dE1i); /* 1/E[1] = E1i / dE1i */
